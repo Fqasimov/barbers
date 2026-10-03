@@ -62,6 +62,9 @@
     "preset": "jest-expo",
     "testMatch": [
       "**/__tests__/**/*.test.ts?(x)"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/promo"
     ]
   }
 }
