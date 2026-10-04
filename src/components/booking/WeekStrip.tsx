@@ -32,7 +32,7 @@ export function WeekStrip({ days, selected, onSelect, now }: Props) {
             accessibilityRole="radio"
             accessibilityState={{ selected: active, disabled: off }}
             accessibilityLabel={`${i18n.shortDate(d.date)}, ${
-              d.off ? i18n.t('closed') : off ? i18n.t('fullyBooked') : i18n.n(d.slots.length, 'slot')
+              d.off ? i18n.t('offDay') : off ? i18n.t('fullyBooked') : i18n.n(d.slots.length, 'slot')
             }`}
           >
             <Animated.View

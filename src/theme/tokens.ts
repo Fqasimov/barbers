@@ -61,7 +61,7 @@ export const palettes = { light, dark };
 export type Palette = typeof light;
 export type Scheme = keyof typeof palettes;
 
-/** Launch screen is always ink, matching the native splash. */
+/** Launch screen colours, matching the native splash (linen + steel shears). */
 export const brand = {
   ink: '#0F0E0D',
   linen: '#F3EFE8',

@@ -100,6 +100,7 @@ export const strings = {
   following: L('İzlənilir', 'Вы следите', 'Following'),
   openingHours: L('İş saatları', 'Часы работы', 'Opening hours'),
   closed: L('Bağlı', 'Выходной', 'Closed'),
+  offDay: L('İstirahət', 'Выходной', 'Day off'),
   goodToKnow: L('Bilmək faydalıdır', 'Полезно знать', 'Good to know'),
   readAll: L('Bütün rəylər', 'Все отзывы', 'All reviews'),
   rateVisit: L('Ziyarətinizi qiymətləndirin', 'Оцените визит', 'Rate your visit'),

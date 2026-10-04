@@ -8,6 +8,7 @@ import { CompareTray } from '@/components/CompareTray';
 import { SalonCard } from '@/components/SalonCard';
 import { SalonRow } from '@/components/SalonRow';
 import { SlotCard } from '@/components/SlotCard';
+import { StatusScrim } from '@/components/StatusScrim';
 import { useTabBarInset } from '@/components/TabBar';
 import { Avatar } from '@/components/ui/Avatar';
 import { PressableScale } from '@/components/ui/PressableScale';
@@ -231,6 +232,7 @@ export default function Discover() {
           {i18n.t('rankingNote')}
         </Text>
       </ScrollView>
+      <StatusScrim />
       <CompareTray bottom={bottom - 12} />
     </View>
   );

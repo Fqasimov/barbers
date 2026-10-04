@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/EmptyState';
 import { SalonPhoto } from '@/components/SalonPhoto';
+import { StatusScrim } from '@/components/StatusScrim';
 import { useTabBarInset } from '@/components/TabBar';
 import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
@@ -54,45 +55,48 @@ export default function BookingsScreen() {
   const list = tab === 'upcoming' ? upcoming : past;
 
   return (
-    <ScrollView
-      style={{ backgroundColor: c.bg }}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: bottom, paddingHorizontal: gutter }}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text variant="largeTitle" accessibilityRole="header">
-        {i18n.t('tabBookings')}
-      </Text>
-      <SegmentedControl<Tab>
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'upcoming', label: `${i18n.t('upcoming')}${upcoming.length ? ` · ${upcoming.length}` : ''}` },
-          { value: 'past', label: i18n.t('past') },
-        ]}
-        style={{ marginTop: 16, marginBottom: 8 }}
-      />
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <ScrollView
+        style={{ backgroundColor: c.bg }}
+        contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: bottom, paddingHorizontal: gutter }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text variant="largeTitle" accessibilityRole="header">
+          {i18n.t('tabBookings')}
+        </Text>
+        <SegmentedControl<Tab>
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'upcoming', label: `${i18n.t('upcoming')}${upcoming.length ? ` · ${upcoming.length}` : ''}` },
+            { value: 'past', label: i18n.t('past') },
+          ]}
+          style={{ marginTop: 16, marginBottom: 8 }}
+        />
 
-      {list.length === 0 ? (
-        tab === 'upcoming' ? (
-          <EmptyState
-            icon={CalendarDays}
-            title={i18n.t('emptyUpcomingTitle')}
-            body={i18n.t('emptyUpcomingBody')}
-            action={{ label: i18n.t('discoverPlaces'), onPress: () => router.navigate('/') }}
-          />
+        {list.length === 0 ? (
+          tab === 'upcoming' ? (
+            <EmptyState
+              icon={CalendarDays}
+              title={i18n.t('emptyUpcomingTitle')}
+              body={i18n.t('emptyUpcomingBody')}
+              action={{ label: i18n.t('discoverPlaces'), onPress: () => router.navigate('/') }}
+            />
+          ) : (
+            <EmptyState icon={CalendarDays} title={i18n.t('emptyPastTitle')} body={i18n.t('emptyPastBody')} />
+          )
         ) : (
-          <EmptyState icon={CalendarDays} title={i18n.t('emptyPastTitle')} body={i18n.t('emptyPastBody')} />
-        )
-      ) : (
-        <View style={{ gap: 14, marginTop: 12 }}>
-          {list.map((b) => (
-            <Animated.View key={b.id} layout={REFLOW} exiting={LEAVE}>
-              <BookingCard booking={b} past={tab === 'past'} />
-            </Animated.View>
-          ))}
-        </View>
-      )}
-    </ScrollView>
+          <View style={{ gap: 14, marginTop: 12 }}>
+            {list.map((b) => (
+              <Animated.View key={b.id} layout={REFLOW} exiting={LEAVE}>
+                <BookingCard booking={b} past={tab === 'past'} />
+              </Animated.View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+      <StatusScrim />
+    </View>
   );
 }
 

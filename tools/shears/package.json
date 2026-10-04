@@ -1,0 +1,8 @@
+{
+  "name": "usta-shears-render",
+  "private": true,
+  "description": "Renders the 3D steel shears used by the splash, app icon and promo.",
+  "dependencies": {
+    "three": "0.186.1"
+  }
+}

@@ -3,48 +3,36 @@ import { Easing, staticFile } from "remotion";
 
 /** Same palette and type as the app (src/theme/tokens.ts). */
 export const color = {
-  paper: "#F3EFE8",
-  surface: "#FBF9F5",
-  ink: "#17140F",
-  inkSoft: "#5C554B",
-  inkMuted: "#6B645A",
-  line: "#E1DBD0",
-  accent: "#8A5A22",
-  night: "#0E0D0B",
-  brass: "#CFA772",
-  brassDeep: "#9C7039",
-  brassLight: "#EBCF9F",
-  bone: "#F3EFE8",
+  linen: "#F3EFE8",
+  surface: "#FFFFFF",
+  sunken: "#EAE5DC",
+  ink: "#141210",
+  inkSoft: "#5B554C",
+  inkMuted: "#6A6359",
+  line: "#E3DDD3",
+  nar: "#B4233C",
+  shadow: "#2A2015",
 };
 
-export const font = {
-  serif: "Newsreader",
-  sans: "Geist",
-  mono: "Geist Mono",
-};
+export const font = "Onest";
 
 /** Emil Kowalski's curves — the same ones the app uses. */
 export const ease = {
   out: Easing.bezier(0.23, 1, 0.32, 1),
   inOut: Easing.bezier(0.77, 0, 0.175, 1),
-  expo: Easing.bezier(0.16, 1, 0.3, 1),
+  /** iOS sheet / push curve. */
+  ios: Easing.bezier(0.32, 0.72, 0, 1),
 };
 
 export const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-const faces: [string, string, string, "normal" | "italic"][] = [
-  [font.serif, "Newsreader_300Light.ttf", "300", "normal"],
-  [font.serif, "Newsreader_300Light_Italic.ttf", "300", "italic"],
-  [font.serif, "Newsreader_400Regular.ttf", "400", "normal"],
-  [font.serif, "Newsreader_400Regular_Italic.ttf", "400", "italic"],
-  [font.sans, "Geist_400Regular.ttf", "400", "normal"],
-  [font.sans, "Geist_500Medium.ttf", "500", "normal"],
-  [font.mono, "GeistMono_400Regular.ttf", "400", "normal"],
-  [font.mono, "GeistMono_500Medium.ttf", "500", "normal"],
+const faces: [string, string][] = [
+  ["Onest_400Regular.ttf", "400"],
+  ["Onest_500Medium.ttf", "500"],
+  ["Onest_600SemiBold.ttf", "600"],
+  ["Onest_700Bold.ttf", "700"],
 ];
 
 export const fontsReady = Promise.all(
-  faces.map(([family, file, weight, style]) =>
-    loadFont({ family, url: staticFile(`fonts/${file}`), weight, style }),
-  ),
+  faces.map(([file, weight]) => loadFont({ family: font, url: staticFile(`fonts/${file}`), weight })),
 );

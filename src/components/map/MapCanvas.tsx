@@ -3,6 +3,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 
 import { boundsOf } from '@/lib/geo';
+import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { RatingPin } from './RatingPin';
@@ -48,6 +49,7 @@ function OriginDot() {
 }
 
 export function MapCanvas({ items, activeId, origin, showsUser, onSelect, insets }: MapCanvasProps) {
+  const i18n = useI18n();
   const { scheme } = useTheme();
   const ref = useRef<MapView>(null);
   // Custom marker views are rasterised: track changes briefly after each update, then freeze.
@@ -114,7 +116,7 @@ export function MapCanvas({ items, activeId, origin, showsUser, onSelect, insets
             zIndex={active ? 10 : 1}
             tracksViewChanges={tracking}
             onPress={() => onSelect(item.salon.id)}
-            accessibilityLabel={`${item.salon.name}, ★ ${item.live.rating.toFixed(1)}`}
+            accessibilityLabel={`${item.salon.name}, ★ ${i18n.rating(item.live.rating)}`}
           >
             <RatingPin rating={item.live.rating} active={active} best={i === 0} />
           </Marker>
