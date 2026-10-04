@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "usta",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#0E0D0B",
+    "backgroundColor": "#F3EFE8",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.usta.booking",
@@ -18,7 +18,7 @@
     "android": {
       "package": "app.usta.booking",
       "adaptiveIcon": {
-        "backgroundColor": "#0E0D0B",
+        "backgroundColor": "#F3EFE8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -33,9 +33,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0E0D0B",
+          "backgroundColor": "#F3EFE8",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200
+          "imageWidth": 280
         }
       ],
       [

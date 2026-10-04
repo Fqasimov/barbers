@@ -1,3 +1,4 @@
+import type { Loc } from '@/i18n/types';
 import type { ToneName } from '@/theme/tokens';
 
 export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup';
@@ -6,21 +7,23 @@ export type Coords = { latitude: number; longitude: number };
 
 export type PriceLevel = 1 | 2 | 3;
 
-export type Motif = 'stripes' | 'arcs' | 'grid' | 'waves' | 'rays' | 'dots';
+export type Language = 'az' | 'ru' | 'en' | 'tr';
 
 export type Service = {
   id: string;
-  name: string;
+  /** Catalogue key shared across venues ("fade"), used by city-wide search. */
+  key: string;
+  name: Loc;
   category: CategoryId;
   durationMin: number;
   price: number;
-  description?: string;
+  description?: Loc;
 };
 
 export type Master = {
   id: string;
   name: string;
-  role: string;
+  role: Loc;
   years: number;
   rating: number;
   reviewCount: number;
@@ -30,21 +33,21 @@ export type Master = {
   workDays: number[];
   shift: { start: string; end: string };
   tone: ToneName;
+  languages: Language[];
 };
 
 export type Salon = {
   id: string;
   name: string;
-  kind: string;
+  kind: Loc;
   categories: CategoryId[];
-  tagline: string;
-  about: string;
+  tagline: Loc;
+  about: Loc;
   address: string;
   district: string;
   coords: Coords;
   priceLevel: PriceLevel;
   tone: ToneName;
-  motif: Motif;
   /** Aggregate from the platform before this device's reviews. */
   rating: number;
   reviewCount: number;
@@ -53,11 +56,12 @@ export type Salon = {
   hours: { open: string; close: string };
   closedDays: number[];
   phone: string;
-  amenities: string[];
+  /** WhatsApp number in international format, digits only. */
+  whatsapp: string;
+  womenOnly?: boolean;
+  amenities: Loc[];
   services: Service[];
   masters: Master[];
-  /** Optional remote photo — covers fall back to generated art. */
-  imageUrl?: string;
 };
 
 export type Review = {
@@ -69,9 +73,11 @@ export type Review = {
   text: string;
   /** ISO date. */
   date: string;
-  serviceName?: string;
+  serviceName?: Loc;
   tags?: string[];
   mine?: boolean;
+  /** Every review is tied to a completed visit. */
+  bookingId?: string;
 };
 
 export type BookingStatus = 'upcoming' | 'cancelled';

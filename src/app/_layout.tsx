@@ -1,13 +1,10 @@
-import { Geist_400Regular, Geist_500Medium, Geist_600SemiBold } from '@expo-google-fonts/geist';
-import { GeistMono_400Regular, GeistMono_500Medium } from '@expo-google-fonts/geist-mono';
 import {
-  Newsreader_300Light,
-  Newsreader_300Light_Italic,
-  Newsreader_400Regular,
-  Newsreader_400Regular_Italic,
-  Newsreader_500Medium,
+  Onest_400Regular,
+  Onest_500Medium,
+  Onest_600SemiBold,
+  Onest_700Bold,
   useFonts,
-} from '@expo-google-fonts/newsreader';
+} from '@expo-google-fonts/onest';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -20,22 +17,11 @@ import { Toaster } from '@/components/Toaster';
 import { useStore } from '@/store/useStore';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
-// Keep the native splash (ink + closed scissors) up until our own takes over.
+// Keep the native splash (linen + closed shears) up until our own takes over.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    Newsreader_300Light,
-    Newsreader_300Light_Italic,
-    Newsreader_400Regular,
-    Newsreader_400Regular_Italic,
-    Newsreader_500Medium,
-    Geist_400Regular,
-    Geist_500Medium,
-    Geist_600SemiBold,
-    GeistMono_400Regular,
-    GeistMono_500Medium,
-  });
+  const [fontsLoaded] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold, Onest_700Bold });
 
   if (!fontsLoaded) return null;
 
@@ -64,7 +50,7 @@ function App() {
 
   return (
     <NavThemeProvider value={navTheme}>
-      <StatusBar style={splashDone ? (scheme === 'dark' ? 'light' : 'dark') : 'light'} />
+      <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -77,6 +63,8 @@ function App() {
         <Stack.Screen name="top-rated" />
         <Stack.Screen name="reviews/[id]" />
         <Stack.Screen name="search" options={{ animation: 'fade' }} />
+        <Stack.Screen name="find" />
+        <Stack.Screen name="compare" />
         <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
       </Stack>

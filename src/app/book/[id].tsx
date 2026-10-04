@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, ArrowRight, CalendarCheck, Clock, MapPin, Users } from 'lucide-react-native';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -19,6 +19,7 @@ import { TimeGrid } from '@/components/booking/TimeGrid';
 import { WeekStrip } from '@/components/booking/WeekStrip';
 import { goBack, ScreenHeader } from '@/components/ScreenHeader';
 import { ServiceRow } from '@/components/ServiceRow';
+import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
@@ -27,21 +28,24 @@ import { RatingInline } from '@/components/ui/Stars';
 import { Text } from '@/components/ui/Text';
 import { anyMasterWeek, eligibleMasters, nextAvailable, weekSchedule } from '@/data/availability';
 import { categoryById } from '@/data/categories';
+import { slotStillFree } from '@/data/find';
 import type { Master, Salon } from '@/data/types';
 import { useSalon } from '@/hooks/useSalon';
-import { firstName, fmtPrice, plural } from '@/lib/format';
-import { atMinutes, fmtClock, fmtDuration, minutesOfDay, monthLong, relativeDay, weekdayLong } from '@/lib/time';
+import { useI18n } from '@/i18n';
+import type { StringKey } from '@/i18n/strings';
+import { firstName } from '@/lib/format';
+import { atMinutes, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { cssEase, duration, ease, fonts, gutter, iconStroke, radius } from '@/theme/tokens';
+import { cssEase, duration, ease, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
 
 type Step = 'services' | 'master' | 'time' | 'confirm';
 const STEPS: Step[] = ['services', 'master', 'time', 'confirm'];
-const TITLES: Record<Step, string> = {
-  services: 'Choose services',
-  master: 'Choose your master',
-  time: 'Pick a day & time',
-  confirm: 'Review & confirm',
+const TITLES: Record<Step, StringKey> = {
+  services: 'stepServices',
+  master: 'stepMaster',
+  time: 'stepTime',
+  confirm: 'stepConfirm',
 };
 
 // Builders at module scope. Forward slides in from the right, back from the left.
@@ -52,46 +56,59 @@ const OUT_BACK = FadeOutRight.duration(180).easing(ease.out);
 const IN_FADE = FadeIn.duration(200);
 const OUT_FADE = FadeOut.duration(160);
 
+type Params = { id: string; services?: string; master?: string; date?: string; time?: string };
+
 export default function BookScreen() {
-  const params = useLocalSearchParams<{ id: string; services?: string; master?: string }>();
+  const params = useLocalSearchParams<Params>();
   const salon = useSalon(params.id);
   if (!salon) return null;
-  return (
-    <Booking
-      salon={salon}
-      initialServices={params.services?.split(',').filter(Boolean) ?? []}
-      initialMaster={params.master}
-    />
-  );
+  return <Booking salon={salon} params={params} />;
 }
 
-function Booking({
-  salon,
-  initialServices,
-  initialMaster,
-}: {
-  salon: Salon;
-  initialServices: string[];
-  initialMaster?: string;
-}) {
+function Booking({ salon, params }: { salon: Salon; params: Params }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
   const bookings = useStore((s) => s.bookings);
   const addBooking = useStore((s) => s.addBooking);
   const [now] = useState(() => new Date());
 
-  const lockedMaster = salon.masters.find((m) => m.id === initialMaster);
-  const [services, setServices] = useState<string[]>(
-    initialServices.filter((id) => salon.services.some((s) => s.id === id)),
-  );
+  const lockedMaster = salon.masters.find((m) => m.id === params.master);
+  const initialServices = (params.services?.split(',') ?? []).filter((id) => salon.services.some((s) => s.id === id));
+
+  // A deep link from search can carry an exact slot; honour it only if it is still free.
+  const initial = useMemo(() => {
+    const date = params.date ? fromDayKey(params.date) : null;
+    const time = params.time ? Number(params.time) : NaN;
+    const minutes = salon.services.filter((s) => initialServices.includes(s.id)).reduce((a, s) => a + s.durationMin, 0);
+    if (lockedMaster && date && Number.isFinite(time) && minutes) {
+      const free = slotStillFree({ salon, master: lockedMaster, date, time, durationMin: minutes, bookings, now });
+      if (free) {
+        const dayIndex = Math.round((date.getTime() - new Date(now).setHours(0, 0, 0, 0)) / 86_400_000);
+        return { step: 'confirm' as Step, dayIndex, slot: time };
+      }
+      return { step: 'time' as Step, dayIndex: null, slot: null, stale: true };
+    }
+    return {
+      step: (initialServices.length ? (lockedMaster ? 'time' : 'master') : 'services') as Step,
+      dayIndex: null,
+      slot: null,
+    };
+    // Computed once for the screen's first render.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [services, setServices] = useState<string[]>(initialServices);
   const [masterId, setMasterId] = useState<string | 'any' | null>(lockedMaster?.id ?? null);
-  const [step, setStep] = useState<Step>(services.length ? (lockedMaster ? 'time' : 'master') : 'services');
+  const [step, setStep] = useState<Step>(initial.step);
   const [dir, setDir] = useState<1 | -1>(1);
-  const [dayIndex, setDayIndex] = useState<number | null>(null);
-  const [slot, setSlot] = useState<number | null>(null);
+  const [dayIndex, setDayIndex] = useState<number | null>(initial.dayIndex);
+  const [slot, setSlot] = useState<number | null>(initial.slot);
   const [note, setNote] = useState('');
   const [doneId, setDoneId] = useState<string | null>(null);
+  useEffect(() => {
+    if ('stale' in initial && initial.stale) toast(i18n.t('slotTaken'), 'info');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const picked = salon.services.filter((s) => services.includes(s.id));
   const minutes = picked.reduce((a, s) => a + s.durationMin, 0);
@@ -121,10 +138,8 @@ function Booking({
 
   const next = () => {
     if (step === 'services') {
-      // A changed menu can invalidate the chosen master and time.
-      if (masterId && masterId !== 'any' && !eligibleMasters(salon, services).some((m) => m.id === masterId)) {
+      if (masterId && masterId !== 'any' && !eligibleMasters(salon, services).some((m) => m.id === masterId))
         setMasterId(null);
-      }
       setSlot(null);
       setDayIndex(null);
       go(lockedMaster && eligible.some((m) => m.id === lockedMaster.id) ? 'time' : 'master');
@@ -173,12 +188,13 @@ function Booking({
       <ScreenHeader
         mode="close"
         inset={Platform.OS !== 'ios'}
+        title={salon.name}
         right={
           step !== 'services' ? (
-            <PressableScale onPress={back} hitSlop={12} accessibilityLabel="Previous step" style={styles.backLink}>
+            <PressableScale onPress={back} hitSlop={12} accessibilityLabel={i18n.t('back')} style={styles.backLink}>
               <ArrowLeft size={16} color={c.inkSoft} strokeWidth={iconStroke} />
-              <Text variant="caption" tone="soft">
-                Back
+              <Text variant="callout" tone="soft">
+                {i18n.t('back')}
               </Text>
             </PressableScale>
           ) : null
@@ -197,7 +213,7 @@ function Booking({
               style={[
                 styles.segment,
                 {
-                  backgroundColor: i < stepNo ? c.ink : c.line,
+                  backgroundColor: i < stepNo ? c.ink : c.lineStrong,
                   transitionProperty: 'backgroundColor',
                   transitionDuration: duration.medium,
                   transitionTimingFunction: cssEase.out,
@@ -206,9 +222,6 @@ function Booking({
             />
           ))}
         </View>
-        <Text variant="label" tone="muted" style={{ marginTop: 18 }}>
-          Step {stepNo} of 4 · {salon.name}
-        </Text>
       </View>
 
       <View style={{ flex: 1 }}>
@@ -218,8 +231,11 @@ function Booking({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <Text variant="display" style={{ marginTop: 4, marginBottom: 20 }} accessibilityRole="header">
-              {TITLES[step]}
+            <Text variant="caption" tone="muted" style={{ marginTop: 14 }}>
+              {i18n.t('stepOf', { n: stepNo })}
+            </Text>
+            <Text variant="largeTitle" style={{ marginTop: 2, marginBottom: 18 }} accessibilityRole="header">
+              {i18n.t(TITLES[step])}
             </Text>
 
             {step === 'services' ? (
@@ -242,7 +258,7 @@ function Booking({
             ) : null}
 
             {step === 'time' && schedule ? (
-              <View style={{ gap: 26 }}>
+              <View style={{ gap: 24 }}>
                 <WeekStrip
                   days={schedule.days}
                   selected={activeDay}
@@ -254,15 +270,13 @@ function Booking({
                 />
                 {day ? (
                   <Animated.View key={activeDay} entering={IN_FADE}>
-                    <Text variant="headline" style={{ marginBottom: 14 }}>
-                      {weekdayLong(day.date)}, {day.date.getDate()} {monthLong(day.date)}
+                    <Text variant="title" style={{ marginBottom: 14 }}>
+                      {i18n.fullDate(day.date)}
                     </Text>
                     {day.slots.length ? (
                       <TimeGrid slots={day.slots} selected={slot} onSelect={setSlot} />
                     ) : (
-                      <Text tone="soft">
-                        {day.off ? 'Day off — choose another day.' : 'Fully booked — choose another day.'}
-                      </Text>
+                      <Text tone="soft">{day.off ? i18n.t('dayOff') : i18n.t('dayFull')}</Text>
                     )}
                   </Animated.View>
                 ) : null}
@@ -289,20 +303,20 @@ function Booking({
       <View
         style={[
           styles.footer,
-          { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: c.bg, borderColor: c.line },
+          { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: c.surface, borderColor: c.line },
         ]}
       >
         <View style={{ flex: 1 }}>
           <Text variant="caption" tone="soft" numberOfLines={1}>
-            {picked.length ? `${plural(picked.length, 'service')} · ${fmtDuration(minutes)}` : 'Nothing selected yet'}
+            {picked.length
+              ? `${i18n.n(picked.length, 'service')} · ${i18n.duration(minutes)}`
+              : i18n.t('nothingSelected')}
             {step === 'time' && slot !== null ? ` · ${fmtClock(slot)}` : ''}
           </Text>
-          <Text variant="price" style={{ fontSize: 22, lineHeight: 26 }}>
-            {fmtPrice(total)}
-          </Text>
+          <Text variant="title">{i18n.price(total)}</Text>
         </View>
         <Button
-          label={step === 'confirm' ? 'Confirm booking' : 'Continue'}
+          label={step === 'confirm' ? i18n.t('confirmBooking') : i18n.t('continue')}
           iconRight={step === 'confirm' ? undefined : ArrowRight}
           icon={step === 'confirm' ? CalendarCheck : undefined}
           disabled={!canContinue}
@@ -325,6 +339,7 @@ function ServicesStep({
   onToggle: (id: string) => void;
   locked?: Master;
 }) {
+  const i18n = useI18n();
   const available = locked ? salon.services.filter((s) => locked.serviceIds.includes(s.id)) : salon.services;
   const cats = salon.categories.filter((cat) => available.some((s) => s.category === cat));
   return (
@@ -333,7 +348,7 @@ function ServicesStep({
         <View style={styles.lockedRow}>
           <Avatar name={locked.name} tone={locked.tone} size={32} />
           <Text variant="callout" tone="soft">
-            Showing what {firstName(locked.name)} does
+            {i18n.t('showingMaster', { name: firstName(locked.name) })}
           </Text>
         </View>
       ) : null}
@@ -341,11 +356,7 @@ function ServicesStep({
         const items = available.filter((s) => s.category === cat);
         return (
           <View key={cat} style={{ marginBottom: 12 }}>
-            {cats.length > 1 ? (
-              <Text variant="label" tone="muted">
-                {categoryById[cat].label}
-              </Text>
-            ) : null}
+            {cats.length > 1 ? <Text variant="headline">{i18n.tx(categoryById[cat].label)}</Text> : null}
             {items.map((s, i) => (
               <ServiceRow
                 key={s.id}
@@ -378,6 +389,7 @@ function MasterStep({
   onChange: (id: string | 'any') => void;
 }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const bookings = useStore((s) => s.bookings);
   const nextFor = (m: Master) => nextAvailable({ salon, master: m, durationMin: minutes, bookings, now });
   const soonest = eligible
@@ -385,29 +397,25 @@ function MasterStep({
     .filter((d): d is Date => !!d)
     .sort((a, b) => a.getTime() - b.getTime())[0];
 
-  if (!eligible.length) {
-    return (
-      <Text tone="soft">No single master does all of these together. Try booking them as separate appointments.</Text>
-    );
-  }
+  if (!eligible.length) return <Text tone="soft">{i18n.t('noSingleMaster')}</Text>;
 
   return (
     <View style={{ gap: 10 }}>
       <Option
         selected={value === 'any'}
         onPress={() => onChange('any')}
-        label="First available master"
+        label={i18n.t('anyMasterLabel')}
         left={
-          <View style={[styles.anyIcon, { backgroundColor: c.accentSoft }]}>
-            <Users size={22} color={c.accent} strokeWidth={iconStroke} />
+          <View style={[styles.anyIcon, { backgroundColor: c.sunken }]}>
+            <Users size={22} color={c.ink} strokeWidth={iconStroke} />
           </View>
         }
-        title="Any master"
-        subtitle="We’ll match you with the best-rated master free at your time."
+        title={i18n.t('anyMaster')}
+        subtitle={i18n.t('anyMasterSub')}
         right={soonest ? <NextFree date={soonest} /> : null}
       />
-      <Text variant="label" tone="muted" style={{ marginTop: 14, marginBottom: 4 }}>
-        {plural(eligible.length, 'master')} for this booking
+      <Text variant="headline" style={{ marginTop: 14, marginBottom: 4 }}>
+        {i18n.t('mastersForBooking', { masters: i18n.n(eligible.length, 'master') })}
       </Text>
       {eligible.map((m) => {
         const next = nextFor(m);
@@ -416,17 +424,17 @@ function MasterStep({
             key={m.id}
             selected={value === m.id}
             onPress={() => onChange(m.id)}
-            label={`${m.name}, ${m.role}`}
+            label={`${m.name}, ${i18n.tx(m.role)}`}
             left={<Avatar name={m.name} tone={m.tone} size={48} selected={value === m.id} />}
             title={m.name}
-            subtitle={`${m.role} · ${plural(m.years, 'year')}`}
+            subtitle={`${i18n.tx(m.role)} · ${i18n.n(m.years, 'year')}`}
             extra={<RatingInline rating={m.rating} count={m.reviewCount} size="sm" />}
             right={
               next ? (
                 <NextFree date={next} />
               ) : (
                 <Text variant="caption" tone="muted">
-                  Fully booked
+                  {i18n.t('fullyBooked')}
                 </Text>
               )
             }
@@ -438,15 +446,15 @@ function MasterStep({
 }
 
 function NextFree({ date }: { date: Date }) {
+  const { c } = useTheme();
+  const i18n = useI18n();
   return (
-    <View style={{ alignItems: 'flex-end', gap: 2 }}>
-      <Text variant="label" tone="muted" style={{ fontSize: 9.5 }}>
-        Next free
+    <View style={{ alignItems: 'flex-end', gap: 1 }}>
+      <Text variant="caption" tone="muted">
+        {i18n.t('nextFree')}
       </Text>
-      <Text variant="callout" style={{ fontFamily: fonts.bodyMedium }}>
-        {relativeDay(date)}
-      </Text>
-      <Text variant="mono" tone="accent">
+      <Text variant="captionStrong">{i18n.relativeDay(date)}</Text>
+      <Text variant="bodyStrong" style={{ color: c.success }}>
         {fmtClock(minutesOfDay(date))}
       </Text>
     </View>
@@ -488,7 +496,6 @@ function Option({
           {
             backgroundColor: c.surface,
             borderColor: selected ? c.ink : c.line,
-            borderWidth: selected ? 1.5 : StyleSheet.hairlineWidth,
             transitionProperty: 'borderColor',
             transitionDuration: duration.small,
           },
@@ -496,13 +503,11 @@ function Option({
       >
         {left}
         <View style={{ flex: 1, gap: 2 }}>
-          <Text variant="serif" style={{ fontSize: 18 }}>
-            {title}
-          </Text>
+          <Text variant="headline">{title}</Text>
           <Text variant="caption" tone="soft">
             {subtitle}
           </Text>
-          {extra ? <View style={{ marginTop: 6 }}>{extra}</View> : null}
+          {extra ? <View style={{ marginTop: 4 }}>{extra}</View> : null}
         </View>
         {right}
       </Animated.View>
@@ -532,42 +537,43 @@ function ConfirmStep({
   onNote: (s: string) => void;
 }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const start = minutesOfDay(date);
   return (
     <View style={{ gap: 18 }}>
-      <View style={[styles.ticket, { backgroundColor: c.surface, borderColor: c.line }]}>
-        <Text variant="label" tone="muted">
-          {relativeDay(date)}
+      <View style={[styles.ticket, { backgroundColor: c.surface }, shadow(c, 1)]}>
+        <Text variant="caption" tone="muted">
+          {i18n.relativeDay(date)}
         </Text>
-        <Text variant="title" style={{ marginTop: 6 }}>
-          {weekdayLong(date)}, {date.getDate()} {monthLong(date)}
+        <Text variant="title" style={{ marginTop: 2 }}>
+          {i18n.fullDate(date)}
         </Text>
         <View style={styles.ticketRow}>
           <Clock size={16} color={c.inkSoft} strokeWidth={iconStroke} />
-          <Text variant="bodyMedium">
+          <Text variant="bodyStrong">
             {fmtClock(start)} – {fmtClock(start + minutes)}
           </Text>
           <Text variant="caption" tone="soft">
-            {fmtDuration(minutes)}
+            {i18n.duration(minutes)}
           </Text>
         </View>
         <View style={styles.ticketRow}>
           <MapPin size={16} color={c.inkSoft} strokeWidth={iconStroke} />
-          <Text variant="callout" style={{ flex: 1 }}>
+          <Text variant="subhead" style={{ flex: 1 }}>
             {salon.name} · {salon.address}
           </Text>
         </View>
 
-        <View style={[styles.perforation, { borderColor: c.lineStrong }]} />
+        <View style={[styles.rule, { borderColor: c.line }]} />
 
         {master ? (
           <View style={styles.masterRow}>
             <Avatar name={master.name} tone={master.tone} size={40} />
             <View style={{ flex: 1 }}>
-              <Text variant="serif">{master.name}</Text>
+              <Text variant="bodyStrong">{master.name}</Text>
               <Text variant="caption" tone="soft">
-                {anyMaster ? 'First available · ' : ''}
-                {master.role}
+                {anyMaster ? `${i18n.t('firstAvailable')} · ` : ''}
+                {i18n.tx(master.role)}
               </Text>
             </View>
           </View>
@@ -576,42 +582,38 @@ function ConfirmStep({
         <View style={{ marginTop: 14, gap: 10 }}>
           {services.map((s) => (
             <View key={s.id} style={styles.lineItem}>
-              <Text variant="callout" style={{ flex: 1 }}>
-                {s.name}
+              <Text variant="subhead" style={{ flex: 1 }}>
+                {i18n.tx(s.name)}
               </Text>
-              <Text variant="price" style={{ fontSize: 15 }}>
-                {fmtPrice(s.price)}
-              </Text>
+              <Text variant="price">{i18n.price(s.price)}</Text>
             </View>
           ))}
           <View style={[styles.lineItem, styles.totalRow, { borderColor: c.line }]}>
-            <Text variant="bodyMedium" style={{ flex: 1 }}>
-              Total, paid at the venue
+            <Text variant="bodyStrong" style={{ flex: 1 }}>
+              {i18n.t('totalAtVenue')}
             </Text>
-            <Text variant="price" style={{ fontSize: 22, lineHeight: 26 }}>
-              {fmtPrice(total)}
-            </Text>
+            <Text variant="title">{i18n.price(total)}</Text>
           </View>
         </View>
       </View>
 
       <View>
-        <Text variant="label" tone="muted" style={{ marginBottom: 8 }} nativeID="note-label">
-          Note for your master
+        <Text variant="headline" style={{ marginBottom: 8 }}>
+          {i18n.t('noteForMaster')}
         </Text>
         <Field
           value={note}
           onChangeText={onNote}
-          placeholder="Optional — e.g. a reference photo, sensitive skin…"
+          placeholder={i18n.t('notePlaceholder')}
           multiline
           multilineHeight={88}
           maxLength={240}
-          accessibilityLabel="Note for your master"
+          accessibilityLabel={i18n.t('noteForMaster')}
         />
       </View>
 
       <Text variant="caption" tone="soft">
-        Free cancellation up to 2 hours before. You’ll pay at {salon.name} — no card needed to book.
+        {i18n.t('policy', { salon: salon.name })}
       </Text>
     </View>
   );
@@ -619,38 +621,42 @@ function ConfirmStep({
 
 function Done({ bookingId, salon }: { bookingId: string; salon: Salon }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const booking = useStore((s) => s.bookings.find((b) => b.id === bookingId));
   if (!booking) return null;
   const start = new Date(booking.start);
   const master = salon.masters.find((m) => m.id === booking.masterId);
+  const today = new Date();
+  const dayLabel = sameDay(start, today) ? i18n.t('today') : i18n.fullDate(start);
   return (
     <Animated.View
       entering={IN_FADE}
       style={[styles.done, { backgroundColor: c.bg, paddingBottom: insets.bottom + 20 }]}
     >
-      <View style={{ alignItems: 'center', gap: 18, flex: 1, justifyContent: 'center' }}>
+      <View style={{ alignItems: 'center', gap: 16, flex: 1, justifyContent: 'center' }}>
         <SuccessMark />
-        <Text variant="hero" align="center">
-          You’re{' '}
-          <Text variant="hero" italic tone="accent">
-            booked.
-          </Text>
+        <Text variant="largeTitle" align="center">
+          {i18n.t('booked')}
         </Text>
-        <Text variant="body" tone="soft" align="center" style={{ maxWidth: 300 }}>
-          {relativeDay(start)} at {fmtClock(minutesOfDay(start))} with {master ? firstName(master.name) : 'your master'}{' '}
-          at {salon.name}. We’ve saved it to your bookings.
+        <Text variant="body" tone="soft" align="center" style={{ maxWidth: 310 }}>
+          {i18n.t('bookedBody', {
+            day: dayLabel,
+            time: fmtClock(minutesOfDay(start)),
+            master: master ? firstName(master.name) : i18n.t('yourMaster'),
+            salon: salon.name,
+          })}
         </Text>
       </View>
       <View style={{ gap: 10, alignSelf: 'stretch' }}>
         <Button
-          label="View my bookings"
+          label={i18n.t('viewBookings')}
           onPress={() => {
             router.dismissAll();
             router.navigate('/bookings');
           }}
         />
-        <Button label="Done" variant="ghost" onPress={goBack} haptic="none" />
+        <Button label={i18n.t('done')} variant="ghost" onPress={goBack} haptic="none" />
       </View>
     </Animated.View>
   );
@@ -658,15 +664,15 @@ function Done({ bookingId, salon }: { bookingId: string; salon: Salon }) {
 
 const styles = StyleSheet.create({
   backLink: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 44 },
-  progressWrap: { paddingHorizontal: gutter, paddingTop: 4, paddingBottom: 6 },
+  progressWrap: { paddingHorizontal: gutter, paddingTop: 2 },
   progress: { flexDirection: 'row', gap: 6 },
-  segment: { flex: 1, height: 2, borderRadius: 1 },
+  segment: { flex: 1, height: 3, borderRadius: 2 },
   footer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    paddingTop: 14,
+    paddingTop: 12,
     paddingHorizontal: gutter,
     flexDirection: 'row',
     alignItems: 'center',
@@ -674,11 +680,18 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   lockedRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  option: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: radius.lg },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 14,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+  },
   anyIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', margin: 4 },
-  ticket: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: 20 },
+  ticket: { borderRadius: radius.lg, padding: 18 },
   ticketRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
-  perforation: { borderTopWidth: 1, borderStyle: 'dashed', marginVertical: 18, marginHorizontal: -20 },
+  rule: { borderTopWidth: 1, borderStyle: 'dashed', marginVertical: 16, marginHorizontal: -18 },
   masterRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   lineItem: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
   totalRow: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 12, marginTop: 4 },

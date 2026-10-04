@@ -59,5 +59,5 @@ export const webReset = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as obj
 
 const styles = StyleSheet.create({
   box: { borderRadius: radius.md, borderWidth: 1 },
-  input: { fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  input: { fontFamily: fonts.regular, fontSize: 16, paddingHorizontal: 14, paddingVertical: 12 },
 });

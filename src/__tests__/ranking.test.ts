@@ -83,9 +83,9 @@ describe('geo & hours', () => {
 
   it('reports open and closed states', () => {
     const salon = salons.find((s) => s.id === 'maison-leyla')!; // 10–20, closed Mondays
-    expect(openState(salon, new Date(2026, 9, 5, 12)).label).toBe('Closed today');
-    expect(openState(salon, new Date(2026, 9, 6, 9)).label).toBe('Opens 10:00');
+    expect(openState(salon, new Date(2026, 9, 5, 12)).kind).toBe('closedToday');
+    expect(openState(salon, new Date(2026, 9, 6, 9))).toEqual({ open: false, kind: 'opensAt', time: '10:00' });
     expect(openState(salon, new Date(2026, 9, 6, 12)).open).toBe(true);
-    expect(openState(salon, new Date(2026, 9, 6, 19, 30)).label).toBe('Closes 20:00');
+    expect(openState(salon, new Date(2026, 9, 6, 19, 30))).toEqual({ open: true, kind: 'closesSoon', time: '20:00' });
   });
 });

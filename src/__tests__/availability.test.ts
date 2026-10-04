@@ -14,7 +14,7 @@ import { addDays, atMinutes, startOfDay, toMinutes } from '@/lib/time';
 
 const salon = salons.find((s) => s.id === 'old-town-barbers')!;
 const rauf = salon.masters[0]; // Tue–Sat, 10:00–20:00
-const cut = salon.services.find((s) => s.name === 'Signature cut')!;
+const cut = salon.services.find((s) => s.key === 'cut')!;
 
 /** A Monday morning, so the week ahead is predictable. */
 const monday = new Date(2026, 9, 5, 8, 0);
@@ -124,14 +124,14 @@ describe('week', () => {
 describe('eligibility and grouping', () => {
   it('only offers masters who do every selected service', () => {
     const leyla = salons.find((s) => s.id === 'maison-leyla')!;
-    const colour = leyla.services.find((s) => s.name === 'Full colour')!;
-    const bridal = leyla.services.find((s) => s.name === 'Bridal makeup')!;
+    const colour = leyla.services.find((s) => s.key === 'colour')!;
+    const bridal = leyla.services.find((s) => s.key === 'bridal')!;
     const names = eligibleMasters(leyla, [colour.id, bridal.id]).map((m) => m.name);
     expect(names).toEqual(['Leyla Əliyeva']);
   });
 
   it('groups slots by part of day', () => {
     const groups = groupSlots([toMinutes('09:00'), toMinutes('12:30'), toMinutes('18:00')]);
-    expect(groups.map((g) => g.label)).toEqual(['Morning', 'Afternoon', 'Evening']);
+    expect(groups.map((g) => g.label)).toEqual(['morning', 'afternoon', 'evening']);
   });
 });

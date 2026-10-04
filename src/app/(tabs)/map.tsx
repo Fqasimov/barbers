@@ -1,13 +1,12 @@
 import { router } from 'expo-router';
-import { ArrowUpRight, LocateFixed, SearchX } from 'lucide-react-native';
+import { ChevronRight, LocateFixed, SearchX } from 'lucide-react-native';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MapCanvas } from '@/components/map/MapCanvas';
-import { SalonCover } from '@/components/SalonCover';
-import { Dot } from '@/components/SalonCard';
+import { SalonPhoto } from '@/components/SalonPhoto';
 import { useTabBarInset } from '@/components/TabBar';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
@@ -21,22 +20,17 @@ import { openState, rankForMap, type MapSort, type RankedSalon } from '@/data/ra
 import { fromPrice, salons } from '@/data/salons';
 import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
-import { fmtPrice, plural } from '@/lib/format';
-import { fmtDistance } from '@/lib/geo';
+import { useI18n } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { gutter, iconStroke, radius } from '@/theme/tokens';
+import { gutter, radius, shadow } from '@/theme/tokens';
 
 const GAP = 10;
-const CARD_H = 112;
-const sortLabel: Record<MapSort, string> = {
-  best: 'best match first',
-  nearest: 'nearest first',
-  rating: 'highest rated first',
-};
+const CARD_H = 108;
 
 export default function MapScreen() {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const tabInset = useTabBarInset();
   const { width } = useWindowDimensions();
@@ -47,7 +41,7 @@ export default function MapScreen() {
   const [prices, setPrices] = useState<PriceLevel[]>([]);
   const [category, setCategory] = useState<CategoryId | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [panelH, setPanelH] = useState(170);
+  const [panelH, setPanelH] = useState(150);
   const listRef = useRef<FlatList<RankedSalon>>(null);
 
   const items = useMemo(
@@ -77,7 +71,7 @@ export default function MapScreen() {
     if (index >= 0) listRef.current?.scrollToOffset({ offset: index * snap, animated: true });
   };
 
-  const bottomOverlay = tabInset + CARD_H + 16;
+  const bottomOverlay = tabInset + CARD_H - 4;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -91,16 +85,16 @@ export default function MapScreen() {
       />
 
       <View
-        style={[styles.panel, { top: insets.top + 8, backgroundColor: c.glass, borderColor: c.line }]}
+        style={[styles.panel, { top: insets.top + 8, backgroundColor: c.surface }, shadow(c, 2)]}
         onLayout={(e) => setPanelH(e.nativeEvent.layout.height + 8)}
       >
         <SegmentedControl<MapSort>
           value={sort}
           onChange={setSort}
           options={[
-            { value: 'best', label: 'Best match' },
-            { value: 'nearest', label: 'Nearest' },
-            { value: 'rating', label: 'Top rated' },
+            { value: 'best', label: i18n.t('sortBest') },
+            { value: 'nearest', label: i18n.t('sortNear') },
+            { value: 'rating', label: i18n.t('sortTop') },
           ]}
         />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
@@ -108,9 +102,8 @@ export default function MapScreen() {
             <Chip
               key={p.level}
               size="sm"
-              serif
-              label={p.label}
-              accessibilityLabel={`${p.hint} prices`}
+              label={'₼'.repeat(p.level)}
+              accessibilityLabel={i18n.tx(p.hint)}
               selected={prices.includes(p.level)}
               onPress={() => togglePrice(p.level)}
             />
@@ -120,37 +113,36 @@ export default function MapScreen() {
             <Chip
               key={cat.id}
               size="sm"
-              label={cat.label}
+              label={i18n.tx(cat.label)}
               selected={category === cat.id}
               onPress={() => setCategory(category === cat.id ? null : cat.id)}
             />
           ))}
         </ScrollView>
-        <Text variant="mono" tone="soft" style={{ fontSize: 11, paddingHorizontal: 4 }}>
-          {plural(items.length, 'place')} · {sortLabel[sort]}
-          {prices.length ? ` · ${prices.map((p) => '₼'.repeat(p)).join(' ')}` : ''}
-        </Text>
       </View>
 
-      <View pointerEvents="box-none" style={[styles.locate, { bottom: bottomOverlay + 8 }]}>
+      <View pointerEvents="box-none" style={[styles.locate, { bottom: bottomOverlay + 12 }]}>
         <IconButton
           icon={LocateFixed}
-          label={source === 'device' ? 'Centred on you' : 'Use my location'}
-          variant="glass"
+          label={source === 'device' ? i18n.t('centredOnYou') : i18n.t('useMyLocation')}
+          variant="float"
           active={source === 'device'}
           activeColor={c.accent}
           onPress={request}
         />
       </View>
       {source === 'city' && status === 'denied' ? (
-        <View pointerEvents="none" style={[styles.note, { bottom: bottomOverlay + 14, backgroundColor: c.glass }]}>
+        <View
+          pointerEvents="none"
+          style={[styles.note, { bottom: bottomOverlay + 18, backgroundColor: c.surface }, shadow(c, 1)]}
+        >
           <Text variant="caption" tone="soft">
-            Location off — distances from Fountain Square
+            {i18n.t('locationOff')}
           </Text>
         </View>
       ) : null}
 
-      <View style={[styles.rail, { bottom: tabInset }]}>
+      <View style={[styles.rail, { bottom: tabInset - 12 }]}>
         {items.length ? (
           <FlatList
             ref={listRef}
@@ -179,17 +171,17 @@ export default function MapScreen() {
         ) : (
           <Animated.View
             entering={FadeIn.duration(180)}
-            style={[styles.empty, { backgroundColor: c.surface, borderColor: c.line, marginHorizontal: gutter }]}
+            style={[styles.empty, { backgroundColor: c.surface, marginHorizontal: gutter }, shadow(c, 2)]}
           >
-            <SearchX size={22} color={c.inkSoft} strokeWidth={iconStroke} />
+            <SearchX size={22} color={c.inkSoft} strokeWidth={2} />
             <View style={{ flex: 1 }}>
-              <Text variant="serif">Nothing in that range</Text>
+              <Text variant="bodyStrong">{i18n.t('nothingInRange')}</Text>
               <Text variant="caption" tone="soft">
-                Widen the price range or clear the category.
+                {i18n.t('widenRange')}
               </Text>
             </View>
             <Button
-              label="Reset"
+              label={i18n.t('reset')}
               size="sm"
               variant="secondary"
               onPress={() => {
@@ -216,68 +208,63 @@ const MapCard = memo(function MapCard({
   active: boolean;
 }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const { salon, live, distance } = item;
   const open = openState(salon);
   return (
     <PressableScale
       onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
       scaleTo={0.98}
-      accessibilityLabel={`${best ? 'Best pick near you. ' : ''}${salon.name}, ${fmtDistance(distance)}, from ${fromPrice(salon)} manat`}
+      accessibilityLabel={`${best ? `${i18n.t('bestPick')}. ` : ''}${salon.name}, ${i18n.distance(distance)}, ${i18n.fromPrice(fromPrice(salon))}`}
       style={[
         styles.card,
-        { width, backgroundColor: c.surface, borderColor: active ? c.lineStrong : c.line, shadowColor: '#000' },
+        { width, backgroundColor: c.surface, borderColor: active ? c.ink : 'transparent' },
+        shadow(c, 2),
       ]}
     >
-      <SalonCover salon={salon} width={88} height={88} radius={radius.md} variant="thumb" />
+      <SalonPhoto salon={salon} width={84} height={84} radius={radius.md} />
       <View style={{ flex: 1, gap: 2 }}>
         {best ? (
-          <Text variant="label" tone="accent" style={{ fontSize: 10 }}>
-            Best pick near you
+          <Text variant="micro" tone="accent">
+            {i18n.t('bestPick')}
           </Text>
         ) : (
-          <Text variant="label" tone="muted" style={{ fontSize: 10 }} numberOfLines={1}>
-            {salon.kind} · {salon.district}
+          <Text variant="caption" tone="muted" numberOfLines={1}>
+            {i18n.tx(salon.kind)} · {salon.district}
           </Text>
         )}
-        <Text variant="serif" style={{ fontSize: 19 }} numberOfLines={1}>
+        <Text variant="headline" numberOfLines={1}>
           {salon.name}
         </Text>
         <View style={styles.meta}>
           <RatingInline rating={live.rating} size="sm" />
-          <Dot />
-          <Text variant="mono" tone="soft">
-            {fmtDistance(distance)}
-          </Text>
-          <Dot />
-          <Text variant="price" style={{ fontSize: 13, color: c.inkSoft }}>
-            from {fmtPrice(fromPrice(salon))}
+          <Text variant="caption" tone="soft">
+            · {i18n.distance(distance)} · {i18n.fromPrice(fromPrice(salon))}
           </Text>
         </View>
-        <Text variant="caption" style={{ color: open.open ? c.success : c.inkMuted, marginTop: 2 }}>
-          {open.label}
+        <Text variant="caption" style={{ color: open.open ? c.success : c.inkMuted }}>
+          {i18n.t(open.kind, { time: open.time ?? '' })}
         </Text>
       </View>
-      <ArrowUpRight size={18} color={c.inkSoft} strokeWidth={iconStroke} style={{ alignSelf: 'flex-start' }} />
+      <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
     </PressableScale>
   );
 });
 
 const styles = StyleSheet.create({
-  panel: {
-    position: 'absolute',
-    left: 12,
-    right: 12,
-    borderRadius: radius.xl,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: 8,
-    gap: 10,
-    paddingBottom: 12,
-  },
+  panel: { position: 'absolute', left: 12, right: 12, borderRadius: radius.xl, padding: 8, gap: 10, paddingBottom: 10 },
   chips: { gap: 6, alignItems: 'center', paddingHorizontal: 2 },
   divider: { width: StyleSheet.hairlineWidth, height: 20, marginHorizontal: 4 },
   locate: { position: 'absolute', right: gutter },
-  note: { position: 'absolute', left: gutter, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
-  rail: { position: 'absolute', left: 0, right: 0, height: CARD_H },
+  note: {
+    position: 'absolute',
+    left: gutter,
+    right: 80,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+  },
+  rail: { position: 'absolute', left: 0, right: 0, height: CARD_H + 16 },
   card: {
     height: CARD_H,
     flexDirection: 'row',
@@ -285,20 +272,8 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
+    borderWidth: 1.5,
   },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 4 },
-  empty: {
-    height: CARD_H,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  empty: { height: CARD_H, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: radius.lg },
 });

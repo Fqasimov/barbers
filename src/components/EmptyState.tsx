@@ -1,42 +1,32 @@
+import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
 
-import { ScissorsStatic } from './splash/Scissors';
 import { Button } from './ui/Button';
 import { Text } from './ui/Text';
 
-type Props = { title: string; body: string; action?: { label: string; onPress: () => void } };
+type Props = { icon: LucideIcon; title: string; body: string; action?: { label: string; onPress: () => void } };
 
-export function EmptyState({ title, body, action }: Props) {
+export function EmptyState({ icon: Icon, title, body, action }: Props) {
   const { c } = useTheme();
   return (
     <View style={styles.wrap}>
-      <View style={[styles.mark, { borderColor: c.line }]}>
-        <ScissorsStatic size={64} color={c.inkMuted} />
+      <View style={[styles.mark, { backgroundColor: c.sunken }]}>
+        <Icon size={28} color={c.inkSoft} strokeWidth={1.8} />
       </View>
       <Text variant="title" align="center">
         {title}
       </Text>
-      <Text variant="body" tone="soft" align="center" style={{ maxWidth: 280 }}>
+      <Text variant="body" tone="soft" align="center" style={{ maxWidth: 290 }}>
         {body}
       </Text>
-      {action ? (
-        <Button label={action.label} variant="secondary" size="md" onPress={action.onPress} style={{ marginTop: 8 }} />
-      ) : null}
+      {action ? <Button label={action.label} size="md" onPress={action.onPress} style={{ marginTop: 10 }} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { alignItems: 'center', gap: 10, paddingVertical: 48, paddingHorizontal: 24 },
-  mark: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
+  wrap: { alignItems: 'center', gap: 8, paddingVertical: 48, paddingHorizontal: 24 },
+  mark: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
 });

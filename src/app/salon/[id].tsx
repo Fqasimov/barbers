@@ -1,6 +1,19 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowRight, ChevronLeft, Heart, MapPin, Navigation, Phone, Share2 } from 'lucide-react-native';
-import { useCallback, useState, type ReactNode } from 'react';
+import {
+  ArrowLeftRight,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  MapPin,
+  MessageCircle,
+  Navigation,
+  Phone,
+  Share2,
+  UserCheck,
+  UserPlus,
+  type LucideIcon,
+} from 'lucide-react-native';
+import { useCallback, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Extrapolation,
@@ -14,15 +27,16 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RatingSummary, ReviewCard } from '@/components/ReviewCard';
-import { SalonCover } from '@/components/SalonCover';
+import { SalonPhoto } from '@/components/SalonPhoto';
 import { goBack } from '@/components/ScreenHeader';
 import { ServiceRow } from '@/components/ServiceRow';
+import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { RatingInline, Stars } from '@/components/ui/Stars';
+import { RatingInline } from '@/components/ui/Stars';
 import { Text } from '@/components/ui/Text';
 import { nextAvailable } from '@/data/availability';
 import { categoryById, priceLabel } from '@/data/categories';
@@ -31,16 +45,16 @@ import { fromPrice } from '@/data/salons';
 import type { Master, Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useDistribution, useLiveRating, useSalon, useSalonReviews } from '@/hooks/useSalon';
-import { callSalon, openDirections, shareSalon } from '@/lib/actions';
-import { fmtPrice, fmtRating, plural } from '@/lib/format';
-import { distanceKm, fmtDistance, walkMinutes } from '@/lib/geo';
-import { fmtClock, fmtDuration, minutesOfDay, relativeDay, weekdayLong } from '@/lib/time';
-import { useStore } from '@/store/useStore';
+import { useI18n } from '@/i18n';
+import { callSalon, messageSalon, openDirections, shareSalon } from '@/lib/actions';
+import { distanceKm, walkMinutes } from '@/lib/geo';
+import { fmtClock, minutesOfDay } from '@/lib/time';
+import { isCompleted, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { fonts, gutter, iconStroke, radius } from '@/theme/tokens';
+import { fonts, gutter, radius, shadow } from '@/theme/tokens';
 
 type Tab = 'services' | 'masters' | 'reviews' | 'about';
-const HERO_H = 400;
+const HERO_H = 320;
 const TAB_FADE = FadeIn.duration(140);
 
 export default function SalonScreen() {
@@ -52,17 +66,21 @@ export default function SalonScreen() {
 
 function SalonDetail({ salon }: { salon: Salon }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { origin } = useOrigin();
   const live = useLiveRating(salon);
   const saved = useStore((s) => s.favorites.includes(salon.id));
+  const comparing = useStore((s) => s.compare.includes(salon.id));
   const toggleFavorite = useStore((s) => s.toggleFavorite);
+  const toggleCompare = useStore((s) => s.toggleCompare);
   const [tab, setTab] = useState<Tab>('services');
   const [selected, setSelected] = useState<string[]>([]);
 
   const distance = distanceKm(origin, salon.coords);
   const open = openState(salon);
+  const english = salon.masters.some((m) => m.languages.includes('en'));
 
   const reduced = useReducedMotion();
   const scrollY = useSharedValue(0);
@@ -70,20 +88,18 @@ function SalonDetail({ salon }: { salon: Salon }) {
     scrollY.set(e.contentOffset.y);
   });
 
-  // Parallax: the cover drifts at half speed, and stretches on overscroll. Off for reduced motion.
+  // Parallax: the photo drifts at half speed and stretches on overscroll. Off for reduced motion.
   const heroStyle = useAnimatedStyle(() => {
     if (reduced) return { transform: [{ translateY: 0 }, { scale: 1 }] };
     const y = scrollY.get();
-    return {
-      transform: [{ translateY: y < 0 ? y / 2 : y * 0.45 }, { scale: y < 0 ? 1 + -y / HERO_H : 1 }],
-    };
+    return { transform: [{ translateY: y < 0 ? y / 2 : y * 0.45 }, { scale: y < 0 ? 1 + -y / HERO_H : 1 }] };
   });
   const headerBg = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.get(), [HERO_H - 160, HERO_H - 90], [0, 1], Extrapolation.CLAMP),
+    opacity: interpolate(scrollY.get(), [HERO_H - 150, HERO_H - 80], [0, 1], Extrapolation.CLAMP),
   }));
   const headerTitle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.get(), [HERO_H - 110, HERO_H - 60], [0, 1], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(scrollY.get(), [HERO_H - 110, HERO_H - 60], [6, 0], Extrapolation.CLAMP) }],
+    opacity: interpolate(scrollY.get(), [HERO_H - 100, HERO_H - 50], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(scrollY.get(), [HERO_H - 100, HERO_H - 50], [6, 0], Extrapolation.CLAMP) }],
   }));
 
   const toggle = useCallback((sid: string) => {
@@ -100,6 +116,12 @@ function SalonDetail({ salon }: { salon: Salon }) {
       params: { id: salon.id, ...(selected.length ? { services: selected.join(',') } : {}), ...params },
     });
 
+  const onCompare = () => {
+    const ok = toggleCompare(salon.id);
+    if (!ok) toast(i18n.t('compareLimit'), 'info');
+    else if (!comparing) toast(i18n.t('compareAdded'));
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <Animated.ScrollView
@@ -108,78 +130,58 @@ function SalonDetail({ salon }: { salon: Salon }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
       >
-        <Animated.View style={[{ height: HERO_H, overflow: 'hidden' }]}>
+        <View style={{ height: HERO_H, overflow: 'hidden' }}>
           <Animated.View style={heroStyle}>
-            <SalonCover salon={salon} width={width} height={HERO_H} variant="hero" />
+            <SalonPhoto salon={salon} width={width} height={HERO_H} />
           </Animated.View>
-        </Animated.View>
+        </View>
 
         <View style={[styles.sheet, { backgroundColor: c.bg }]}>
-          <Text variant="label" tone="muted">
-            {salon.kind} · {salon.district}
-          </Text>
-          <Text variant="display" style={{ marginTop: 8 }} accessibilityRole="header">
+          <Text variant="largeTitle" accessibilityRole="header">
             {salon.name}
           </Text>
-          <Text variant="serif" italic tone="soft" style={{ marginTop: 6 }}>
-            {salon.tagline}
+          <Text variant="subhead" tone="soft" style={{ marginTop: 4 }}>
+            {i18n.tx(salon.kind)} · {salon.district} · {salon.address}
           </Text>
 
-          <View style={[styles.stats, { borderColor: c.line }]}>
-            <Stat
-              big={fmtRating(live.rating)}
-              small={plural(live.count, 'review')}
-              accessory={<Stars rating={live.rating} size={9} gap={1} />}
-              onPress={() => setTab('reviews')}
-            />
-            <View style={[styles.statDivider, { backgroundColor: c.line }]} />
-            <Stat
-              big={fmtDistance(distance)}
-              small={`${walkMinutes(distance)} min walk`}
-              onPress={() => openDirections(salon)}
-            />
-            <View style={[styles.statDivider, { backgroundColor: c.line }]} />
-            <Stat big={priceLabel(salon.priceLevel)} small={`from ${fmtPrice(fromPrice(salon))}`} serifSmall />
-          </View>
-
-          <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: open.open ? c.success : c.inkMuted }]} />
-            <Text variant="callout" style={{ color: open.open ? c.success : c.inkSoft }}>
-              {open.label}
-            </Text>
-            <Text variant="callout" tone="muted">
+          <View style={styles.metaRow}>
+            <RatingInline rating={live.rating} count={live.count} />
+            <Text variant="subhead" tone="muted">
               ·
             </Text>
-            <Text variant="callout" tone="soft" numberOfLines={1} style={{ flexShrink: 1 }}>
-              {salon.address}
+            <Text variant="subhead" tone="soft">
+              {i18n.distance(distance)}
+            </Text>
+            <Text variant="subhead" tone="muted">
+              ·
+            </Text>
+            <Text variant="subhead" tone="soft">
+              {priceLabel(salon.priceLevel)}
             </Text>
           </View>
 
+          <View style={styles.metaRow}>
+            <View style={[styles.statusDot, { backgroundColor: open.open ? c.success : c.inkMuted }]} />
+            <Text variant="callout" style={{ color: open.open ? c.success : c.inkSoft }}>
+              {i18n.t(open.kind, { time: open.time ?? '' })}
+            </Text>
+            <Text variant="subhead" tone="muted">
+              · {i18n.fromPrice(fromPrice(salon))}
+            </Text>
+          </View>
+
+          {salon.womenOnly || english ? (
+            <View style={styles.badges}>
+              {salon.womenOnly ? <Badge label={i18n.t('womenOnly')} /> : null}
+              {english ? <Badge label={i18n.t('englishSpoken')} /> : null}
+            </View>
+          ) : null}
+
           <View style={styles.actions}>
-            <Button
-              label="Call"
-              icon={Phone}
-              variant="secondary"
-              size="sm"
-              onPress={() => callSalon(salon)}
-              haptic="selection"
-            />
-            <Button
-              label="Directions"
-              icon={Navigation}
-              variant="secondary"
-              size="sm"
-              onPress={() => openDirections(salon)}
-              haptic="selection"
-            />
-            <Button
-              label="Share"
-              icon={Share2}
-              variant="secondary"
-              size="sm"
-              onPress={() => shareSalon(salon)}
-              haptic="selection"
-            />
+            <Action icon={Phone} label={i18n.t('call')} onPress={() => callSalon(salon)} />
+            <Action icon={MessageCircle} label={i18n.t('whatsapp')} onPress={() => messageSalon(salon)} />
+            <Action icon={Navigation} label={i18n.t('directions')} onPress={() => openDirections(salon)} />
+            <Action icon={Share2} label={i18n.t('share')} onPress={() => shareSalon(salon, i18n.tx(salon.tagline))} />
           </View>
 
           <SegmentedControl<Tab>
@@ -187,19 +189,19 @@ function SalonDetail({ salon }: { salon: Salon }) {
             value={tab}
             onChange={setTab}
             options={[
-              { value: 'services', label: 'Services' },
-              { value: 'masters', label: 'Masters' },
-              { value: 'reviews', label: 'Reviews' },
-              { value: 'about', label: 'About' },
+              { value: 'services', label: i18n.t('tabServices') },
+              { value: 'masters', label: i18n.t('tabMasters') },
+              { value: 'reviews', label: i18n.t('tabReviews') },
+              { value: 'about', label: i18n.t('tabAbout') },
             ]}
-            style={{ marginTop: 28 }}
+            style={{ marginTop: 24 }}
           />
 
           <Animated.View key={tab} entering={TAB_FADE}>
             {tab === 'services' ? <Services salon={salon} selected={selected} onToggle={toggle} /> : null}
             {tab === 'masters' ? <Masters salon={salon} onPick={(m) => book({ master: m.id })} /> : null}
             {tab === 'reviews' ? <Reviews salon={salon} /> : null}
-            {tab === 'about' ? <About salon={salon} /> : null}
+            {tab === 'about' ? <About salon={salon} distance={distance} /> : null}
           </Animated.View>
         </View>
       </Animated.ScrollView>
@@ -214,16 +216,24 @@ function SalonDetail({ salon }: { salon: Salon }) {
             headerBg,
           ]}
         />
-        <IconButton icon={ChevronLeft} label="Back" variant="glass" onPress={goBack} />
+        <IconButton icon={ChevronLeft} label={i18n.t('back')} variant="float" onPress={goBack} />
         <Animated.View pointerEvents="none" style={[styles.headerTitle, headerTitle]}>
-          <Text variant="serif" numberOfLines={1}>
+          <Text variant="headline" numberOfLines={1}>
             {salon.name}
           </Text>
         </Animated.View>
         <IconButton
+          icon={ArrowLeftRight}
+          label={comparing ? i18n.t('removeFromCompare') : i18n.t('addToCompare')}
+          variant="float"
+          active={comparing}
+          activeColor={c.accent}
+          onPress={onCompare}
+        />
+        <IconButton
           icon={Heart}
-          label={saved ? 'Remove from saved' : 'Save'}
-          variant="glass"
+          label={saved ? i18n.t('unsave') : i18n.t('save')}
+          variant="float"
           active={saved}
           activeColor={c.accent}
           haptic="light"
@@ -234,74 +244,69 @@ function SalonDetail({ salon }: { salon: Salon }) {
       <View
         style={[
           styles.bottomBar,
-          { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: c.bg, borderColor: c.line },
+          { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: c.surface, borderColor: c.line },
         ]}
       >
         {picked.length ? (
           <View style={{ flex: 1 }}>
             <Text variant="caption" tone="soft">
-              {plural(picked.length, 'service')} · {fmtDuration(minutes)}
+              {i18n.n(picked.length, 'service')} · {i18n.duration(minutes)}
             </Text>
-            <Text variant="price" style={{ fontSize: 22, lineHeight: 26 }}>
-              {fmtPrice(total)}
-            </Text>
+            <Text variant="title">{i18n.price(total)}</Text>
           </View>
         ) : (
           <View style={{ flex: 1 }}>
             <Text variant="caption" tone="soft">
-              {open.open ? 'Taking bookings today' : 'Book for later this week'}
+              {open.open ? i18n.t('takingToday') : i18n.t('bookLater')}
             </Text>
-            <Text variant="serif">Pick a time that suits you</Text>
+            <Text variant="bodyStrong">{i18n.t('pickTime')}</Text>
           </View>
         )}
-        <Button label={picked.length ? 'Choose time' : 'Book'} iconRight={ArrowRight} onPress={() => book()} />
+        <Button label={picked.length ? i18n.t('chooseTime') : i18n.t('book')} onPress={() => book()} />
       </View>
     </View>
   );
 }
 
-function Stat({
-  big,
-  small,
-  accessory,
-  serifSmall,
-  onPress,
-}: {
-  big: string;
-  small: string;
-  accessory?: ReactNode;
-  serifSmall?: boolean;
-  onPress?: () => void;
-}) {
-  const content = (
-    <View style={styles.stat}>
-      <Text style={{ fontFamily: fonts.display, fontSize: 24, lineHeight: 28 }}>{big}</Text>
-      {accessory}
-      <Text variant="caption" tone="soft" style={serifSmall && { fontFamily: fonts.display, fontSize: 14 }}>
-        {small}
+function Badge({ label }: { label: string }) {
+  const { c } = useTheme();
+  return (
+    <View style={[styles.badge, { backgroundColor: c.sunken }]}>
+      <Text variant="captionStrong" tone="soft">
+        {label}
       </Text>
     </View>
   );
-  return onPress ? (
-    <PressableScale onPress={onPress} hitStyle={{ flex: 1 }} accessibilityLabel={`${big}, ${small}`}>
-      {content}
+}
+
+function Action({ icon: Icon, label, onPress }: { icon: LucideIcon; label: string; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <PressableScale
+      onPress={onPress}
+      haptic="selection"
+      accessibilityLabel={label}
+      hitStyle={{ flex: 1 }}
+      style={styles.action}
+    >
+      <View style={[styles.actionIcon, { backgroundColor: c.surface, borderColor: c.line }]}>
+        <Icon size={20} color={c.ink} strokeWidth={1.9} />
+      </View>
+      <Text variant="captionStrong" numberOfLines={1}>
+        {label}
+      </Text>
     </PressableScale>
-  ) : (
-    <View style={{ flex: 1 }}>{content}</View>
   );
 }
 
 function Services({ salon, selected, onToggle }: { salon: Salon; selected: string[]; onToggle: (id: string) => void }) {
+  const i18n = useI18n();
   const groups = salon.categories.map((cat) => ({ cat, items: salon.services.filter((s) => s.category === cat) }));
   return (
-    <View style={{ paddingTop: 8 }}>
+    <View style={{ paddingTop: 4 }}>
       {groups.map(({ cat, items }) => (
         <View key={cat} style={{ marginTop: 16 }}>
-          {groups.length > 1 ? (
-            <Text variant="label" tone="muted" style={{ marginBottom: 2 }}>
-              {categoryById[cat].label}
-            </Text>
-          ) : null}
+          {groups.length > 1 ? <Text variant="headline">{i18n.tx(categoryById[cat].label)}</Text> : null}
           {items.map((s, i) => (
             <ServiceRow
               key={s.id}
@@ -319,47 +324,49 @@ function Services({ salon, selected, onToggle }: { salon: Salon; selected: strin
 
 function Masters({ salon, onPick }: { salon: Salon; onPick: (m: Master) => void }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const bookings = useStore((s) => s.bookings);
-  const now = new Date();
+  const followed = useStore((s) => s.followed);
+  const toggleFollow = useStore((s) => s.toggleFollow);
+  const [now] = useState(() => new Date());
   return (
     <View style={{ paddingTop: 16, gap: 12 }}>
       {salon.masters.map((m) => {
         const firstService = salon.services.find((s) => m.serviceIds.includes(s.id));
         const next = nextAvailable({ salon, master: m, durationMin: firstService?.durationMin ?? 45, bookings, now });
+        const following = followed.includes(m.id);
         return (
-          <PressableScale
-            key={m.id}
-            onPress={() => onPick(m)}
-            scaleTo={0.985}
-            accessibilityLabel={`${m.name}, ${m.role}. Book`}
-            style={[styles.masterCard, { backgroundColor: c.surface, borderColor: c.line }]}
-          >
-            <Avatar name={m.name} tone={m.tone} size={56} />
-            <View style={{ flex: 1, gap: 2 }}>
-              <Text variant="serif" style={{ fontSize: 19 }}>
-                {m.name}
-              </Text>
-              <Text variant="caption" tone="soft">
-                {m.role} · {plural(m.years, 'year')}
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
+          <View key={m.id} style={[styles.masterCard, { backgroundColor: c.surface }, shadow(c, 1)]}>
+            <View style={styles.masterTop}>
+              <Avatar name={m.name} tone={m.tone} size={52} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text variant="headline">{m.name}</Text>
+                <Text variant="subhead" tone="soft">
+                  {i18n.tx(m.role)} · {i18n.t('experience', { years: i18n.n(m.years, 'year') })}
+                </Text>
                 <RatingInline rating={m.rating} count={m.reviewCount} size="sm" />
               </View>
+              <IconButton
+                icon={following ? UserCheck : UserPlus}
+                label={following ? i18n.t('following') : i18n.t('follow')}
+                active={following}
+                activeColor={c.ink}
+                size={40}
+                onPress={() => toggleFollow(m.id)}
+              />
             </View>
-            <View style={{ alignItems: 'flex-end', gap: 2 }}>
-              <Text variant="label" tone="muted" style={{ fontSize: 9.5 }}>
-                Next free
-              </Text>
-              <Text variant="callout" style={{ fontFamily: fonts.bodyMedium }}>
-                {next ? relativeDay(next) : 'Fully booked'}
-              </Text>
-              {next ? (
-                <Text variant="mono" tone="accent">
-                  {fmtClock(minutesOfDay(next))}
+            <View style={[styles.masterBottom, { borderColor: c.line }]}>
+              <View style={{ flex: 1 }}>
+                <Text variant="caption" tone="muted">
+                  {i18n.t('nextFree')}
                 </Text>
-              ) : null}
+                <Text variant="bodyStrong" style={{ color: next ? c.success : c.inkMuted }}>
+                  {next ? `${i18n.relativeDay(next)}, ${fmtClock(minutesOfDay(next))}` : i18n.t('fullyBooked')}
+                </Text>
+              </View>
+              <Button label={i18n.t('book')} size="sm" onPress={() => onPick(m)} />
             </View>
-          </PressableScale>
+          </View>
         );
       })}
     </View>
@@ -367,51 +374,61 @@ function Masters({ salon, onPick }: { salon: Salon; onPick: (m: Master) => void 
 }
 
 function Reviews({ salon }: { salon: Salon }) {
+  const { c } = useTheme();
+  const i18n = useI18n();
   const live = useLiveRating(salon);
   const dist = useDistribution(salon);
   const reviews = useSalonReviews(salon.id);
+  const bookings = useStore((s) => s.bookings);
+  const reviewable = bookings
+    .filter((b) => b.salonId === salon.id && !b.reviewed && isCompleted(b))
+    .sort((a, b) => b.start.localeCompare(a.start))[0];
   return (
-    <View style={{ paddingTop: 24 }}>
+    <View style={{ paddingTop: 22 }}>
       <RatingSummary rating={live.rating} count={live.count} distribution={dist} />
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
+      {reviewable ? (
         <Button
-          label="Write a review"
-          variant="secondary"
-          size="md"
-          hitStyle={{ flex: 1 }}
-          onPress={() => router.push({ pathname: '/review/[id]', params: { id: salon.id } })}
+          label={i18n.t('rateVisit')}
+          style={{ marginTop: 18 }}
+          onPress={() => router.push({ pathname: '/review/[id]', params: { id: salon.id, booking: reviewable.id } })}
         />
-        <Button
-          label="Read all"
-          variant="ghost"
-          size="md"
-          iconRight={ArrowRight}
-          onPress={() => router.push({ pathname: '/reviews/[id]', params: { id: salon.id } })}
-        />
-      </View>
-      <View style={{ marginTop: 8 }}>
+      ) : (
+        <View style={[styles.note, { backgroundColor: c.sunken }]}>
+          <Text variant="caption" tone="soft">
+            {i18n.t('reviewsAfterVisit')}
+          </Text>
+        </View>
+      )}
+      <View style={{ marginTop: 6 }}>
         {reviews.slice(0, 3).map((r, i, arr) => (
           <ReviewCard key={r.id} review={r} salon={salon} last={i === arr.length - 1} />
         ))}
       </View>
+      <Button
+        label={i18n.t('readAll')}
+        variant="secondary"
+        size="md"
+        iconRight={ChevronRight}
+        onPress={() => router.push({ pathname: '/reviews/[id]', params: { id: salon.id } })}
+      />
     </View>
   );
 }
 
-function About({ salon }: { salon: Salon }) {
+function About({ salon, distance }: { salon: Salon; distance: number }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const today = new Date().getDay();
-  // Monday-first week.
   const days = [1, 2, 3, 4, 5, 6, 0];
   return (
-    <View style={{ paddingTop: 24, gap: 28 }}>
-      <Text variant="body" style={{ fontSize: 16, lineHeight: 25 }}>
-        {salon.about}
+    <View style={{ paddingTop: 20, gap: 26 }}>
+      <Text variant="body" style={{ fontSize: 16, lineHeight: 24 }}>
+        {i18n.tx(salon.about)}
       </Text>
 
       <View>
-        <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
-          Opening hours
+        <Text variant="headline" style={{ marginBottom: 6 }}>
+          {i18n.t('openingHours')}
         </Text>
         {days.map((d) => {
           const closed = salon.closedDays.includes(d);
@@ -420,12 +437,12 @@ function About({ salon }: { salon: Salon }) {
           date.setDate(date.getDate() + ((d - today + 7) % 7));
           return (
             <View key={d} style={[styles.hoursRow, { borderColor: c.line }]}>
-              <Text variant="callout" style={isToday && { fontFamily: fonts.bodySemibold }}>
-                {weekdayLong(date)}
-                {isToday ? '  ·  Today' : ''}
+              <Text variant="subhead" style={isToday && { fontFamily: fonts.semibold }}>
+                {i18n.weekdayLong(date)}
+                {isToday ? ` · ${i18n.t('todaySuffix')}` : ''}
               </Text>
-              <Text variant="mono" tone={closed ? 'muted' : 'ink'}>
-                {closed ? 'CLOSED' : `${salon.hours.open} – ${salon.hours.close}`}
+              <Text variant="subhead" tone={closed ? 'muted' : 'ink'} style={{ fontVariant: ['tabular-nums'] }}>
+                {closed ? i18n.t('closed') : `${salon.hours.open} – ${salon.hours.close}`}
               </Text>
             </View>
           );
@@ -433,13 +450,13 @@ function About({ salon }: { salon: Salon }) {
       </View>
 
       <View>
-        <Text variant="label" tone="muted" style={{ marginBottom: 10 }}>
-          Good to know
+        <Text variant="headline" style={{ marginBottom: 10 }}>
+          {i18n.t('goodToKnow')}
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {salon.amenities.map((a) => (
-            <View key={a} style={[styles.amenity, { borderColor: c.lineStrong }]}>
-              <Text variant="caption">{a}</Text>
+            <View key={a.en} style={[styles.amenity, { backgroundColor: c.surface, borderColor: c.line }]}>
+              <Text variant="caption">{i18n.tx(a)}</Text>
             </View>
           ))}
         </View>
@@ -448,55 +465,58 @@ function About({ salon }: { salon: Salon }) {
       <PressableScale
         onPress={() => openDirections(salon)}
         scaleTo={0.985}
-        accessibilityLabel={`Directions to ${salon.address}`}
-        style={[styles.addressCard, { backgroundColor: c.surface, borderColor: c.line }]}
+        accessibilityLabel={`${i18n.t('directions')}: ${salon.address}`}
+        style={[styles.addressCard, { backgroundColor: c.surface }, shadow(c, 1)]}
       >
-        <View style={[styles.addressIcon, { backgroundColor: c.accentSoft }]}>
-          <MapPin size={18} color={c.accent} strokeWidth={iconStroke} />
+        <View style={[styles.addressIcon, { backgroundColor: c.sunken }]}>
+          <MapPin size={18} color={c.ink} strokeWidth={2} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text variant="bodyMedium">{salon.address}</Text>
+          <Text variant="bodyStrong">{salon.address}</Text>
           <Text variant="caption" tone="soft">
-            {salon.district}, Baku · {salon.phone}
+            {salon.district} · {i18n.t('walk', { n: walkMinutes(distance) })} · {salon.phone}
           </Text>
         </View>
-        <ArrowRight size={18} color={c.inkSoft} strokeWidth={iconStroke} />
+        <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
       </PressableScale>
     </View>
   );
 }
 
 function NotFound() {
+  const i18n = useI18n();
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
       <Text variant="title" align="center">
-        This place has closed its doors.
+        {i18n.t('notFound')}
       </Text>
-      <Button label="Back to Discover" variant="secondary" onPress={() => router.replace('/')} />
+      <Button label={i18n.t('backToDiscover')} variant="secondary" onPress={() => router.replace('/')} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   sheet: {
-    marginTop: -28,
-    borderTopLeftRadius: radius.xl + 4,
-    borderTopRightRadius: radius.xl + 4,
+    marginTop: -20,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     paddingHorizontal: gutter,
-    paddingTop: 28,
+    paddingTop: 22,
   },
-  stats: {
-    flexDirection: 'row',
-    marginTop: 24,
-    paddingVertical: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  stat: { alignItems: 'center', gap: 4 },
-  statDivider: { width: StyleSheet.hairlineWidth },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, flexWrap: 'wrap' },
   statusDot: { width: 7, height: 7, borderRadius: 4 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 18, flexWrap: 'wrap' },
+  badges: { flexDirection: 'row', gap: 6, marginTop: 12, flexWrap: 'wrap' },
+  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
+  actions: { flexDirection: 'row', gap: 8, marginTop: 20 },
+  action: { alignItems: 'center', gap: 6 },
+  actionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     position: 'absolute',
     top: 0,
@@ -506,7 +526,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   headerTitle: { flex: 1, alignItems: 'center' },
   bottomBar: {
@@ -514,35 +534,36 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingTop: 14,
+    paddingTop: 12,
     paddingHorizontal: gutter,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  masterCard: {
+  masterCard: { borderRadius: radius.lg, padding: 14 },
+  masterTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  masterBottom: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 14,
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
+  note: { marginTop: 18, padding: 12, borderRadius: radius.md },
   hoursRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 11,
+    paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  amenity: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
-  addressCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 14,
-    borderRadius: radius.lg,
+  amenity: {
     borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
+  addressCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
   addressIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
 });

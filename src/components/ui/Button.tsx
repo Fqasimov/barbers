@@ -7,7 +7,7 @@ import { fonts, iconStroke, radius } from '@/theme/tokens';
 import { PressableScale, type HapticKind } from './PressableScale';
 import { Text } from './Text';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'accent';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'tinted';
 type Size = 'lg' | 'md' | 'sm';
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
   accessibilityHint?: string;
 };
 
-const heights: Record<Size, number> = { lg: 54, md: 44, sm: 36 };
+const heights: Record<Size, number> = { lg: 52, md: 44, sm: 36 };
 
 export function Button({
   label,
@@ -45,10 +45,12 @@ export function Button({
   const palette = {
     primary: { bg: c.primary, fg: c.onPrimary, border: c.primary },
     accent: { bg: c.accent, fg: c.onAccent, border: c.accent },
-    secondary: { bg: 'transparent', fg: c.ink, border: c.lineStrong },
+    secondary: { bg: c.surface, fg: c.ink, border: c.lineStrong },
+    tinted: { bg: c.sunken, fg: c.ink, border: c.sunken },
     ghost: { bg: 'transparent', fg: c.ink, border: 'transparent' },
   }[variant];
   const inactive = disabled || loading;
+  const iconSize = size === 'sm' ? 16 : 18;
 
   return (
     <PressableScale
@@ -64,10 +66,11 @@ export function Button({
         styles.base,
         {
           height: heights[size],
-          paddingHorizontal: size === 'sm' ? 14 : 22,
+          borderRadius: size === 'lg' ? radius.md : radius.sm,
+          paddingHorizontal: size === 'sm' ? 12 : 20,
           backgroundColor: palette.bg,
           borderColor: palette.border,
-          opacity: disabled ? 0.38 : 1,
+          opacity: disabled ? 0.35 : 1,
         },
         style,
       ]}
@@ -76,15 +79,19 @@ export function Button({
         <ActivityIndicator color={palette.fg} />
       ) : (
         <View style={styles.row}>
-          {Icon ? <Icon size={size === 'sm' ? 16 : 18} color={palette.fg} strokeWidth={iconStroke} /> : null}
+          {Icon ? <Icon size={iconSize} color={palette.fg} strokeWidth={iconStroke} /> : null}
           <Text
-            variant={size === 'sm' ? 'caption' : 'bodyMedium'}
-            style={{ color: palette.fg, fontFamily: fonts.bodyMedium }}
             numberOfLines={1}
+            style={{
+              color: palette.fg,
+              fontFamily: fonts.semibold,
+              fontSize: size === 'sm' ? 13.5 : 15.5,
+              lineHeight: 20,
+            }}
           >
             {label}
           </Text>
-          {IconRight ? <IconRight size={size === 'sm' ? 16 : 18} color={palette.fg} strokeWidth={iconStroke} /> : null}
+          {IconRight ? <IconRight size={iconSize} color={palette.fg} strokeWidth={iconStroke} /> : null}
         </View>
       )}
     </PressableScale>
@@ -92,11 +99,6 @@ export function Button({
 }
 
 const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  base: { borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

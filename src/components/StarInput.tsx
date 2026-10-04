@@ -5,6 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration } from '@/theme/tokens';
 
@@ -19,6 +20,7 @@ const GAP = 10;
  */
 export function StarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const { c } = useTheme();
+  const { t } = useI18n();
   const current = useSharedValue(value);
   useEffect(() => {
     current.set(value);
@@ -55,8 +57,8 @@ export function StarInput({ value, onChange }: { value: number; onChange: (v: nu
         style={styles.row}
         accessible
         accessibilityRole="adjustable"
-        accessibilityLabel="Rating"
-        accessibilityValue={{ min: 0, max: 5, now: value, text: value ? `${value} of 5 stars` : 'Not rated' }}
+        accessibilityLabel={t('ratingLabel')}
+        accessibilityValue={{ min: 0, max: 5, now: value, text: value ? t('ofFive', { n: value }) : t('notRated') }}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(e) => {
           if (e.nativeEvent.actionName === 'increment') onChange(Math.min(5, value + 1));
@@ -77,8 +79,8 @@ export function StarInput({ value, onChange }: { value: number; onChange: (v: nu
             >
               <Star
                 size={SIZE}
-                color={on ? c.accent : c.lineStrong}
-                fill={on ? c.accent : 'transparent'}
+                color={on ? c.star : c.lineStrong}
+                fill={on ? c.star : 'transparent'}
                 strokeWidth={1.1}
               />
             </Animated.View>

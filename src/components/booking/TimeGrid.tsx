@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { groupSlots } from '@/data/availability';
+import { useI18n } from '@/i18n';
 import { fmtClock } from '@/lib/time';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration, fonts, radius } from '@/theme/tokens';
@@ -13,16 +14,15 @@ type Props = { slots: number[]; selected: number | null; onSelect: (minutes: num
 
 export function TimeGrid({ slots, selected, onSelect }: Props) {
   const { c } = useTheme();
+  const i18n = useI18n();
   return (
     <View style={{ gap: 22 }}>
       {groupSlots(slots).map((group) => (
         <View key={group.label} style={{ gap: 10 }}>
           <View style={styles.groupHead}>
-            <Text variant="label" tone="muted">
-              {group.label}
-            </Text>
-            <Text variant="mono" tone="muted" style={{ fontSize: 11 }}>
-              {group.slots.length} free
+            <Text variant="bodyStrong">{i18n.t(group.label)}</Text>
+            <Text variant="caption" tone="muted">
+              {i18n.n(group.slots.length, 'slot')}
             </Text>
           </View>
           <View style={styles.grid} accessibilityRole="radiogroup">
@@ -85,5 +85,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  time: { fontFamily: fonts.monoMedium, fontSize: 14, letterSpacing: 0.3 },
+  time: { fontFamily: fonts.semibold, fontSize: 15, fontVariant: ['tabular-nums'] },
 });

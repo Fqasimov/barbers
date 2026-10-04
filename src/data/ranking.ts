@@ -79,16 +79,21 @@ export function rankForMap(args: {
   return ranked.sort(by[sort]);
 }
 
-export type OpenState = { open: boolean; label: string };
+export type OpenState = {
+  open: boolean;
+  /** A key in the strings dictionary; `time` fills its placeholder. */
+  kind: 'openUntil' | 'closesSoon' | 'opensAt' | 'closedNow' | 'closedToday';
+  time?: string;
+};
 
 export function openState(salon: Salon, now = new Date()): OpenState {
   const dow = now.getDay();
-  if (salon.closedDays.includes(dow)) return { open: false, label: 'Closed today' };
+  if (salon.closedDays.includes(dow)) return { open: false, kind: 'closedToday' };
   const t = minutesOfDay(now);
   const open = toMinutes(salon.hours.open);
   const close = toMinutes(salon.hours.close);
-  if (t < open) return { open: false, label: `Opens ${salon.hours.open}` };
-  if (t >= close) return { open: false, label: 'Closed now' };
-  if (close - t <= 60) return { open: true, label: `Closes ${salon.hours.close}` };
-  return { open: true, label: `Open until ${salon.hours.close}` };
+  if (t < open) return { open: false, kind: 'opensAt', time: salon.hours.open };
+  if (t >= close) return { open: false, kind: 'closedNow' };
+  if (close - t <= 60) return { open: true, kind: 'closesSoon', time: salon.hours.close };
+  return { open: true, kind: 'openUntil', time: salon.hours.close };
 }

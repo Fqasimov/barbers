@@ -1,9 +1,10 @@
+import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
-  interpolate,
+  Easing,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -11,53 +12,70 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { APP_NAME, TAGLINE } from '@/constants/brand';
 import { brand, ease, fonts } from '@/theme/tokens';
 
-import { ScissorsArt } from './Scissors';
+/**
+ * Thirteen rendered frames of a pair of steel barber shears, 0° (shut) to 30°
+ * (wide open) in 2.5° steps. Rendered in 3D with studio lighting and a real
+ * contact shadow, so the snip reads as an object on the table, not an icon.
+ */
+const FRAMES = [
+  require('../../../assets/splash/shears-00.webp'),
+  require('../../../assets/splash/shears-01.webp'),
+  require('../../../assets/splash/shears-02.webp'),
+  require('../../../assets/splash/shears-03.webp'),
+  require('../../../assets/splash/shears-04.webp'),
+  require('../../../assets/splash/shears-05.webp'),
+  require('../../../assets/splash/shears-06.webp'),
+  require('../../../assets/splash/shears-07.webp'),
+  require('../../../assets/splash/shears-08.webp'),
+  require('../../../assets/splash/shears-09.webp'),
+  require('../../../assets/splash/shears-10.webp'),
+  require('../../../assets/splash/shears-11.webp'),
+  require('../../../assets/splash/shears-12.webp'),
+];
+const LAST = FRAMES.length - 1;
 
 /** Must match `imageWidth` of the native splash in app.json, so the hand-off is seamless. */
-export const SPLASH_SCISSORS_SIZE = 200;
-/** Long enough to read as a snip-snip-snip, short enough to never feel like waiting. */
-const MIN_HOLD_MS = 1350;
+export const SPLASH_SHEARS_WIDTH = 280;
+const SHEARS_HEIGHT = Math.round((SPLASH_SHEARS_WIDTH * 617) / 840);
+/** Long enough for two snips, short enough to never feel like waiting. */
+const MIN_HOLD_MS = 1300;
 
 type Props = { ready: boolean; onDone: () => void };
 
 /**
- * Launch sequence (once per cold start — the delight tier):
- *  1. The scissors snip open and shut while the app hydrates.
- *  2. One decisive snip; a hairline cut shoots across the screen.
- *  3. The ink sheet parts along the cut and reveals the app.
- * Reduced motion: no snipping, a single crossfade.
+ * Launch sequence (once per cold start):
+ *  1. The shears snip open and shut while the store hydrates.
+ *  2. One last full snip; as the blades close, the wordmark is cut — its top half slips sideways.
+ *  3. Everything lifts away and the app (same linen) is simply there.
+ * Reduced motion: shears stay shut, a single crossfade.
  */
 export function ScissorsSplash({ ready, onDone }: Props) {
-  const { height } = useWindowDimensions();
   const reduced = useReducedMotion();
-
   const open = useSharedValue(0);
   const cut = useSharedValue(0);
-  const split = useSharedValue(0);
-  const tools = useSharedValue(1);
   const word = useSharedValue(0);
-  const fade = useSharedValue(1);
+  const out = useSharedValue(0);
 
   const [held, setHeld] = useState(false);
   const finishing = useRef(false);
 
   useEffect(() => {
-    word.set(withDelay(220, withTiming(1, { duration: 600, easing: ease.out })));
+    word.set(withDelay(200, withTiming(1, { duration: 520, easing: ease.out })));
     if (!reduced) {
       open.set(
         withDelay(
-          180,
+          260,
           withRepeat(
             withSequence(
-              withTiming(22, { duration: 280, easing: ease.inOut }),
-              withTiming(0, { duration: 140, easing: ease.out }),
-              withTiming(0, { duration: 120 }),
+              withTiming(LAST * 0.7, { duration: 300, easing: ease.inOut }),
+              withTiming(0, { duration: 150, easing: Easing.in(Easing.quad) }),
+              withTiming(0, { duration: 160 }),
             ),
             -1,
           ),
@@ -65,122 +83,145 @@ export function ScissorsSplash({ ready, onDone }: Props) {
       );
     }
     const t = setTimeout(() => setHeld(true), MIN_HOLD_MS);
-    return () => clearTimeout(t);
+    // Belt and braces: never leave the native splash up if the first frame is slow to report.
+    const hide = setTimeout(() => SplashScreen.hide(), 700);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(hide);
+    };
   }, [open, word, reduced]);
 
-  const part = useCallback(() => {
-    cut.set(withTiming(1, { duration: 260, easing: ease.out }));
-    tools.set(withDelay(240, withTiming(0, { duration: 160, easing: ease.out })));
-    split.set(
+  const leave = useCallback(() => {
+    out.set(
       withDelay(
-        280,
-        withTiming(1, { duration: 720, easing: ease.inOut }, (finished) => {
+        reduced ? 0 : 260,
+        withTiming(1, { duration: reduced ? 300 : 380, easing: ease.out }, (finished) => {
           if (finished) scheduleOnRN(onDone);
         }),
       ),
     );
-  }, [cut, tools, split, onDone]);
+  }, [out, reduced, onDone]);
 
   const finish = useCallback(() => {
     if (finishing.current) return;
     finishing.current = true;
-    if (reduced) {
-      fade.set(
-        withTiming(0, { duration: 320, easing: ease.out }, (finished) => {
-          if (finished) scheduleOnRN(onDone);
-        }),
-      );
-      return;
-    }
+    if (reduced) return leave();
     cancelAnimation(open);
     open.set(
       withSequence(
-        withTiming(34, { duration: 240, easing: ease.inOut }),
-        withTiming(0, { duration: 120, easing: ease.out }, (finished) => {
-          if (finished) scheduleOnRN(part);
+        withTiming(LAST, { duration: 260, easing: ease.inOut }),
+        withTiming(0, { duration: 130, easing: Easing.in(Easing.quad) }, (finished) => {
+          if (finished) scheduleOnRN(leave);
         }),
       ),
     );
-  }, [reduced, fade, open, part, onDone]);
+    // The cut lands as the blades meet.
+    cut.set(withDelay(330, withTiming(1, { duration: 220, easing: ease.out })));
+  }, [reduced, open, cut, leave]);
 
   useEffect(() => {
     if (ready && held) finish();
   }, [ready, held, finish]);
 
-  const half = height / 2;
-
-  const topStyle = useAnimatedStyle(() => ({ transform: [{ translateY: -split.get() * (half + 4) }] }));
-  const bottomStyle = useAnimatedStyle(() => ({ transform: [{ translateY: split.get() * (half + 4) }] }));
-  const edgeStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(split.get(), [0, 0.02, 1], [0, 0.7, 0.25]),
-  }));
-  const cutStyle = useAnimatedStyle(() => ({ opacity: tools.get(), transform: [{ scaleX: cut.get() }] }));
-  const scissorsStyle = useAnimatedStyle(() => ({
-    opacity: tools.get(),
-    transform: [{ scale: interpolate(tools.get(), [0, 1], [0.94, 1]) }],
+  const rootStyle = useAnimatedStyle(() => ({ opacity: 1 - out.get() }));
+  const stageStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -out.get() * 24 }, { scale: 1 - out.get() * 0.03 }],
   }));
   const wordStyle = useAnimatedStyle(() => ({
     opacity: word.get(),
-    transform: [{ translateY: (1 - word.get()) * 10 }],
+    transform: [{ translateY: (1 - word.get()) * 8 }],
   }));
-  const rootStyle = useAnimatedStyle(() => ({ opacity: fade.get() }));
+  const topSlice = useAnimatedStyle(() => ({ transform: [{ translateX: cut.get() * 3 }] }));
 
   return (
     <Animated.View
       style={[StyleSheet.absoluteFill, styles.root, rootStyle]}
-      onLayout={() => SplashScreen.hide()}
-      accessibilityLabel={`${APP_NAME} is loading`}
+      accessibilityLabel="Usta"
       accessibilityRole="progressbar"
     >
-      <Pressable style={StyleSheet.absoluteFill} onPress={() => ready && finish()} accessible={false}>
-        <Animated.View style={[styles.half, { top: 0, height: half }, topStyle]}>
-          <Animated.View style={[styles.edge, { bottom: 0 }, edgeStyle]} />
-        </Animated.View>
-
-        <Animated.View style={[styles.half, { top: half, height: half }, bottomStyle]}>
-          <Animated.View style={[styles.edge, { top: 0 }, edgeStyle]} />
+      <Pressable style={styles.center} onPress={() => ready && finish()} accessible={false}>
+        <Animated.View style={[styles.stage, stageStyle]}>
+          <View style={{ width: SPLASH_SHEARS_WIDTH, height: SHEARS_HEIGHT }}>
+            {FRAMES.map((src, i) => (
+              <Frame
+                key={i}
+                index={i}
+                source={src}
+                open={open}
+                onShown={i === 0 ? () => SplashScreen.hide() : undefined}
+              />
+            ))}
+          </View>
           <Animated.View style={[styles.wordmark, wordStyle]}>
-            <Animated.Text style={styles.word} maxFontSizeMultiplier={1}>
-              {APP_NAME}
-            </Animated.Text>
-            <Animated.Text style={styles.tagline} maxFontSizeMultiplier={1}>
-              {TAGLINE.toUpperCase()}
-            </Animated.Text>
+            <View style={{ height: WORD_LH }}>
+              <Animated.View style={[styles.slice, { top: 0, height: CUT_AT }, topSlice]}>
+                <Word />
+              </Animated.View>
+              <View style={[styles.slice, { top: CUT_AT, bottom: 0 }]}>
+                <View style={{ marginTop: -CUT_AT }}>
+                  <Word />
+                </View>
+              </View>
+              <View style={{ opacity: 0 }}>
+                <Word />
+              </View>
+            </View>
           </Animated.View>
         </Animated.View>
-
-        <Animated.View pointerEvents="none" style={[styles.cut, { top: half - 0.5 }, cutStyle]} />
-
-        <View pointerEvents="none" style={[styles.center, { top: half - SPLASH_SCISSORS_SIZE / 2 }]}>
-          <Animated.View style={scissorsStyle}>
-            <ScissorsArt size={SPLASH_SCISSORS_SIZE} open={open} />
-          </Animated.View>
-        </View>
       </Pressable>
     </Animated.View>
   );
 }
 
+const WORD_SIZE = 40;
+const WORD_LH = Math.round(WORD_SIZE * 1.12);
+const CUT_AT = Math.round(WORD_SIZE * 0.62);
+
+function Word() {
+  return (
+    <Animated.Text maxFontSizeMultiplier={1} style={styles.word}>
+      usta
+    </Animated.Text>
+  );
+}
+
+function Frame({
+  index,
+  source,
+  open,
+  onShown,
+}: {
+  index: number;
+  source: number;
+  open: SharedValue<number>;
+  onShown?: () => void;
+}) {
+  const style = useAnimatedStyle(() => ({ opacity: Math.round(open.get()) === index ? 1 : 0 }));
+  return (
+    <Animated.View style={[StyleSheet.absoluteFill, style]}>
+      <Image
+        source={source}
+        style={StyleSheet.absoluteFill}
+        contentFit="contain"
+        cachePolicy="memory"
+        transition={0}
+        onDisplay={onShown}
+      />
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
-  root: { zIndex: 100 },
-  half: { position: 'absolute', left: 0, right: 0, backgroundColor: brand.ink },
-  edge: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: brand.brass },
-  cut: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: brand.brassLight },
-  center: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
-  wordmark: { position: 'absolute', top: 92, left: 0, right: 0, alignItems: 'center' },
+  root: { zIndex: 100, backgroundColor: brand.linen },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  stage: { alignItems: 'center' },
+  wordmark: { position: 'absolute', top: SHEARS_HEIGHT + 56 },
+  slice: { position: 'absolute', left: 0, right: 0, overflow: 'hidden' },
   word: {
-    fontFamily: fonts.displayLightItalic,
-    fontSize: 46,
-    lineHeight: 54,
-    letterSpacing: -0.5,
-    color: brand.bone,
-  },
-  tagline: {
-    marginTop: 6,
-    fontFamily: fonts.mono,
-    fontSize: 10.5,
-    letterSpacing: 2.4,
-    color: brand.brass,
-    opacity: 0.8,
+    fontFamily: fonts.bold,
+    fontSize: WORD_SIZE,
+    lineHeight: WORD_LH,
+    letterSpacing: -WORD_SIZE * 0.045,
+    color: brand.ink,
   },
 });

@@ -1,11 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
-import { Navigation, Star, X } from 'lucide-react-native';
+import { CalendarDays, MessageCircle, Navigation, Star, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/EmptyState';
+import { SalonPhoto } from '@/components/SalonPhoto';
 import { useTabBarInset } from '@/components/TabBar';
 import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
@@ -15,12 +16,13 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Text } from '@/components/ui/Text';
 import { salonById } from '@/data/salons';
 import type { Booking } from '@/data/types';
-import { openDirections } from '@/lib/actions';
-import { fmtPrice } from '@/lib/format';
-import { fmtClock, fmtDuration, minutesOfDay, monthShort, relativeDay, weekdayShort } from '@/lib/time';
-import { useStore } from '@/store/useStore';
+import { useI18n } from '@/i18n';
+import { messageSalon, openDirections } from '@/lib/actions';
+import { firstName } from '@/lib/format';
+import { fmtClock, minutesOfDay } from '@/lib/time';
+import { bookingEnd, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { fonts, gutter, radius } from '@/theme/tokens';
+import { fonts, gutter, radius, shadow } from '@/theme/tokens';
 
 type Tab = 'upcoming' | 'past';
 const REFLOW = LinearTransition.duration(220);
@@ -28,6 +30,7 @@ const LEAVE = FadeOut.duration(160);
 
 export default function BookingsScreen() {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const bottom = useTabBarInset();
   const bookings = useStore((s) => s.bookings);
@@ -36,51 +39,49 @@ export default function BookingsScreen() {
   const [now, setNow] = useState(() => Date.now());
   useFocusEffect(useCallback(() => setNow(Date.now()), []));
 
-  const { upcoming, past } = useMemo(() => {
-    const end = (b: Booking) => new Date(b.start).getTime() + b.durationMin * 60_000;
-    return {
+  const { upcoming, past } = useMemo(
+    () => ({
       upcoming: bookings
-        .filter((b) => b.status === 'upcoming' && end(b) > now)
+        .filter((b) => b.status === 'upcoming' && bookingEnd(b) > now)
         .sort((a, b) => a.start.localeCompare(b.start)),
       past: bookings
-        .filter((b) => b.status === 'cancelled' || end(b) <= now)
+        .filter((b) => b.status === 'cancelled' || bookingEnd(b) <= now)
         .sort((a, b) => b.start.localeCompare(a.start)),
-    };
-  }, [bookings, now]);
+    }),
+    [bookings, now],
+  );
 
   const list = tab === 'upcoming' ? upcoming : past;
 
   return (
     <ScrollView
       style={{ backgroundColor: c.bg }}
-      contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: bottom, paddingHorizontal: gutter }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: bottom, paddingHorizontal: gutter }}
       showsVerticalScrollIndicator={false}
     >
-      <Text variant="label" tone="muted">
-        Your diary
-      </Text>
-      <Text variant="display" style={{ marginTop: 8 }} accessibilityRole="header">
-        Bookings
+      <Text variant="largeTitle" accessibilityRole="header">
+        {i18n.t('tabBookings')}
       </Text>
       <SegmentedControl<Tab>
         value={tab}
         onChange={setTab}
         options={[
-          { value: 'upcoming', label: `Upcoming${upcoming.length ? ` · ${upcoming.length}` : ''}` },
-          { value: 'past', label: 'Past' },
+          { value: 'upcoming', label: `${i18n.t('upcoming')}${upcoming.length ? ` · ${upcoming.length}` : ''}` },
+          { value: 'past', label: i18n.t('past') },
         ]}
-        style={{ marginTop: 20, marginBottom: 8 }}
+        style={{ marginTop: 16, marginBottom: 8 }}
       />
 
       {list.length === 0 ? (
         tab === 'upcoming' ? (
           <EmptyState
-            title="Nothing booked yet"
-            body="Find a master you trust and pick a time — it takes under a minute."
-            action={{ label: 'Discover places', onPress: () => router.navigate('/') }}
+            icon={CalendarDays}
+            title={i18n.t('emptyUpcomingTitle')}
+            body={i18n.t('emptyUpcomingBody')}
+            action={{ label: i18n.t('discoverPlaces'), onPress: () => router.navigate('/') }}
           />
         ) : (
-          <EmptyState title="No history yet" body="Visits you’ve had will appear here, ready to review or rebook." />
+          <EmptyState icon={CalendarDays} title={i18n.t('emptyPastTitle')} body={i18n.t('emptyPastBody')} />
         )
       ) : (
         <View style={{ gap: 14, marginTop: 12 }}>
@@ -97,6 +98,7 @@ export default function BookingsScreen() {
 
 function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const cancelBooking = useStore((s) => s.cancelBooking);
   const salon = salonById(booking.salonId);
   if (!salon) return null;
@@ -105,70 +107,73 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const master = salon.masters.find((m) => m.id === booking.masterId);
   const services = salon.services.filter((s) => booking.serviceIds.includes(s.id));
   const cancelled = booking.status === 'cancelled';
+  const serviceNames = services.map((s) => i18n.tx(s.name)).join(' + ');
 
   const cancel = () => {
     const run = () => {
       cancelBooking(booking.id);
-      toast('Booking cancelled. The slot is free again.', 'info');
+      toast(i18n.t('cancelledToast'), 'info');
     };
-    if (Platform.OS === 'web') {
-      run();
-      return;
-    }
-    Alert.alert('Cancel this booking?', `${relativeDay(start)} at ${fmtClock(startMin)}, ${salon.name}.`, [
-      { text: 'Keep it', style: 'cancel' },
-      { text: 'Cancel booking', style: 'destructive', onPress: run },
+    if (Platform.OS === 'web') return run();
+    Alert.alert(i18n.t('cancelTitle'), `${i18n.relativeDay(start)}, ${fmtClock(startMin)} · ${salon.name}`, [
+      { text: i18n.t('keep'), style: 'cancel' },
+      { text: i18n.t('cancelBooking'), style: 'destructive', onPress: run },
     ]);
   };
 
+  const whatsapp = () =>
+    messageSalon(
+      salon,
+      i18n.t('waMessage', { day: i18n.relativeDay(start), time: fmtClock(startMin), services: serviceNames }),
+    );
+
+  const status = cancelled ? i18n.t('cancelled') : past ? i18n.t('completed') : i18n.relativeDay(start);
+
   return (
-    <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.line, opacity: cancelled ? 0.6 : 1 }]}>
+    <View style={[styles.card, { backgroundColor: c.surface, opacity: cancelled ? 0.6 : 1 }, shadow(c, 1)]}>
       <PressableScale
         onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
         scaleTo={0.99}
-        accessibilityLabel={`${salon.name}, ${relativeDay(start)} at ${fmtClock(startMin)}`}
+        accessibilityLabel={`${salon.name}, ${status}, ${fmtClock(startMin)}`}
         style={styles.top}
       >
         <View style={[styles.date, { backgroundColor: past ? c.sunken : c.primary }]}>
-          <Text variant="label" style={{ color: past ? c.inkSoft : c.onPrimary, opacity: 0.8, fontSize: 10 }}>
-            {weekdayShort(start)}
+          <Text variant="micro" style={{ color: past ? c.inkSoft : c.onPrimary }}>
+            {i18n.weekdayShort(start)}
           </Text>
-          <Text
-            style={{ fontFamily: fonts.displayLight, fontSize: 30, lineHeight: 34, color: past ? c.ink : c.onPrimary }}
-          >
+          <Text style={{ fontFamily: fonts.bold, fontSize: 24, lineHeight: 28, color: past ? c.ink : c.onPrimary }}>
             {start.getDate()}
           </Text>
-          <Text variant="label" style={{ color: past ? c.inkSoft : c.onPrimary, opacity: 0.8, fontSize: 10 }}>
-            {monthShort(start)}
+          <Text variant="micro" style={{ color: past ? c.inkSoft : c.onPrimary }}>
+            {i18n.monthShort(start)}
           </Text>
         </View>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text variant="label" tone={cancelled ? 'danger' : past ? 'muted' : 'accent'}>
-            {cancelled ? 'Cancelled' : past ? 'Completed' : relativeDay(start)}
+          <Text variant="captionStrong" style={{ color: cancelled ? c.danger : past ? c.inkMuted : c.success }}>
+            {status}
           </Text>
           <Text variant="headline" numberOfLines={1}>
             {salon.name}
           </Text>
-          <Text variant="callout" tone="soft" numberOfLines={1}>
-            {fmtClock(startMin)} – {fmtClock(startMin + booking.durationMin)} · {fmtDuration(booking.durationMin)}
+          <Text variant="subhead" tone="soft" numberOfLines={1}>
+            {fmtClock(startMin)} – {fmtClock(startMin + booking.durationMin)} · {i18n.duration(booking.durationMin)}
           </Text>
         </View>
+        <SalonPhoto salon={salon} width={48} height={48} radius={radius.sm} />
       </PressableScale>
 
       <View style={[styles.details, { borderColor: c.line }]}>
         {master ? (
           <View style={styles.masterRow}>
             <Avatar name={master.name} tone={master.tone} size={28} />
-            <Text variant="callout" style={{ flex: 1 }} numberOfLines={1}>
-              {services.map((s) => s.name).join(' + ')} · {master.name.split(' ')[0]}
+            <Text variant="subhead" style={{ flex: 1 }} numberOfLines={1}>
+              {serviceNames} · {firstName(master.name)}
             </Text>
-            <Text variant="price" style={{ fontSize: 15 }}>
-              {fmtPrice(booking.total)}
-            </Text>
+            <Text variant="price">{i18n.price(booking.total)}</Text>
           </View>
         ) : null}
         {booking.note ? (
-          <Text variant="caption" tone="soft" italic style={{ marginTop: 8 }}>
+          <Text variant="caption" tone="soft" style={{ marginTop: 8 }}>
             “{booking.note}”
           </Text>
         ) : null}
@@ -180,11 +185,11 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
             <>
               {booking.reviewed ? (
                 <Text variant="caption" tone="soft" style={{ flex: 1 }}>
-                  Thanks for reviewing this visit.
+                  {i18n.t('thanksReviewed')}
                 </Text>
               ) : (
                 <Button
-                  label="Rate your visit"
+                  label={i18n.t('rateVisit')}
                   icon={Star}
                   size="sm"
                   onPress={() =>
@@ -193,7 +198,7 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
                 />
               )}
               <Button
-                label="Book again"
+                label={i18n.t('bookAgain')}
                 size="sm"
                 variant="secondary"
                 onPress={() =>
@@ -207,13 +212,20 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
           ) : (
             <>
               <Button
-                label="Directions"
+                label={i18n.t('whatsapp')}
+                icon={MessageCircle}
+                size="sm"
+                variant="secondary"
+                onPress={whatsapp}
+              />
+              <Button
+                label={i18n.t('directions')}
                 icon={Navigation}
                 size="sm"
                 variant="secondary"
                 onPress={() => openDirections(salon)}
               />
-              <Button label="Cancel" icon={X} size="sm" variant="ghost" onPress={cancel} haptic="medium" />
+              <Button label={i18n.t('cancel')} icon={X} size="sm" variant="ghost" onPress={cancel} haptic="medium" />
             </>
           )}
         </View>
@@ -223,15 +235,10 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  card: { borderRadius: radius.lg, overflow: 'hidden' },
   top: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14 },
-  date: { width: 62, height: 78, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  details: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderStyle: 'dashed',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
+  date: { width: 56, height: 68, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  details: { borderTopWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, paddingVertical: 12 },
   masterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   actions: {
     flexDirection: 'row',

@@ -4,8 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { Service } from '@/data/types';
-import { fmtPrice } from '@/lib/format';
-import { fmtDuration } from '@/lib/time';
+import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration } from '@/theme/tokens';
 
@@ -16,6 +15,7 @@ type Props = { service: Service; selected: boolean; onToggle: (id: string) => vo
 
 export const ServiceRow = memo(function ServiceRow({ service, selected, onToggle, last }: Props) {
   const { c } = useTheme();
+  const i18n = useI18n();
   const Icon = selected ? Check : Plus;
   return (
     <PressableScale
@@ -24,29 +24,27 @@ export const ServiceRow = memo(function ServiceRow({ service, selected, onToggle
       scaleTo={0.985}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
-      accessibilityLabel={`${service.name}, ${fmtDuration(service.durationMin)}, ${service.price} manat`}
+      accessibilityLabel={`${i18n.tx(service.name)}, ${i18n.duration(service.durationMin)}, ${i18n.price(service.price)}`}
       style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
     >
       <View style={{ flex: 1, gap: 3 }}>
-        <Text variant="serif" style={{ fontSize: 18 }}>
-          {service.name}
+        <Text variant="bodyStrong">{i18n.tx(service.name)}</Text>
+        <Text variant="subhead" tone="soft">
+          {i18n.duration(service.durationMin)}
         </Text>
         {service.description ? (
-          <Text variant="caption" tone="soft" numberOfLines={2}>
-            {service.description}
+          <Text variant="caption" tone="muted" numberOfLines={2}>
+            {i18n.tx(service.description)}
           </Text>
         ) : null}
-        <Text variant="mono" tone="muted" style={{ marginTop: 4 }}>
-          {fmtDuration(service.durationMin).toUpperCase()}
-        </Text>
       </View>
       <View style={styles.right}>
-        <Text variant="price">{fmtPrice(service.price)}</Text>
+        <Text variant="price">{i18n.price(service.price)}</Text>
         <Animated.View
           style={[
             styles.toggle,
             {
-              backgroundColor: selected ? c.primary : 'transparent',
+              backgroundColor: selected ? c.primary : c.surface,
               borderColor: selected ? c.primary : c.lineStrong,
               transitionProperty: ['backgroundColor', 'borderColor'],
               transitionDuration: duration.small,
@@ -54,7 +52,7 @@ export const ServiceRow = memo(function ServiceRow({ service, selected, onToggle
             },
           ]}
         >
-          <Icon size={16} color={selected ? c.onPrimary : c.ink} strokeWidth={1.8} />
+          <Icon size={16} color={selected ? c.onPrimary : c.ink} strokeWidth={2.2} />
         </Animated.View>
       </View>
     </PressableScale>
@@ -62,7 +60,7 @@ export const ServiceRow = memo(function ServiceRow({ service, selected, onToggle
 });
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 16, paddingVertical: 18 },
+  row: { flexDirection: 'row', gap: 16, paddingVertical: 16 },
   right: { alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 },
   toggle: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 });

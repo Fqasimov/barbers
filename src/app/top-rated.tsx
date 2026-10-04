@@ -4,23 +4,26 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { RankRow } from '@/components/RankRow';
+import { SalonRow } from '@/components/SalonRow';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Chip } from '@/components/ui/Chip';
 import { Text } from '@/components/ui/Text';
 import { categories, categoryById } from '@/data/categories';
+import { categoryIcon } from '@/data/icons';
 import { topRated } from '@/data/ranking';
 import { salons } from '@/data/salons';
 import type { CategoryId } from '@/data/types';
+import { useI18n } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
 
-// The chart is short (one city), so a plain ScrollView; the whole list fades in once per filter.
+// A short list (one city), so a plain ScrollView; the list fades in once per filter.
 const LIST_IN = FadeIn.duration(200);
 
 export default function TopRatedScreen() {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ category?: CategoryId }>();
   const [category, setCategory] = useState<CategoryId | null>(params.category ?? null);
@@ -32,26 +35,30 @@ export default function TopRatedScreen() {
       <ScreenHeader />
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
         <View style={{ paddingHorizontal: gutter }}>
-          <Text variant="label" tone="muted">
-            The list · Baku
+          <Text variant="largeTitle" accessibilityRole="header">
+            {category
+              ? i18n.t('bestOf', { cat: i18n.tx(categoryById[category].plural).toLocaleLowerCase(i18n.locale) })
+              : i18n.t('bestInBaku')}
           </Text>
-          <Text variant="display" style={{ marginTop: 8 }} accessibilityRole="header">
-            {category ? `The best ${categoryById[category].plural.toLowerCase()}` : 'Top rated, all of Baku'}
-          </Text>
-          <Text variant="callout" tone="soft" style={{ marginTop: 10 }}>
-            Ranked by a weighted rating: a place needs consistent scores across many visits to rise, so a handful of
-            perfect reviews can’t buy the top spot.
+          <Text variant="subhead" tone="soft" style={{ marginTop: 6 }}>
+            {i18n.t('rankingExplain')}
           </Text>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          <Chip label="Everything" selected={!category} onPress={() => setCategory(null)} />
+          <Chip label={i18n.t('all')} selected={!category} onPress={() => setCategory(null)} />
           {categories.map((cat) => (
-            <Chip key={cat.id} label={cat.label} selected={category === cat.id} onPress={() => setCategory(cat.id)} />
+            <Chip
+              key={cat.id}
+              icon={categoryIcon[cat.id]}
+              label={i18n.tx(cat.label)}
+              selected={category === cat.id}
+              onPress={() => setCategory(cat.id)}
+            />
           ))}
         </ScrollView>
         <Animated.View key={category ?? 'all'} entering={LIST_IN}>
           {ranked.map((item, index) => (
-            <RankRow key={item.salon.id} item={item} rank={index + 1} last={index === ranked.length - 1} />
+            <SalonRow key={item.salon.id} item={item} rank={index + 1} last={index === ranked.length - 1} />
           ))}
         </Animated.View>
       </ScrollView>
@@ -60,5 +67,5 @@ export default function TopRatedScreen() {
 }
 
 const styles = StyleSheet.create({
-  chips: { paddingHorizontal: gutter, gap: 8, paddingTop: 20, paddingBottom: 8 },
+  chips: { paddingHorizontal: gutter, gap: 8, paddingTop: 18, paddingBottom: 8 },
 });

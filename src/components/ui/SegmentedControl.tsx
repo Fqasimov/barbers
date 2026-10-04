@@ -61,7 +61,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, v
         pointerEvents="none"
         style={[
           underline ? styles.underline : styles.pill,
-          underline ? { backgroundColor: c.ink } : { backgroundColor: c.raised, shadowColor: '#000' },
+          underline ? { backgroundColor: c.ink } : { backgroundColor: c.surface, shadowColor: c.shadow },
           indicator,
         ]}
       />
@@ -120,5 +120,5 @@ const styles = StyleSheet.create({
   underline: { position: 'absolute', bottom: -StyleSheet.hairlineWidth, left: 0, height: 2 },
   segment: { height: 36, alignItems: 'center', justifyContent: 'center' },
   segmentUnderline: { height: 44 },
-  label: { fontFamily: fonts.bodyMedium, fontSize: 14 },
+  label: { fontFamily: fonts.semibold, fontSize: 14 },
 });

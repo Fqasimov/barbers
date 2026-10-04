@@ -1,3 +1,4 @@
+import type { Loc } from '@/i18n/types';
 import { seeded } from '@/lib/random';
 
 import { salons } from './salons';
@@ -24,168 +25,152 @@ const authors = [
   'Səadət F.',
   'Vüsal H.',
   'Fəridə Y.',
+  'Dmitri K.',
+  'Olga P.',
+  'James W.',
+  'Sophie L.',
 ];
 
-type Snippet = { rating: number; text: string; tags: string[] };
+export type TagId = 'skilled' | 'punctual' | 'friendly' | 'clean' | 'value' | 'relaxing';
 
+export const reviewTags: { id: TagId; label: Loc }[] = [
+  { id: 'skilled', label: { az: 'Peşəkar', ru: 'Профессионально', en: 'Skilled' } },
+  { id: 'punctual', label: { az: 'Vaxtında', ru: 'Без опозданий', en: 'Punctual' } },
+  { id: 'friendly', label: { az: 'Mehriban', ru: 'Приветливо', en: 'Friendly' } },
+  { id: 'clean', label: { az: 'Təmiz', ru: 'Чисто', en: 'Clean' } },
+  { id: 'value', label: { az: 'Qiymətinə dəyər', ru: 'Стоит своих денег', en: 'Great value' } },
+  { id: 'relaxing', label: { az: 'Rahat', ru: 'Расслабляюще', en: 'Relaxing' } },
+];
+
+type Snippet = { rating: number; text: string; tags: TagId[] };
+
+/** Written the way people in Baku actually write reviews: in Azerbaijani, Russian or English. */
 const byCategory: Record<CategoryId, Snippet[]> = {
   barber: [
     {
       rating: 5,
-      text: 'Best fade I have had in Baku. He took his time with the neckline and the razor work was spotless.',
-      tags: ['Skilled', 'Punctual'],
+      text: 'Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.',
+      tags: ['skilled', 'punctual'],
     },
     {
       rating: 5,
-      text: 'Walked in with a mess, walked out looking like I had somewhere important to be. Hot towel was a nice touch.',
-      tags: ['Skilled', 'Friendly'],
+      text: 'Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.',
+      tags: ['skilled', 'friendly'],
+    },
+    { rating: 4, text: 'Kəsim əla idi, amma 10 dəqiqə gözlədim. Kofe bunu kompensasiya etdi.', tags: ['value'] },
+    {
+      rating: 5,
+      text: 'Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.',
+      tags: ['skilled', 'friendly'],
+    },
+    {
+      rating: 5,
+      text: 'Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.',
+      tags: ['clean', 'skilled'],
     },
     {
       rating: 4,
-      text: 'Great cut, though I waited about ten minutes past my slot. Coffee made up for it.',
-      tags: ['Great value'],
+      text: 'Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.',
+      tags: ['value'],
     },
     {
       rating: 5,
-      text: 'Finally a barber who listens. Explained what would suit my hair instead of just cutting.',
-      tags: ['Friendly', 'Skilled'],
-    },
-    {
-      rating: 5,
-      text: 'Clean shop, sharp tools, sharper beard line. Booked my next visit before leaving.',
-      tags: ['Clean', 'Skilled'],
-    },
-    {
-      rating: 4,
-      text: 'Solid cut at a fair price. The shop gets busy on Saturdays so book ahead.',
-      tags: ['Great value'],
-    },
-    {
-      rating: 5,
-      text: 'The shave is a ritual. Three hot towels and not a single nick. Worth every manat.',
-      tags: ['Relaxing', 'Skilled'],
+      text: 'Təraş əsl ritualdır. Üç isti dəsmal və bir dənə də kəsik yox. Hər manatına dəyər.',
+      tags: ['relaxing', 'skilled'],
     },
     {
       rating: 3,
-      text: 'Haircut was fine but felt a bit rushed at the end. Would try a different barber here next time.',
+      text: 'Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.',
       tags: [],
     },
   ],
   hair: [
     {
       rating: 5,
-      text: 'My balayage grew out beautifully — no harsh lines even after eight weeks. Truly an artist.',
-      tags: ['Skilled'],
+      text: 'Balayajım səkkiz həftədən sonra da gözəl görünür — heç bir kəskin keçid yoxdur. Əsl rəssamdır.',
+      tags: ['skilled'],
     },
     {
       rating: 5,
-      text: 'She looked at old photos with me and nailed the cut first time. The blow-dry lasted three days.',
-      tags: ['Skilled', 'Friendly'],
+      text: 'Посмотрела со мной старые фото и попала в форму с первого раза. Укладка держалась три дня.',
+      tags: ['skilled', 'friendly'],
     },
     {
       rating: 4,
-      text: 'Gorgeous colour. Took longer than quoted, so do not book anything right after.',
-      tags: ['Skilled'],
+      text: 'Rəng çox gözəl alındı. Deyiləndən uzun çəkdi, ona görə sonrasına iş planlamayın.',
+      tags: ['skilled'],
     },
     {
       rating: 5,
-      text: 'Calm, beautiful space and a stylist who actually asks about your routine. I will not go anywhere else.',
-      tags: ['Relaxing', 'Clean'],
+      text: 'Calm, beautiful space and a stylist who actually asks about your routine. I won’t go anywhere else.',
+      tags: ['relaxing', 'clean'],
     },
-    {
-      rating: 5,
-      text: 'The keratin treatment changed my mornings. Frizz gone even in Baku wind.',
-      tags: ['Great value'],
-    },
-    { rating: 4, text: 'Lovely result, a little pricey, but you get what you pay for.', tags: ['Skilled'] },
+    { rating: 5, text: 'После кератина утро стало проще. Никакого пушения даже в бакинский ветер.', tags: ['value'] },
+    { rating: 4, text: 'Nəticə gözəldir, qiyməti bir az bahadır, amma keyfiyyətə görədir.', tags: ['skilled'] },
   ],
   nails: [
+    { rating: 5, text: 'Üç həftədir gel-lak bir dəfə də qopmayıb. Xətlər çox dəqiqdir.', tags: ['skilled', 'clean'] },
     {
       rating: 5,
-      text: 'Three weeks in and my gel has not chipped once. The lines are so precise.',
-      tags: ['Skilled', 'Clean'],
+      text: 'Все инструменты стерилизуются и вскрываются при тебе. Идеально чисто, а дизайн — ювелирная работа.',
+      tags: ['clean'],
     },
-    {
-      rating: 5,
-      text: 'Everything sterilised and sealed in front of you. Spotless, and the nail art is tiny perfection.',
-      tags: ['Clean'],
-    },
-    {
-      rating: 4,
-      text: 'Lovely manicure, slightly long wait at the start. Pedicure massage was heaven.',
-      tags: ['Relaxing'],
-    },
+    { rating: 4, text: 'Manikür gözəl idi, əvvəldə bir az gözlədim. Pedikür masajı isə möhtəşəm.', tags: ['relaxing'] },
     {
       rating: 5,
       text: 'Fast, friendly and fairly priced. Exactly what a weekday lunch break needs.',
-      tags: ['Punctual', 'Great value'],
+      tags: ['punctual', 'value'],
     },
     {
       rating: 4,
-      text: 'Good shape and finish. Colour choice is huge, maybe too huge — I could not decide.',
-      tags: ['Friendly'],
+      text: 'Хорошая форма и покрытие. Палитра огромная — даже слишком, долго выбирала.',
+      tags: ['friendly'],
     },
   ],
   brows: [
     {
       rating: 5,
-      text: 'She mapped my brows to my face and they finally look like a pair. Life-changing, honestly.',
-      tags: ['Skilled'],
+      text: 'Qaşlarımı üzümə görə eskizlədi — nəhayət ki, cüt kimi görünürlər. Həyatımı dəyişdi, səmimi deyirəm.',
+      tags: ['skilled'],
     },
     {
       rating: 5,
-      text: 'Lash lift looks completely natural. People keep asking if I am wearing mascara.',
-      tags: ['Skilled', 'Friendly'],
+      text: 'Ламинирование ресниц выглядит совершенно естественно. Все спрашивают, накрашены ли они.',
+      tags: ['skilled', 'friendly'],
     },
-    {
-      rating: 4,
-      text: 'Lamination looks great, though it stung a little. Would still go back.',
-      tags: ['Great value'],
-    },
+    { rating: 4, text: 'Laminasiya gözəl alınıb, bir az göynətdi. Yenə də gələcəyəm.', tags: ['value'] },
     {
       rating: 5,
       text: 'Quick, precise and no redness afterwards. The best brow appointment in town.',
-      tags: ['Punctual', 'Clean'],
+      tags: ['punctual', 'clean'],
     },
   ],
   spa: [
+    { rating: 5, text: 'Kisə ən yaxşı mənada sərtdir. Çıxanda özümü yeni insan kimi hiss etdim.', tags: ['relaxing'] },
     {
       rating: 5,
-      text: 'The kese scrub is intense in the best way. I left feeling like a new person.',
-      tags: ['Relaxing'],
+      text: 'Глубокий массаж, который правда глубокий. Сам нашёл, где зажимы, без подсказок.',
+      tags: ['skilled', 'relaxing'],
     },
-    {
-      rating: 5,
-      text: 'Deep tissue that actually goes deep. Knew exactly where the tension was without asking.',
-      tags: ['Skilled', 'Relaxing'],
-    },
-    {
-      rating: 4,
-      text: 'Beautiful marble rooms. A bit busy on Friday evening, go earlier in the week.',
-      tags: ['Clean'],
-    },
+    { rating: 4, text: 'Mərmər otaqlar çox gözəldir. Cümə axşamı adam çox olur, həftə əvvəli gəlin.', tags: ['clean'] },
     {
       rating: 5,
       text: 'The facial was calm and thorough, and my skin glowed for days.',
-      tags: ['Relaxing', 'Skilled'],
+      tags: ['relaxing', 'skilled'],
     },
   ],
   makeup: [
+    { rating: 5, text: 'Toy makiyajımı etdi — göz yaşı və rəqslə on dörd saat davam etdi.', tags: ['skilled'] },
     {
       rating: 5,
-      text: 'Did my wedding makeup — it lasted fourteen hours, through tears and dancing.',
-      tags: ['Skilled'],
+      text: 'Мягко, сияюще и при этом это всё ещё я. Ровно тот вечерний образ, который я просила.',
+      tags: ['skilled', 'friendly'],
     },
-    {
-      rating: 5,
-      text: 'Soft, glowing and still me. Exactly the evening look I asked for.',
-      tags: ['Skilled', 'Friendly'],
-    },
-    { rating: 4, text: 'Lovely work and great products. Running a little late but worth it.', tags: ['Skilled'] },
+    { rating: 4, text: 'Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.', tags: ['skilled'] },
   ],
 };
 
-/** A few visible reviews per venue. Dates are relative to now, so the app never feels stale. */
+/** A few visible reviews per venue, each from a verified visit. Dates are relative to now. */
 function buildSeedReviews(): Review[] {
   const now = Date.now();
   const out: Review[] = [];
@@ -222,5 +207,3 @@ function buildSeedReviews(): Review[] {
 }
 
 export const seedReviews: Review[] = buildSeedReviews();
-
-export const reviewTags = ['Skilled', 'Punctual', 'Friendly', 'Clean', 'Great value', 'Relaxing'];

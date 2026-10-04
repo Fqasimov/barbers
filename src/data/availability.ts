@@ -146,13 +146,13 @@ export function anyMasterWeek(args: {
   return { days, assign };
 }
 
-export type SlotGroup = { label: 'Morning' | 'Afternoon' | 'Evening'; slots: number[] };
+export type SlotGroup = { label: 'morning' | 'afternoon' | 'evening'; slots: number[] };
 
 export function groupSlots(slots: number[]): SlotGroup[] {
   const groups: SlotGroup[] = [
-    { label: 'Morning', slots: slots.filter((s) => s < 12 * 60) },
-    { label: 'Afternoon', slots: slots.filter((s) => s >= 12 * 60 && s < 17 * 60) },
-    { label: 'Evening', slots: slots.filter((s) => s >= 17 * 60) },
+    { label: 'morning', slots: slots.filter((s) => s < 12 * 60) },
+    { label: 'afternoon', slots: slots.filter((s) => s >= 12 * 60 && s < 17 * 60) },
+    { label: 'evening', slots: slots.filter((s) => s >= 17 * 60) },
   ];
   return groups.filter((g) => g.slots.length > 0);
 }

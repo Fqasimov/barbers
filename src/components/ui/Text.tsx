@@ -4,46 +4,37 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, type Palette } from '@/theme/tokens';
 
 export type TextVariant =
-  | 'hero'
-  | 'display'
+  | 'largeTitle'
   | 'title'
   | 'headline'
-  | 'serif'
-  | 'price'
   | 'body'
-  | 'bodyMedium'
+  | 'bodyStrong'
   | 'callout'
+  | 'subhead'
   | 'caption'
-  | 'label'
-  | 'mono';
+  | 'captionStrong'
+  | 'micro'
+  | 'price'
+  | 'stat';
 
 type Tone = 'ink' | 'soft' | 'muted' | 'accent' | 'onPrimary' | 'success' | 'danger' | 'inherit';
 
 const variants: Record<TextVariant, TextStyle> = {
-  hero: { fontFamily: fonts.displayLight, fontSize: 44, lineHeight: 46, letterSpacing: -1.1 },
-  display: { fontFamily: fonts.displayLight, fontSize: 36, lineHeight: 40, letterSpacing: -0.8 },
-  title: { fontFamily: fonts.display, fontSize: 28, lineHeight: 32, letterSpacing: -0.5 },
-  headline: { fontFamily: fonts.display, fontSize: 21, lineHeight: 26, letterSpacing: -0.2 },
-  serif: { fontFamily: fonts.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.1 },
-  price: { fontFamily: fonts.displayMedium, fontSize: 17, lineHeight: 22 },
-  body: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
-  bodyMedium: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 22 },
-  callout: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20 },
-  caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
-  label: { fontFamily: fonts.monoMedium, fontSize: 11, lineHeight: 14, letterSpacing: 1.2, textTransform: 'uppercase' },
-  mono: { fontFamily: fonts.mono, fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
+  largeTitle: { fontFamily: fonts.bold, fontSize: 30, lineHeight: 36, letterSpacing: -0.7 },
+  title: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 28, letterSpacing: -0.45 },
+  headline: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
+  body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+  bodyStrong: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 21, letterSpacing: -0.1 },
+  callout: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19 },
+  subhead: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 19 },
+  caption: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 17 },
+  captionStrong: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 17 },
+  micro: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 14, letterSpacing: 0.1 },
+  price: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 20, fontVariant: ['tabular-nums'] },
+  stat: { fontFamily: fonts.bold, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
 };
 
-const italicFor: Partial<Record<TextVariant, string>> = {
-  hero: fonts.displayLightItalic,
-  display: fonts.displayLightItalic,
-  title: fonts.displayItalic,
-  headline: fonts.displayItalic,
-  serif: fonts.displayItalic,
-};
-
-/** Display sizes cap their scaling so hero type never breaks the layout. */
-const maxScale: Partial<Record<TextVariant, number>> = { hero: 1.2, display: 1.25, title: 1.3, label: 1.4 };
+const maxScale: Partial<Record<TextVariant, number>> = { largeTitle: 1.25, title: 1.3, stat: 1.25, micro: 1.4 };
 
 const toneColor = (c: Palette, tone: Tone) =>
   ({
@@ -57,22 +48,15 @@ const toneColor = (c: Palette, tone: Tone) =>
     inherit: undefined,
   })[tone];
 
-export type TextProps = RNTextProps & {
-  variant?: TextVariant;
-  tone?: Tone;
-  italic?: boolean;
-  align?: TextStyle['textAlign'];
-};
+export type TextProps = RNTextProps & { variant?: TextVariant; tone?: Tone; align?: TextStyle['textAlign'] };
 
-export function Text({ variant = 'body', tone = 'ink', italic, align, style, ...rest }: TextProps) {
+export function Text({ variant = 'body', tone = 'ink', align, style, ...rest }: TextProps) {
   const { c } = useTheme();
-  const base = variants[variant];
-  const family = italic && italicFor[variant] ? italicFor[variant] : base.fontFamily;
   return (
     <RNText
       maxFontSizeMultiplier={maxScale[variant] ?? 1.6}
       {...rest}
-      style={[base, { fontFamily: family, color: toneColor(c, tone), textAlign: align }, style]}
+      style={[variants[variant], { color: toneColor(c, tone), textAlign: align }, style]}
     />
   );
 }

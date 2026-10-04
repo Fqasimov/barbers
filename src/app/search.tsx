@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { ArrowUpRight, ChevronLeft, Search as SearchIcon, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Clock3, Search as SearchIcon, X } from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { SalonCover } from '@/components/SalonCover';
+import { SalonPhoto } from '@/components/SalonPhoto';
 import { goBack } from '@/components/ScreenHeader';
 import { Avatar } from '@/components/ui/Avatar';
 import { Chip } from '@/components/ui/Chip';
@@ -14,16 +14,16 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { RatingInline } from '@/components/ui/Stars';
 import { Text } from '@/components/ui/Text';
 import { categories } from '@/data/categories';
+import { categoryIcon } from '@/data/icons';
 import { liveRating } from '@/data/ranking';
-import { salons } from '@/data/salons';
-import type { Master, Salon, Service } from '@/data/types';
-import { fmtPrice } from '@/lib/format';
-import { fmtDuration } from '@/lib/time';
+import { salons, serviceCatalogue } from '@/data/salons';
+import type { Loc } from '@/i18n';
+import { useI18n } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { fonts, gutter, iconStroke, radius } from '@/theme/tokens';
+import { fonts, gutter, radius } from '@/theme/tokens';
 
-const POPULAR = ['Skin fade', 'Hot towel shave', 'Gel manicure', 'Balayage', 'Brow lamination', 'Hammam ritual'];
+const POPULAR = ['fade', 'shave', 'gel', 'balayage', 'lami', 'hammam'];
 
 /** Accent-insensitive: "kesim" finds "Kəsim", "seher" finds "Şəhər". */
 const fold = (s: string) =>
@@ -39,8 +39,12 @@ const fold = (s: string) =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '');
 
+/** Matches a localized string in any of its languages. */
+const allLangs = (loc: Loc) => `${loc.az} ${loc.ru} ${loc.en}`;
+
 export default function SearchScreen() {
   const { c } = useTheme();
+  const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const [q, setQ] = useState('');
   const [focused, setFocused] = useState(false);
@@ -49,41 +53,45 @@ export default function SearchScreen() {
 
   const results = useMemo(() => {
     if (needle.length < 2) return null;
-    const places = salons.filter((s) => fold(`${s.name} ${s.kind} ${s.district}`).includes(needle));
-    const services: { salon: Salon; service: Service }[] = salons
-      .flatMap((salon) => salon.services.map((service) => ({ salon, service })))
-      .filter(({ service }) => fold(service.name).includes(needle))
-      .sort((a, b) => liveRating(b.salon, localReviews).rating - liveRating(a.salon, localReviews).rating)
-      .slice(0, 8);
-    const masters: { salon: Salon; master: Master }[] = salons
+    const places = salons.filter((s) => fold(`${s.name} ${allLangs(s.kind)} ${s.district}`).includes(needle));
+    const services = serviceCatalogue
+      .filter((sv) => fold(allLangs(sv.name)).includes(needle))
+      .map((sv) => {
+        const offers = salons.flatMap((s) => s.services.filter((x) => x.key === sv.key));
+        return { ...sv, places: offers.length, from: Math.min(...offers.map((o) => o.price)) };
+      })
+      .filter((sv) => sv.places > 0);
+    const masters = salons
       .flatMap((salon) => salon.masters.map((master) => ({ salon, master })))
-      .filter(({ master }) => fold(`${master.name} ${master.role}`).includes(needle))
+      .filter(({ master }) => fold(`${master.name} ${allLangs(master.role)}`).includes(needle))
       .slice(0, 6);
     return { places, services, masters };
-  }, [needle, localReviews]);
+  }, [needle]);
 
   const empty = results && !results.places.length && !results.services.length && !results.masters.length;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View style={[styles.bar, { paddingTop: insets.top + 8 }]}>
-        <IconButton icon={ChevronLeft} label="Back" onPress={goBack} />
+        <IconButton icon={ChevronLeft} label={i18n.t('back')} onPress={goBack} />
         <View style={[styles.field, { backgroundColor: c.surface, borderColor: focused ? c.ink : c.line }]}>
-          <SearchIcon size={18} color={c.inkSoft} strokeWidth={iconStroke} style={{ flexShrink: 0 }} />
+          <SearchIcon size={18} color={c.inkSoft} strokeWidth={2} style={{ flexShrink: 0 }} />
           <TextInput
             autoFocus
             value={q}
             onChangeText={setQ}
-            placeholder="Salons, services or masters"
+            placeholder={i18n.t('searchPlaceholder')}
             placeholderTextColor={c.inkMuted}
             returnKeyType="search"
             autoCorrect={false}
-            accessibilityLabel="Search"
+            accessibilityLabel={i18n.t('search')}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             style={[styles.input, { color: c.ink }, webReset]}
           />
-          {q ? <IconButton icon={X} label="Clear search" variant="plain" size={32} onPress={() => setQ('')} /> : null}
+          {q ? (
+            <IconButton icon={X} label={i18n.t('clearSearch')} variant="plain" size={32} onPress={() => setQ('')} />
+          ) : null}
         </View>
       </View>
 
@@ -94,57 +102,93 @@ export default function SearchScreen() {
       >
         {!results ? (
           <>
-            <Text variant="label" tone="muted" style={styles.section}>
-              Popular this week
+            <Text variant="headline" style={styles.section}>
+              {i18n.t('popular')}
             </Text>
             <View style={styles.wrap}>
-              {POPULAR.map((p) => (
-                <Chip key={p} label={p} onPress={() => setQ(p)} />
-              ))}
+              {POPULAR.map((key) => {
+                const sv = serviceCatalogue.find((s) => s.key === key)!;
+                return <Chip key={key} label={i18n.tx(sv.name)} onPress={() => setQ(i18n.tx(sv.name))} />;
+              })}
             </View>
-            <Text variant="label" tone="muted" style={styles.section}>
-              Browse
+            <Text variant="headline" style={styles.section}>
+              {i18n.t('browse')}
             </Text>
-            {categories.map((cat, i) => (
-              <PressableScale
-                key={cat.id}
-                onPress={() => router.push({ pathname: '/top-rated', params: { category: cat.id } })}
-                scaleTo={0.985}
-                accessibilityLabel={`Best ${cat.plural}`}
-                style={[
-                  styles.browse,
-                  i < categories.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
-                ]}
-              >
-                <Text variant="headline" style={{ flex: 1 }}>
-                  {cat.plural}
-                </Text>
-                <Text variant="mono" tone="muted">
-                  {salons.filter((s) => s.categories.includes(cat.id)).length}
-                </Text>
-                <ArrowUpRight size={18} color={c.inkSoft} strokeWidth={iconStroke} />
-              </PressableScale>
-            ))}
+            {categories.map((cat, i) => {
+              const Icon = categoryIcon[cat.id];
+              return (
+                <Row
+                  key={cat.id}
+                  label={i18n.tx(cat.plural)}
+                  last={i === categories.length - 1}
+                  onPress={() => router.push({ pathname: '/top-rated', params: { category: cat.id } })}
+                >
+                  <View style={[styles.icon, { backgroundColor: c.surface, borderColor: c.line }]}>
+                    <Icon size={18} color={c.ink} strokeWidth={1.9} />
+                  </View>
+                  <Text variant="bodyStrong" style={{ flex: 1 }}>
+                    {i18n.tx(cat.plural)}
+                  </Text>
+                  <Text variant="caption" tone="muted">
+                    {salons.filter((s) => s.categories.includes(cat.id)).length}
+                  </Text>
+                  <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
+                </Row>
+              );
+            })}
           </>
         ) : empty ? (
           <View style={{ paddingVertical: 48, gap: 6 }}>
-            <Text variant="title">Nothing for “{q.trim()}”</Text>
-            <Text tone="soft">Try a service like “fade” or a district like “Nizami”.</Text>
+            <Text variant="title">{i18n.t('nothingFor', { q: q.trim() })}</Text>
+            <Text tone="soft">{i18n.t('searchTry')}</Text>
           </View>
         ) : (
           <>
+            {results.services.length ? (
+              <>
+                <Text variant="headline" style={styles.section}>
+                  {i18n.t('tabServices')}
+                </Text>
+                {results.services.map((sv, i) => (
+                  <Row
+                    key={sv.key}
+                    label={`${i18n.tx(sv.name)}, ${i18n.t('findSlot')}`}
+                    last={i === results.services.length - 1}
+                    onPress={() => router.push({ pathname: '/find', params: { service: sv.key } })}
+                  >
+                    <View style={[styles.icon, { backgroundColor: c.successSoft, borderColor: c.successSoft }]}>
+                      <Clock3 size={18} color={c.success} strokeWidth={2} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="bodyStrong">{i18n.tx(sv.name)}</Text>
+                      <Text variant="caption" tone="soft">
+                        {i18n.n(sv.places, 'place')} · {i18n.fromPrice(sv.from)} · {i18n.duration(sv.durationMin)}
+                      </Text>
+                    </View>
+                    <Text variant="captionStrong" style={{ color: c.success }}>
+                      {i18n.t('findSlot')}
+                    </Text>
+                  </Row>
+                ))}
+              </>
+            ) : null}
             {results.places.length ? (
               <>
-                <Text variant="label" tone="muted" style={styles.section}>
-                  Places
+                <Text variant="headline" style={styles.section}>
+                  {i18n.t('places')}
                 </Text>
-                {results.places.map((s) => (
-                  <Row key={s.id} onPress={() => openSalon(s.id)} label={s.name}>
-                    <SalonCover salon={s} width={48} height={48} radius={radius.sm} variant="thumb" />
+                {results.places.map((s, i) => (
+                  <Row
+                    key={s.id}
+                    label={s.name}
+                    last={i === results.places.length - 1}
+                    onPress={() => router.push({ pathname: '/salon/[id]', params: { id: s.id } })}
+                  >
+                    <SalonPhoto salon={s} width={44} height={44} radius={radius.sm} />
                     <View style={{ flex: 1 }}>
-                      <Text variant="serif">{s.name}</Text>
+                      <Text variant="bodyStrong">{s.name}</Text>
                       <Text variant="caption" tone="soft">
-                        {s.kind} · {s.district}
+                        {i18n.tx(s.kind)} · {s.district}
                       </Text>
                     </View>
                     <RatingInline rating={liveRating(s, localReviews).rating} size="sm" />
@@ -152,48 +196,23 @@ export default function SearchScreen() {
                 ))}
               </>
             ) : null}
-            {results.services.length ? (
-              <>
-                <Text variant="label" tone="muted" style={styles.section}>
-                  Services
-                </Text>
-                {results.services.map(({ salon, service }) => (
-                  <Row
-                    key={service.id}
-                    label={`${service.name} at ${salon.name}`}
-                    onPress={() =>
-                      router.push({ pathname: '/book/[id]', params: { id: salon.id, services: service.id } })
-                    }
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text variant="serif">{service.name}</Text>
-                      <Text variant="caption" tone="soft">
-                        {salon.name} · {fmtDuration(service.durationMin)}
-                      </Text>
-                    </View>
-                    <Text style={{ fontFamily: fonts.displayMedium, fontSize: 16, color: c.ink }}>
-                      {fmtPrice(service.price)}
-                    </Text>
-                  </Row>
-                ))}
-              </>
-            ) : null}
             {results.masters.length ? (
               <>
-                <Text variant="label" tone="muted" style={styles.section}>
-                  Masters
+                <Text variant="headline" style={styles.section}>
+                  {i18n.t('tabMasters')}
                 </Text>
-                {results.masters.map(({ salon, master }) => (
+                {results.masters.map(({ salon, master }, i) => (
                   <Row
                     key={master.id}
-                    label={`${master.name} at ${salon.name}`}
+                    label={`${master.name}, ${salon.name}`}
+                    last={i === results.masters.length - 1}
                     onPress={() => router.push({ pathname: '/book/[id]', params: { id: salon.id, master: master.id } })}
                   >
                     <Avatar name={master.name} tone={master.tone} size={40} />
                     <View style={{ flex: 1 }}>
-                      <Text variant="serif">{master.name}</Text>
+                      <Text variant="bodyStrong">{master.name}</Text>
                       <Text variant="caption" tone="soft">
-                        {master.role} · {salon.name}
+                        {i18n.tx(master.role)} · {salon.name}
                       </Text>
                     </View>
                     <RatingInline rating={master.rating} size="sm" />
@@ -208,16 +227,24 @@ export default function SearchScreen() {
   );
 }
 
-const openSalon = (id: string) => router.push({ pathname: '/salon/[id]', params: { id } });
-
-function Row({ children, onPress, label }: { children: ReactNode; onPress: () => void; label: string }) {
+function Row({
+  children,
+  onPress,
+  label,
+  last,
+}: {
+  children: ReactNode;
+  onPress: () => void;
+  label: string;
+  last?: boolean;
+}) {
   const { c } = useTheme();
   return (
     <PressableScale
       onPress={onPress}
       scaleTo={0.985}
       accessibilityLabel={label}
-      style={[styles.row, { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
+      style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
     >
       {children}
     </PressableScale>
@@ -229,17 +256,24 @@ const styles = StyleSheet.create({
   field: {
     flex: 1,
     height: 48,
-    borderRadius: radius.pill,
+    borderRadius: radius.md,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingLeft: 16,
+    paddingLeft: 14,
     paddingRight: 6,
   },
-  input: { flex: 1, minWidth: 0, fontFamily: fonts.body, fontSize: 16, height: 46 },
-  section: { marginTop: 28, marginBottom: 10 },
+  input: { flex: 1, minWidth: 0, fontFamily: fonts.regular, fontSize: 16, height: 46 },
+  section: { marginTop: 26, marginBottom: 8 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  browse: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

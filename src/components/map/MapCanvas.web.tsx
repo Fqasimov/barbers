@@ -12,7 +12,6 @@ import Animated, {
 import Svg, { Line, Path, Text as SvgText } from 'react-native-svg';
 
 import type { Coords } from '@/data/types';
-import { fmtRating } from '@/lib/format';
 import { distanceKm } from '@/lib/geo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { ease, fonts } from '@/theme/tokens';
@@ -174,7 +173,7 @@ export function MapCanvas({ items, activeId, origin, onSelect, insets }: MapCanv
                     fontSize={9}
                     letterSpacing={1.6}
                     textAnchor="middle"
-                    fontFamily={fonts.mono}
+                    fontFamily={fonts.medium}
                     opacity={0.8}
                   >
                     {d.name}
@@ -187,10 +186,10 @@ export function MapCanvas({ items, activeId, origin, onSelect, insets }: MapCanv
                 fill={c.inkMuted}
                 fontSize={16}
                 textAnchor="middle"
-                fontFamily={fonts.displayItalic}
+                fontFamily={fonts.medium}
                 opacity={0.75}
               >
-                Caspian Sea
+                Xəzər dənizi
               </SvgText>
             </Svg>
 
@@ -204,7 +203,7 @@ export function MapCanvas({ items, activeId, origin, onSelect, insets }: MapCanv
                   key={item.salon.id}
                   onPress={() => onSelect(item.salon.id)}
                   accessibilityRole="button"
-                  accessibilityLabel={`${item.salon.name}, rated ${fmtRating(item.live.rating)}`}
+                  accessibilityLabel={`${item.salon.name}, ★ ${item.live.rating.toFixed(1)}`}
                   style={[styles.pin, { left: p.x - 30, top: p.y - 34, zIndex: active ? 10 : 1 }]}
                 >
                   <RatingPin rating={item.live.rating} active={active} best={i === 0} />

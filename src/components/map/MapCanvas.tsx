@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 
-import { fmtRating } from '@/lib/format';
 import { boundsOf } from '@/lib/geo';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -115,7 +114,7 @@ export function MapCanvas({ items, activeId, origin, showsUser, onSelect, insets
             zIndex={active ? 10 : 1}
             tracksViewChanges={tracking}
             onPress={() => onSelect(item.salon.id)}
-            accessibilityLabel={`${item.salon.name}, rated ${fmtRating(item.live.rating)}`}
+            accessibilityLabel={`${item.salon.name}, ★ ${item.live.rating.toFixed(1)}`}
           >
             <RatingPin rating={item.live.rating} active={active} best={i === 0} />
           </Marker>

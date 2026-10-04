@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
 
@@ -27,6 +28,7 @@ export function goBack() {
 
 export function ScreenHeader({ title, mode = 'back', right, inset = true, border }: Props) {
   const { c } = useTheme();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -38,12 +40,12 @@ export function ScreenHeader({ title, mode = 'back', right, inset = true, border
     >
       <IconButton
         icon={mode === 'close' ? X : ChevronLeft}
-        label={mode === 'close' ? 'Close' : 'Back'}
+        label={mode === 'close' ? t('close') : t('back')}
         onPress={goBack}
         variant="surface"
       />
       {title ? (
-        <Text variant="bodyMedium" numberOfLines={1} style={styles.title} accessibilityRole="header">
+        <Text variant="headline" numberOfLines={1} style={styles.title} accessibilityRole="header">
           {title}
         </Text>
       ) : (
