@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { salonById } from '@/data/salons';
 import type { Booking, Review } from '@/data/types';
 import type { Locale } from '@/i18n/types';
 
@@ -127,11 +128,13 @@ export const useStore = create<State & Actions>()(
       name: 'usta-store-v2',
       version: 2,
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ hydrated: _h, compare: _c, ...rest }) => rest,
+      partialize: ({ hydrated: _h, ...rest }) => rest,
       onRehydrateStorage: () => () => {
         const s = useStore.getState();
         useStore.setState({
           hydrated: true,
+          // A saved compare list survives restarts; drop venues that no longer exist.
+          compare: (s.compare ?? []).filter((id) => !!salonById(id)).slice(0, COMPARE_LIMIT),
           ...(s.demoSeeded ? {} : { demoSeeded: true, bookings: [demoVisit(), ...s.bookings] }),
         });
       },
