@@ -16,12 +16,16 @@ type State = {
   favorites: string[];
   /** Master ids the user follows — they stay followed even if the master moves salons. */
   followed: string[];
-  /** Venue ids queued for side-by-side comparison (not persisted). */
+  /** Venue ids queued for side-by-side comparison. */
   compare: string[];
   appearance: Appearance;
   /** null = follow the device language. */
   locale: Locale | null;
   name: string;
+  /** The welcome / sign-in screen has been shown once. */
+  authPrompted: boolean;
+  /** Hide venues that don't serve the signed-in user's gender. */
+  forMe: boolean;
   demoSeeded: boolean;
   hydrated: boolean;
 };
@@ -39,6 +43,8 @@ type Actions = {
   setAppearance: (appearance: Appearance) => void;
   setLocale: (locale: Locale | null) => void;
   setName: (name: string) => void;
+  setAuthPrompted: () => void;
+  setForMe: (on: boolean) => void;
 };
 
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
@@ -78,6 +84,8 @@ export const useStore = create<State & Actions>()(
       appearance: 'system',
       locale: null,
       name: '',
+      authPrompted: false,
+      forMe: true,
       demoSeeded: false,
       hydrated: false,
 
@@ -123,6 +131,8 @@ export const useStore = create<State & Actions>()(
       setAppearance: (appearance) => set({ appearance }),
       setLocale: (locale) => set({ locale }),
       setName: (name) => set({ name }),
+      setAuthPrompted: () => set({ authPrompted: true }),
+      setForMe: (forMe) => set({ forMe }),
     }),
     {
       name: 'usta-store-v2',

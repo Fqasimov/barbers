@@ -20,12 +20,13 @@ import { categories } from '@/data/categories';
 import { openToday } from '@/data/find';
 import { categoryIcon } from '@/data/icons';
 import { rankForMap, topRated } from '@/data/ranking';
-import { salonById, salons } from '@/data/salons';
+import { salonById } from '@/data/salons';
 import type { Booking, CategoryId, Master, Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
 import { fmtClock, minutesOfDay } from '@/lib/time';
+import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
@@ -49,6 +50,7 @@ export default function Discover() {
   const bottom = useTabBarInset();
   const { origin, source } = useOrigin();
   const localReviews = useStore((s) => s.reviews);
+  const salons = useVisibleSalons();
   const bookings = useStore((s) => s.bookings);
   const name = useStore((s) => s.name);
   const [category, setCategory] = useState<CategoryId | null>(null);
@@ -56,9 +58,9 @@ export default function Discover() {
 
   const nearby = useMemo(
     () => rankForMap({ salons, localReviews, origin, priceLevels: [], category, sort: 'best' }).slice(0, 8),
-    [localReviews, origin, category],
+    [salons, localReviews, origin, category],
   );
-  const chart = useMemo(() => topRated(salons, localReviews, category).slice(0, 5), [localReviews, category]);
+  const chart = useMemo(() => topRated(salons, localReviews, category).slice(0, 5), [salons, localReviews, category]);
   const today = useMemo(
     () =>
       openToday({
@@ -70,9 +72,9 @@ export default function Discover() {
         now,
         limit: 6,
       }),
-    [category, origin, bookings, localReviews, now],
+    [salons, category, origin, bookings, localReviews, now],
   );
-  const masters = useMemo(() => mastersInDemand(category), [category]);
+  const masters = useMemo(() => mastersInDemand(salons, category), [salons, category]);
 
   const next = bookings
     .filter((b) => b.status === 'upcoming' && new Date(b.start) > now)
@@ -153,33 +155,35 @@ export default function Discover() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cats}>
-          {categories.map((cat) => {
-            const Icon = categoryIcon[cat.id];
-            const selected = category === cat.id;
-            return (
-              <PressableScale
-                key={cat.id}
-                onPress={() => setCategory(selected ? null : cat.id)}
-                haptic="selection"
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={i18n.tx(cat.label)}
-                style={styles.cat}
-              >
-                <View
-                  style={[
-                    styles.catIcon,
-                    { backgroundColor: selected ? c.primary : c.surface, borderColor: selected ? c.primary : c.line },
-                  ]}
+          {categories
+            .filter((cat) => salons.some((s) => s.categories.includes(cat.id)))
+            .map((cat) => {
+              const Icon = categoryIcon[cat.id];
+              const selected = category === cat.id;
+              return (
+                <PressableScale
+                  key={cat.id}
+                  onPress={() => setCategory(selected ? null : cat.id)}
+                  haptic="selection"
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={i18n.tx(cat.label)}
+                  style={styles.cat}
                 >
-                  <Icon size={24} color={selected ? c.onPrimary : c.ink} strokeWidth={1.8} />
-                </View>
-                <Text variant="captionStrong" align="center" numberOfLines={2} style={{ width: 76 }}>
-                  {i18n.tx(cat.label)}
-                </Text>
-              </PressableScale>
-            );
-          })}
+                  <View
+                    style={[
+                      styles.catIcon,
+                      { backgroundColor: selected ? c.primary : c.surface, borderColor: selected ? c.primary : c.line },
+                    ]}
+                  >
+                    <Icon size={24} color={selected ? c.onPrimary : c.ink} strokeWidth={1.8} />
+                  </View>
+                  <Text variant="captionStrong" align="center" numberOfLines={2} style={{ width: 76 }}>
+                    {i18n.tx(cat.label)}
+                  </Text>
+                </PressableScale>
+              );
+            })}
         </ScrollView>
 
         {next ? <NextUp booking={next} /> : null}
@@ -254,7 +258,7 @@ export default function Discover() {
   );
 }
 
-function mastersInDemand(category: CategoryId | null) {
+function mastersInDemand(salons: Salon[], category: CategoryId | null) {
   return salons
     .filter((s) => !category || s.categories.includes(category))
     .flatMap((salon) =>

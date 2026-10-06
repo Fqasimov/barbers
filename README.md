@@ -16,7 +16,10 @@ Built with Expo (SDK 57), React Native 0.86, Expo Router, Reanimated 4 and Gestu
 | **Highest rated** | A Top Rated list ranked by a Bayesian-weighted rating, so a few perfect reviews can't beat hundreds of consistent ones. Filter it by category. |
 | **Map** | Pins show each venue's rating. **Best match** ranks the nearest highly rated place within your **price range** (₼ / ₼₼ / ₼₼₼); you can also sort by Nearest or Top rated. |
 | **Bookings** | Upcoming and past visits: message the venue on WhatsApp, get directions, cancel (frees the slot), rate a past visit, or rebook with the same master. |
-| **Profile** | Masters you follow (with their next free slot), saved places, your name for reviews, language (System / AZ / RU / EN) and appearance. |
+| **Accounts** | Sign up with name, surname, Azerbaijani mobile number, date of birth, gender, email and password, then confirm a 6-digit code sent to that email. Sign in with email and password, Google or Apple. Forgot-password works by emailed code. Browsing is open; booking and reviews need an account. |
+| **Gender-aware lists** | With a gender on file, lists, the map and search hide venues that don't serve you (women-only salons for men, men's barbershops for women). You can switch this off in Profile. |
+| **Salon owners** | Register a business (owner details, then the salon: services, who it serves, district, address), confirm the email, pick a plan (Start, Pro or Studio) and start a **30-day free trial** with no card. The dashboard shows the trial countdown, review status and next steps. |
+| **Profile** | Your account details, masters you follow (with their next free slot), saved places, language (System / AZ / RU / EN), appearance, and sign out. |
 
 ## Run it
 
@@ -35,6 +38,8 @@ npm run lint
 **Maps.** iOS uses Apple Maps with no setup. For an Android **release** build, add a Google Maps API key ([react-native-maps setup](https://github.com/react-native-maps/react-native-maps/blob/master/docs/installation.md)). Expo Go works as-is. On the web, the map is an illustrated vector map of Baku.
 
 **Location.** Uses the device location when allowed. Outside Baku, or with location off, distances are measured from Fountain Square, because the venue catalogue is Baku-only.
+
+**Accounts and the backend.** Until the Laravel API has a domain, the app uses an on-device demo backend (`src/auth/local.ts`) with the same contract and rules: hashed passwords, codes that expire, attempt limits and resend cooldowns. With no mail server, the verification screen shows the code under a "Demo mode" note instead of emailing it. The demo account **faiq.farid0604@gmail.com** is seeded; only a salted hash of its password is stored. Set `EXPO_PUBLIC_API_URL` (see `.env.example`) to switch to the real API. The endpoints the Laravel side needs are in [`docs/api.md`](docs/api.md). Google sign-in turns on once its OAuth client IDs are set. Apple sign-in shows on iPhones and needs a development build.
 
 **Language.** Follows the device language (Azerbaijani when it's none of the three) until you pick one in Profile. All copy lives in `src/i18n/strings.ts`; plurals, dates, prices (`30 ₼`, `30 ₼-dan`) and decimals (`4,9`) are formatted per language in `src/i18n/index.ts`.
 

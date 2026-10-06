@@ -12,9 +12,9 @@ import { Text } from '@/components/ui/Text';
 import { categories, categoryById } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import { topRated } from '@/data/ranking';
-import { salons } from '@/data/salons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
@@ -29,7 +29,8 @@ export default function TopRatedScreen() {
   const params = useLocalSearchParams<{ category?: CategoryId }>();
   const [category, setCategory] = useState<CategoryId | null>(params.category ?? null);
   const localReviews = useStore((s) => s.reviews);
-  const ranked = useMemo(() => topRated(salons, localReviews, category), [localReviews, category]);
+  const salons = useVisibleSalons();
+  const ranked = useMemo(() => topRated(salons, localReviews, category), [salons, localReviews, category]);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>

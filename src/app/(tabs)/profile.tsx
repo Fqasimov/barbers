@@ -1,14 +1,18 @@
 import { router } from 'expo-router';
-import { ChevronRight, Heart, UserPlus } from 'lucide-react-native';
+import { ChevronRight, Heart, LogOut, PencilLine, Store, UserPlus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { authApi } from '@/auth';
+import { useSession } from '@/auth/useSession';
+import { formatPhone, isoToDisplay } from '@/auth/validation';
 import { SalonPhoto } from '@/components/SalonPhoto';
 import { StatusScrim } from '@/components/StatusScrim';
+import { toast } from '@/components/Toaster';
 import { useTabBarInset } from '@/components/TabBar';
 import { Avatar } from '@/components/ui/Avatar';
-import { webReset } from '@/components/ui/Field';
+import { Button } from '@/components/ui/Button';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { RatingInline } from '@/components/ui/Stars';
@@ -21,7 +25,7 @@ import { useI18n, type Locale } from '@/i18n';
 import { fmtClock, minutesOfDay } from '@/lib/time';
 import { useStore, type Appearance } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { fonts, gutter, radius, shadow } from '@/theme/tokens';
+import { gutter, radius, shadow } from '@/theme/tokens';
 
 type LangChoice = 'system' | Locale;
 
@@ -30,8 +34,11 @@ export default function ProfileScreen() {
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const bottom = useTabBarInset();
-  const name = useStore((s) => s.name);
-  const setName = useStore((s) => s.setName);
+  const session = useSession((s) => s.session);
+  const signOut = useSession((s) => s.signOut);
+  const gender = session?.user.gender ?? null;
+  const forMe = useStore((s) => s.forMe);
+  const setForMe = useStore((s) => s.setForMe);
   const appearance = useStore((s) => s.appearance);
   const setAppearance = useStore((s) => s.setAppearance);
   const locale = useStore((s) => s.locale);
@@ -54,24 +61,7 @@ export default function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.identity}>
-          <Avatar name={name || i18n.t('you')} tone="ink" size={64} />
-          <View style={{ flex: 1 }}>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder={i18n.t('namePlaceholder')}
-              placeholderTextColor={c.inkMuted}
-              accessibilityLabel={i18n.t('namePlaceholder')}
-              accessibilityHint={i18n.t('nameHint')}
-              maxLength={32}
-              style={[styles.nameInput, { color: c.ink }, webReset]}
-            />
-            <Text variant="caption" tone="muted">
-              {i18n.t('nameHint')}
-            </Text>
-          </View>
-        </View>
+        <AccountCard />
 
         <View style={[styles.stats, { backgroundColor: c.surface }, shadow(c, 1)]}>
           <Stat value={upcoming} label={i18n.t('statBooked')} />
@@ -184,6 +174,37 @@ export default function ProfileScreen() {
           ]}
         />
 
+        {gender ? (
+          <View style={[styles.switchRow, { backgroundColor: c.surface }, shadow(c, 1)]}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text variant="bodyStrong">{i18n.t('forMe')}</Text>
+              <Text variant="caption" tone="soft">
+                {gender === 'male' ? i18n.t('forMeHintMale') : i18n.t('forMeHintFemale')}
+              </Text>
+            </View>
+            <Switch
+              value={forMe}
+              onValueChange={setForMe}
+              accessibilityLabel={i18n.t('forMe')}
+              trackColor={{ true: c.primary, false: c.lineStrong }}
+              thumbColor={c.surface}
+            />
+          </View>
+        ) : null}
+
+        {session ? (
+          <Button
+            label={i18n.t('signOut')}
+            icon={LogOut}
+            variant="ghost"
+            style={{ marginTop: 24 }}
+            onPress={async () => {
+              await signOut();
+              toast(i18n.t('signedOut'), 'info');
+            }}
+          />
+        ) : null}
+
         <View style={styles.colophon}>
           <Wordmark size={30} color={c.inkMuted} />
           <Text variant="caption" tone="muted" align="center">
@@ -221,7 +242,19 @@ function Stat({ value, label }: { value: number; label: string }) {
 
 const styles = StyleSheet.create({
   identity: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  nameInput: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 30, padding: 0, minHeight: 32, letterSpacing: -0.4 },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    borderRadius: radius.lg,
+    marginTop: 16,
+  },
+  account: { borderRadius: radius.lg, padding: 16, gap: 14 },
+  accountTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  details: { gap: 6 },
+  detail: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  accountActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   stats: { flexDirection: 'row', marginTop: 22, paddingVertical: 16, borderRadius: radius.lg },
   statDivider: { width: StyleSheet.hairlineWidth },
   sectionTitle: { marginTop: 32, marginBottom: 12 },
@@ -239,3 +272,91 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   colophon: { alignItems: 'center', gap: 8, marginTop: 44, paddingHorizontal: 32 },
 });
+
+/** Signed in: who you are and quick actions. Guest: an invitation to sign in. */
+function AccountCard() {
+  const { c } = useTheme();
+  const i18n = useI18n();
+  const session = useSession((st) => st.session);
+
+  if (!session) {
+    return (
+      <View style={[styles.account, { backgroundColor: c.surface }, shadow(c, 1)]}>
+        <Text variant="title">{i18n.t('signInCardTitle')}</Text>
+        <Text variant="subhead" tone="soft">
+          {i18n.t('signInCardBody')}
+        </Text>
+        <View style={styles.accountActions}>
+          <Button label={i18n.t('signIn')} size="md" onPress={() => router.push('/auth/sign-in')} />
+          <Button
+            label={i18n.t('createAccount')}
+            size="md"
+            variant="secondary"
+            onPress={() => router.push('/auth/register')}
+          />
+        </View>
+        <Button
+          label={i18n.t('forBusiness')}
+          icon={Store}
+          size="sm"
+          variant="ghost"
+          onPress={() => router.push('/business/register')}
+          style={{ alignSelf: 'flex-start' }}
+        />
+      </View>
+    );
+  }
+
+  const u = session.user;
+  const full = `${u.firstName} ${u.lastName}`.trim() || u.email;
+  const rows: [string, string][] = [
+    [i18n.t('fEmail'), u.email],
+    [i18n.t('fPhone'), u.phone ? `+994 ${formatPhone(u.phone)}` : '—'],
+    ...(u.role === 'customer'
+      ? ([
+          [i18n.t('fBirthDate'), u.birthDate ? isoToDisplay(u.birthDate) : '—'],
+          [i18n.t('fGender'), u.gender ? i18n.t(u.gender) : '—'],
+        ] as [string, string][])
+      : []),
+  ];
+  return (
+    <View style={[styles.account, { backgroundColor: c.surface }, shadow(c, 1)]}>
+      <View style={styles.accountTop}>
+        <Avatar name={full} tone="ink" size={56} />
+        <View style={{ flex: 1 }}>
+          <Text variant="title" numberOfLines={1}>
+            {full}
+          </Text>
+          <Text variant="caption" tone="muted">
+            {i18n.t('account')}
+            {authApi.kind === 'demo' ? ` · ${i18n.t('demoMailTitle')}` : ''}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.details}>
+        {rows.map(([k, v]) => (
+          <View key={k} style={styles.detail}>
+            <Text variant="subhead" tone="soft">
+              {k}
+            </Text>
+            <Text variant="subhead" numberOfLines={1} style={{ flexShrink: 1 }}>
+              {v}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.accountActions}>
+        <Button
+          label={i18n.t('completeTitle')}
+          icon={PencilLine}
+          size="sm"
+          variant="secondary"
+          onPress={() => router.push('/auth/complete')}
+        />
+        {u.role === 'business' ? (
+          <Button label={i18n.t('dashTitle')} icon={Store} size="sm" onPress={() => router.push('/business')} />
+        ) : null}
+      </View>
+    </View>
+  );
+}

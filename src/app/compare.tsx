@@ -16,12 +16,13 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Text } from '@/components/ui/Text';
 import { anyMasterWeek, eligibleMasters } from '@/data/availability';
 import { liveRating, openState, rankForMap } from '@/data/ranking';
-import { salonById, salons } from '@/data/salons';
+import { salonById } from '@/data/salons';
 import type { Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { distanceKm } from '@/lib/geo';
 import { atMinutes, fmtClock } from '@/lib/time';
+import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
@@ -49,6 +50,7 @@ export default function CompareScreen() {
   const toggleCompare = useStore((s) => s.toggleCompare);
   const bookings = useStore((s) => s.bookings);
   const localReviews = useStore((s) => s.reviews);
+  const salons = useVisibleSalons();
   const [now] = useState(() => new Date());
 
   const chosen = useMemo(() => ids.map((id) => salonById(id)).filter((s): s is Salon => !!s), [ids]);
@@ -114,7 +116,7 @@ export default function CompareScreen() {
         category: null,
         sort: 'best',
       }).slice(0, 5),
-    [ids, chosen, localReviews, origin],
+    [salons, ids, chosen, localReviews, origin],
   );
 
   const sample = chosen.flatMap((s) => s.services).find((s) => s.key === serviceKey);

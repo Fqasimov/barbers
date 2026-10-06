@@ -18,6 +18,7 @@ import { reviewTags, type TagId } from '@/data/reviews';
 import { useSalon } from '@/hooks/useSalon';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
+import { requireSignIn } from '@/auth/flow';
 import { isCompleted, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius } from '@/theme/tokens';
@@ -59,6 +60,7 @@ export default function WriteReview() {
 
   const submit = () => {
     if (!rating) return;
+    if (!requireSignIn('signInToReview', i18n.t('signInToReview'))) return;
     const author = name.trim() || i18n.t('guest');
     if (name.trim() && name.trim() !== storedName) setStoredName(name.trim());
     const ok = addReview(

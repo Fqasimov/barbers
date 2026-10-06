@@ -5,13 +5,14 @@ import {
   Onest_700Bold,
   useFonts,
 } from '@expo-google-fonts/onest';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
 
+import { useSession } from '@/auth/useSession';
 import { ScissorsSplash } from '@/components/splash/ScissorsSplash';
 import { Toaster } from '@/components/Toaster';
 import { useStore } from '@/store/useStore';
@@ -38,7 +39,15 @@ function App() {
   const { c, scheme } = useTheme();
   const reduced = useReducedMotion();
   const hydrated = useStore((s) => s.hydrated);
+  const sessionReady = useSession((s) => s.hydrated);
+  const signedIn = useSession((s) => !!s.session);
+  const authPrompted = useStore((s) => s.authPrompted);
   const [splashDone, setSplashDone] = useState(false);
+
+  // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
+  useEffect(() => {
+    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted) router.push('/auth');
+  }, [splashDone, hydrated, sessionReady, signedIn, authPrompted]);
 
   const navTheme = useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -67,9 +76,22 @@ function App() {
         <Stack.Screen name="compare" />
         <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="auth/index"
+          options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}
+        />
+        <Stack.Screen name="auth/sign-in" />
+        <Stack.Screen name="auth/register" />
+        <Stack.Screen name="auth/verify" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="auth/forgot" />
+        <Stack.Screen name="auth/new-password" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="auth/complete" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="business/register" />
+        <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="business/index" />
       </Stack>
       <Toaster />
-      {!splashDone ? <ScissorsSplash ready={hydrated} onDone={() => setSplashDone(true)} /> : null}
+      {!splashDone ? <ScissorsSplash ready={hydrated && sessionReady} onDone={() => setSplashDone(true)} /> : null}
     </NavThemeProvider>
   );
 }

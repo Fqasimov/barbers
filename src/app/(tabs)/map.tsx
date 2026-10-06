@@ -17,10 +17,11 @@ import { RatingInline } from '@/components/ui/Stars';
 import { Text } from '@/components/ui/Text';
 import { categories, priceLevels } from '@/data/categories';
 import { openState, rankForMap, type MapSort, type RankedSalon } from '@/data/ranking';
-import { fromPrice, salons } from '@/data/salons';
+import { fromPrice } from '@/data/salons';
 import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
+import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
@@ -43,10 +44,11 @@ export default function MapScreen() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [panelH, setPanelH] = useState(150);
   const listRef = useRef<FlatList<RankedSalon>>(null);
+  const salons = useVisibleSalons();
 
   const items = useMemo(
     () => rankForMap({ salons, localReviews, origin, priceLevels: prices, category, sort }),
-    [localReviews, origin, prices, category, sort],
+    [salons, localReviews, origin, prices, category, sort],
   );
 
   // New filters → focus the new winner (state adjusted during render, not in an effect).

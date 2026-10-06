@@ -16,12 +16,13 @@ import { Text } from '@/components/ui/Text';
 import { categories, priceLevels } from '@/data/categories';
 import { findSlots, type FindSort, type SlotResult, type TimeWindow } from '@/data/find';
 import { categoryIcon } from '@/data/icons';
-import { salons, serviceCatalogue } from '@/data/salons';
+import { serviceCatalogue } from '@/data/salons';
 import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
 import { addDays, fmtClock, startOfDay } from '@/lib/time';
+import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius } from '@/theme/tokens';
@@ -42,6 +43,7 @@ export default function FindScreen() {
   const { origin } = useOrigin();
   const bookings = useStore((s) => s.bookings);
   const localReviews = useStore((s) => s.reviews);
+  const salons = useVisibleSalons();
   const [now] = useState(() => new Date());
 
   const initialKey = serviceCatalogue.some((s) => s.key === params.service) ? params.service! : 'fade';
@@ -72,7 +74,7 @@ export default function FindScreen() {
         sort,
       }).slice(0, 60),
     // `date` is derived from dayOffset.
-    [serviceKey, dayOffset, window, origin, bookings, localReviews, now, prices, womenOnly, english, sort], // eslint-disable-line react-hooks/exhaustive-deps
+    [salons, serviceKey, dayOffset, window, origin, bookings, localReviews, now, prices, womenOnly, english, sort], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const placeCount = new Set(results.map((r) => r.salon.id)).size;
   const services = serviceCatalogue.filter((s) => s.category === category);

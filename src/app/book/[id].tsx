@@ -35,6 +35,7 @@ import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { firstName } from '@/lib/format';
 import { atMinutes, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
+import { requireSignIn } from '@/auth/flow';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration, ease, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
@@ -156,6 +157,8 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
 
   const confirm = () => {
     if (!schedule || !day || slot === null) return;
+    // Browsing is open to everyone; booking needs an account the salon can contact.
+    if (!requireSignIn('signInToBook', i18n.t('signInToBook'))) return;
     const master = schedule.assign(day.date, slot);
     if (!master) return;
     const booking = addBooking({
