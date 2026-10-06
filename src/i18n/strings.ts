@@ -365,8 +365,13 @@ export const strings = {
   rowAmenities: L('Xüsusiyyətlər', 'Удобства', 'Good to know'),
   notOffered: L('Yoxdur', 'Нет', 'Not offered'),
   best: L('Ən yaxşı', 'Лучшее', 'Best'),
-  compareTray: L('Müqayisədə: {places}', 'В сравнении: {places}', '{places} to compare'),
+  compareTray: L('{places}', '{places}', '{places}'),
   compareNow: L('Müqayisə et', 'Сравнить', 'Compare'),
+  compareHint: L(
+    'Qiymət, reytinq və boş vaxt — yan-yana',
+    'Цена, рейтинг и свободное время — рядом',
+    'Price, rating and free time, side by side',
+  ),
   compareLimit: L(
     'Ən çox 3 məkan müqayisə etmək olar.',
     'Можно сравнить до 3 мест.',

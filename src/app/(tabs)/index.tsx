@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ChevronRight, Clock3, MapPin, Search, UserCheck, UserPlus } from 'lucide-react-native';
+import { ArrowLeftRight, ChevronRight, Clock3, MapPin, Search, UserCheck, UserPlus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -134,6 +134,22 @@ export default function Discover() {
             </View>
             <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
           </PressableScale>
+          <View style={[styles.hair, { backgroundColor: c.line }]} />
+          <PressableScale
+            onPress={() => router.push('/compare')}
+            scaleTo={0.99}
+            accessibilityLabel={i18n.t('compareNow')}
+            style={styles.searchRow}
+          >
+            <ArrowLeftRight size={20} color={c.ink} strokeWidth={2} />
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong">{i18n.t('compareNow')}</Text>
+              <Text variant="caption" tone="muted">
+                {i18n.t('compareHint')}
+              </Text>
+            </View>
+            <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
+          </PressableScale>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cats}>
@@ -217,7 +233,7 @@ export default function Discover() {
         />
         <View style={{ marginTop: 4 }}>
           {chart.map((item, i) => (
-            <SalonRow key={item.salon.id} item={item} rank={i + 1} last={i === chart.length - 1} />
+            <SalonRow key={item.salon.id} item={item} rank={i + 1} last={i === chart.length - 1} compare />
           ))}
         </View>
 

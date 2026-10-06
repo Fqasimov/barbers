@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CompareTray } from '@/components/CompareTray';
 import { SalonRow } from '@/components/SalonRow';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Chip } from '@/components/ui/Chip';
@@ -33,7 +34,7 @@ export default function TopRatedScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScreenHeader />
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} showsVerticalScrollIndicator={false}>
         <View style={{ paddingHorizontal: gutter }}>
           <Text variant="largeTitle" accessibilityRole="header">
             {category
@@ -58,10 +59,11 @@ export default function TopRatedScreen() {
         </ScrollView>
         <Animated.View key={category ?? 'all'} entering={LIST_IN}>
           {ranked.map((item, index) => (
-            <SalonRow key={item.salon.id} item={item} rank={index + 1} last={index === ranked.length - 1} />
+            <SalonRow key={item.salon.id} item={item} rank={index + 1} last={index === ranked.length - 1} compare />
           ))}
         </Animated.View>
       </ScrollView>
+      <CompareTray bottom={Math.max(insets.bottom, 12) + 8} />
     </View>
   );
 }

@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeftRight,
+  Check,
   ChevronLeft,
   ChevronRight,
   Heart,
@@ -33,6 +34,7 @@ import { ServiceRow } from '@/components/ServiceRow';
 import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { CompareTray } from '@/components/CompareTray';
 import { IconButton } from '@/components/ui/IconButton';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -73,6 +75,7 @@ function SalonDetail({ salon }: { salon: Salon }) {
   const live = useLiveRating(salon);
   const saved = useStore((s) => s.favorites.includes(salon.id));
   const comparing = useStore((s) => s.compare.includes(salon.id));
+  const inCompare = useStore((s) => s.compare.length > 0);
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const toggleCompare = useStore((s) => s.toggleCompare);
   const [tab, setTab] = useState<Tab>('services');
@@ -128,7 +131,7 @@ function SalonDetail({ salon }: { salon: Salon }) {
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + (inCompare ? 190 : 120) }}
       >
         <View style={{ height: HERO_H, overflow: 'hidden' }}>
           <Animated.View style={heroStyle}>
@@ -182,6 +185,13 @@ function SalonDetail({ salon }: { salon: Salon }) {
             <Action icon={MessageCircle} label={i18n.t('whatsapp')} onPress={() => messageSalon(salon)} />
             <Action icon={Navigation} label={i18n.t('directions')} onPress={() => openDirections(salon)} />
             <Action icon={Share2} label={i18n.t('share')} onPress={() => shareSalon(salon, i18n.tx(salon.tagline))} />
+            <Action
+              icon={comparing ? Check : ArrowLeftRight}
+              label={i18n.t('compare')}
+              a11yLabel={comparing ? i18n.t('removeFromCompare') : i18n.t('addToCompare')}
+              active={comparing}
+              onPress={onCompare}
+            />
           </View>
 
           <SegmentedControl<Tab>
@@ -241,6 +251,7 @@ function SalonDetail({ salon }: { salon: Salon }) {
         />
       </View>
 
+      <CompareTray bottom={Math.max(insets.bottom, 14) + 12 + 52 + 10} />
       <View
         style={[
           styles.bottomBar,
@@ -279,20 +290,38 @@ function Badge({ label }: { label: string }) {
   );
 }
 
-function Action({ icon: Icon, label, onPress }: { icon: LucideIcon; label: string; onPress: () => void }) {
+function Action({
+  icon: Icon,
+  label,
+  a11yLabel,
+  active,
+  onPress,
+}: {
+  icon: LucideIcon;
+  label: string;
+  a11yLabel?: string;
+  active?: boolean;
+  onPress: () => void;
+}) {
   const { c } = useTheme();
   return (
     <PressableScale
       onPress={onPress}
       haptic="selection"
-      accessibilityLabel={label}
+      accessibilityLabel={a11yLabel ?? label}
+      accessibilityState={active === undefined ? undefined : { checked: active }}
       hitStyle={{ flex: 1 }}
       style={styles.action}
     >
-      <View style={[styles.actionIcon, { backgroundColor: c.surface, borderColor: c.line }]}>
-        <Icon size={20} color={c.ink} strokeWidth={1.9} />
+      <View
+        style={[
+          styles.actionIcon,
+          { backgroundColor: active ? c.primary : c.surface, borderColor: active ? c.primary : c.line },
+        ]}
+      >
+        <Icon size={20} color={active ? c.onPrimary : c.ink} strokeWidth={1.9} />
       </View>
-      <Text variant="captionStrong" numberOfLines={1}>
+      <Text variant="captionStrong" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
         {label}
       </Text>
     </PressableScale>
@@ -507,7 +536,7 @@ const styles = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   badges: { flexDirection: 'row', gap: 6, marginTop: 12, flexWrap: 'wrap' },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 20 },
+  actions: { flexDirection: 'row', gap: 4, marginTop: 20 },
   action: { alignItems: 'center', gap: 6 },
   actionIcon: {
     width: 52,
