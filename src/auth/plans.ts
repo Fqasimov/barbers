@@ -6,6 +6,13 @@ export const TRIAL_DAYS = 30;
 
 const L = (az: string, ru: string, en: string): Loc => ({ az, ru, en });
 
+/** Every plan includes every master: adding staff never changes the price. */
+const unlimitedMasters = L(
+  'Limitsiz usta, əlavə ödəniş yoxdur',
+  'Мастера без ограничений и доплат',
+  'Unlimited masters, no per-seat fees',
+);
+
 export type Plan = {
   id: PlanId;
   name: string;
@@ -21,9 +28,9 @@ export const plans: Plan[] = [
     id: 'start',
     name: 'Start',
     price: 29,
-    blurb: L('Tək usta və ya kiçik studiya', 'Один мастер или маленькая студия', 'A single master or a small studio'),
+    blurb: L('Kiçik salon və studiyalar', 'Небольшие салоны и студии', 'Small salons and studios'),
     features: [
-      L('2 usta', '2 мастера', '2 masters'),
+      unlimitedMasters,
       L('Onlayn növbə və təqvim', 'Онлайн-запись и календарь', 'Online booking and calendar'),
       L('WhatsApp ilə təsdiq', 'Подтверждение в WhatsApp', 'WhatsApp confirmations'),
       L('Rəylərə cavab', 'Ответы на отзывы', 'Reply to reviews'),
@@ -36,7 +43,7 @@ export const plans: Plan[] = [
     recommended: true,
     blurb: L('Böyüyən salonlar üçün', 'Для растущих салонов', 'For growing salons'),
     features: [
-      L('8 usta', '8 мастеров', '8 masters'),
+      unlimitedMasters,
       L('Start planındakı hər şey', 'Всё из тарифа Start', 'Everything in Start'),
       L('Gəlməmə qorunması və depozit', 'Защита от неявок и депозит', 'No-show protection and deposits'),
       L('Xatırlatmalar və gözləmə siyahısı', 'Напоминания и лист ожидания', 'Reminders and waitlist'),
@@ -53,8 +60,9 @@ export const plans: Plan[] = [
       'Several branches and large teams',
     ),
     features: [
-      L('Limitsiz usta və filial', 'Без ограничений мастеров и филиалов', 'Unlimited masters and branches'),
+      unlimitedMasters,
       L('Pro planındakı hər şey', 'Всё из тарифа Pro', 'Everything in Pro'),
+      L('Limitsiz filial', 'Филиалы без ограничений', 'Unlimited branches'),
       L('Axtarışda önə çıxma', 'Продвижение в поиске', 'Featured placement in search'),
       L('Şəxsi menecer', 'Персональный менеджер', 'Dedicated account manager'),
     ],

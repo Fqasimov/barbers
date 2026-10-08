@@ -2,6 +2,7 @@ import React from "react";
 import { interpolate, OffthreadVideo, staticFile, useCurrentFrame } from "remotion";
 
 import book from "../public/rec/book.json";
+import business from "../public/rec/business.json";
 import compare from "../public/rec/compare.json";
 import find from "../public/rec/find.json";
 import home from "../public/rec/home.json";
@@ -16,7 +17,7 @@ type Touch = { frame: number; x: number; y: number; drag?: boolean };
 type Take = { frames: number; events: Touch[] };
 
 /** Frame-accurate recordings of the real app (see promo/README.md for how they're made). */
-export const takes = { home, find, salon, book, map, compare, past, review } as Record<string, Take>;
+export const takes = { home, find, salon, book, map, compare, past, review, business } as Record<string, Take>;
 export type TakeName = keyof typeof takes;
 
 /** Frame of the n-th tap in a take — for cutting right after a navigation tap. */

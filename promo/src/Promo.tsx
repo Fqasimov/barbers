@@ -124,7 +124,7 @@ export const Opener: React.FC = () => {
 };
 
 /** The app's wordmark: lowercase "usta", sliced, top half slipped sideways by the cut. */
-const Wordmark: React.FC<{ size: number; cut: number }> = ({ size, cut }) => {
+export const Wordmark: React.FC<{ size: number; cut: number }> = ({ size, cut }) => {
   const lh = Math.round(size * 1.12);
   const at = Math.round(size * 0.62);
   const text: React.CSSProperties = {
@@ -284,7 +284,7 @@ export const Outro: React.FC = () => {
 // Photographic finish: soft key light, vignette, live film grain.
 // ---------------------------------------------------------------------------
 
-const Backdrop: React.FC = () => (
+export const Backdrop: React.FC = () => (
   <AbsoluteFill
     style={{
       background:

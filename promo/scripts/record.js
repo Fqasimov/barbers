@@ -42,7 +42,7 @@ async function clip(browser, name, route, script, { seed } = {}) {
   });
   await ctx.addInitScript((s) => {
     if (!sessionStorage.getItem('seeded')) {
-      localStorage.setItem('usta-store-v2', JSON.stringify({ state: { locale: 'az', ...s }, version: 2 }));
+      localStorage.setItem('usta-store-v2', JSON.stringify({ state: { locale: 'az', authPrompted: true, ...s }, version: 2 }));
       sessionStorage.setItem('seeded', '1');
     }
   }, seed ?? {});
@@ -161,6 +161,17 @@ async function clip(browser, name, route, script, { seed } = {}) {
       events.length = before;
       rolling = true;
     },
+    /** Type into the field with this placeholder (off camera only: it doesn't advance frames). */
+    fill: async (placeholder, value) => {
+      await p.getByPlaceholder(placeholder, { exact: true }).fill(value);
+      await p.clock.runFor(50);
+    },
+    settle: async (ms = 600) => {
+      for (let i = 0; i < 6; i++) {
+        await p.clock.runFor(ms / 6);
+        await p.waitForTimeout(40);
+      }
+    },
     labels: async () => console.log(await p.evaluate(() => [...document.querySelectorAll('[aria-label]')].map((e) => e.getAttribute('aria-label')).join(' | '))),
   };
   await script(api);
@@ -265,6 +276,36 @@ async function clip(browser, name, route, script, { seed } = {}) {
     await a.hold(200);
     await a.tap('Təmiz');
     await a.hold(900);
+  });
+
+  // A salon owner signs up off camera; the take is choosing a plan and starting the trial.
+  await clip(b, 'business', '/business/register', async (a) => {
+    await a.offCamera(async () => {
+      await a.fill('Adınızı daxil edin', 'Rauf');
+      await a.fill('Soyadınızı daxil edin', 'Məmmədov');
+      await a.fill('Nömrənizi daxil edin', '50 123 45 67');
+      await a.fill('E-poçtunuzu daxil edin', 'rauf@example.com');
+      await a.fill('Şifrənizi daxil edin', 'salon123');
+      await a.tap('Davam et');
+      await a.settle();
+      await a.fill('Salonun adını daxil edin', 'Old Town Barbers');
+      await a.tap('Bərbər');
+      await a.tap('Yalnız kişilər');
+      await a.fill('Rayonu daxil edin', 'Səbail');
+      await a.fill('Ünvanı daxil edin', 'Kiçik Qala küç. 12');
+      await a.tap('Kodu göndər');
+      await a.settle(1500);
+      const code = (await a.p.evaluate(() => document.body.innerText)).match(/\b\d{6}\b/)[0];
+      await a.p.locator('input[autocomplete="one-time-code"]').fill(code);
+      await a.settle(2500);
+    });
+    await a.hold(900);
+    await a.tap('Start');
+    await a.hold(600);
+    await a.tap('Pro');
+    await a.hold(700);
+    await a.tap('30 günlük pulsuz sınağa başla');
+    await a.hold(2600);
   });
 
   await b.close();
