@@ -44,8 +44,8 @@ const fracture = (seed: string, size: number): { shards: Shard[]; crack: Crack }
         vx: (dx / len) * speed + 2,
         vy: (dy / len) * speed - 7 * r(`u${i}${k}`),
         vr: (r(`vr${i}${k}`) - 0.5) * 22,
-        vrx: (r(`vx${i}${k}`) - 0.5) * 30,
-        vry: (r(`vy${i}${k}`) - 0.5) * 30,
+        vrx: (r(`vx${i}${k}`) - 0.5) * 8,
+        vry: (r(`vy${i}${k}`) - 0.5) * 8,
         glint: r(`g${i}${k}`),
       });
     }
@@ -114,11 +114,13 @@ export const Shatter: React.FC<{
 
   const bits = Array.from({ length: 18 }, (_, i) => i);
   return (
-    <div style={{ position: "relative", width: size, height: size, perspective: 900 }}>
+    <div style={{ position: "relative", width: size, height: size }}>
       {shards.map((s, i) => {
         const x = s.vx * t;
         const y = s.vy * t + 0.5 * GRAVITY * t * t;
         const fade = interpolate(t, [18, 46], [1, 0], clamp);
+        // Gone: unmount, so no 3D layer far off-screen is left for the compositor.
+        if (fade <= 0) return null;
         return (
           <div
             key={i}
@@ -127,7 +129,8 @@ export const Shatter: React.FC<{
               inset: 0,
               clipPath: `polygon(${s.poly.map(([px, py]) => `${px}px ${py}px`).join(",")})`,
               transformOrigin: `${s.cx}px ${s.cy}px`,
-              transform: `translate(${x}px, ${y}px) rotateZ(${s.vr * t}deg) rotateX(${s.vrx * t}deg) rotateY(${s.vry * t}deg)`,
+              // A tumble faked in 2D: real rotateX/Y past 90° can make Chromium drop the whole frame.
+              transform: `translate(${x}px, ${y}px) rotate(${s.vr * t}deg) scale(${Math.cos((s.vry * t * Math.PI) / 180)}, ${Math.cos((s.vrx * t * Math.PI) / 180)})`,
               opacity: fade,
             }}
           >
@@ -149,6 +152,7 @@ export const Shatter: React.FC<{
         const s = 3 + 8 * random(`${seed}-bs${i}`);
         const x = crack.impact[0] + Math.cos(a) * v * t;
         const y = crack.impact[1] + Math.sin(a) * v * t + 0.5 * GRAVITY * 1.4 * t * t;
+        if (t > 30) return null;
         return (
           <div
             key={`b${i}`}

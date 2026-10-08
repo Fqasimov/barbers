@@ -3,7 +3,7 @@ import { AbsoluteFill, Img, interpolate, Sequence, staticFile, useCurrentFrame, 
 
 import { Clip, takes } from "../Clip";
 import { Phone, phoneSize, PT } from "../Phone";
-import { Backdrop, Wordmark } from "../Promo";
+import { Backdrop, Grain, Wordmark } from "../Promo";
 import { Shears, snip } from "../Shears";
 import { clamp, color, ease, font } from "../theme";
 import { AdSound } from "./sound";
@@ -26,7 +26,8 @@ import {
 
 export { SALON_AD_FRAMES };
 
-const dark = { bg: "#0D0B0A", text: "#F3EFE8", soft: "rgba(243,239,232,0.62)" };
+/** Same look as the brand promo: linen, ink type, a pomegranate accent, soft shadows. */
+const ink = { text: color.ink, soft: color.inkMuted };
 const green = "#2F7D4F";
 
 /** 0 → 1 between two frames on the app's ease-out curve. */
@@ -52,7 +53,7 @@ const shake = (frame: number, hits: [number, number][]) => {
 export const SalonAd: React.FC = () => {
   const { fps } = useVideoConfig();
   return (
-    <AbsoluteFill style={{ background: dark.bg }}>
+    <AbsoluteFill style={{ background: color.linen }}>
       <Sequence name="1 Address" from={AT.address} durationInFrames={AT.rivals - AT.address} premountFor={fps}>
         <Address />
       </Sequence>
@@ -88,15 +89,10 @@ export const SalonAd: React.FC = () => {
 // Shared pieces
 // ---------------------------------------------------------------------------
 
-const DarkStage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
-  <AbsoluteFill
-    style={{
-      background: `radial-gradient(110% 70% at 30% 22%, #2B2420 0%, ${dark.bg} 62%), ${dark.bg}`,
-      ...style,
-    }}
-  >
+const Stage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <AbsoluteFill style={{ background: color.linen, ...style }}>
+    <Backdrop />
     {children}
-    <AbsoluteFill style={{ background: "radial-gradient(140% 100% at 50% 50%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%)" }} />
   </AbsoluteFill>
 );
 
@@ -105,16 +101,16 @@ const Slam: React.FC<{ at: number; children: React.ReactNode; style?: React.CSSP
   at,
   children,
   style,
-  from = 1.4,
+  from = 1.12,
 }) => {
   const frame = useCurrentFrame();
-  const p = ramp(frame, at, 9);
+  const p = ramp(frame, at, 12);
   return (
     <div
       style={{
         opacity: p,
         scale: String(from - (from - 1) * p),
-        filter: `blur(${(1 - p) * 14}px)`,
+        filter: `blur(${(1 - p) * 8}px)`,
         transformOrigin: "left center",
         ...style,
       }}
@@ -146,7 +142,7 @@ const Rise: React.FC<{ at: number; text: string; style?: React.CSSProperties; st
   );
 };
 
-const heavy = (size: number, c = dark.text): React.CSSProperties => ({
+const heavy = (size: number, c = ink.text): React.CSSProperties => ({
   fontFamily: font,
   fontWeight: 700,
   fontSize: size,
@@ -191,9 +187,9 @@ const LinenScene: React.FC<{ enter?: Move; exit?: Move; children: React.ReactNod
 // ---------------------------------------------------------------------------
 
 const ADDRESS = [
-  { at: 12, text: "bərbərxana,", c: dark.text },
-  { at: 40, text: "gözəllik salonu", c: dark.text },
-  { at: 66, text: "və SPA klinika", c: dark.text },
+  { at: 12, text: "bərbərxana,", c: ink.text },
+  { at: 40, text: "gözəllik salonu", c: ink.text },
+  { at: 66, text: "və SPA klinika", c: ink.text },
   { at: 92, text: "sahibləri,", c: color.nar },
 ];
 
@@ -201,7 +197,7 @@ const Address: React.FC = () => {
   const frame = useCurrentFrame();
   const out = ramp(frame, 128, 22, ease.inOut);
   return (
-    <DarkStage style={{ translate: shake(frame, [[12, 14], [92, 10]]) }}>
+    <Stage style={{ translate: shake(frame, [[12, 6], [92, 4]]) }}>
       <div
         style={{
           position: "absolute",
@@ -214,7 +210,7 @@ const Address: React.FC = () => {
           filter: `blur(${out * 16}px)`,
         }}
       >
-        <Slam at={6} from={1.1} style={{ fontFamily: font, fontWeight: 600, fontSize: 40, letterSpacing: 9, color: dark.soft, marginBottom: 30 }}>
+        <Slam at={6} from={1.04} style={{ fontFamily: font, fontWeight: 600, fontSize: 40, letterSpacing: 9, color: ink.soft, marginBottom: 30 }}>
           DƏYƏRLİ
         </Slam>
         {ADDRESS.map((l) => (
@@ -223,7 +219,7 @@ const Address: React.FC = () => {
           </Slam>
         ))}
       </div>
-    </DarkStage>
+    </Stage>
   );
 };
 
@@ -245,7 +241,7 @@ const RIVALS = [
 
 const TILE = 176;
 const TILE_GAP = 40;
-const TILES_TOP = 330;
+const TILES_TOP = 540;
 
 const Glyph: React.FC<{ name: (typeof RIVALS)[number]["glyph"] }> = ({ name }) => (
   <svg width="48%" height="48%" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -277,12 +273,12 @@ const RivalFace: React.FC<{ hue: string; glyph: (typeof RIVALS)[number]["glyph"]
       width: TILE,
       height: TILE,
       borderRadius: 42,
-      background: `linear-gradient(150deg, ${hue} 0%, #1b1b22 140%)`,
+      background: `linear-gradient(150deg, ${hue} 0%, #2a2630 150%)`,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 18px 40px rgba(0,0,0,0.45)",
-      filter: "saturate(0.7)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 22px 44px rgba(42,32,21,0.22)",
+      filter: "saturate(0.8)",
     }}
   >
     <Glyph name={glyph} />
@@ -293,10 +289,9 @@ const Rivals: React.FC = () => {
   const frame = useCurrentFrame();
   const qOut = ramp(frame, 80, 10, ease.inOut);
   const lift = ramp(frame, BREAK + 30, 30, ease.inOut);
-  const flash = interpolate(frame, [BREAK, BREAK + 7], [0.55, 0], clamp);
   const out = ramp(frame, 224, 16, ease.inOut);
   return (
-    <DarkStage style={{ translate: shake(frame, [[92, 8], [BREAK, 26]]), opacity: interpolate(frame, [0, 10], [0, 1], clamp) }}>
+    <Stage style={{ translate: shake(frame, [[92, 4], [BREAK, 14]]), opacity: interpolate(frame, [0, 10], [0, 1], clamp) }}>
       {RIVALS.map((r, i) => {
         const p = ramp(frame, 6 + i * 8, 14);
         const labelOut = ramp(frame, BREAK - 4, 6);
@@ -317,7 +312,7 @@ const Rivals: React.FC = () => {
                 width: 140 + ((i * 37) % 60),
                 height: 22,
                 borderRadius: 11,
-                background: "rgba(243,239,232,0.22)",
+                background: "rgba(20,18,16,0.14)",
                 filter: "blur(5px)",
                 opacity: (1 - labelOut) * (1 - qOut * 0.0),
               }}
@@ -326,20 +321,19 @@ const Rivals: React.FC = () => {
         );
       })}
 
-      <div style={{ position: "absolute", left: 470, right: 70, top: 640, opacity: 1 - qOut, filter: `blur(${qOut * 10}px)` }}>
-        <Rise at={18} text="Onlayn rezervasiya xidmətlərindən istifadə edirdiniz?" style={{ ...heavy(64), lineHeight: 1.12 }} />
+      <div style={{ position: "absolute", left: 88, right: 88, top: 150, opacity: 1 - qOut, filter: `blur(${qOut * 10}px)` }}>
+        <Rise at={18} text="Onlayn rezervasiya xidmətlərindən istifadə edirdiniz?" style={{ ...heavy(78), lineHeight: 1.1 }} />
       </div>
 
-      <div style={{ position: "absolute", left: 88, right: 60, top: 1290, translate: `0 ${-lift * 470}px`, opacity: 1 - out, filter: `blur(${out * 14}px)` }}>
+      <div style={{ position: "absolute", left: 88, right: 60, top: 1450, translate: `0 ${-lift * 640}px`, opacity: 1 - out, filter: `blur(${out * 14}px)` }}>
         <Slam at={92} style={heavy(92)}>
           Siz hər biriniz
         </Slam>
-        <Slam at={BREAK} from={1.6} style={{ ...heavy(124, color.nar), marginTop: 12 }}>
+        <Slam at={BREAK} from={1.25} style={{ ...heavy(124, color.nar), marginTop: 12 }}>
           aldadılmısınız.
         </Slam>
       </div>
-      <AbsoluteFill style={{ background: "#fff", opacity: flash, pointerEvents: "none" }} />
-    </DarkStage>
+    </Stage>
   );
 };
 
@@ -366,9 +360,11 @@ const Receipt: React.FC = () => {
     <AbsoluteFill>
       <AbsoluteFill style={{ clipPath: `inset(0 0 ${1920 - CUT_Y}px 0)`, transform: `translateY(${-split * 1150}px) rotate(${-split * 4}deg)` }}>
         <ReceiptStage />
+        <div style={{ position: "absolute", left: 0, right: 0, top: CUT_Y - 36, height: 36, background: "linear-gradient(rgba(42,32,21,0), rgba(42,32,21,0.14))" }} />
       </AbsoluteFill>
       <AbsoluteFill style={{ clipPath: `inset(${CUT_Y}px 0 0 0)`, transform: `translateY(${split * 1150}px) rotate(${split * 3}deg)` }}>
         <ReceiptStage />
+        <div style={{ position: "absolute", left: 0, right: 0, top: CUT_Y, height: 36, background: "linear-gradient(rgba(42,32,21,0.14), rgba(42,32,21,0))" }} />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -393,7 +389,7 @@ const ReceiptStage: React.FC = () => {
   const shearsIn = ramp(frame, 196, 8);
 
   return (
-    <DarkStage style={{ opacity: enter }}>
+    <Stage style={{ opacity: enter }}>
       <div style={{ position: "absolute", left: 88, right: 70, top: 150 }}>
         <Rise at={4} text="Hər əlavə usta, bərbər, işçi üçün" style={{ ...heavy(58), fontWeight: 600, lineHeight: 1.14 }} />
         <Slam at={26} style={{ ...heavy(104, color.nar), marginTop: 10 }}>
@@ -409,10 +405,10 @@ const ReceiptStage: React.FC = () => {
           top: 560,
           translate: `0 ${(1 - paper) * 1500 + jolt}px`,
           rotate: "-1.6deg",
-          filter: "drop-shadow(0 30px 50px rgba(0,0,0,0.5))",
+          filter: "drop-shadow(0 30px 50px rgba(42,32,21,0.22))",
         }}
       >
-        <div style={{ background: "#FBF8F2", padding: "44px 52px 36px", fontFamily: font, color: color.ink }}>
+        <div style={{ background: color.surface, padding: "44px 52px 36px", fontFamily: font, color: color.ink }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26, fontWeight: 600, letterSpacing: 5, color: color.inkMuted }}>
             <span>HESAB</span>
             <span>AYLIQ</span>
@@ -445,7 +441,7 @@ const ReceiptStage: React.FC = () => {
         </div>
         {/* Torn bottom edge. */}
         <svg width={720} height={22} viewBox="0 0 720 22" preserveAspectRatio="none" style={{ display: "block" }}>
-          <path d={`M0 0 ${Array.from({ length: 37 }, (_, i) => `L${i * 20} ${i % 2 ? 20 : 2}`).join(" ")} L720 0 Z`} fill="#FBF8F2" />
+          <path d={`M0 0 ${Array.from({ length: 37 }, (_, i) => `L${i * 20} ${i % 2 ? 20 : 2}`).join(" ")} L720 0 Z`} fill={color.surface} />
         </svg>
       </div>
 
@@ -464,8 +460,7 @@ const ReceiptStage: React.FC = () => {
               top: CUT_Y - 1.5,
               width: Math.max(0, sweep + 330),
               height: 3,
-              background: "linear-gradient(90deg, rgba(255,255,255,0.0), rgba(255,255,255,0.95) 40%)",
-              boxShadow: "0 0 16px rgba(255,240,220,0.9)",
+              background: `linear-gradient(90deg, rgba(20,18,16,0), ${color.ink} 40%)`,
             }}
           />
           <div style={{ position: "absolute", left: sweep, top: CUT_Y - 255, rotate: "28deg", opacity: shearsIn }}>
@@ -473,7 +468,7 @@ const ReceiptStage: React.FC = () => {
           </div>
         </>
       ) : null}
-    </DarkStage>
+    </Stage>
   );
 };
 
@@ -804,8 +799,8 @@ const Cta: React.FC = () => {
   return (
     <LinenScene enter="iris">
       <div style={{ position: "absolute", left: 88, right: 88, top: 260, textAlign: "center", opacity: big, scale: String(0.9 + 0.1 * big) }}>
-        <div style={{ ...heavy(300, color.ink), fontVariantNumeric: "tabular-nums", lineHeight: 0.95 }}>{days} gün</div>
-        <div style={{ ...heavy(170, color.nar), marginTop: 6 }}>pulsuz.</div>
+        <div style={{ ...heavy(230, color.ink), fontVariantNumeric: "tabular-nums", lineHeight: 0.95, whiteSpace: "nowrap" }}>{days} gün</div>
+        <div style={{ ...heavy(160, color.nar), marginTop: 10 }}>pulsuz.</div>
       </div>
       <div style={{ position: "absolute", left: 88, right: 88, top: 900, textAlign: "center" }}>
         <Rise at={40} text="Kart tələb olunmur." style={{ fontFamily: font, fontWeight: 600, fontSize: 50, color: color.ink }} />
@@ -861,22 +856,5 @@ const Cta: React.FC = () => {
         </div>
       </AbsoluteFill>
     </LinenScene>
-  );
-};
-
-// ---------------------------------------------------------------------------
-
-const Grain: React.FC = () => {
-  const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill style={{ pointerEvents: "none", mixBlendMode: "overlay", opacity: 0.22 }}>
-      <svg width="100%" height="100%">
-        <filter id="ad-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed={frame % 12} stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#ad-grain)" />
-      </svg>
-    </AbsoluteFill>
   );
 };

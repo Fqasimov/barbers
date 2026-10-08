@@ -17,6 +17,7 @@ import {
   SALON_AD_FRAMES,
   SNIPS,
   TEAM_POPS,
+  VO_AT,
 } from "./timeline";
 
 type Sfx = "boom" | "glass" | "whoosh" | "whoosh-down" | "snip" | "tick" | "coin" | "pop" | "riser" | "chime" | "drone";
@@ -63,7 +64,10 @@ const CUES: Cue[] = [
 
 /** Optional files: drop them into public/audio/ and the next render picks them up. */
 const MUSIC = "audio/music.mp3";
+/** One take of the whole narration, starting at 0:00… */
 const VOICEOVER = "audio/voiceover.mp3";
+/** …or one clip per line (vo/1.mp3 … vo/9.mp3), each placed on its scene. */
+const voLine = (n: number) => `audio/vo/${n}.mp3`;
 /** Where in the song the ad starts, in seconds. */
 const MUSIC_START_SEC = 0;
 
@@ -72,7 +76,8 @@ const has = (name: string) => getStaticFiles().some((f) => f.name === name);
 export const AdSound: React.FC = () => {
   const { fps } = useVideoConfig();
   const music = has(MUSIC);
-  const voice = has(VOICEOVER);
+  const lines = VO_AT.map((at, i) => ({ at, file: voLine(i + 1) })).filter((l) => has(l.file));
+  const voice = has(VOICEOVER) || lines.length > 0;
   const under = voice ? 0.6 : 1;
   return (
     <>
@@ -98,7 +103,12 @@ export const AdSound: React.FC = () => {
           }
         />
       ) : null}
-      {voice ? <Html5Audio src={staticFile(VOICEOVER)} /> : null}
+      {has(VOICEOVER) ? <Html5Audio src={staticFile(VOICEOVER)} /> : null}
+      {lines.map((l) => (
+        <Sequence key={l.file} name={l.file} from={l.at} layout="none">
+          <Html5Audio src={staticFile(l.file)} />
+        </Sequence>
+      ))}
     </>
   );
 };

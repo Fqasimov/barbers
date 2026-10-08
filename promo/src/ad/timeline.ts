@@ -31,3 +31,19 @@ export const SALON_AD_FRAMES = AT.cta + 202;
 
 /** The music gets loud when the brand appears. */
 export const MUSIC_SWELL = AT.reveal;
+
+/**
+ * Narration: line n plays from public/audio/vo/<n>.mp3 at its frame, when the file exists.
+ * The text of each line is in promo/README.md.
+ */
+export const VO_AT = [
+  AT.address + 6,
+  AT.rivals + 18,
+  AT.rivals + 88,
+  AT.receipt + 4,
+  AT.reveal + 50,
+  AT.team + 10,
+  AT.growth + 6,
+  AT.features + 8,
+  AT.cta + 10,
+];

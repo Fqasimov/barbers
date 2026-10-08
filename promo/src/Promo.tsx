@@ -293,7 +293,7 @@ export const Backdrop: React.FC = () => (
   />
 );
 
-const Grain: React.FC = () => {
+export const Grain: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{ pointerEvents: "none", mixBlendMode: "multiply", opacity: 0.32 }}>
