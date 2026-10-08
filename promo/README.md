@@ -66,23 +66,6 @@ Scene timings and every sound cue live in `src/ad/timeline.ts` and `src/ad/sound
 
 - **Effects** (heavy hits, glass shatter, till rings, shears, whooshes, pops, a low drone under the problem half) are synthesized by `scripts/sfx.py` into `public/sfx/`, so the project has no third-party audio. Regenerate with `python3 scripts/sfx.py public/sfx`.
 - **Music** isn't included. Put a licensed track at `public/audio/music.mp3` and render again: it plays quietly under the opening and swells when the brand appears. Change where the song starts with `MUSIC_START_SEC` in `src/ad/sound.tsx`.
-- **Voice-over** is optional: `public/audio/voiceover.mp3` plays from 0:00, and the music ducks under it. The script, with timings, is below.
-
-## Voice-over script
-
-Deep, slow and serious until the cut; warm and confident after it. Record it as one take (`public/audio/voiceover.mp3`, from 0:00) or as one clip per line (`public/audio/vo/1.mp3` … `9.mp3`), which the ad places on its scene.
-
-| # | Starts | Line |
-| --- | --- | --- |
-| 1 | 0:00 | Dəyərli bərbərxana, gözəllik salonu və SPA klinika sahibləri… |
-| 2 | 0:05 | Onlayn rezervasiya xidmətlərindən istifadə edirdiniz? |
-| 3 | 0:08 | Siz hər biriniz… aldadılmısınız. |
-| 4 | 0:13 | Hər əlavə usta, bərbər, işçi üçün sizdən əlavə ödəniş alınırdı. Xidmətinizin qiyməti isə hər dəfə artırılırdı. |
-| 5 | 0:23 | ustatap.az — mobil tətbiqimiz və xidmətimiz bu problemi aradan qaldırır. |
-| 6 | 0:27 | Əlavə usta — əlavə ödəniş yox. Bir qiymət, bütün komanda daxildir. |
-| 7 | 0:33 | Böyümək istəyirsiniz? Onlayn rezervasiya artıq buna əngəl yox, artımınızın mühərriki olacaq. |
-| 8 | 0:40 | Müştərilər sizi xəritədə tapır, 7/24 növbə tutur, rəyləri isə yalnız real ziyarətdən sonra yazılır. |
-| 9 | 0:45 | İlk 30 gün pulsuz. Salonunuzu bu gün qeydiyyatdan keçirin. ustatap.az |
 
 ## Before it runs
 
