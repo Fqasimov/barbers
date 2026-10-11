@@ -1,0 +1,5321 @@
+{
+ "salons": [
+  {
+   "id": "old-town-barbers",
+   "name": "Old Town Barbers",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "Qala divarları içində ülgüc ustaları.",
+    "ru": "Опасные бритвы в стенах старого города.",
+    "en": "Straight razors inside the old city walls."
+   },
+   "about": {
+    "az": "Bərpa olunmuş karvansara zirzəmisində altı kreslo. Tağlı kərpic, dəri kreslolar və on ildən çoxdur İçərişəhərdə çalışan bərbərlər. Günortaya qədər növbəsiz də qəbul edilir.",
+    "ru": "Шесть кресел в отреставрированном подвале караван-сарая. Кирпичные своды, кожаные кресла и барберы, которые стригут в Ичеришехер больше десяти лет. До полудня — без записи.",
+    "en": "A six-chair shop in a restored caravanserai cellar. Vaulted brick, leather chairs and barbers who have been cutting in İçərişəhər for over a decade. Walk-ins welcome before noon."
+   },
+   "address": "Kiçik Qala küç. 34",
+   "district": "İçərişəhər",
+   "coords": {
+    "latitude": 40.3661,
+    "longitude": 49.8366
+   },
+   "priceLevel": 2,
+   "tone": "oxblood",
+   "rating": 4.9,
+   "reviewCount": 412,
+   "hours": {
+    "open": "09:00",
+    "close": "21:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 34",
+   "whatsapp": "994505550134",
+   "amenities": [
+    {
+     "az": "Espresso bar",
+     "ru": "Эспрессо-бар",
+     "en": "Espresso bar"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    },
+    {
+     "az": "Günortayadək növbəsiz",
+     "ru": "Без записи до 12:00",
+     "en": "Walk-ins before noon"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "old-town-barbers.cut",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "old-town-barbers.fade",
+     "price": 35
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "old-town-barbers.beard",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "old-town-barbers.shave",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "old-town-barbers.combo",
+     "price": 45
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "old-town-barbers.kids",
+     "price": 20
+    }
+   ],
+   "masters": [
+    {
+     "id": "old-town-barbers.m1",
+     "name": "Rauf Məmmədov",
+     "role": {
+      "az": "Usta bərbər",
+      "ru": "Мастер-барбер",
+      "en": "Master barber"
+     },
+     "years": 14,
+     "rating": 4.95,
+     "reviewCount": 188,
+     "serviceIds": [
+      "old-town-barbers.cut",
+      "old-town-barbers.fade",
+      "old-town-barbers.beard",
+      "old-town-barbers.shave",
+      "old-town-barbers.combo",
+      "old-town-barbers.kids"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "20:00"
+     },
+     "tone": "oxblood",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "old-town-barbers.m2",
+     "name": "Elvin Quliyev",
+     "role": {
+      "az": "Baş bərbər",
+      "ru": "Старший барбер",
+      "en": "Senior barber"
+     },
+     "years": 8,
+     "rating": 4.9,
+     "reviewCount": 126,
+     "serviceIds": [
+      "old-town-barbers.cut",
+      "old-town-barbers.fade",
+      "old-town-barbers.beard",
+      "old-town-barbers.shave",
+      "old-town-barbers.combo",
+      "old-town-barbers.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "ink",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "old-town-barbers.m3",
+     "name": "Tural Həsənli",
+     "role": {
+      "az": "Bərbər",
+      "ru": "Барбер",
+      "en": "Barber"
+     },
+     "years": 4,
+     "rating": 4.8,
+     "reviewCount": 74,
+     "serviceIds": [
+      "old-town-barbers.cut",
+      "old-town-barbers.fade",
+      "old-town-barbers.beard",
+      "old-town-barbers.shave",
+      "old-town-barbers.combo",
+      "old-town-barbers.kids"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "12:00",
+      "end": "21:00"
+     },
+     "tone": "slate",
+     "languages": [
+      "az",
+      "tr"
+     ]
+    }
+   ],
+   "distribution": [
+    0.9007492470891515,
+    0.09850190100856308,
+    0.0007484567303468956,
+    3.951574421327712e-7,
+    1.449622812041676e-11
+   ]
+  },
+  {
+   "id": "maison-leyla",
+   "name": "Maison Leyla",
+   "kind": {
+    "az": "Gözəllik salonu",
+    "ru": "Салон красоты",
+    "en": "Beauty salon"
+   },
+   "categories": [
+    "hair",
+    "makeup",
+    "brows"
+   ],
+   "tagline": {
+    "az": "Nizamidə rəng, kəsim və sakit lüks.",
+    "ru": "Цвет, стрижка и тихая роскошь на Низами.",
+    "en": "Colour, cut and quiet luxury on Nizami."
+   },
+   "about": {
+    "az": "Nizami küçəsində işıqlı, birinci mərtəbədə salon. Yumşaq, təbii rəng və toy makiyajı ilə tanınır. Hər görüş çay və ətraflı məsləhətlə başlayır.",
+    "ru": "Светлый салон на втором этаже над улицей Низами. Известен мягким натуральным цветом и свадебным макияжем. Каждый визит начинается с чая и консультации.",
+    "en": "A light-filled first-floor salon above Nizami street. Known for soft, lived-in colour and wedding-day makeup. Every appointment starts with tea and a proper consultation."
+   },
+   "address": "Nizami küç. 87, 1-ci mərtəbə",
+   "district": "Nizami",
+   "coords": {
+    "latitude": 40.3719,
+    "longitude": 49.8445
+   },
+   "priceLevel": 3,
+   "tone": "sand",
+   "rating": 4.8,
+   "reviewCount": 287,
+   "hours": {
+    "open": "10:00",
+    "close": "20:00"
+   },
+   "closedDays": [
+    1
+   ],
+   "phone": "+994 12 555 01 87",
+   "whatsapp": "994505550187",
+   "womenOnly": true,
+   "amenities": [
+    {
+     "az": "Çay servisi",
+     "ru": "Чайный сервис",
+     "en": "Tea service"
+    },
+    {
+     "az": "Gəlin otağı",
+     "ru": "Свадебная комната",
+     "en": "Bridal suite"
+    },
+    {
+     "az": "Yalnız kart",
+     "ru": "Только карта",
+     "en": "Card only"
+    }
+   ],
+   "services": [
+    {
+     "category": "hair",
+     "durationMin": 60,
+     "name": {
+      "az": "Kəsim və ukladka",
+      "ru": "Стрижка и укладка",
+      "en": "Cut & style"
+     },
+     "description": {
+      "az": "Yuma, dəqiq kəsim və fen ukladkası.",
+      "ru": "Мытьё, точная стрижка и укладка феном.",
+      "en": "Wash, precision cut and blow-dry finish."
+     },
+     "key": "wcut",
+     "id": "maison-leyla.wcut",
+     "price": 80
+    },
+    {
+     "category": "hair",
+     "durationMin": 45,
+     "name": {
+      "az": "Fen ukladkası",
+      "ru": "Укладка феном",
+      "en": "Blow-dry"
+     },
+     "description": {
+      "az": "Hamar, həcmli və ya dalğalı — seçim sizindir.",
+      "ru": "Гладко, объём или волны — на ваш выбор.",
+      "en": "Smooth, volume or waves — your call."
+     },
+     "key": "blow",
+     "id": "maison-leyla.blow",
+     "price": 55
+    },
+    {
+     "category": "hair",
+     "durationMin": 120,
+     "name": {
+      "az": "Tam boyama",
+      "ru": "Окрашивание",
+      "en": "Full colour"
+     },
+     "description": {
+      "az": "Bir tonda boyama, parlaqlıq və ukladka.",
+      "ru": "Окрашивание в один тон, глосс и укладка.",
+      "en": "Single-process colour, gloss and style."
+     },
+     "key": "colour",
+     "id": "maison-leyla.colour",
+     "price": 190
+    },
+    {
+     "category": "hair",
+     "durationMin": 180,
+     "name": {
+      "az": "Balayaj",
+      "ru": "Балаяж",
+      "en": "Balayage"
+     },
+     "description": {
+      "az": "Əl ilə açıltma, tonlama və ukladka.",
+      "ru": "Ручное осветление, тонирование и укладка.",
+      "en": "Hand-painted lightening, toned and styled."
+     },
+     "key": "balayage",
+     "id": "maison-leyla.balayage",
+     "price": 350
+    },
+    {
+     "category": "hair",
+     "durationMin": 150,
+     "name": {
+      "az": "Keratin baxımı",
+      "ru": "Кератиновое выпрямление",
+      "en": "Keratin treatment"
+     },
+     "description": {
+      "az": "Üç aya qədər hamar, qabarmayan saç.",
+      "ru": "Гладкие волосы без пушения до трёх месяцев.",
+      "en": "Frizz-free smoothing that lasts up to three months."
+     },
+     "key": "keratin",
+     "id": "maison-leyla.keratin",
+     "price": 290
+    },
+    {
+     "category": "makeup",
+     "durationMin": 60,
+     "name": {
+      "az": "Axşam makiyajı",
+      "ru": "Вечерний макияж",
+      "en": "Evening makeup"
+     },
+     "description": {
+      "az": "Tədbir üçün tam makiyaj, kirpiklər daxil.",
+      "ru": "Полный макияж к событию, ресницы включены.",
+      "en": "Full face for an event, lashes included."
+     },
+     "key": "evening",
+     "id": "maison-leyla.evening",
+     "price": 130
+    },
+    {
+     "category": "makeup",
+     "durationMin": 120,
+     "name": {
+      "az": "Gəlin makiyajı",
+      "ru": "Свадебный макияж",
+      "en": "Bridal makeup"
+     },
+     "description": {
+      "az": "Sınaq məsləhəti və toy günü obrazı.",
+      "ru": "Пробный образ и макияж в день свадьбы.",
+      "en": "Trial consultation and wedding-day look."
+     },
+     "key": "bridal",
+     "id": "maison-leyla.bridal",
+     "price": 350
+    },
+    {
+     "category": "brows",
+     "durationMin": 30,
+     "name": {
+      "az": "Qaş korreksiyası",
+      "ru": "Коррекция бровей",
+      "en": "Brow shaping"
+     },
+     "description": {
+      "az": "Eskiz, mum və cımbız.",
+      "ru": "Разметка, воск и пинцет.",
+      "en": "Mapping, wax and tweeze."
+     },
+     "key": "brow",
+     "id": "maison-leyla.brow",
+     "price": 30
+    },
+    {
+     "category": "brows",
+     "durationMin": 45,
+     "name": {
+      "az": "Qaş laminasiyası",
+      "ru": "Ламинирование бровей",
+      "en": "Brow lamination"
+     },
+     "description": {
+      "az": "Altı həftəlik daha dolğun qaşlar.",
+      "ru": "Более густые брови на шесть недель.",
+      "en": "Brushed-up, fuller brows for six weeks."
+     },
+     "key": "lami",
+     "id": "maison-leyla.lami",
+     "price": 70
+    },
+    {
+     "category": "brows",
+     "durationMin": 60,
+     "name": {
+      "az": "Kirpik liftinqi",
+      "ru": "Ламинирование ресниц",
+      "en": "Lash lift & tint"
+     },
+     "description": {
+      "az": "Təbii qıvrım və tünd rəng, uzatma olmadan.",
+      "ru": "Естественный изгиб и цвет без наращивания.",
+      "en": "Natural curl and depth, no extensions."
+     },
+     "key": "lash",
+     "id": "maison-leyla.lash",
+     "price": 95
+    }
+   ],
+   "masters": [
+    {
+     "id": "maison-leyla.m1",
+     "name": "Leyla Əliyeva",
+     "role": {
+      "az": "Kreativ direktor",
+      "ru": "Креативный директор",
+      "en": "Creative director"
+     },
+     "years": 16,
+     "rating": 4.95,
+     "reviewCount": 141,
+     "serviceIds": [
+      "maison-leyla.wcut",
+      "maison-leyla.blow",
+      "maison-leyla.colour",
+      "maison-leyla.balayage",
+      "maison-leyla.keratin",
+      "maison-leyla.evening",
+      "maison-leyla.bridal"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "sand",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "maison-leyla.m2",
+     "name": "Aysel Kərimova",
+     "role": {
+      "az": "Kolorist",
+      "ru": "Колорист",
+      "en": "Colourist"
+     },
+     "years": 9,
+     "rating": 4.85,
+     "reviewCount": 98,
+     "serviceIds": [
+      "maison-leyla.wcut",
+      "maison-leyla.blow",
+      "maison-leyla.colour",
+      "maison-leyla.balayage",
+      "maison-leyla.keratin"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "rose",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "maison-leyla.m3",
+     "name": "Nərmin Rzayeva",
+     "role": {
+      "az": "Qaş və makiyaj ustası",
+      "ru": "Бровист и визажист",
+      "en": "Brow & makeup artist"
+     },
+     "years": 6,
+     "rating": 4.8,
+     "reviewCount": 67,
+     "serviceIds": [
+      "maison-leyla.evening",
+      "maison-leyla.bridal",
+      "maison-leyla.brow",
+      "maison-leyla.lami",
+      "maison-leyla.lash"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "clay",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.8032467555212881,
+    0.19351025710730832,
+    0.0032392195244722085,
+    0.0000037675424523565257,
+    3.044789752707793e-10
+   ]
+  },
+  {
+   "id": "kesim-studio",
+   "name": "Kəsim Studio",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "Dəqiq fade. Artıq heç nə.",
+    "ru": "Точный фейд. Ничего лишнего.",
+    "en": "Precision fades. Nothing extra."
+   },
+   "about": {
+    "az": "Beton, palıd və dörd kreslo. Kəsim müasir kəsimlərə — fade, crop və teksturalı üst hissəyə — fokuslanır və vaxtında işləyir. Yalnız onlayn növbə.",
+    "ru": "Бетон, дуб и четыре кресла. Kəsim делает современные стрижки — фейды, кропы, текстуру — и делает их вовремя. Только онлайн-запись.",
+    "en": "Concrete, oak and four chairs. Kəsim does modern cuts — fades, crops and textured tops — and does them on time. Online booking only."
+   },
+   "address": "Hüseyn Cavid pr. 21",
+   "district": "Yasamal",
+   "coords": {
+    "latitude": 40.3936,
+    "longitude": 49.814
+   },
+   "priceLevel": 2,
+   "tone": "navy",
+   "rating": 4.8,
+   "reviewCount": 236,
+   "hours": {
+    "open": "10:00",
+    "close": "21:00"
+   },
+   "closedDays": [
+    0
+   ],
+   "phone": "+994 12 555 01 21",
+   "whatsapp": "994505550121",
+   "amenities": [
+    {
+     "az": "Yalnız onlayn növbə",
+     "ru": "Только онлайн-запись",
+     "en": "Online booking only"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "kesim-studio.cut",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "kesim-studio.fade",
+     "price": 35
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "kesim-studio.beard",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "kesim-studio.shave",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "kesim-studio.combo",
+     "price": 45
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "kesim-studio.kids",
+     "price": 20
+    }
+   ],
+   "masters": [
+    {
+     "id": "kesim-studio.m1",
+     "name": "Kamran Əsgərov",
+     "role": {
+      "az": "Sahibi, usta bərbər",
+      "ru": "Владелец, мастер-барбер",
+      "en": "Owner, master barber"
+     },
+     "years": 11,
+     "rating": 4.9,
+     "reviewCount": 131,
+     "serviceIds": [
+      "kesim-studio.cut",
+      "kesim-studio.fade",
+      "kesim-studio.beard",
+      "kesim-studio.shave",
+      "kesim-studio.combo",
+      "kesim-studio.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "navy",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "kesim-studio.m2",
+     "name": "Orxan Süleymanov",
+     "role": {
+      "az": "Fade ustası",
+      "ru": "Специалист по фейдам",
+      "en": "Fade specialist"
+     },
+     "years": 5,
+     "rating": 4.75,
+     "reviewCount": 88,
+     "serviceIds": [
+      "kesim-studio.cut",
+      "kesim-studio.fade",
+      "kesim-studio.beard",
+      "kesim-studio.shave",
+      "kesim-studio.combo",
+      "kesim-studio.kids"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "12:00",
+      "end": "21:00"
+     },
+     "tone": "slate",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.8032467555212881,
+    0.19351025710730832,
+    0.0032392195244722085,
+    0.0000037675424523565257,
+    3.044789752707793e-10
+   ]
+  },
+  {
+   "id": "narinci-nails",
+   "name": "Narıncı Nails",
+   "kind": {
+    "az": "Dırnaq studiyası",
+    "ru": "Ногтевая студия",
+    "en": "Nail studio"
+   },
+   "categories": [
+    "nails"
+   ],
+   "tagline": {
+    "az": "Təmiz xətlər, davamlı rəng.",
+    "ru": "Чистые линии, стойкий цвет.",
+    "en": "Clean lines, long-wear colour."
+   },
+   "about": {
+    "az": "Altı yerlik işıqlı künc studiyası və ciddi gigiyena qaydası — hər alət sterilizə olunur və paketdə açılır. Minimalist dizaynları ilə məşhurdur.",
+    "ru": "Светлая угловая студия на шесть мест со строгой гигиеной — каждый инструмент стерилизуется и вскрывается при вас. Славится минималистичным дизайном.",
+    "en": "A bright corner studio with six stations and a strict hygiene routine — every tool is sterilised and sealed. Famous for minimalist nail art."
+   },
+   "address": "Səməd Vurğun küç. 46",
+   "district": "Nəsimi",
+   "coords": {
+    "latitude": 40.3858,
+    "longitude": 49.8381
+   },
+   "priceLevel": 1,
+   "tone": "clay",
+   "rating": 4.7,
+   "reviewCount": 198,
+   "hours": {
+    "open": "09:00",
+    "close": "20:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 46",
+   "whatsapp": "994505550146",
+   "womenOnly": true,
+   "amenities": [
+    {
+     "az": "Steril alətlər",
+     "ru": "Стерильные инструменты",
+     "en": "Sterilised tools"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "nails",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik manikür",
+      "ru": "Классический маникюр",
+      "en": "Classic manicure"
+     },
+     "description": {
+      "az": "Forma, kutikula baxımı və lak.",
+      "ru": "Форма, уход за кутикулой и покрытие.",
+      "en": "Shape, cuticle care and polish."
+     },
+     "key": "mani",
+     "id": "narinci-nails.mani",
+     "price": 15
+    },
+    {
+     "category": "nails",
+     "durationMin": 60,
+     "name": {
+      "az": "Gel-lak manikür",
+      "ru": "Маникюр с гель-лаком",
+      "en": "Gel manicure"
+     },
+     "description": {
+      "az": "Üç həftəyə qədər davamlı gel-lak.",
+      "ru": "Стойкое покрытие гель-лаком до трёх недель.",
+      "en": "Long-wear gel colour, up to three weeks."
+     },
+     "key": "gel",
+     "id": "narinci-nails.gel",
+     "price": 25
+    },
+    {
+     "category": "nails",
+     "durationMin": 60,
+     "name": {
+      "az": "Spa pedikür",
+      "ru": "Спа-педикюр",
+      "en": "Spa pedicure"
+     },
+     "description": {
+      "az": "Vanna, skrab, masaj və lak.",
+      "ru": "Ванночка, скраб, массаж и покрытие.",
+      "en": "Soak, scrub, massage and polish."
+     },
+     "key": "pedi",
+     "id": "narinci-nails.pedi",
+     "price": 30
+    },
+    {
+     "category": "nails",
+     "durationMin": 30,
+     "name": {
+      "az": "Dırnaq dizaynı",
+      "ru": "Дизайн ногтей",
+      "en": "Nail art"
+     },
+     "description": {
+      "az": "Əl ilə rəsm, bütün dırnaqlar üçün qiymət.",
+      "ru": "Ручная роспись, цена за комплект.",
+      "en": "Hand-painted detail, priced per set."
+     },
+     "key": "art",
+     "id": "narinci-nails.art",
+     "price": 15
+    }
+   ],
+   "masters": [
+    {
+     "id": "narinci-nails.m1",
+     "name": "Günay Abbasova",
+     "role": {
+      "az": "Baş dırnaq ustası",
+      "ru": "Старший мастер маникюра",
+      "en": "Senior nail artist"
+     },
+     "years": 7,
+     "rating": 4.85,
+     "reviewCount": 102,
+     "serviceIds": [
+      "narinci-nails.mani",
+      "narinci-nails.gel",
+      "narinci-nails.pedi",
+      "narinci-nails.art"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "clay",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "narinci-nails.m2",
+     "name": "Fidan Hüseynova",
+     "role": {
+      "az": "Manikür ustası",
+      "ru": "Мастер ногтевого сервиса",
+      "en": "Nail technician"
+     },
+     "years": 3,
+     "rating": 4.65,
+     "reviewCount": 61,
+     "serviceIds": [
+      "narinci-nails.mani",
+      "narinci-nails.gel",
+      "narinci-nails.pedi",
+      "narinci-nails.art"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "rose",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "narinci-nails.m3",
+     "name": "Lalə Babayeva",
+     "role": {
+      "az": "Manikür ustası",
+      "ru": "Мастер ногтевого сервиса",
+      "en": "Nail technician"
+     },
+     "years": 2,
+     "rating": 4.6,
+     "reviewCount": 35,
+     "serviceIds": [
+      "narinci-nails.mani",
+      "narinci-nails.gel",
+      "narinci-nails.pedi",
+      "narinci-nails.art"
+     ],
+     "workDays": [
+      0,
+      1,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "sand",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.7079529514646233,
+    0.2841094506373417,
+    0.007922246396673818,
+    0.000015349434944700714,
+    2.0664163098535587e-9
+   ]
+  },
+  {
+   "id": "fade-district",
+   "name": "Fade District",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "Gec saatlar, iti kəsim, yaxşı musiqi.",
+    "ru": "Допоздна, чёткие стрижки, хорошая музыка.",
+    "en": "Late hours, sharp cuts, good music."
+   },
+   "about": {
+    "az": "Əksər gecələr 23:00-dək açıqdır. 28 May yaxınlığında səs-küylü, mehriban bərbərxana — bilyard masası və mərkəzin ən yaxşı skin fade-ləri.",
+    "ru": "Почти каждый вечер до 23:00. Шумный и дружелюбный барбершоп у 28 Мая — бильярд и лучшие скин-фейды в центре.",
+    "en": "Open until 23:00 most nights. A loud, friendly shop near 28 May with a pool table and the best skin fades in the centre."
+   },
+   "address": "28 May küç. 3",
+   "district": "28 May",
+   "coords": {
+    "latitude": 40.3793,
+    "longitude": 49.8488
+   },
+   "priceLevel": 1,
+   "tone": "slate",
+   "rating": 4.6,
+   "reviewCount": 341,
+   "hours": {
+    "open": "11:00",
+    "close": "23:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 03",
+   "whatsapp": "994505550103",
+   "amenities": [
+    {
+     "az": "Gecəyədək açıq",
+     "ru": "Открыто допоздна",
+     "en": "Open late"
+    },
+    {
+     "az": "Bilyard",
+     "ru": "Бильярд",
+     "en": "Pool table"
+    },
+    {
+     "az": "Yalnız nağd",
+     "ru": "Только наличные",
+     "en": "Cash only"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "fade-district.cut",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "fade-district.fade",
+     "price": 25
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "fade-district.beard",
+     "price": 15
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "fade-district.shave",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "fade-district.combo",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "fade-district.kids",
+     "price": 15
+    }
+   ],
+   "masters": [
+    {
+     "id": "fade-district.m1",
+     "name": "Nicat Vəliyev",
+     "role": {
+      "az": "Baş bərbər",
+      "ru": "Старший барбер",
+      "en": "Senior barber"
+     },
+     "years": 7,
+     "rating": 4.7,
+     "reviewCount": 143,
+     "serviceIds": [
+      "fade-district.cut",
+      "fade-district.fade",
+      "fade-district.beard",
+      "fade-district.shave",
+      "fade-district.combo",
+      "fade-district.kids"
+     ],
+     "workDays": [
+      0,
+      1,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "14:00",
+      "end": "23:00"
+     },
+     "tone": "slate",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "fade-district.m2",
+     "name": "Ramil Cəfərov",
+     "role": {
+      "az": "Bərbər",
+      "ru": "Барбер",
+      "en": "Barber"
+     },
+     "years": 3,
+     "rating": 4.55,
+     "reviewCount": 97,
+     "serviceIds": [
+      "fade-district.cut",
+      "fade-district.fade",
+      "fade-district.beard",
+      "fade-district.shave",
+      "fade-district.combo",
+      "fade-district.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "ink",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "fade-district.m3",
+     "name": "Samir Nəbiyev",
+     "role": {
+      "az": "Gənc bərbər",
+      "ru": "Младший барбер",
+      "en": "Junior barber"
+     },
+     "years": 1,
+     "rating": 4.4,
+     "reviewCount": 22,
+     "serviceIds": [
+      "fade-district.cut",
+      "fade-district.fade",
+      "fade-district.beard",
+      "fade-district.shave",
+      "fade-district.combo",
+      "fade-district.kids"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "13:00",
+      "end": "22:00"
+     },
+     "tone": "navy",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.6154697425014644,
+    0.36910506579234914,
+    0.015380649870578867,
+    0.000044532876429091735,
+    8.959178531187108e-9
+   ]
+  },
+  {
+   "id": "ag-seher-atelier",
+   "name": "Ağ Şəhər Atelier",
+   "kind": {
+    "az": "Saç ateliesi",
+    "ru": "Ателье волос",
+    "en": "Hair atelier"
+   },
+   "categories": [
+    "hair"
+   ],
+   "tagline": {
+    "az": "Sahil kənarında memarlıq kəsimləri.",
+    "ru": "Архитектурные стрижки у набережной.",
+    "en": "Architectural cuts by the waterfront."
+   },
+   "about": {
+    "az": "Ağ Şəhərdə bulvara açılan geniş pəncərəli, qalereyaya bənzər atelye. Qısa, strukturlu kəsimlər və sarışın tonlar üzrə ixtisaslaşıb.",
+    "ru": "Ателье-галерея в Белом городе с панорамными окнами на бульвар. Специализация — короткие структурные стрижки и блонд.",
+    "en": "A gallery-like atelier in White City with floor-to-ceiling windows over the boulevard. Specialists in short, structural cuts and blonde work."
+   },
+   "address": "Ağ Şəhər bulv. 12",
+   "district": "Ağ Şəhər",
+   "coords": {
+    "latitude": 40.381,
+    "longitude": 49.887
+   },
+   "priceLevel": 3,
+   "tone": "olive",
+   "rating": 4.9,
+   "reviewCount": 154,
+   "hours": {
+    "open": "10:00",
+    "close": "19:00"
+   },
+   "closedDays": [
+    0,
+    1
+   ],
+   "phone": "+994 12 555 01 62",
+   "whatsapp": "994505550162",
+   "amenities": [
+    {
+     "az": "Dəniz mənzərəsi",
+     "ru": "Вид на море",
+     "en": "Sea view"
+    },
+    {
+     "az": "Parkinq",
+     "ru": "Парковка",
+     "en": "Parking"
+    },
+    {
+     "az": "Yalnız kart",
+     "ru": "Только карта",
+     "en": "Card only"
+    }
+   ],
+   "services": [
+    {
+     "category": "hair",
+     "durationMin": 60,
+     "name": {
+      "az": "Kəsim və ukladka",
+      "ru": "Стрижка и укладка",
+      "en": "Cut & style"
+     },
+     "description": {
+      "az": "Yuma, dəqiq kəsim və fen ukladkası.",
+      "ru": "Мытьё, точная стрижка и укладка феном.",
+      "en": "Wash, precision cut and blow-dry finish."
+     },
+     "key": "wcut",
+     "id": "ag-seher-atelier.wcut",
+     "price": 80
+    },
+    {
+     "category": "hair",
+     "durationMin": 45,
+     "name": {
+      "az": "Fen ukladkası",
+      "ru": "Укладка феном",
+      "en": "Blow-dry"
+     },
+     "description": {
+      "az": "Hamar, həcmli və ya dalğalı — seçim sizindir.",
+      "ru": "Гладко, объём или волны — на ваш выбор.",
+      "en": "Smooth, volume or waves — your call."
+     },
+     "key": "blow",
+     "id": "ag-seher-atelier.blow",
+     "price": 55
+    },
+    {
+     "category": "hair",
+     "durationMin": 120,
+     "name": {
+      "az": "Tam boyama",
+      "ru": "Окрашивание",
+      "en": "Full colour"
+     },
+     "description": {
+      "az": "Bir tonda boyama, parlaqlıq və ukladka.",
+      "ru": "Окрашивание в один тон, глосс и укладка.",
+      "en": "Single-process colour, gloss and style."
+     },
+     "key": "colour",
+     "id": "ag-seher-atelier.colour",
+     "price": 190
+    },
+    {
+     "category": "hair",
+     "durationMin": 180,
+     "name": {
+      "az": "Balayaj",
+      "ru": "Балаяж",
+      "en": "Balayage"
+     },
+     "description": {
+      "az": "Əl ilə açıltma, tonlama və ukladka.",
+      "ru": "Ручное осветление, тонирование и укладка.",
+      "en": "Hand-painted lightening, toned and styled."
+     },
+     "key": "balayage",
+     "id": "ag-seher-atelier.balayage",
+     "price": 350
+    },
+    {
+     "category": "hair",
+     "durationMin": 150,
+     "name": {
+      "az": "Keratin baxımı",
+      "ru": "Кератиновое выпрямление",
+      "en": "Keratin treatment"
+     },
+     "description": {
+      "az": "Üç aya qədər hamar, qabarmayan saç.",
+      "ru": "Гладкие волосы без пушения до трёх месяцев.",
+      "en": "Frizz-free smoothing that lasts up to three months."
+     },
+     "key": "keratin",
+     "id": "ag-seher-atelier.keratin",
+     "price": 290
+    }
+   ],
+   "masters": [
+    {
+     "id": "ag-seher-atelier.m1",
+     "name": "Səbinə Mirzəyeva",
+     "role": {
+      "az": "Təsisçi, stilist",
+      "ru": "Основатель, стилист",
+      "en": "Founder, stylist"
+     },
+     "years": 18,
+     "rating": 4.95,
+     "reviewCount": 79,
+     "serviceIds": [
+      "ag-seher-atelier.wcut",
+      "ag-seher-atelier.blow",
+      "ag-seher-atelier.colour",
+      "ag-seher-atelier.balayage",
+      "ag-seher-atelier.keratin"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "18:00"
+     },
+     "tone": "olive",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "ag-seher-atelier.m2",
+     "name": "Aynur Qasımova",
+     "role": {
+      "az": "Blond ustası",
+      "ru": "Специалист по блонду",
+      "en": "Blonde specialist"
+     },
+     "years": 10,
+     "rating": 4.9,
+     "reviewCount": 64,
+     "serviceIds": [
+      "ag-seher-atelier.wcut",
+      "ag-seher-atelier.blow",
+      "ag-seher-atelier.colour",
+      "ag-seher-atelier.balayage",
+      "ag-seher-atelier.keratin"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "19:00"
+     },
+     "tone": "bone",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.9007492470891515,
+    0.09850190100856308,
+    0.0007484567303468956,
+    3.951574421327712e-7,
+    1.449622812041676e-11
+   ]
+  },
+  {
+   "id": "lumen-brow",
+   "name": "Lumen Brow & Lash",
+   "kind": {
+    "az": "Qaş studiyası",
+    "ru": "Brow-бар",
+    "en": "Brow bar"
+   },
+   "categories": [
+    "brows",
+    "makeup"
+   ],
+   "tagline": {
+    "az": "Sizin qaşlarınız, sadəcə daha yaxşı.",
+    "ru": "Ваши брови, только лучше.",
+    "en": "Brows that look like yours, only better."
+   },
+   "about": {
+    "az": "Port Baku daxilində kiçik, sakit qaş studiyası. Lumen hər qaşı üz quruluşunuza uyğun eskizləyir, sonra işə başlayır.",
+    "ru": "Небольшая спокойная студия бровей в Port Baku. Lumen размечает каждую бровь по строению лица, прежде чем начать.",
+    "en": "A small, calm brow bar inside Port Baku. Lumen maps every brow to your bone structure before a single hair is touched."
+   },
+   "address": "Port Baku, Neftçilər pr. 153",
+   "district": "Port Baku",
+   "coords": {
+    "latitude": 40.3746,
+    "longitude": 49.8605
+   },
+   "priceLevel": 2,
+   "tone": "rose",
+   "rating": 4.8,
+   "reviewCount": 173,
+   "hours": {
+    "open": "10:00",
+    "close": "20:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 75",
+   "whatsapp": "994505550175",
+   "womenOnly": true,
+   "amenities": [
+    {
+     "az": "Mall parkinqi",
+     "ru": "Парковка ТЦ",
+     "en": "Mall parking"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "brows",
+     "durationMin": 30,
+     "name": {
+      "az": "Qaş korreksiyası",
+      "ru": "Коррекция бровей",
+      "en": "Brow shaping"
+     },
+     "description": {
+      "az": "Eskiz, mum və cımbız.",
+      "ru": "Разметка, воск и пинцет.",
+      "en": "Mapping, wax and tweeze."
+     },
+     "key": "brow",
+     "id": "lumen-brow.brow",
+     "price": 20
+    },
+    {
+     "category": "brows",
+     "durationMin": 45,
+     "name": {
+      "az": "Qaş laminasiyası",
+      "ru": "Ламинирование бровей",
+      "en": "Brow lamination"
+     },
+     "description": {
+      "az": "Altı həftəlik daha dolğun qaşlar.",
+      "ru": "Более густые брови на шесть недель.",
+      "en": "Brushed-up, fuller brows for six weeks."
+     },
+     "key": "lami",
+     "id": "lumen-brow.lami",
+     "price": 45
+    },
+    {
+     "category": "brows",
+     "durationMin": 60,
+     "name": {
+      "az": "Kirpik liftinqi",
+      "ru": "Ламинирование ресниц",
+      "en": "Lash lift & tint"
+     },
+     "description": {
+      "az": "Təbii qıvrım və tünd rəng, uzatma olmadan.",
+      "ru": "Естественный изгиб и цвет без наращивания.",
+      "en": "Natural curl and depth, no extensions."
+     },
+     "key": "lash",
+     "id": "lumen-brow.lash",
+     "price": 60
+    },
+    {
+     "category": "makeup",
+     "durationMin": 60,
+     "name": {
+      "az": "Axşam makiyajı",
+      "ru": "Вечерний макияж",
+      "en": "Evening makeup"
+     },
+     "description": {
+      "az": "Tədbir üçün tam makiyaj, kirpiklər daxil.",
+      "ru": "Полный макияж к событию, ресницы включены.",
+      "en": "Full face for an event, lashes included."
+     },
+     "key": "evening",
+     "id": "lumen-brow.evening",
+     "price": 80
+    },
+    {
+     "category": "makeup",
+     "durationMin": 120,
+     "name": {
+      "az": "Gəlin makiyajı",
+      "ru": "Свадебный макияж",
+      "en": "Bridal makeup"
+     },
+     "description": {
+      "az": "Sınaq məsləhəti və toy günü obrazı.",
+      "ru": "Пробный образ и макияж в день свадьбы.",
+      "en": "Trial consultation and wedding-day look."
+     },
+     "key": "bridal",
+     "id": "lumen-brow.bridal",
+     "price": 220
+    }
+   ],
+   "masters": [
+    {
+     "id": "lumen-brow.m1",
+     "name": "Nigar İsmayılova",
+     "role": {
+      "az": "Qaş memarı",
+      "ru": "Архитектор бровей",
+      "en": "Brow architect"
+     },
+     "years": 8,
+     "rating": 4.9,
+     "reviewCount": 96,
+     "serviceIds": [
+      "lumen-brow.brow",
+      "lumen-brow.lami",
+      "lumen-brow.lash"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "rose",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "lumen-brow.m2",
+     "name": "Ülviyyə Sadıqova",
+     "role": {
+      "az": "Kirpik və makiyaj ustası",
+      "ru": "Лэшмейкер и визажист",
+      "en": "Lash & makeup artist"
+     },
+     "years": 5,
+     "rating": 4.75,
+     "reviewCount": 57,
+     "serviceIds": [
+      "lumen-brow.brow",
+      "lumen-brow.lami",
+      "lumen-brow.lash",
+      "lumen-brow.evening",
+      "lumen-brow.bridal"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "clay",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.8032467555212881,
+    0.19351025710730832,
+    0.0032392195244722085,
+    0.0000037675424523565257,
+    3.044789752707793e-10
+   ]
+  },
+  {
+   "id": "hammam-no-9",
+   "name": "Hammam No. 9",
+   "kind": {
+    "az": "Spa və hamam",
+    "ru": "Спа и хаммам",
+    "en": "Spa & hammam"
+   },
+   "categories": [
+    "spa"
+   ],
+   "tagline": {
+    "az": "Buxar, daş və tələsməyən saatlar.",
+    "ru": "Пар, камень и неспешные часы.",
+    "en": "Steam, stone and slow hours."
+   },
+   "about": {
+    "az": "Bakı hamamının müasir versiyası, bulvardan bir neçə addım. Mərmər buxar otaqları, soyuq hovuz və ənənəvi kisəni bilən terapevtlər.",
+    "ru": "Современный бакинский хаммам в паре шагов от бульвара. Мраморные парные, холодная купель и терапевты, владеющие традиционным кесе.",
+    "en": "A modern take on the Baku hammam, a few steps from the boulevard. Marble steam rooms, a cold plunge and therapists trained in traditional kese."
+   },
+   "address": "Bülbül pr. 9",
+   "district": "Sahil",
+   "coords": {
+    "latitude": 40.3706,
+    "longitude": 49.849
+   },
+   "priceLevel": 3,
+   "tone": "forest",
+   "rating": 4.7,
+   "reviewCount": 221,
+   "hours": {
+    "open": "09:00",
+    "close": "22:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 09",
+   "whatsapp": "994505550109",
+   "amenities": [
+    {
+     "az": "Buxar və hovuz",
+     "ru": "Пар и купель",
+     "en": "Steam & plunge"
+    },
+    {
+     "az": "Dəsmal və xalat",
+     "ru": "Полотенца и халаты",
+     "en": "Towels & robes"
+    },
+    {
+     "az": "Yalnız kart",
+     "ru": "Только карта",
+     "en": "Card only"
+    }
+   ],
+   "services": [
+    {
+     "category": "spa",
+     "durationMin": 75,
+     "name": {
+      "az": "Hamam ritualı",
+      "ru": "Хаммам-ритуал",
+      "en": "Hammam ritual"
+     },
+     "description": {
+      "az": "Buxar, kisə və köpük masajı.",
+      "ru": "Пар, пилинг кесе и пенный массаж.",
+      "en": "Steam, kese scrub and foam massage."
+     },
+     "key": "hammam",
+     "id": "hammam-no-9.hammam",
+     "price": 145
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Dərin masaj",
+      "ru": "Глубокий массаж",
+      "en": "Deep tissue massage"
+     },
+     "description": {
+      "az": "Gərginlik üçün yavaş, güclü təzyiq.",
+      "ru": "Медленное сильное давление против напряжения.",
+      "en": "Slow, firm pressure for real tension."
+     },
+     "key": "massage",
+     "id": "hammam-no-9.massage",
+     "price": 160
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Üz baxımı",
+      "ru": "Уход за лицом",
+      "en": "Signature facial"
+     },
+     "description": {
+      "az": "Təmizləmə, pilinq, maska və masaj.",
+      "ru": "Очищение, пилинг, маска и массаж.",
+      "en": "Cleanse, exfoliate, mask and massage."
+     },
+     "key": "facial",
+     "id": "hammam-no-9.facial",
+     "price": 135
+    }
+   ],
+   "masters": [
+    {
+     "id": "hammam-no-9.m1",
+     "name": "Fuad Hacıyev",
+     "role": {
+      "az": "Hamam ustası",
+      "ru": "Мастер хаммама",
+      "en": "Hammam master"
+     },
+     "years": 15,
+     "rating": 4.8,
+     "reviewCount": 104,
+     "serviceIds": [
+      "hammam-no-9.hammam",
+      "hammam-no-9.massage",
+      "hammam-no-9.facial"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "forest",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "hammam-no-9.m2",
+     "name": "Aytən Əhmədova",
+     "role": {
+      "az": "Masaj terapevti",
+      "ru": "Массажист",
+      "en": "Massage therapist"
+     },
+     "years": 9,
+     "rating": 4.75,
+     "reviewCount": 88,
+     "serviceIds": [
+      "hammam-no-9.hammam",
+      "hammam-no-9.massage",
+      "hammam-no-9.facial"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "12:00",
+      "end": "22:00"
+     },
+     "tone": "olive",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    }
+   ],
+   "distribution": [
+    0.7079529514646233,
+    0.2841094506373417,
+    0.007922246396673818,
+    0.000015349434944700714,
+    2.0664163098535587e-9
+   ]
+  },
+  {
+   "id": "gentry-grooming",
+   "name": "Gentry Grooming",
+   "kind": {
+    "az": "Bərbər və spa",
+    "ru": "Барбершоп и спа",
+    "en": "Barber & spa"
+   },
+   "categories": [
+    "barber",
+    "spa"
+   ],
+   "tagline": {
+    "az": "Klub ab-havası, üzvlük olmadan.",
+    "ru": "Атмосфера клуба — без членства.",
+    "en": "A members-club feel, without the membership."
+   },
+   "about": {
+    "az": "Tünd ağac, rəfdə viski və üz baxımı ilə masaj üçün ayrıca otaq. Gənclikdə tam qulluq ritualı — əvvəldən axıradək.",
+    "ru": "Тёмное дерево, виски на полке и отдельная комната для ухода и массажа. Полный груминг-ритуал в Гянджлике — от начала до конца.",
+    "en": "Dark wood, whisky on the shelf and a private treatment room for facials and massage. The full grooming ritual, start to finish, in Gənclik."
+   },
+   "address": "Atatürk pr. 44",
+   "district": "Gənclik",
+   "coords": {
+    "latitude": 40.4006,
+    "longitude": 49.8516
+   },
+   "priceLevel": 3,
+   "tone": "ink",
+   "rating": 4.85,
+   "reviewCount": 189,
+   "hours": {
+    "open": "10:00",
+    "close": "21:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 44",
+   "whatsapp": "994505550144",
+   "amenities": [
+    {
+     "az": "Ayrıca otaq",
+     "ru": "Отдельная комната",
+     "en": "Private room"
+    },
+    {
+     "az": "Pulsuz içki",
+     "ru": "Напиток в подарок",
+     "en": "Complimentary drink"
+    },
+    {
+     "az": "Parkinq",
+     "ru": "Парковка",
+     "en": "Parking"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "gentry-grooming.cut",
+     "price": 50
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "gentry-grooming.fade",
+     "price": 55
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "gentry-grooming.beard",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "gentry-grooming.shave",
+     "price": 50
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "gentry-grooming.combo",
+     "price": 70
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "gentry-grooming.kids",
+     "price": 30
+    },
+    {
+     "category": "spa",
+     "durationMin": 75,
+     "name": {
+      "az": "Hamam ritualı",
+      "ru": "Хаммам-ритуал",
+      "en": "Hammam ritual"
+     },
+     "description": {
+      "az": "Buxar, kisə və köpük masajı.",
+      "ru": "Пар, пилинг кесе и пенный массаж.",
+      "en": "Steam, kese scrub and foam massage."
+     },
+     "key": "hammam",
+     "id": "gentry-grooming.hammam",
+     "price": 145
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Dərin masaj",
+      "ru": "Глубокий массаж",
+      "en": "Deep tissue massage"
+     },
+     "description": {
+      "az": "Gərginlik üçün yavaş, güclü təzyiq.",
+      "ru": "Медленное сильное давление против напряжения.",
+      "en": "Slow, firm pressure for real tension."
+     },
+     "key": "massage",
+     "id": "gentry-grooming.massage",
+     "price": 160
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Üz baxımı",
+      "ru": "Уход за лицом",
+      "en": "Signature facial"
+     },
+     "description": {
+      "az": "Təmizləmə, pilinq, maska və masaj.",
+      "ru": "Очищение, пилинг, маска и массаж.",
+      "en": "Cleanse, exfoliate, mask and massage."
+     },
+     "key": "facial",
+     "id": "gentry-grooming.facial",
+     "price": 135
+    }
+   ],
+   "masters": [
+    {
+     "id": "gentry-grooming.m1",
+     "name": "Ruslan Axundov",
+     "role": {
+      "az": "Baş bərbər",
+      "ru": "Шеф-барбер",
+      "en": "Head barber"
+     },
+     "years": 12,
+     "rating": 4.9,
+     "reviewCount": 97,
+     "serviceIds": [
+      "gentry-grooming.cut",
+      "gentry-grooming.fade",
+      "gentry-grooming.beard",
+      "gentry-grooming.shave",
+      "gentry-grooming.combo",
+      "gentry-grooming.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "ink",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "gentry-grooming.m2",
+     "name": "Emil Zeynalov",
+     "role": {
+      "az": "Bərbər və qulluq ustası",
+      "ru": "Барбер и грумер",
+      "en": "Barber & groomer"
+     },
+     "years": 6,
+     "rating": 4.8,
+     "reviewCount": 58,
+     "serviceIds": [
+      "gentry-grooming.cut",
+      "gentry-grooming.fade",
+      "gentry-grooming.beard",
+      "gentry-grooming.shave",
+      "gentry-grooming.combo",
+      "gentry-grooming.kids",
+      "gentry-grooming.hammam",
+      "gentry-grooming.massage",
+      "gentry-grooming.facial"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "12:00",
+      "end": "21:00"
+     },
+     "tone": "oxblood",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.8517535952222561,
+    0.14649426343330202,
+    0.0017506875496586646,
+    0.0000014537109089218375,
+    8.387428623210947e-11
+   ]
+  },
+  {
+   "id": "studio-sabina",
+   "name": "Studio Səbinə",
+   "kind": {
+    "az": "Saç və makiyaj",
+    "ru": "Волосы и макияж",
+    "en": "Hair & makeup"
+   },
+   "categories": [
+    "hair",
+    "makeup"
+   ],
+   "tagline": {
+    "az": "Məhəllə salonu, jurnal səviyyəsi.",
+    "ru": "Салон у дома с журнальным уровнем.",
+    "en": "Neighbourhood salon, editorial standards."
+   },
+   "about": {
+    "az": "Elmlər yaxınlığında iki kreslo, bir makiyaj masası və sadiq müştərilər. Sərfəli kəsim, gözəl ukladka və diqqətlə edilən tədbir makiyajı.",
+    "ru": "Два кресла, один стол визажиста и преданные клиенты у Элмляр. Доступные стрижки, красивые укладки и бережный вечерний макияж.",
+    "en": "Two chairs, one makeup station and a loyal following near Elmlər. Affordable cuts, beautiful blow-dries and event makeup done with care."
+   },
+   "address": "Bəxtiyar Vahabzadə küç. 7",
+   "district": "Elmlər",
+   "coords": {
+    "latitude": 40.3752,
+    "longitude": 49.8135
+   },
+   "priceLevel": 1,
+   "tone": "rose",
+   "rating": 4.6,
+   "reviewCount": 117,
+   "hours": {
+    "open": "09:00",
+    "close": "19:00"
+   },
+   "closedDays": [
+    0
+   ],
+   "phone": "+994 12 555 01 58",
+   "whatsapp": "994505550158",
+   "amenities": [
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    },
+    {
+     "az": "Uşaqlarla gəlmək olar",
+     "ru": "Можно с детьми",
+     "en": "Kids welcome"
+    }
+   ],
+   "services": [
+    {
+     "category": "hair",
+     "durationMin": 60,
+     "name": {
+      "az": "Kəsim və ukladka",
+      "ru": "Стрижка и укладка",
+      "en": "Cut & style"
+     },
+     "description": {
+      "az": "Yuma, dəqiq kəsim və fen ukladkası.",
+      "ru": "Мытьё, точная стрижка и укладка феном.",
+      "en": "Wash, precision cut and blow-dry finish."
+     },
+     "key": "wcut",
+     "id": "studio-sabina.wcut",
+     "price": 35
+    },
+    {
+     "category": "hair",
+     "durationMin": 45,
+     "name": {
+      "az": "Fen ukladkası",
+      "ru": "Укладка феном",
+      "en": "Blow-dry"
+     },
+     "description": {
+      "az": "Hamar, həcmli və ya dalğalı — seçim sizindir.",
+      "ru": "Гладко, объём или волны — на ваш выбор.",
+      "en": "Smooth, volume or waves — your call."
+     },
+     "key": "blow",
+     "id": "studio-sabina.blow",
+     "price": 25
+    },
+    {
+     "category": "hair",
+     "durationMin": 120,
+     "name": {
+      "az": "Tam boyama",
+      "ru": "Окрашивание",
+      "en": "Full colour"
+     },
+     "description": {
+      "az": "Bir tonda boyama, parlaqlıq və ukladka.",
+      "ru": "Окрашивание в один тон, глосс и укладка.",
+      "en": "Single-process colour, gloss and style."
+     },
+     "key": "colour",
+     "id": "studio-sabina.colour",
+     "price": 80
+    },
+    {
+     "category": "hair",
+     "durationMin": 180,
+     "name": {
+      "az": "Balayaj",
+      "ru": "Балаяж",
+      "en": "Balayage"
+     },
+     "description": {
+      "az": "Əl ilə açıltma, tonlama və ukladka.",
+      "ru": "Ручное осветление, тонирование и укладка.",
+      "en": "Hand-painted lightening, toned and styled."
+     },
+     "key": "balayage",
+     "id": "studio-sabina.balayage",
+     "price": 145
+    },
+    {
+     "category": "hair",
+     "durationMin": 150,
+     "name": {
+      "az": "Keratin baxımı",
+      "ru": "Кератиновое выпрямление",
+      "en": "Keratin treatment"
+     },
+     "description": {
+      "az": "Üç aya qədər hamar, qabarmayan saç.",
+      "ru": "Гладкие волосы без пушения до трёх месяцев.",
+      "en": "Frizz-free smoothing that lasts up to three months."
+     },
+     "key": "keratin",
+     "id": "studio-sabina.keratin",
+     "price": 115
+    },
+    {
+     "category": "makeup",
+     "durationMin": 60,
+     "name": {
+      "az": "Axşam makiyajı",
+      "ru": "Вечерний макияж",
+      "en": "Evening makeup"
+     },
+     "description": {
+      "az": "Tədbir üçün tam makiyaj, kirpiklər daxil.",
+      "ru": "Полный макияж к событию, ресницы включены.",
+      "en": "Full face for an event, lashes included."
+     },
+     "key": "evening",
+     "id": "studio-sabina.evening",
+     "price": 50
+    },
+    {
+     "category": "makeup",
+     "durationMin": 120,
+     "name": {
+      "az": "Gəlin makiyajı",
+      "ru": "Свадебный макияж",
+      "en": "Bridal makeup"
+     },
+     "description": {
+      "az": "Sınaq məsləhəti və toy günü obrazı.",
+      "ru": "Пробный образ и макияж в день свадьбы.",
+      "en": "Trial consultation and wedding-day look."
+     },
+     "key": "bridal",
+     "id": "studio-sabina.bridal",
+     "price": 145
+    }
+   ],
+   "masters": [
+    {
+     "id": "studio-sabina.m1",
+     "name": "Səbinə Orucova",
+     "role": {
+      "az": "Sahibi, stilist",
+      "ru": "Владелица, стилист",
+      "en": "Owner, stylist"
+     },
+     "years": 11,
+     "rating": 4.7,
+     "reviewCount": 66,
+     "serviceIds": [
+      "studio-sabina.wcut",
+      "studio-sabina.blow",
+      "studio-sabina.colour",
+      "studio-sabina.balayage",
+      "studio-sabina.keratin",
+      "studio-sabina.evening",
+      "studio-sabina.bridal"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "rose",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "studio-sabina.m2",
+     "name": "Könül Əlizadə",
+     "role": {
+      "az": "Stilist",
+      "ru": "Стилист",
+      "en": "Stylist"
+     },
+     "years": 4,
+     "rating": 4.5,
+     "reviewCount": 38,
+     "serviceIds": [
+      "studio-sabina.wcut",
+      "studio-sabina.blow",
+      "studio-sabina.colour",
+      "studio-sabina.balayage",
+      "studio-sabina.keratin"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "sand",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.6154697425014644,
+    0.36910506579234914,
+    0.015380649870578867,
+    0.000044532876429091735,
+    8.959178531187108e-9
+   ]
+  },
+  {
+   "id": "bayil-barber-co",
+   "name": "Bayıl Barber Co.",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "Dəniz havası və dürüst kəsim.",
+    "ru": "Морской воздух и честная стрижка.",
+    "en": "Sea air and an honest haircut."
+   },
+   "about": {
+    "az": "Bayıl təpəsində iki qardaşın işlətdiyi ailə bərbərxanası. Klassik kəsimlər, ədalətli qiymətlər və gözləmə skamyasından körfəz mənzərəsi.",
+    "ru": "Семейный барбершоп на холме над Баилом, который держат два брата. Классика, честные цены и вид на бухту со скамейки ожидания.",
+    "en": "A family shop on the hill above Bayıl, run by two brothers. Classic cuts, fair prices and a view of the bay from the waiting bench."
+   },
+   "address": "Bayıl qəs., Z. Bünyadov küç. 18",
+   "district": "Bayıl",
+   "coords": {
+    "latitude": 40.349,
+    "longitude": 49.836
+   },
+   "priceLevel": 1,
+   "tone": "oxblood",
+   "rating": 4.7,
+   "reviewCount": 96,
+   "hours": {
+    "open": "09:00",
+    "close": "20:00"
+   },
+   "closedDays": [
+    1
+   ],
+   "phone": "+994 12 555 01 18",
+   "whatsapp": "994505550118",
+   "amenities": [
+    {
+     "az": "Yalnız nağd",
+     "ru": "Только наличные",
+     "en": "Cash only"
+    },
+    {
+     "az": "Növbəsiz qəbul",
+     "ru": "Без записи",
+     "en": "Walk-ins welcome"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "bayil-barber-co.cut",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "bayil-barber-co.fade",
+     "price": 25
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "bayil-barber-co.beard",
+     "price": 15
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "bayil-barber-co.shave",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "bayil-barber-co.combo",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "bayil-barber-co.kids",
+     "price": 15
+    }
+   ],
+   "masters": [
+    {
+     "id": "bayil-barber-co.m1",
+     "name": "Vüqar Səfərov",
+     "role": {
+      "az": "Usta bərbər",
+      "ru": "Мастер-барбер",
+      "en": "Master barber"
+     },
+     "years": 20,
+     "rating": 4.8,
+     "reviewCount": 59,
+     "serviceIds": [
+      "bayil-barber-co.cut",
+      "bayil-barber-co.fade",
+      "bayil-barber-co.beard",
+      "bayil-barber-co.shave",
+      "bayil-barber-co.combo",
+      "bayil-barber-co.kids"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "oxblood",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "bayil-barber-co.m2",
+     "name": "Anar Səfərov",
+     "role": {
+      "az": "Bərbər",
+      "ru": "Барбер",
+      "en": "Barber"
+     },
+     "years": 9,
+     "rating": 4.65,
+     "reviewCount": 37,
+     "serviceIds": [
+      "bayil-barber-co.cut",
+      "bayil-barber-co.fade",
+      "bayil-barber-co.beard",
+      "bayil-barber-co.shave",
+      "bayil-barber-co.combo",
+      "bayil-barber-co.kids"
+     ],
+     "workDays": [
+      0,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "slate",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.7079529514646233,
+    0.2841094506373417,
+    0.007922246396673818,
+    0.000015349434944700714,
+    2.0664163098535587e-9
+   ]
+  },
+  {
+   "id": "polish-room",
+   "name": "The Polish Room",
+   "kind": {
+    "az": "Dırnaq studiyası",
+    "ru": "Ногтевая студия",
+    "en": "Nail studio"
+   },
+   "categories": [
+    "nails",
+    "brows"
+   ],
+   "tagline": {
+    "az": "Manikür, pedikür, qaş — bir saatdan az.",
+    "ru": "Маникюр, педикюр, брови — меньше чем за час.",
+    "en": "Mani, pedi, brows — in under an hour."
+   },
+   "about": {
+    "az": "İş günləri üçün qurulub: iki usta eyni anda işləyir, buna görə manikür və pedikür iki yox, bir saat çəkir. İşıqlı, sürətli, tərtəmiz.",
+    "ru": "Создана для будней: два мастера работают одновременно, поэтому маникюр и педикюр занимают час, а не два. Светло, быстро, безупречно чисто.",
+    "en": "Built for busy weekdays: two technicians can work at once, so a manicure and pedicure take one hour, not two. Bright, efficient, spotless."
+   },
+   "address": "Təbriz küç. 66",
+   "district": "Nərimanov",
+   "coords": {
+    "latitude": 40.4027,
+    "longitude": 49.871
+   },
+   "priceLevel": 2,
+   "tone": "sand",
+   "rating": 4.75,
+   "reviewCount": 142,
+   "hours": {
+    "open": "08:00",
+    "close": "20:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 66",
+   "whatsapp": "994505550166",
+   "amenities": [
+    {
+     "az": "Səhər tezdən açıq",
+     "ru": "Открыто с утра",
+     "en": "Early opening"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "nails",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik manikür",
+      "ru": "Классический маникюр",
+      "en": "Classic manicure"
+     },
+     "description": {
+      "az": "Forma, kutikula baxımı və lak.",
+      "ru": "Форма, уход за кутикулой и покрытие.",
+      "en": "Shape, cuticle care and polish."
+     },
+     "key": "mani",
+     "id": "polish-room.mani",
+     "price": 25
+    },
+    {
+     "category": "nails",
+     "durationMin": 60,
+     "name": {
+      "az": "Gel-lak manikür",
+      "ru": "Маникюр с гель-лаком",
+      "en": "Gel manicure"
+     },
+     "description": {
+      "az": "Üç həftəyə qədər davamlı gel-lak.",
+      "ru": "Стойкое покрытие гель-лаком до трёх недель.",
+      "en": "Long-wear gel colour, up to three weeks."
+     },
+     "key": "gel",
+     "id": "polish-room.gel",
+     "price": 40
+    },
+    {
+     "category": "nails",
+     "durationMin": 60,
+     "name": {
+      "az": "Spa pedikür",
+      "ru": "Спа-педикюр",
+      "en": "Spa pedicure"
+     },
+     "description": {
+      "az": "Vanna, skrab, masaj və lak.",
+      "ru": "Ванночка, скраб, массаж и покрытие.",
+      "en": "Soak, scrub, massage and polish."
+     },
+     "key": "pedi",
+     "id": "polish-room.pedi",
+     "price": 45
+    },
+    {
+     "category": "nails",
+     "durationMin": 30,
+     "name": {
+      "az": "Dırnaq dizaynı",
+      "ru": "Дизайн ногтей",
+      "en": "Nail art"
+     },
+     "description": {
+      "az": "Əl ilə rəsm, bütün dırnaqlar üçün qiymət.",
+      "ru": "Ручная роспись, цена за комплект.",
+      "en": "Hand-painted detail, priced per set."
+     },
+     "key": "art",
+     "id": "polish-room.art",
+     "price": 20
+    },
+    {
+     "category": "brows",
+     "durationMin": 30,
+     "name": {
+      "az": "Qaş korreksiyası",
+      "ru": "Коррекция бровей",
+      "en": "Brow shaping"
+     },
+     "description": {
+      "az": "Eskiz, mum və cımbız.",
+      "ru": "Разметка, воск и пинцет.",
+      "en": "Mapping, wax and tweeze."
+     },
+     "key": "brow",
+     "id": "polish-room.brow",
+     "price": 20
+    },
+    {
+     "category": "brows",
+     "durationMin": 45,
+     "name": {
+      "az": "Qaş laminasiyası",
+      "ru": "Ламинирование бровей",
+      "en": "Brow lamination"
+     },
+     "description": {
+      "az": "Altı həftəlik daha dolğun qaşlar.",
+      "ru": "Более густые брови на шесть недель.",
+      "en": "Brushed-up, fuller brows for six weeks."
+     },
+     "key": "lami",
+     "id": "polish-room.lami",
+     "price": 45
+    },
+    {
+     "category": "brows",
+     "durationMin": 60,
+     "name": {
+      "az": "Kirpik liftinqi",
+      "ru": "Ламинирование ресниц",
+      "en": "Lash lift & tint"
+     },
+     "description": {
+      "az": "Təbii qıvrım və tünd rəng, uzatma olmadan.",
+      "ru": "Естественный изгиб и цвет без наращивания.",
+      "en": "Natural curl and depth, no extensions."
+     },
+     "key": "lash",
+     "id": "polish-room.lash",
+     "price": 60
+    }
+   ],
+   "masters": [
+    {
+     "id": "polish-room.m1",
+     "name": "Aygün Məlikova",
+     "role": {
+      "az": "Dırnaq ustası",
+      "ru": "Мастер маникюра",
+      "en": "Nail artist"
+     },
+     "years": 6,
+     "rating": 4.8,
+     "reviewCount": 77,
+     "serviceIds": [
+      "polish-room.mani",
+      "polish-room.gel",
+      "polish-room.pedi",
+      "polish-room.art"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "08:00",
+      "end": "17:00"
+     },
+     "tone": "sand",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "polish-room.m2",
+     "name": "Zəhra Novruzova",
+     "role": {
+      "az": "Qaş və dırnaq ustası",
+      "ru": "Мастер бровей и маникюра",
+      "en": "Brow & nail technician"
+     },
+     "years": 4,
+     "rating": 4.7,
+     "reviewCount": 49,
+     "serviceIds": [
+      "polish-room.mani",
+      "polish-room.gel",
+      "polish-room.pedi",
+      "polish-room.art",
+      "polish-room.brow",
+      "polish-room.lami",
+      "polish-room.lash"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "bone",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    }
+   ],
+   "distribution": [
+    0.7552898848515651,
+    0.2394283033086627,
+    0.005273739685506711,
+    0.000008071295945536638,
+    8.583200070566117e-10
+   ]
+  },
+  {
+   "id": "shave-club",
+   "name": "The Shave Club",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "İsti dəsmalla təraş, mükəmməlliyə qədər.",
+    "ru": "Бритьё горячим полотенцем — доведённое до идеала.",
+    "en": "The hot towel shave, perfected."
+   },
+   "about": {
+    "az": "Təraş üzrə ixtisaslaşmış, sadiq izləyiciləri olan bərbərxana. Üç dəsmal, təraşdan əvvəl yağ və soyuq finişlə 45 dəqiqəlik ritual. Kəsim də var.",
+    "ru": "Барбершоп, специализирующийся на бритье, с культовой репутацией. 45-минутный ритуал: три полотенца, масло до бритья и холодный финиш. Стрижки тоже есть.",
+    "en": "A shaving specialist with a cult following. Expect a 45-minute ritual with three towels, pre-shave oil and a cold finish. Cuts too, if you must."
+   },
+   "address": "Xətai pr. 28",
+   "district": "Xətai",
+   "coords": {
+    "latitude": 40.3834,
+    "longitude": 49.8718
+   },
+   "priceLevel": 2,
+   "tone": "forest",
+   "rating": 4.9,
+   "reviewCount": 168,
+   "hours": {
+    "open": "10:00",
+    "close": "20:00"
+   },
+   "closedDays": [
+    0
+   ],
+   "phone": "+994 12 555 01 28",
+   "whatsapp": "994505550128",
+   "amenities": [
+    {
+     "az": "Təraş ustaları",
+     "ru": "Мастера бритья",
+     "en": "Shave specialists"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "shave-club.cut",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "shave-club.fade",
+     "price": 35
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "shave-club.beard",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "shave-club.shave",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "shave-club.combo",
+     "price": 45
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "shave-club.kids",
+     "price": 20
+    }
+   ],
+   "masters": [
+    {
+     "id": "shave-club.m1",
+     "name": "İlqar Bağırov",
+     "role": {
+      "az": "Ülgüc ustası",
+      "ru": "Мастер опасной бритвы",
+      "en": "Master of the razor"
+     },
+     "years": 17,
+     "rating": 4.95,
+     "reviewCount": 102,
+     "serviceIds": [
+      "shave-club.cut",
+      "shave-club.fade",
+      "shave-club.beard",
+      "shave-club.shave",
+      "shave-club.combo",
+      "shave-club.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "forest",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "shave-club.m2",
+     "name": "Cavid Hümbətov",
+     "role": {
+      "az": "Bərbər",
+      "ru": "Барбер",
+      "en": "Barber"
+     },
+     "years": 5,
+     "rating": 4.8,
+     "reviewCount": 46,
+     "serviceIds": [
+      "shave-club.cut",
+      "shave-club.fade",
+      "shave-club.beard",
+      "shave-club.shave",
+      "shave-club.combo",
+      "shave-club.kids"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "olive",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    }
+   ],
+   "distribution": [
+    0.9007492470891515,
+    0.09850190100856308,
+    0.0007484567303468956,
+    3.951574421327712e-7,
+    1.449622812041676e-11
+   ]
+  },
+  {
+   "id": "mira-beauty-lab",
+   "name": "Mira Beauty Lab",
+   "kind": {
+    "az": "Gözəllik studiyası",
+    "ru": "Бьюти-студия",
+    "en": "Beauty studio"
+   },
+   "categories": [
+    "makeup",
+    "brows",
+    "spa"
+   ],
+   "tagline": {
+    "az": "Əvvəl dəri. Sonra qalan hər şey.",
+    "ru": "Сначала кожа. Потом всё остальное.",
+    "en": "Skin first. Then everything else."
+   },
+   "about": {
+    "az": "Keçmiş kosmetik kimyaçının dəriyə fokuslanan studiyası. Üz baxımı, qaşlar və sizə uyğun dəri planı üzərində qurulan təbii makiyaj.",
+    "ru": "Студия бывшего косметического химика с фокусом на коже. Уход за лицом, брови и естественный макияж на основе персонального плана ухода.",
+    "en": "A skin-focused studio by a former cosmetic chemist. Facials, brows and natural makeup built on a skin plan tailored to you."
+   },
+   "address": "Rəşid Behbudov küç. 10",
+   "district": "Nizami",
+   "coords": {
+    "latitude": 40.3765,
+    "longitude": 49.8412
+   },
+   "priceLevel": 2,
+   "tone": "clay",
+   "rating": 4.65,
+   "reviewCount": 88,
+   "hours": {
+    "open": "10:00",
+    "close": "20:00"
+   },
+   "closedDays": [
+    0
+   ],
+   "phone": "+994 12 555 01 91",
+   "whatsapp": "994505550191",
+   "womenOnly": true,
+   "amenities": [
+    {
+     "az": "Dəri məsləhəti",
+     "ru": "Консультация по коже",
+     "en": "Skin consultation"
+    },
+    {
+     "az": "Yalnız kart",
+     "ru": "Только карта",
+     "en": "Card only"
+    }
+   ],
+   "services": [
+    {
+     "category": "makeup",
+     "durationMin": 60,
+     "name": {
+      "az": "Axşam makiyajı",
+      "ru": "Вечерний макияж",
+      "en": "Evening makeup"
+     },
+     "description": {
+      "az": "Tədbir üçün tam makiyaj, kirpiklər daxil.",
+      "ru": "Полный макияж к событию, ресницы включены.",
+      "en": "Full face for an event, lashes included."
+     },
+     "key": "evening",
+     "id": "mira-beauty-lab.evening",
+     "price": 80
+    },
+    {
+     "category": "makeup",
+     "durationMin": 120,
+     "name": {
+      "az": "Gəlin makiyajı",
+      "ru": "Свадебный макияж",
+      "en": "Bridal makeup"
+     },
+     "description": {
+      "az": "Sınaq məsləhəti və toy günü obrazı.",
+      "ru": "Пробный образ и макияж в день свадьбы.",
+      "en": "Trial consultation and wedding-day look."
+     },
+     "key": "bridal",
+     "id": "mira-beauty-lab.bridal",
+     "price": 220
+    },
+    {
+     "category": "brows",
+     "durationMin": 30,
+     "name": {
+      "az": "Qaş korreksiyası",
+      "ru": "Коррекция бровей",
+      "en": "Brow shaping"
+     },
+     "description": {
+      "az": "Eskiz, mum və cımbız.",
+      "ru": "Разметка, воск и пинцет.",
+      "en": "Mapping, wax and tweeze."
+     },
+     "key": "brow",
+     "id": "mira-beauty-lab.brow",
+     "price": 20
+    },
+    {
+     "category": "brows",
+     "durationMin": 45,
+     "name": {
+      "az": "Qaş laminasiyası",
+      "ru": "Ламинирование бровей",
+      "en": "Brow lamination"
+     },
+     "description": {
+      "az": "Altı həftəlik daha dolğun qaşlar.",
+      "ru": "Более густые брови на шесть недель.",
+      "en": "Brushed-up, fuller brows for six weeks."
+     },
+     "key": "lami",
+     "id": "mira-beauty-lab.lami",
+     "price": 45
+    },
+    {
+     "category": "brows",
+     "durationMin": 60,
+     "name": {
+      "az": "Kirpik liftinqi",
+      "ru": "Ламинирование ресниц",
+      "en": "Lash lift & tint"
+     },
+     "description": {
+      "az": "Təbii qıvrım və tünd rəng, uzatma olmadan.",
+      "ru": "Естественный изгиб и цвет без наращивания.",
+      "en": "Natural curl and depth, no extensions."
+     },
+     "key": "lash",
+     "id": "mira-beauty-lab.lash",
+     "price": 60
+    },
+    {
+     "category": "spa",
+     "durationMin": 75,
+     "name": {
+      "az": "Hamam ritualı",
+      "ru": "Хаммам-ритуал",
+      "en": "Hammam ritual"
+     },
+     "description": {
+      "az": "Buxar, kisə və köpük masajı.",
+      "ru": "Пар, пилинг кесе и пенный массаж.",
+      "en": "Steam, kese scrub and foam massage."
+     },
+     "key": "hammam",
+     "id": "mira-beauty-lab.hammam",
+     "price": 90
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Dərin masaj",
+      "ru": "Глубокий массаж",
+      "en": "Deep tissue massage"
+     },
+     "description": {
+      "az": "Gərginlik üçün yavaş, güclü təzyiq.",
+      "ru": "Медленное сильное давление против напряжения.",
+      "en": "Slow, firm pressure for real tension."
+     },
+     "key": "massage",
+     "id": "mira-beauty-lab.massage",
+     "price": 100
+    },
+    {
+     "category": "spa",
+     "durationMin": 60,
+     "name": {
+      "az": "Üz baxımı",
+      "ru": "Уход за лицом",
+      "en": "Signature facial"
+     },
+     "description": {
+      "az": "Təmizləmə, pilinq, maska və masaj.",
+      "ru": "Очищение, пилинг, маска и массаж.",
+      "en": "Cleanse, exfoliate, mask and massage."
+     },
+     "key": "facial",
+     "id": "mira-beauty-lab.facial",
+     "price": 85
+    }
+   ],
+   "masters": [
+    {
+     "id": "mira-beauty-lab.m1",
+     "name": "Mira Hacıyeva",
+     "role": {
+      "az": "Təsisçi, dəri terapevti",
+      "ru": "Основатель, косметолог",
+      "en": "Founder, skin therapist"
+     },
+     "years": 12,
+     "rating": 4.8,
+     "reviewCount": 41,
+     "serviceIds": [
+      "mira-beauty-lab.evening",
+      "mira-beauty-lab.bridal",
+      "mira-beauty-lab.hammam",
+      "mira-beauty-lab.massage",
+      "mira-beauty-lab.facial"
+     ],
+     "workDays": [
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "10:00",
+      "end": "19:00"
+     },
+     "tone": "clay",
+     "languages": [
+      "az",
+      "ru",
+      "en"
+     ]
+    },
+    {
+     "id": "mira-beauty-lab.m2",
+     "name": "Ləman Əsədova",
+     "role": {
+      "az": "Qaş və makiyaj ustası",
+      "ru": "Бровист и визажист",
+      "en": "Brow & makeup artist"
+     },
+     "years": 5,
+     "rating": 4.6,
+     "reviewCount": 33,
+     "serviceIds": [
+      "mira-beauty-lab.evening",
+      "mira-beauty-lab.bridal",
+      "mira-beauty-lab.brow",
+      "mira-beauty-lab.lami",
+      "mira-beauty-lab.lash"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "11:00",
+      "end": "20:00"
+     },
+     "tone": "rose",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.6613158857631657,
+    0.327395155428465,
+    0.011262036326043019,
+    0.00002691801188472836,
+    4.470441528150179e-9
+   ]
+  },
+  {
+   "id": "crown-clipper",
+   "name": "Crown & Clipper",
+   "kind": {
+    "az": "Bərbərxana",
+    "ru": "Барбершоп",
+    "en": "Barbershop"
+   },
+   "categories": [
+    "barber"
+   ],
+   "tagline": {
+    "az": "Böyük bərbərxana, gözləmə yoxdur.",
+    "ru": "Большой барбершоп без очередей.",
+    "en": "Big shop, no waiting."
+   },
+   "about": {
+    "az": "Şərq tərəfdə on kreslo — keyfiyyətdən güzəşt etmədən sürət üçün qurulub. Gündəlik qiymətə etibarlı kəsim və demək olar ki, həmişə bu gün boş kreslo.",
+    "ru": "Десять кресел на востоке города — скорость без потери качества. Надёжные стрижки по доступной цене и почти всегда свободное кресло сегодня.",
+    "en": "Ten chairs on the east side, built for speed without cutting corners. Reliable cuts at everyday prices, and almost always a free chair today."
+   },
+   "address": "Qara Qarayev pr. 112",
+   "district": "8-ci km",
+   "coords": {
+    "latitude": 40.399,
+    "longitude": 49.944
+   },
+   "priceLevel": 1,
+   "tone": "navy",
+   "rating": 4.5,
+   "reviewCount": 263,
+   "hours": {
+    "open": "09:00",
+    "close": "22:00"
+   },
+   "closedDays": [],
+   "phone": "+994 12 555 01 12",
+   "whatsapp": "994505550112",
+   "amenities": [
+    {
+     "az": "On kreslo",
+     "ru": "Десять кресел",
+     "en": "Ten chairs"
+    },
+    {
+     "az": "Parkinq",
+     "ru": "Парковка",
+     "en": "Parking"
+    },
+    {
+     "az": "Kart və nağd",
+     "ru": "Карта и наличные",
+     "en": "Card & cash"
+    }
+   ],
+   "services": [
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Klassik kəsim",
+      "ru": "Фирменная стрижка",
+      "en": "Signature cut"
+     },
+     "description": {
+      "az": "Məsləhət, yuma, qayçı və maşınla kəsim, ukladka.",
+      "ru": "Консультация, мытьё, стрижка ножницами и машинкой, укладка.",
+      "en": "Consultation, wash, scissor and clipper cut, styled finish."
+     },
+     "key": "cut",
+     "id": "crown-clipper.cut",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "Skin fade",
+      "ru": "Скин фейд",
+      "en": "Skin fade"
+     },
+     "description": {
+      "az": "Dəriyə qədər hamar keçid, ülgüclə detallar.",
+      "ru": "Плавный переход до кожи, детали опасной бритвой.",
+      "en": "Seamless fade down to the skin, detailed with a straight razor."
+     },
+     "key": "fade",
+     "id": "crown-clipper.fade",
+     "price": 25
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Saqqal düzəlişi",
+      "ru": "Оформление бороды",
+      "en": "Beard sculpt"
+     },
+     "description": {
+      "az": "Forma, kontur, isti dəsmal və yağ.",
+      "ru": "Форма, контур, горячее полотенце и масло.",
+      "en": "Shape, line-up and hot towel, finished with oil."
+     },
+     "key": "beard",
+     "id": "crown-clipper.beard",
+     "price": 15
+    },
+    {
+     "category": "barber",
+     "durationMin": 45,
+     "name": {
+      "az": "İsti dəsmalla təraş",
+      "ru": "Бритьё с горячим полотенцем",
+      "en": "Hot towel shave"
+     },
+     "description": {
+      "az": "Üç isti dəsmal ilə klassik ülgüc təraşı.",
+      "ru": "Классическое бритьё опасной бритвой с тремя горячими полотенцами.",
+      "en": "Traditional straight-razor shave with three hot towels."
+     },
+     "key": "shave",
+     "id": "crown-clipper.shave",
+     "price": 20
+    },
+    {
+     "category": "barber",
+     "durationMin": 75,
+     "name": {
+      "az": "Kəsim + saqqal",
+      "ru": "Стрижка + борода",
+      "en": "Cut & beard"
+     },
+     "description": {
+      "az": "Tam xidmət — kəsim və saqqal düzəlişi.",
+      "ru": "Полный сервис — стрижка и оформление бороды.",
+      "en": "The full service — signature cut and beard sculpt."
+     },
+     "key": "combo",
+     "id": "crown-clipper.combo",
+     "price": 30
+    },
+    {
+     "category": "barber",
+     "durationMin": 30,
+     "name": {
+      "az": "Uşaq kəsimi",
+      "ru": "Детская стрижка",
+      "en": "Kids cut"
+     },
+     "description": {
+      "az": "12 yaşa qədər. Səbir daxildir.",
+      "ru": "До 12 лет. С терпением.",
+      "en": "For under 12s. Patience included."
+     },
+     "key": "kids",
+     "id": "crown-clipper.kids",
+     "price": 15
+    }
+   ],
+   "masters": [
+    {
+     "id": "crown-clipper.m1",
+     "name": "Elşən Kazımov",
+     "role": {
+      "az": "Baş bərbər",
+      "ru": "Старший барбер",
+      "en": "Senior barber"
+     },
+     "years": 9,
+     "rating": 4.6,
+     "reviewCount": 121,
+     "serviceIds": [
+      "crown-clipper.cut",
+      "crown-clipper.fade",
+      "crown-clipper.beard",
+      "crown-clipper.shave",
+      "crown-clipper.combo",
+      "crown-clipper.kids"
+     ],
+     "workDays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "09:00",
+      "end": "18:00"
+     },
+     "tone": "navy",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    },
+    {
+     "id": "crown-clipper.m2",
+     "name": "Toğrul Məhərrəmov",
+     "role": {
+      "az": "Bərbər",
+      "ru": "Барбер",
+      "en": "Barber"
+     },
+     "years": 3,
+     "rating": 4.45,
+     "reviewCount": 64,
+     "serviceIds": [
+      "crown-clipper.cut",
+      "crown-clipper.fade",
+      "crown-clipper.beard",
+      "crown-clipper.shave",
+      "crown-clipper.combo",
+      "crown-clipper.kids"
+     ],
+     "workDays": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "shift": {
+      "start": "13:00",
+      "end": "22:00"
+     },
+     "tone": "slate",
+     "languages": [
+      "az",
+      "ru"
+     ]
+    }
+   ],
+   "distribution": [
+    0.5265763248292971,
+    0.4469554343374802,
+    0.026360187592747525,
+    0.00010802248225588844,
+    3.075821940160005e-8
+   ]
+  }
+ ],
+ "reviews": [
+  {
+   "id": "old-town-barbers.r0",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m3",
+   "author": "Xədicə N.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "old-town-barbers.r1",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m1",
+   "author": "James W.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-09-30T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "old-town-barbers.r2",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m3",
+   "author": "Aytən M.",
+   "rating": 4,
+   "text": "Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.",
+   "date": "2026-09-20T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "old-town-barbers.r3",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m2",
+   "author": "Ülkər Z.",
+   "rating": 5,
+   "text": "Təraş əsl ritualdır. Üç isti dəsmal və bir dənə də kəsik yox. Hər manatına dəyər.",
+   "date": "2026-09-15T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "relaxing",
+    "skilled"
+   ]
+  },
+  {
+   "id": "old-town-barbers.r4",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m1",
+   "author": "Orxan T.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-07T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "old-town-barbers.r5",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m3",
+   "author": "Sophie L.",
+   "rating": 4,
+   "text": "Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.",
+   "date": "2026-08-31T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": []
+  },
+  {
+   "id": "old-town-barbers.r6",
+   "salonId": "old-town-barbers",
+   "masterId": "old-town-barbers.m1",
+   "author": "Ziya K.",
+   "rating": 4,
+   "text": "Kəsim əla idi, amma 10 dəqiqə gözlədim. Kofe bunu kompensasiya etdi.",
+   "date": "2026-08-29T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "maison-leyla.r0",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m1",
+   "author": "Ceyhun D.",
+   "rating": 4,
+   "text": "Laminasiya gözəl alınıb, bir az göynətdi. Yenə də gələcəyəm.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kəsim və ukladka",
+    "ru": "Стрижка и укладка",
+    "en": "Cut & style"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "maison-leyla.r1",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m2",
+   "author": "Teymur Q.",
+   "rating": 5,
+   "text": "Qaşlarımı üzümə görə eskizlədi — nəhayət ki, cüt kimi görünürlər. Həyatımı dəyişdi, səmimi deyirəm.",
+   "date": "2026-09-29T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "maison-leyla.r2",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m2",
+   "author": "Kənan R.",
+   "rating": 5,
+   "text": "Ламинирование ресниц выглядит совершенно естественно. Все спрашивают, накрашены ли они.",
+   "date": "2026-09-21T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "maison-leyla.r3",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m1",
+   "author": "Elnur C.",
+   "rating": 4,
+   "text": "Rəng çox gözəl alındı. Deyiləndən uzun çəkdi, ona görə sonrasına iş planlamayın.",
+   "date": "2026-09-18T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "maison-leyla.r4",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m3",
+   "author": "Rəşad İ.",
+   "rating": 5,
+   "text": "Quick, precise and no redness afterwards. The best brow appointment in town.",
+   "date": "2026-09-16T19:02:17.168Z",
+   "serviceName": {
+    "az": "Qaş korreksiyası",
+    "ru": "Коррекция бровей",
+    "en": "Brow shaping"
+   },
+   "tags": [
+    "punctual",
+    "clean"
+   ]
+  },
+  {
+   "id": "maison-leyla.r5",
+   "salonId": "maison-leyla",
+   "masterId": "maison-leyla.m1",
+   "author": "Aynur S.",
+   "rating": 4,
+   "text": "Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Tam boyama",
+    "ru": "Окрашивание",
+    "en": "Full colour"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "kesim-studio.r0",
+   "salonId": "kesim-studio",
+   "masterId": "kesim-studio.m2",
+   "author": "Vüsal H.",
+   "rating": 4,
+   "text": "Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.",
+   "date": "2026-10-08T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "kesim-studio.r1",
+   "salonId": "kesim-studio",
+   "masterId": "kesim-studio.m2",
+   "author": "Fəridə Y.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-09-28T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "kesim-studio.r2",
+   "salonId": "kesim-studio",
+   "masterId": "kesim-studio.m2",
+   "author": "Teymur Q.",
+   "rating": 5,
+   "text": "Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.",
+   "date": "2026-09-25T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "kesim-studio.r3",
+   "salonId": "kesim-studio",
+   "masterId": "kesim-studio.m1",
+   "author": "Sophie L.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-18T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "kesim-studio.r4",
+   "salonId": "kesim-studio",
+   "masterId": "kesim-studio.m1",
+   "author": "Xədicə N.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "narinci-nails.r0",
+   "salonId": "narinci-nails",
+   "masterId": "narinci-nails.m2",
+   "author": "Orxan T.",
+   "rating": 5,
+   "text": "Üç həftədir gel-lak bir dəfə də qopmayıb. Xətlər çox dəqiqdir.",
+   "date": "2026-10-10T19:02:17.168Z",
+   "serviceName": {
+    "az": "Spa pedikür",
+    "ru": "Спа-педикюр",
+    "en": "Spa pedicure"
+   },
+   "tags": [
+    "skilled",
+    "clean"
+   ]
+  },
+  {
+   "id": "narinci-nails.r1",
+   "salonId": "narinci-nails",
+   "masterId": "narinci-nails.m1",
+   "author": "Elnur C.",
+   "rating": 5,
+   "text": "Все инструменты стерилизуются и вскрываются при тебе. Идеально чисто, а дизайн — ювелирная работа.",
+   "date": "2026-10-07T19:02:17.168Z",
+   "serviceName": {
+    "az": "Spa pedikür",
+    "ru": "Спа-педикюр",
+    "en": "Spa pedicure"
+   },
+   "tags": [
+    "clean"
+   ]
+  },
+  {
+   "id": "narinci-nails.r2",
+   "salonId": "narinci-nails",
+   "masterId": "narinci-nails.m2",
+   "author": "Vüsal H.",
+   "rating": 4,
+   "text": "Manikür gözəl idi, əvvəldə bir az gözlədim. Pedikür masajı isə möhtəşəm.",
+   "date": "2026-10-04T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gel-lak manikür",
+    "ru": "Маникюр с гель-лаком",
+    "en": "Gel manicure"
+   },
+   "tags": [
+    "relaxing"
+   ]
+  },
+  {
+   "id": "narinci-nails.r3",
+   "salonId": "narinci-nails",
+   "masterId": "narinci-nails.m3",
+   "author": "Olga P.",
+   "rating": 5,
+   "text": "Fast, friendly and fairly priced. Exactly what a weekday lunch break needs.",
+   "date": "2026-09-24T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik manikür",
+    "ru": "Классический маникюр",
+    "en": "Classic manicure"
+   },
+   "tags": [
+    "punctual",
+    "value"
+   ]
+  },
+  {
+   "id": "narinci-nails.r4",
+   "salonId": "narinci-nails",
+   "masterId": "narinci-nails.m2",
+   "author": "Murad A.",
+   "rating": 4,
+   "text": "Хорошая форма и покрытие. Палитра огромная — даже слишком, долго выбирала.",
+   "date": "2026-09-18T19:02:17.168Z",
+   "serviceName": {
+    "az": "Spa pedikür",
+    "ru": "Спа-педикюр",
+    "en": "Spa pedicure"
+   },
+   "tags": [
+    "friendly"
+   ]
+  },
+  {
+   "id": "fade-district.r0",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m1",
+   "author": "Orxan T.",
+   "rating": 4,
+   "text": "Kəsim əla idi, amma 10 dəqiqə gözlədim. Kofe bunu kompensasiya etdi.",
+   "date": "2026-10-10T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "fade-district.r1",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m2",
+   "author": "Sophie L.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-30T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "fade-district.r2",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m1",
+   "author": "Sophie L.",
+   "rating": 3,
+   "text": "Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.",
+   "date": "2026-09-26T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": []
+  },
+  {
+   "id": "fade-district.r3",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m2",
+   "author": "Xədicə N.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-09-17T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "fade-district.r4",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m1",
+   "author": "Murad A.",
+   "rating": 4,
+   "text": "Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.",
+   "date": "2026-09-08T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "fade-district.r5",
+   "salonId": "fade-district",
+   "masterId": "fade-district.m3",
+   "author": "Nərgiz B.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-08-31T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r0",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m2",
+   "author": "Xədicə N.",
+   "rating": 4,
+   "text": "Nəticə gözəldir, qiyməti bir az bahadır, amma keyfiyyətə görədir.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kəsim və ukladka",
+    "ru": "Стрижка и укладка",
+    "en": "Cut & style"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r1",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m1",
+   "author": "Ülkər Z.",
+   "rating": 5,
+   "text": "Balayajım səkkiz həftədən sonra da gözəl görünür — heç bir kəskin keçid yoxdur. Əsl rəssamdır.",
+   "date": "2026-10-07T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kəsim və ukladka",
+    "ru": "Стрижка и укладка",
+    "en": "Cut & style"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r2",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m2",
+   "author": "Ceyhun D.",
+   "rating": 5,
+   "text": "После кератина утро стало проще. Никакого пушения даже в бакинский ветер.",
+   "date": "2026-09-28T19:02:17.168Z",
+   "serviceName": {
+    "az": "Tam boyama",
+    "ru": "Окрашивание",
+    "en": "Full colour"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r3",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m1",
+   "author": "Sevinc H.",
+   "rating": 4,
+   "text": "Rəng çox gözəl alındı. Deyiləndən uzun çəkdi, ona görə sonrasına iş planlamayın.",
+   "date": "2026-09-23T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r4",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m1",
+   "author": "Dmitri K.",
+   "rating": 5,
+   "text": "Посмотрела со мной старые фото и попала в форму с первого раза. Укладка держалась три дня.",
+   "date": "2026-09-19T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "ag-seher-atelier.r5",
+   "salonId": "ag-seher-atelier",
+   "masterId": "ag-seher-atelier.m1",
+   "author": "Aynur S.",
+   "rating": 5,
+   "text": "Calm, beautiful space and a stylist who actually asks about your routine. I won’t go anywhere else.",
+   "date": "2026-09-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kəsim və ukladka",
+    "ru": "Стрижка и укладка",
+    "en": "Cut & style"
+   },
+   "tags": [
+    "relaxing",
+    "clean"
+   ]
+  },
+  {
+   "id": "lumen-brow.r0",
+   "salonId": "lumen-brow",
+   "masterId": "lumen-brow.m1",
+   "author": "Orxan T.",
+   "rating": 4,
+   "text": "Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.",
+   "date": "2026-10-08T19:02:17.168Z",
+   "serviceName": {
+    "az": "Qaş laminasiyası",
+    "ru": "Ламинирование бровей",
+    "en": "Brow lamination"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "lumen-brow.r1",
+   "salonId": "lumen-brow",
+   "masterId": "lumen-brow.m1",
+   "author": "Olga P.",
+   "rating": 5,
+   "text": "Toy makiyajımı etdi — göz yaşı və rəqslə on dörd saat davam etdi.",
+   "date": "2026-10-01T19:02:17.168Z",
+   "serviceName": {
+    "az": "Qaş laminasiyası",
+    "ru": "Ламинирование бровей",
+    "en": "Brow lamination"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "lumen-brow.r2",
+   "salonId": "lumen-brow",
+   "masterId": "lumen-brow.m1",
+   "author": "Dmitri K.",
+   "rating": 4,
+   "text": "Laminasiya gözəl alınıb, bir az göynətdi. Yenə də gələcəyəm.",
+   "date": "2026-09-25T19:02:17.168Z",
+   "serviceName": {
+    "az": "Qaş korreksiyası",
+    "ru": "Коррекция бровей",
+    "en": "Brow shaping"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "lumen-brow.r3",
+   "salonId": "lumen-brow",
+   "masterId": "lumen-brow.m1",
+   "author": "Dmitri K.",
+   "rating": 5,
+   "text": "Мягко, сияюще и при этом это всё ещё я. Ровно тот вечерний образ, который я просила.",
+   "date": "2026-09-18T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kirpik liftinqi",
+    "ru": "Ламинирование ресниц",
+    "en": "Lash lift & tint"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "lumen-brow.r4",
+   "salonId": "lumen-brow",
+   "masterId": "lumen-brow.m1",
+   "author": "Gülnar Ə.",
+   "rating": 5,
+   "text": "Quick, precise and no redness afterwards. The best brow appointment in town.",
+   "date": "2026-09-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kirpik liftinqi",
+    "ru": "Ламинирование ресниц",
+    "en": "Lash lift & tint"
+   },
+   "tags": [
+    "punctual",
+    "clean"
+   ]
+  },
+  {
+   "id": "hammam-no-9.r0",
+   "salonId": "hammam-no-9",
+   "masterId": "hammam-no-9.m2",
+   "author": "Teymur Q.",
+   "rating": 5,
+   "text": "Глубокий массаж, который правда глубокий. Сам нашёл, где зажимы, без подсказок.",
+   "date": "2026-10-10T19:02:17.168Z",
+   "serviceName": {
+    "az": "Hamam ritualı",
+    "ru": "Хаммам-ритуал",
+    "en": "Hammam ritual"
+   },
+   "tags": [
+    "skilled",
+    "relaxing"
+   ]
+  },
+  {
+   "id": "hammam-no-9.r1",
+   "salonId": "hammam-no-9",
+   "masterId": "hammam-no-9.m1",
+   "author": "Ceyhun D.",
+   "rating": 4,
+   "text": "Mərmər otaqlar çox gözəldir. Cümə axşamı adam çox olur, həftə əvvəli gəlin.",
+   "date": "2026-10-05T19:02:17.168Z",
+   "serviceName": {
+    "az": "Dərin masaj",
+    "ru": "Глубокий массаж",
+    "en": "Deep tissue massage"
+   },
+   "tags": [
+    "clean"
+   ]
+  },
+  {
+   "id": "hammam-no-9.r2",
+   "salonId": "hammam-no-9",
+   "masterId": "hammam-no-9.m1",
+   "author": "Lalə V.",
+   "rating": 5,
+   "text": "The facial was calm and thorough, and my skin glowed for days.",
+   "date": "2026-09-25T19:02:17.168Z",
+   "serviceName": {
+    "az": "Üz baxımı",
+    "ru": "Уход за лицом",
+    "en": "Signature facial"
+   },
+   "tags": [
+    "relaxing",
+    "skilled"
+   ]
+  },
+  {
+   "id": "hammam-no-9.r3",
+   "salonId": "hammam-no-9",
+   "masterId": "hammam-no-9.m1",
+   "author": "Teymur Q.",
+   "rating": 5,
+   "text": "Kisə ən yaxşı mənada sərtdir. Çıxanda özümü yeni insan kimi hiss etdim.",
+   "date": "2026-09-22T19:02:17.168Z",
+   "serviceName": {
+    "az": "Hamam ritualı",
+    "ru": "Хаммам-ритуал",
+    "en": "Hammam ritual"
+   },
+   "tags": [
+    "relaxing"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r0",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m2",
+   "author": "Ziya K.",
+   "rating": 5,
+   "text": "Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.",
+   "date": "2026-10-10T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r1",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m1",
+   "author": "Fəridə Y.",
+   "rating": 5,
+   "text": "Təraş əsl ritualdır. Üç isti dəsmal və bir dənə də kəsik yox. Hər manatına dəyər.",
+   "date": "2026-10-04T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "relaxing",
+    "skilled"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r2",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m2",
+   "author": "James W.",
+   "rating": 4,
+   "text": "Kəsim əla idi, amma 10 dəqiqə gözlədim. Kofe bunu kompensasiya etdi.",
+   "date": "2026-09-26T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r3",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m2",
+   "author": "Olga P.",
+   "rating": 5,
+   "text": "Kisə ən yaxşı mənada sərtdir. Çıxanda özümü yeni insan kimi hiss etdim.",
+   "date": "2026-09-16T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "relaxing"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r4",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m2",
+   "author": "Elnur C.",
+   "rating": 3,
+   "text": "Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.",
+   "date": "2026-09-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": []
+  },
+  {
+   "id": "gentry-grooming.r5",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m2",
+   "author": "Xədicə N.",
+   "rating": 4,
+   "text": "Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.",
+   "date": "2026-08-30T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "gentry-grooming.r6",
+   "salonId": "gentry-grooming",
+   "masterId": "gentry-grooming.m1",
+   "author": "James W.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-08-21T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "studio-sabina.r0",
+   "salonId": "studio-sabina",
+   "masterId": "studio-sabina.m1",
+   "author": "Lalə V.",
+   "rating": 4,
+   "text": "Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Tam boyama",
+    "ru": "Окрашивание",
+    "en": "Full colour"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "studio-sabina.r1",
+   "salonId": "studio-sabina",
+   "masterId": "studio-sabina.m1",
+   "author": "Ziya K.",
+   "rating": 5,
+   "text": "Toy makiyajımı etdi — göz yaşı və rəqslə on dörd saat davam etdi.",
+   "date": "2026-10-03T19:02:17.168Z",
+   "serviceName": {
+    "az": "Tam boyama",
+    "ru": "Окрашивание",
+    "en": "Full colour"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "studio-sabina.r2",
+   "salonId": "studio-sabina",
+   "masterId": "studio-sabina.m2",
+   "author": "Ceyhun D.",
+   "rating": 5,
+   "text": "После кератина утро стало проще. Никакого пушения даже в бакинский ветер.",
+   "date": "2026-09-23T19:02:17.168Z",
+   "serviceName": {
+    "az": "Tam boyama",
+    "ru": "Окрашивание",
+    "en": "Full colour"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "studio-sabina.r3",
+   "salonId": "studio-sabina",
+   "masterId": "studio-sabina.m1",
+   "author": "Olga P.",
+   "rating": 5,
+   "text": "Balayajım səkkiz həftədən sonra da gözəl görünür — heç bir kəskin keçid yoxdur. Əsl rəssamdır.",
+   "date": "2026-09-17T19:02:17.168Z",
+   "serviceName": {
+    "az": "Fen ukladkası",
+    "ru": "Укладка феном",
+    "en": "Blow-dry"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "studio-sabina.r4",
+   "salonId": "studio-sabina",
+   "masterId": "studio-sabina.m2",
+   "author": "Elnur C.",
+   "rating": 5,
+   "text": "Посмотрела со мной старые фото и попала в форму с первого раза. Укладка держалась три дня.",
+   "date": "2026-09-15T19:02:17.168Z",
+   "serviceName": {
+    "az": "Kəsim və ukladka",
+    "ru": "Стрижка и укладка",
+    "en": "Cut & style"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "bayil-barber-co.r0",
+   "salonId": "bayil-barber-co",
+   "masterId": "bayil-barber-co.m1",
+   "author": "Nərgiz B.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "bayil-barber-co.r1",
+   "salonId": "bayil-barber-co",
+   "masterId": "bayil-barber-co.m2",
+   "author": "Ziya K.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-09-29T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "bayil-barber-co.r2",
+   "salonId": "bayil-barber-co",
+   "masterId": "bayil-barber-co.m1",
+   "author": "Lalə V.",
+   "rating": 5,
+   "text": "Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.",
+   "date": "2026-09-24T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "bayil-barber-co.r3",
+   "salonId": "bayil-barber-co",
+   "masterId": "bayil-barber-co.m2",
+   "author": "Lalə V.",
+   "rating": 4,
+   "text": "Kəsim əla idi, amma 10 dəqiqə gözlədim. Kofe bunu kompensasiya etdi.",
+   "date": "2026-09-16T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "bayil-barber-co.r4",
+   "salonId": "bayil-barber-co",
+   "masterId": "bayil-barber-co.m2",
+   "author": "Kənan R.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "polish-room.r0",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m2",
+   "author": "Aytən M.",
+   "rating": 4,
+   "text": "Laminasiya gözəl alınıb, bir az göynətdi. Yenə də gələcəyəm.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Spa pedikür",
+    "ru": "Спа-педикюр",
+    "en": "Spa pedicure"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "polish-room.r1",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m1",
+   "author": "James W.",
+   "rating": 5,
+   "text": "Quick, precise and no redness afterwards. The best brow appointment in town.",
+   "date": "2026-10-07T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gel-lak manikür",
+    "ru": "Маникюр с гель-лаком",
+    "en": "Gel manicure"
+   },
+   "tags": [
+    "punctual",
+    "clean"
+   ]
+  },
+  {
+   "id": "polish-room.r2",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m2",
+   "author": "Ziya K.",
+   "rating": 4,
+   "text": "Manikür gözəl idi, əvvəldə bir az gözlədim. Pedikür masajı isə möhtəşəm.",
+   "date": "2026-10-01T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gel-lak manikür",
+    "ru": "Маникюр с гель-лаком",
+    "en": "Gel manicure"
+   },
+   "tags": [
+    "relaxing"
+   ]
+  },
+  {
+   "id": "polish-room.r3",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m2",
+   "author": "Aynur S.",
+   "rating": 5,
+   "text": "Üç həftədir gel-lak bir dəfə də qopmayıb. Xətlər çox dəqiqdir.",
+   "date": "2026-09-26T19:02:17.168Z",
+   "serviceName": {
+    "az": "Spa pedikür",
+    "ru": "Спа-педикюр",
+    "en": "Spa pedicure"
+   },
+   "tags": [
+    "skilled",
+    "clean"
+   ]
+  },
+  {
+   "id": "polish-room.r4",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m2",
+   "author": "Lalə V.",
+   "rating": 5,
+   "text": "Ламинирование ресниц выглядит совершенно естественно. Все спрашивают, накрашены ли они.",
+   "date": "2026-09-18T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gel-lak manikür",
+    "ru": "Маникюр с гель-лаком",
+    "en": "Gel manicure"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "polish-room.r5",
+   "salonId": "polish-room",
+   "masterId": "polish-room.m2",
+   "author": "Sevinc H.",
+   "rating": 5,
+   "text": "Все инструменты стерилизуются и вскрываются при тебе. Идеально чисто, а дизайн — ювелирная работа.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gel-lak manikür",
+    "ru": "Маникюр с гель-лаком",
+    "en": "Gel manicure"
+   },
+   "tags": [
+    "clean"
+   ]
+  },
+  {
+   "id": "shave-club.r0",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m2",
+   "author": "Gülnar Ə.",
+   "rating": 4,
+   "text": "Хорошая стрижка за нормальные деньги. В субботу людно — лучше записываться заранее.",
+   "date": "2026-10-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "value"
+   ]
+  },
+  {
+   "id": "shave-club.r1",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m1",
+   "author": "James W.",
+   "rating": 5,
+   "text": "Təraş əsl ritualdır. Üç isti dəsmal və bir dənə də kəsik yox. Hər manatına dəyər.",
+   "date": "2026-10-01T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "relaxing",
+    "skilled"
+   ]
+  },
+  {
+   "id": "shave-club.r2",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m1",
+   "author": "Lalə V.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-09-25T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "shave-club.r3",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m2",
+   "author": "Vüsal H.",
+   "rating": 4,
+   "text": "Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.",
+   "date": "2026-09-22T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": []
+  },
+  {
+   "id": "shave-club.r4",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m2",
+   "author": "Aytən M.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-20T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "shave-club.r5",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m1",
+   "author": "Xədicə N.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-09-16T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "shave-club.r6",
+   "salonId": "shave-club",
+   "masterId": "shave-club.m1",
+   "author": "Vüsal H.",
+   "rating": 5,
+   "text": "Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.",
+   "date": "2026-09-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r0",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m1",
+   "author": "Nərgiz B.",
+   "rating": 5,
+   "text": "Toy makiyajımı etdi — göz yaşı və rəqslə on dörd saat davam etdi.",
+   "date": "2026-10-10T19:02:17.168Z",
+   "serviceName": {
+    "az": "Axşam makiyajı",
+    "ru": "Вечерний макияж",
+    "en": "Evening makeup"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r1",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m1",
+   "author": "Elnur C.",
+   "rating": 5,
+   "text": "Quick, precise and no redness afterwards. The best brow appointment in town.",
+   "date": "2026-10-01T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gəlin makiyajı",
+    "ru": "Свадебный макияж",
+    "en": "Bridal makeup"
+   },
+   "tags": [
+    "punctual",
+    "clean"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r2",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m2",
+   "author": "Sophie L.",
+   "rating": 5,
+   "text": "Kisə ən yaxşı mənada sərtdir. Çıxanda özümü yeni insan kimi hiss etdim.",
+   "date": "2026-09-29T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gəlin makiyajı",
+    "ru": "Свадебный макияж",
+    "en": "Bridal makeup"
+   },
+   "tags": [
+    "relaxing"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r3",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m1",
+   "author": "Elnur C.",
+   "rating": 5,
+   "text": "Qaşlarımı üzümə görə eskizlədi — nəhayət ki, cüt kimi görünürlər. Həyatımı dəyişdi, səmimi deyirəm.",
+   "date": "2026-09-21T19:02:17.168Z",
+   "serviceName": {
+    "az": "Axşam makiyajı",
+    "ru": "Вечерний макияж",
+    "en": "Evening makeup"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r4",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m1",
+   "author": "Nərgiz B.",
+   "rating": 5,
+   "text": "Мягко, сияюще и при этом это всё ещё я. Ровно тот вечерний образ, который я просила.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Gəlin makiyajı",
+    "ru": "Свадебный макияж",
+    "en": "Bridal makeup"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "mira-beauty-lab.r5",
+   "salonId": "mira-beauty-lab",
+   "masterId": "mira-beauty-lab.m2",
+   "author": "Səadət F.",
+   "rating": 4,
+   "text": "Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.",
+   "date": "2026-09-05T19:02:17.168Z",
+   "serviceName": {
+    "az": "Axşam makiyajı",
+    "ru": "Вечерний макияж",
+    "en": "Evening makeup"
+   },
+   "tags": [
+    "skilled"
+   ]
+  },
+  {
+   "id": "crown-clipper.r0",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m2",
+   "author": "Teymur Q.",
+   "rating": 5,
+   "text": "Təmiz bərbərxana, iti alətlər, ondan da iti saqqal xətti. Növbəti ziyarəti elə çıxmamış yazdırdım.",
+   "date": "2026-10-08T19:02:17.168Z",
+   "serviceName": {
+    "az": "Saqqal düzəlişi",
+    "ru": "Оформление бороды",
+    "en": "Beard sculpt"
+   },
+   "tags": [
+    "clean",
+    "skilled"
+   ]
+  },
+  {
+   "id": "crown-clipper.r1",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m1",
+   "author": "Orxan T.",
+   "rating": 5,
+   "text": "Walked in with a mess, walked out looking like I had somewhere important to be. The hot towel was a nice touch.",
+   "date": "2026-09-30T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  },
+  {
+   "id": "crown-clipper.r2",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m1",
+   "author": "Xədicə N.",
+   "rating": 5,
+   "text": "Bakıda gördüyüm ən yaxşı fade. Boyun xəttinə vaxt ayırdı, ülgüclə işi qüsursuz idi.",
+   "date": "2026-09-23T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "skilled",
+    "punctual"
+   ]
+  },
+  {
+   "id": "crown-clipper.r3",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m1",
+   "author": "Aynur S.",
+   "rating": 5,
+   "text": "Təraş əsl ritualdır. Üç isti dəsmal və bir dənə də kəsik yox. Hər manatına dəyər.",
+   "date": "2026-09-19T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": [
+    "relaxing",
+    "skilled"
+   ]
+  },
+  {
+   "id": "crown-clipper.r4",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m1",
+   "author": "Teymur Q.",
+   "rating": 3,
+   "text": "Стрижка нормальная, но в конце чувствовалась спешка. В следующий раз попробую другого мастера.",
+   "date": "2026-09-13T19:02:17.168Z",
+   "serviceName": {
+    "az": "Skin fade",
+    "ru": "Скин фейд",
+    "en": "Skin fade"
+   },
+   "tags": []
+  },
+  {
+   "id": "crown-clipper.r5",
+   "salonId": "crown-clipper",
+   "masterId": "crown-clipper.m2",
+   "author": "Elnur C.",
+   "rating": 5,
+   "text": "Лучший барбер в центре. Выслушал, предложил форму под мои волосы, а не просто постриг.",
+   "date": "2026-09-09T19:02:17.168Z",
+   "serviceName": {
+    "az": "Klassik kəsim",
+    "ru": "Фирменная стрижка",
+    "en": "Signature cut"
+   },
+   "tags": [
+    "skilled",
+    "friendly"
+   ]
+  }
+ ]
+}
