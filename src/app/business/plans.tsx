@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
+import { canBuyInApp, usePlanPrices } from '@/lib/billing';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, shadow } from '@/theme/tokens';
 
@@ -26,6 +27,7 @@ export default function Plans() {
   const current = session?.business?.subscription?.plan;
   const [plan, setPlan] = useState<PlanId>(current ?? 'pro');
   const [busy, setBusy] = useState(false);
+  const prices = usePlanPrices();
 
   const start = async () => {
     if (!session) {
@@ -72,7 +74,7 @@ export default function Plans() {
               scaleTo={0.985}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              accessibilityLabel={`${p.name}, ${i18n.price(p.price)}${i18n.t('perMonth')}`}
+              accessibilityLabel={canBuyInApp ? `${p.name}, ${i18n.price(prices[p.id])}${i18n.t('perMonth')}` : p.name}
               style={[
                 styles.card,
                 { backgroundColor: c.surface, borderColor: on ? c.ink : c.line, borderWidth: on ? 2 : 1 },
@@ -95,12 +97,14 @@ export default function Plans() {
                     {i18n.tx(p.blurb)}
                   </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="title">{i18n.price(p.price)}</Text>
-                  <Text variant="caption" tone="muted">
-                    {i18n.t('perMonth')}
-                  </Text>
-                </View>
+                {canBuyInApp ? (
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text variant="title">{i18n.price(prices[p.id])}</Text>
+                    <Text variant="caption" tone="muted">
+                      {i18n.t('perMonth')}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
               <View style={[styles.rule, { backgroundColor: c.line }]} />
               <View style={{ gap: 8 }}>

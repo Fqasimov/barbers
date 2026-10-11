@@ -16,6 +16,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { planById } from '@/auth/plans';
+import { authErrorKey } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -25,6 +26,7 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { categoryById } from '@/data/categories';
 import { useI18n } from '@/i18n';
+import { canBuyInApp, payForPlan, usePlanPrices } from '@/lib/billing';
 import { enableNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
@@ -41,6 +43,8 @@ export default function BusinessDashboard() {
   const signOut = useSession((s) => s.signOut);
   const [now] = useState(() => Date.now());
   const { refresh, token } = useOwner();
+  const prices = usePlanPrices();
+  const [paying, setPaying] = useState(false);
   // Owners need new-booking alerts; ask once when they first open the dashboard.
   useEffect(() => {
     if (token) void enableNotifications(token);
@@ -73,6 +77,18 @@ export default function BusinessDashboard() {
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
   const ready = setup.every((s) => s.done);
+  const pay = async () => {
+    if (!token || !business.subscription) return;
+    setPaying(true);
+    try {
+      await payForPlan(token, business.subscription.plan);
+    } catch (e) {
+      toast(i18n.t(authErrorKey(e)), 'info');
+    } finally {
+      setPaying(false);
+      void refresh();
+    }
+  };
   const sub = business.subscription;
   const plan = sub ? planById(sub.plan) : null;
   const ends = sub ? new Date(sub.trialEndsAt) : null;
@@ -98,23 +114,54 @@ export default function BusinessDashboard() {
               <Text variant="captionStrong" style={{ color: c.onPrimary, opacity: 0.7 }}>
                 {plan.name}
               </Text>
-              <Text variant="title" style={{ color: c.onPrimary }}>
-                {i18n.t('trialDaysLeft', { days: i18n.n(daysLeft, 'day') })}
-              </Text>
-              <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-                <View style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]} />
+              {sub.status === 'trialing' ? (
+                <>
+                  <Text variant="title" style={{ color: c.onPrimary }}>
+                    {i18n.t('trialDaysLeft', { days: i18n.n(daysLeft, 'day') })}
+                  </Text>
+                  <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
+                    <View style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]} />
+                  </View>
+                  <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
+                    {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })}
+                    {canBuyInApp
+                      ? ` · ${i18n.t('thenPrice', { price: i18n.price(prices[plan.id]), per: i18n.t('perMonth') })}`
+                      : ''}
+                  </Text>
+                </>
+              ) : sub.status === 'active' ? (
+                <Text variant="title" style={{ color: c.onPrimary }}>
+                  {sub.currentPeriodEnd
+                    ? i18n.t('paidUntil', { date: i18n.fullDate(new Date(sub.currentPeriodEnd)) })
+                    : i18n.t('planActive')}
+                </Text>
+              ) : (
+                <>
+                  <Text variant="title" style={{ color: c.onPrimary }}>
+                    {sub.status === 'past_due' ? i18n.t('paymentDue') : i18n.t('planExpired')}
+                  </Text>
+                  <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
+                    {sub.status === 'past_due' ? i18n.t('paymentDueBody') : i18n.t('planExpiredBody')}
+                  </Text>
+                </>
+              )}
+              <View style={styles.cardActions}>
+                {canBuyInApp && sub.status !== 'active' ? (
+                  <Button
+                    label={i18n.t('payNow', { price: i18n.price(prices[plan.id]) })}
+                    variant="secondary"
+                    size="sm"
+                    loading={paying}
+                    onPress={pay}
+                  />
+                ) : null}
+                <Button
+                  label={i18n.t('changePlan')}
+                  variant={canBuyInApp && sub.status !== 'active' ? 'ghost' : 'secondary'}
+                  size="sm"
+                  onPress={() => router.push('/business/plans')}
+                />
               </View>
-              <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
-                {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })} ·{' '}
-                {i18n.t('thenPrice', { price: i18n.price(plan.price), per: i18n.t('perMonth') })}
-              </Text>
-              <Button
-                label={i18n.t('changePlan')}
-                variant="secondary"
-                size="sm"
-                onPress={() => router.push('/business/plans')}
-                style={{ alignSelf: 'flex-start', marginTop: 6 }}
-              />
             </>
           ) : (
             <>
@@ -225,6 +272,7 @@ export default function BusinessDashboard() {
 
 const styles = StyleSheet.create({
   card: { borderRadius: radius.lg, padding: 18, gap: 8 },
+  cardActions: { flexDirection: 'row', gap: 8, marginTop: 6, flexWrap: 'wrap' },
   track: { height: 6, borderRadius: 3, overflow: 'hidden', marginVertical: 4 },
   fill: { height: 6, borderRadius: 3 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },

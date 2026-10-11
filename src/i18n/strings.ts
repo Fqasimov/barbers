@@ -867,6 +867,22 @@ export const strings = {
   reminderDay: L('Sabah növbəniz var: {when}, {master}', 'Завтра у вас запись: {when}, {master}', 'You have a booking tomorrow: {when}, {master}'),
   reminderSoon: L('2 saat sonra növbəniz var: {when}, {master}', 'Через 2 часа запись: {when}, {master}', 'Your booking is in 2 hours: {when}, {master}'),
 
+  paidUntil: L('{date} tarixinədək ödənilib', 'Оплачено до {date}', 'Paid until {date}'),
+  planActive: L('Plan aktivdir', 'Тариф активен', 'Plan is active'),
+  paymentDue: L('Ödəniş gözlənilir', 'Ожидается оплата', 'Payment due'),
+  paymentDueBody: L(
+    'Ödəniş edilməsə, salon 3 gün sonra axtarışdan çıxacaq.',
+    'Без оплаты салон пропадёт из поиска через 3 дня.',
+    'Without payment, your salon leaves search in 3 days.',
+  ),
+  planExpired: L('Plan bitib', 'Тариф закончился', 'Your plan has ended'),
+  planExpiredBody: L(
+    'Salon axtarışda görünmür. Mövcud növbələr qüvvədədir.',
+    'Салон скрыт из поиска. Существующие записи действуют.',
+    'Your salon is hidden from search. Existing bookings still stand.',
+  ),
+  payNow: L('{price} ödə', 'Оплатить {price}', 'Pay {price}'),
+
   // Splash
   loading: L('{app} yüklənir', '{app} загружается', '{app} is loading'),
 } as const;
