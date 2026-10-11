@@ -12,6 +12,7 @@ use App\Models\Review;
 use App\Services\Availability;
 use App\Services\RatingService;
 use App\Support\Baku;
+use App\Support\BusyCache;
 use App\Support\CatalogueCache;
 use App\Support\Iso;
 use Illuminate\Database\Eloquent\Builder;
@@ -166,7 +167,7 @@ class CatalogueController extends Controller
         if ($salonIds !== null) {
             sort($salonIds);
         }
-        $key = 'catalogue:busy:'.sha1(json_encode([$from->toDateString(), $days, $salonIds]));
+        $key = 'catalogue:busy:'.BusyCache::version().':'.sha1(json_encode([$from->toDateString(), $days, $salonIds]));
 
         $payload = Cache::remember($key, 30, function () use ($from, $days, $salonIds) {
             $salons = Business::query()->listable()->when($salonIds !== null, fn ($q) => $q->whereIn('id', $salonIds))->pluck('id');

@@ -104,6 +104,19 @@ class CatalogueTest extends TestCase
         $this->getJson('/api/busy?days=20')->assertStatus(422);
     }
 
+    public function test_busy_is_recomputed_right_after_a_booking_changes(): void
+    {
+        $salon = $this->makeSalon();
+        $master = $salon->masters()->first();
+        $this->getJson('/api/busy')->assertOk()->assertJsonCount(0); // primes the 30 s cache
+
+        $booking = $this->makeBooking($salon, $master, User::factory()->create(), '2026-10-13 07:00:00');
+        $this->getJson('/api/busy')->assertJsonCount(1);
+
+        $booking->update(['status' => 'cancelled']);
+        $this->getJson('/api/busy')->assertJsonCount(0);
+    }
+
     public function test_demo_catalogue_seeder_matches_the_app(): void
     {
         $this->seed(DemoCatalogueSeeder::class);

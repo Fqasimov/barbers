@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasStringId;
+use App\Support\BusyCache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -20,6 +21,13 @@ class Booking extends Model
     public const NO_SHOW = 'no_show';
 
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        // Free slots everyone sees depend on bookings; recompute them after any change.
+        static::saved(fn () => BusyCache::flush());
+        static::deleted(fn () => BusyCache::flush());
+    }
 
     protected function casts(): array
     {
