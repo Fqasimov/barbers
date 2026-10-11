@@ -1,0 +1,11 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Usta",
+    "NSLocationWhenInUseUsageDescription": "Usta uses your location to show barbers and salons near you.",
+    "NSPhotoLibraryUsageDescription": "Usta uses your photos so you can add pictures of your salon.",
+    "NSCameraUsageDescription": "Usta uses the camera so you can take pictures of your salon."
+  },
+  "android": {
+    "app_name": "Usta"
+  }
+}

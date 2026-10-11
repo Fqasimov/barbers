@@ -1,6 +1,8 @@
+import { isLive } from '@/api/client';
 import { seeded } from '@/lib/random';
 import { addDays, atMinutes, dayKey, minutesOfDay, sameDay, startOfDay, toMinutes } from '@/lib/time';
 
+import { busyFor } from './catalogue';
 import type { Booking, Master, Salon } from './types';
 
 export const SLOT_STEP = 30;
@@ -33,6 +35,8 @@ export function workingWindow(salon: Salon, master: Master, date: Date): Interva
  * so the schedule is stable across renders and devices. Weekends run busier.
  */
 export function existingAppointments(master: Master, date: Date, window: Interval): Interval[] {
+  // Live: the time the server says is booked. Demo: a stable, made-up schedule.
+  if (isLive) return busyFor(master.id, date);
   const rand = seeded(`busy:${master.id}:${dayKey(date)}`);
   const dow = date.getDay();
   const load = dow === 5 || dow === 6 ? 0.24 : dow === 0 ? 0.2 : 0.17;

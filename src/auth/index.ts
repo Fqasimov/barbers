@@ -1,14 +1,14 @@
+import { isLive } from '@/api/client';
+
 import { createHttpApi } from './http';
 import { localApi } from './local';
 import type { AuthApi } from './types';
 
 /**
- * The active backend. Set EXPO_PUBLIC_API_URL (for example
- * https://api.usta.az) to talk to the Laravel API; without it the app runs on
- * the on-device demo backend.
+ * The active backend. With EXPO_PUBLIC_API_URL set (for example
+ * https://api.ustatap.az) the app talks to the Laravel API; without it, to the
+ * on-device demo backend.
  */
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
-export const authApi: AuthApi = API_URL ? createHttpApi(API_URL) : localApi;
+export const authApi: AuthApi = isLive ? createHttpApi() : localApi;
 
 export * from './types';

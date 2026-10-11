@@ -4,6 +4,7 @@ import { memo, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CatalogueGate } from '@/components/CatalogueGate';
 import { EmptyState } from '@/components/EmptyState';
 import { SalonPhoto } from '@/components/SalonPhoto';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -16,12 +17,13 @@ import { Text } from '@/components/ui/Text';
 import { categories, priceLevels } from '@/data/categories';
 import { findSlots, type FindSort, type SlotResult, type TimeWindow } from '@/data/find';
 import { categoryIcon } from '@/data/icons';
-import { serviceCatalogue } from '@/data/salons';
+import { useServiceCatalogue } from '@/data/catalogue';
 import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
 import { addDays, fmtClock, startOfDay } from '@/lib/time';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -35,14 +37,20 @@ const WINDOWS: { id: TimeWindow; label: 'windowAny' | 'windowMorning' | 'windowA
 ];
 
 /** City-wide search: one service, one day, a time window — every free chair in Baku. */
+/** City-wide free-slot search. Waits for the catalogue on a first live launch. */
 export default function FindScreen() {
+  const serviceCatalogue = useServiceCatalogue();
+  return <CatalogueGate>{serviceCatalogue.length ? <Find serviceCatalogue={serviceCatalogue} /> : null}</CatalogueGate>;
+}
+
+function Find({ serviceCatalogue }: { serviceCatalogue: ReturnType<typeof useServiceCatalogue> }) {
   const { c } = useTheme();
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ service?: string }>();
   const { origin } = useOrigin();
   const bookings = useStore((s) => s.bookings);
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
   const [now] = useState(() => new Date());
 

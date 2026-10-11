@@ -14,8 +14,8 @@ import { categoryIcon } from '@/data/icons';
 import { topRated } from '@/data/ranking';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
-import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
 
@@ -28,7 +28,7 @@ export default function TopRatedScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ category?: CategoryId }>();
   const [category, setCategory] = useState<CategoryId | null>(params.category ?? null);
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
   const ranked = useMemo(() => topRated(salons, localReviews, category), [salons, localReviews, category]);
 

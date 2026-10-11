@@ -667,6 +667,44 @@ export const strings = {
   trialBadge: L('İlk {days} pulsuz', 'Первые {days} бесплатно', 'First {days} free'),
   stepOfTotal: L('Addım {n}/{total}', 'Шаг {n} из {total}', 'Step {n} of {total}'),
 
+  // Live catalogue and API errors
+  catalogueLoading: L('Salonlar yüklənir…', 'Загружаем салоны…', 'Loading salons…'),
+  catalogueErrorTitle: L('Bağlantı yoxdur', 'Нет соединения', 'No connection'),
+  catalogueErrorBody: L(
+    'Salonları yükləyə bilmədik. İnterneti yoxlayıb yenidən cəhd edin.',
+    'Не удалось загрузить салоны. Проверьте интернет и попробуйте снова.',
+    "We couldn't load the salons. Check your connection and try again.",
+  ),
+  retry: L('Yenidən cəhd et', 'Повторить', 'Try again'),
+  catalogueEmptyTitle: L('Hələ salon yoxdur', 'Пока нет салонов', 'No salons yet'),
+  catalogueEmptyBody: L(
+    'İlk salonlar tezliklə burada olacaq.',
+    'Первые салоны скоро появятся здесь.',
+    'The first salons will appear here soon.',
+  ),
+  errSlotTaken: L(
+    'Bu vaxtı artıq kimsə tutdu. Başqa vaxt seçin.',
+    'Это время уже заняли. Выберите другое.',
+    'Someone just took this time. Please pick another.',
+  ),
+  errTooLateToCancel: L(
+    'Növbəyə 2 saatdan az qalıb. Ləğv etmək üçün salona zəng edin.',
+    'До записи меньше 2 часов. Чтобы отменить, позвоните в салон.',
+    'Your appointment is less than 2 hours away. Call the salon to cancel.',
+  ),
+  errNotReviewable: L(
+    'Bu ziyarət üçün rəy yazmaq mümkün deyil.',
+    'Для этого визита нельзя оставить отзыв.',
+    "This visit can't be reviewed.",
+  ),
+  errForbidden: L('Buna icazəniz yoxdur.', 'У вас нет доступа.', "You don't have access to this."),
+  errSubscription: L(
+    'Bunun üçün aktiv abunə lazımdır.',
+    'Для этого нужна активная подписка.',
+    'This needs an active subscription.',
+  ),
+  saving: L('Yadda saxlanılır…', 'Сохраняем…', 'Saving…'),
+
   // Splash
   loading: L('{app} yüklənir', '{app} загружается', '{app} is loading'),
 } as const;

@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/Button';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Text } from '@/components/ui/Text';
-import { salonById } from '@/data/salons';
+import { authErrorKey } from '@/auth/flow';
+import { useSalonLookup } from '@/data/catalogue';
 import type { Booking } from '@/data/types';
 import { useI18n } from '@/i18n';
 import { messageSalon, openDirections } from '@/lib/actions';
@@ -38,7 +39,13 @@ export default function BookingsScreen() {
   const [tab, setTab] = useState<Tab>('upcoming');
   // Re-read the clock whenever the tab comes into view, so finished visits move to Past.
   const [now, setNow] = useState(() => Date.now());
-  useFocusEffect(useCallback(() => setNow(Date.now()), []));
+  const syncBookings = useStore((s) => s.syncBookings);
+  useFocusEffect(
+    useCallback(() => {
+      setNow(Date.now());
+      void syncBookings();
+    }, [syncBookings]),
+  );
 
   const { upcoming, past } = useMemo(
     () => ({
@@ -104,7 +111,7 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const { c } = useTheme();
   const i18n = useI18n();
   const cancelBooking = useStore((s) => s.cancelBooking);
-  const salon = salonById(booking.salonId);
+  const salon = useSalonLookup()(booking.salonId);
   if (!salon) return null;
   const start = new Date(booking.start);
   const startMin = minutesOfDay(start);
@@ -114,10 +121,11 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const serviceNames = services.map((s) => i18n.tx(s.name)).join(' + ');
 
   const cancel = () => {
-    const run = () => {
-      cancelBooking(booking.id);
-      toast(i18n.t('cancelledToast'), 'info');
-    };
+    const run = () =>
+      cancelBooking(booking.id).then(
+        () => toast(i18n.t('cancelledToast'), 'info'),
+        (e) => toast(i18n.t(authErrorKey(e)), 'info'),
+      );
     if (Platform.OS === 'web') return run();
     Alert.alert(i18n.t('cancelTitle'), `${i18n.relativeDay(start)}, ${fmtClock(startMin)} · ${salon.name}`, [
       { text: i18n.t('keep'), style: 'cancel' },

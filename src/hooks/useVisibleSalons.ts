@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useSession } from '@/auth/useSession';
 import { servesGender } from '@/data/audience';
-import { salons } from '@/data/salons';
+import { useCatalogue } from '@/data/catalogue';
 import { useStore } from '@/store/useStore';
 
 /**
@@ -11,7 +11,8 @@ import { useStore } from '@/store/useStore';
  * that don't serve them are left out. Direct links still open any venue.
  */
 export function useVisibleSalons() {
+  const salons = useCatalogue((s) => s.salons);
   const gender = useSession((s) => s.session?.user.gender ?? null);
   const forMe = useStore((s) => s.forMe);
-  return useMemo(() => (gender && forMe ? salons.filter((s) => servesGender(s, gender)) : salons), [gender, forMe]);
+  return useMemo(() => (gender && forMe ? salons.filter((s) => servesGender(s, gender)) : salons), [salons, gender, forMe]);
 }

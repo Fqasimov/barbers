@@ -1267,7 +1267,8 @@ function buildMasters(salonId: string, team: MasterSeed[], services: Service[]):
   }));
 }
 
-export const salons: Salon[] = seeds.map(({ team, ...seed }) => {
+/** The bundled sample venues (demo mode, and a development seed for the backend). */
+export const seedSalons: Salon[] = seeds.map(({ team, ...seed }) => {
   const services = buildServices(seed.id, seed.categories, seed.priceLevel);
   return {
     ...seed,
@@ -1277,14 +1278,5 @@ export const salons: Salon[] = seeds.map(({ team, ...seed }) => {
   };
 });
 
-export const salonById = (id: string | undefined) => salons.find((s) => s.id === id);
-
 export const fromPrice = (salon: Salon) => Math.min(...salon.services.map((s) => s.price));
 
-export const masterById = (id: string | undefined) => {
-  for (const salon of salons) {
-    const master = salon.masters.find((m) => m.id === id);
-    if (master) return { salon, master };
-  }
-  return undefined;
-};

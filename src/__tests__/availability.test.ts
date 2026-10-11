@@ -8,7 +8,7 @@ import {
   weekSchedule,
   workingWindow,
 } from '@/data/availability';
-import { salons } from '@/data/salons';
+import { seedSalons as salons } from '@/data/salons';
 import type { Booking } from '@/data/types';
 import { addDays, atMinutes, startOfDay, toMinutes } from '@/lib/time';
 

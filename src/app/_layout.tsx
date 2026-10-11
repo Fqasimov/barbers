@@ -15,6 +15,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { useSession } from '@/auth/useSession';
 import { ScissorsSplash } from '@/components/splash/ScissorsSplash';
 import { Toaster } from '@/components/Toaster';
+import { useAppSync } from '@/lib/sync';
 import { useStore } from '@/store/useStore';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
@@ -43,6 +44,7 @@ function App() {
   const signedIn = useSession((s) => !!s.session);
   const authPrompted = useStore((s) => s.authPrompted);
   const [splashDone, setSplashDone] = useState(false);
+  useAppSync();
 
   // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
   useEffect(() => {

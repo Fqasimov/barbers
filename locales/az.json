@@ -1,0 +1,11 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Usta",
+    "NSLocationWhenInUseUsageDescription": "Usta yaxınlığınızdakı bərbərxana və salonları göstərmək üçün məkanınızdan istifadə edir.",
+    "NSPhotoLibraryUsageDescription": "Usta salonunuzun şəkillərini əlavə etməyiniz üçün fotolarınıza giriş istəyir.",
+    "NSCameraUsageDescription": "Usta salonunuzun şəklini çəkməyiniz üçün kameraya giriş istəyir."
+  },
+  "android": {
+    "app_name": "Usta"
+  }
+}

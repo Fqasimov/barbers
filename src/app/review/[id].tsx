@@ -18,7 +18,7 @@ import { reviewTags, type TagId } from '@/data/reviews';
 import { useSalon } from '@/hooks/useSalon';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
-import { requireSignIn } from '@/auth/flow';
+import { authErrorKey, requireSignIn } from '@/auth/flow';
 import { isCompleted, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius } from '@/theme/tokens';
@@ -36,6 +36,7 @@ export default function WriteReview() {
   const storedName = useStore((s) => s.name);
   const setStoredName = useStore((s) => s.setName);
   const addReview = useStore((s) => s.addReview);
+  const [sending, setSending] = useState(false);
   const booking = useStore((s) => s.bookings.find((b) => b.id === bookingId));
 
   const [rating, setRating] = useState(0);
@@ -58,15 +59,23 @@ export default function WriteReview() {
 
   const service = salon.services.find((s) => s.id === booking.serviceIds[0]);
 
-  const submit = () => {
-    if (!rating) return;
+  const submit = async () => {
+    if (!rating || sending) return;
     if (!requireSignIn('signInToReview', i18n.t('signInToReview'))) return;
     const author = name.trim() || i18n.t('guest');
     if (name.trim() && name.trim() !== storedName) setStoredName(name.trim());
-    const ok = addReview(
-      { salonId: salon.id, masterId, author, rating, text: text.trim(), tags, serviceName: service?.name },
-      booking.id,
-    );
+    setSending(true);
+    let ok = false;
+    try {
+      ok = await addReview(
+        { salonId: salon.id, masterId, author, rating, text: text.trim(), tags, serviceName: service?.name },
+        booking.id,
+      );
+    } catch (e) {
+      toast(i18n.t(authErrorKey(e)), 'info');
+    } finally {
+      setSending(false);
+    }
     if (!ok) return;
     if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     toast(i18n.t('thanksToast'));
@@ -174,7 +183,8 @@ export default function WriteReview() {
         <Button
           label={rating ? i18n.t('postReview') : i18n.t('chooseRatingFirst')}
           disabled={!rating}
-          onPress={submit}
+          onPress={() => void submit()}
+          loading={sending}
           haptic="none"
           hitStyle={{ flex: 1 }}
         />

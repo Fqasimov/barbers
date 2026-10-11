@@ -1,4 +1,5 @@
-import type { CategoryId } from '@/data/types';
+import type { CategoryId, Coords, Master, Service } from '@/data/types';
+import type { Loc } from '@/i18n/types';
 
 export type Gender = 'male' | 'female';
 export type Role = 'customer' | 'business';
@@ -27,10 +28,16 @@ export type PlanId = 'start' | 'pro' | 'studio';
 
 export type Subscription = {
   plan: PlanId;
-  status: 'trialing' | 'active' | 'expired';
+  status: 'trialing' | 'active' | 'past_due' | 'expired';
   startedAt: string;
   trialEndsAt: string;
+  /** Paid until (active plans). */
+  currentPeriodEnd?: string | null;
 };
+
+export type Photo = { id: string; url: string };
+
+export type Hours = { open: string; close: string };
 
 export type Business = {
   id: string;
@@ -41,9 +48,21 @@ export type Business = {
   address: string;
   audience: Audience;
   /** New venues are reviewed before they appear in search. */
-  status: 'pending_review' | 'live';
+  status: 'pending_review' | 'live' | 'suspended';
   subscription: Subscription | null;
   createdAt: string;
+  /** The public venue id once the salon has one. */
+  salonId?: string | null;
+  coords?: Coords | null;
+  about?: Loc | null;
+  phone?: string;
+  whatsapp?: string;
+  hours?: Hours;
+  /** 0 = Sunday … 6 = Saturday. */
+  closedDays?: number[];
+  masters?: Master[];
+  services?: Service[];
+  photos?: Photo[];
 };
 
 export type Session = { token: string; user: User; business: Business | null };
@@ -107,6 +126,11 @@ export type AuthErrorCode =
   | 'resend_too_soon'
   | 'not_found'
   | 'session_expired'
+  | 'slot_taken'
+  | 'too_late_to_cancel'
+  | 'not_reviewable'
+  | 'forbidden'
+  | 'subscription_required'
   | 'validation'
   | 'network'
   | 'unknown';
@@ -142,4 +166,8 @@ export interface AuthApi {
   updateProfile(token: string, patch: ProfilePatch): Promise<User>;
   startTrial(token: string, plan: PlanId): Promise<Business>;
   logout(token: string): Promise<void>;
+  /** Permanently deletes the account (App Store rule 5.1.1(v)). Password accounts confirm with the password. */
+  deleteAccount(token: string, password?: string): Promise<void>;
+  registerPushToken(token: string, pushToken: string, platform: 'ios' | 'android'): Promise<void>;
+  unregisterPushToken(token: string, pushToken: string): Promise<void>;
 }

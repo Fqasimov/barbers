@@ -80,7 +80,8 @@ export type Review = {
   bookingId?: string;
 };
 
-export type BookingStatus = 'upcoming' | 'cancelled';
+/** The server also reports past visits as `completed`, and `no_show` when the salon marks one. */
+export type BookingStatus = 'upcoming' | 'completed' | 'cancelled' | 'no_show';
 
 export type Booking = {
   id: string;
@@ -95,4 +96,5 @@ export type Booking = {
   status: BookingStatus;
   createdAt: string;
   reviewed?: boolean;
+  cancelledBy?: 'customer' | 'salon' | null;
 };

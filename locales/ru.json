@@ -1,0 +1,11 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Usta",
+    "NSLocationWhenInUseUsageDescription": "Usta использует ваше местоположение, чтобы показать барбершопы и салоны рядом с вами.",
+    "NSPhotoLibraryUsageDescription": "Usta запрашивает доступ к фото, чтобы вы могли добавить снимки своего салона.",
+    "NSCameraUsageDescription": "Usta запрашивает доступ к камере, чтобы вы могли сфотографировать свой салон."
+  },
+  "android": {
+    "app_name": "Usta"
+  }
+}

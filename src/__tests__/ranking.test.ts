@@ -1,5 +1,5 @@
 import { bayesian, liveRating, matchScore, openState, rankForMap, topRated } from '@/data/ranking';
-import { distributionFor, salons } from '@/data/salons';
+import { distributionFor, seedSalons as salons } from '@/data/salons';
 import type { Review } from '@/data/types';
 import { BAKU_CENTER, distanceKm, fmtDistance } from '@/lib/geo';
 

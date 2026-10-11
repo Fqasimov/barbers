@@ -2,7 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { salonById } from '@/data/salons';
+import { bookingsApi } from '@/api/catalogue';
+import { isLive } from '@/api/client';
+import { useSession } from '@/auth/useSession';
+import { AuthError } from '@/auth/types';
+import { useCatalogue } from '@/data/catalogue';
 import type { Booking, Review } from '@/data/types';
 import type { Locale } from '@/i18n/types';
 
@@ -31,10 +35,15 @@ type State = {
 };
 
 type Actions = {
-  addBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status'>) => Booking;
-  cancelBooking: (id: string) => void;
+  /** Live: the server books it (and may refuse with `slot_taken`). Demo: saved on this device. */
+  createBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status'>) => Promise<Booking>;
+  cancelBooking: (id: string) => Promise<void>;
   /** Reviews are only accepted for a completed, not-yet-reviewed booking. */
-  addReview: (review: Omit<Review, 'id' | 'date' | 'mine'>, bookingId: string) => boolean;
+  addReview: (review: Omit<Review, 'id' | 'date' | 'mine'>, bookingId: string) => Promise<boolean>;
+  /** Live: replaces the local list with the account's bookings on the server. */
+  syncBookings: () => Promise<void>;
+  /** Live: forget the signed-out account's bookings and reviews on this device. */
+  clearAccountData: () => void;
   toggleFavorite: (salonId: string) => void;
   toggleFollow: (masterId: string) => void;
   /** Returns false when the compare list is already full. */
@@ -50,7 +59,14 @@ type Actions = {
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
 export const bookingEnd = (b: Booking) => new Date(b.start).getTime() + b.durationMin * 60_000;
-export const isCompleted = (b: Booking, now = Date.now()) => b.status === 'upcoming' && bookingEnd(b) <= now;
+export const isCompleted = (b: Booking, now = Date.now()) =>
+  b.status === 'completed' || (b.status === 'upcoming' && bookingEnd(b) <= now);
+
+const token = () => {
+  const t = useSession.getState().session?.token;
+  if (!t) throw new AuthError('session_expired');
+  return t;
+};
 
 /**
  * A finished visit three days ago, so a new install can try the
@@ -89,21 +105,66 @@ export const useStore = create<State & Actions>()(
       demoSeeded: false,
       hydrated: false,
 
-      addBooking: (input) => {
+      createBooking: async (input) => {
+        if (isLive) {
+          const { salonId, masterId, serviceIds, start, note } = input;
+          try {
+            const booking = await bookingsApi.create(token(), { salonId, masterId, serviceIds, start, note });
+            set((s) => ({ bookings: [...s.bookings.filter((b) => b.id !== booking.id), booking] }));
+            return booking;
+          } finally {
+            // Whether it worked or someone got there first, show the salon's real schedule.
+            void useCatalogue.getState().refreshBusy([salonId]);
+          }
+        }
         const booking: Booking = { ...input, id: uid(), createdAt: new Date().toISOString(), status: 'upcoming' };
         set((s) => ({ bookings: [...s.bookings, booking] }));
         return booking;
       },
-      cancelBooking: (id) =>
-        set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status: 'cancelled' } : b)) })),
-      addReview: (input, bookingId) => {
+      cancelBooking: async (id) => {
+        if (isLive) {
+          const booking = await bookingsApi.cancel(token(), id);
+          set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? booking : b)) }));
+          void useCatalogue.getState().refreshBusy([booking.salonId]);
+          return;
+        }
+        set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status: 'cancelled' } : b)) }));
+      },
+      addReview: async (input, bookingId) => {
         const booking = get().bookings.find((b) => b.id === bookingId);
         if (!booking || booking.reviewed || !isCompleted(booking) || booking.salonId !== input.salonId) return false;
+        if (isLive) {
+          const review = await bookingsApi.review(token(), bookingId, {
+            rating: input.rating,
+            text: input.text,
+            tags: input.tags ?? [],
+            masterId: input.masterId,
+          });
+          set((s) => ({
+            reviews: [{ ...review, mine: true }, ...s.reviews],
+            bookings: s.bookings.map((b) => (b.id === bookingId ? { ...b, reviewed: true } : b)),
+          }));
+          // Ratings are computed by the server; pick up the new numbers.
+          void useCatalogue.getState().load(true);
+          void useCatalogue.getState().loadReviews(input.salonId);
+          return true;
+        }
         set((s) => ({
           reviews: [{ ...input, bookingId, id: uid(), date: new Date().toISOString(), mine: true }, ...s.reviews],
           bookings: s.bookings.map((b) => (b.id === bookingId ? { ...b, reviewed: true } : b)),
         }));
         return true;
+      },
+      syncBookings: async () => {
+        if (!isLive || !useSession.getState().session) return;
+        try {
+          set({ bookings: await bookingsApi.list(token()) });
+        } catch {
+          // Offline: keep showing the last known list.
+        }
+      },
+      clearAccountData: () => {
+        if (isLive) set({ bookings: [], reviews: [] });
       },
       toggleFavorite: (salonId) =>
         set((s) => ({
@@ -144,8 +205,8 @@ export const useStore = create<State & Actions>()(
         useStore.setState({
           hydrated: true,
           // A saved compare list survives restarts; drop venues that no longer exist.
-          compare: (s.compare ?? []).filter((id) => !!salonById(id)).slice(0, COMPARE_LIMIT),
-          ...(s.demoSeeded ? {} : { demoSeeded: true, bookings: [demoVisit(), ...s.bookings] }),
+          compare: (s.compare ?? []).slice(0, COMPARE_LIMIT),
+          ...(s.demoSeeded || isLive ? {} : { demoSeeded: true, bookings: [demoVisit(), ...s.bookings] }),
         });
       },
     },

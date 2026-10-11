@@ -27,6 +27,7 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { RatingInline } from '@/components/ui/Stars';
 import { Text } from '@/components/ui/Text';
 import { anyMasterWeek, eligibleMasters, nextAvailable, weekSchedule } from '@/data/availability';
+import { useCatalogue } from '@/data/catalogue';
 import { categoryById } from '@/data/categories';
 import { slotStillFree } from '@/data/find';
 import type { Master, Salon } from '@/data/types';
@@ -35,7 +36,7 @@ import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { firstName } from '@/lib/format';
 import { atMinutes, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
-import { requireSignIn } from '@/auth/flow';
+import { authErrorKey, requireSignIn } from '@/auth/flow';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration, ease, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
@@ -72,7 +73,14 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
   const bookings = useStore((s) => s.bookings);
-  const addBooking = useStore((s) => s.addBooking);
+  const createBooking = useStore((s) => s.createBooking);
+  // Live: the salon's booked time; free slots are recomputed whenever it changes.
+  const busy = useCatalogue((s) => s.busy);
+  const refreshBusy = useCatalogue((s) => s.refreshBusy);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    void refreshBusy([salon.id]);
+  }, [salon.id, refreshBusy]);
   const [now] = useState(() => new Date());
 
   const lockedMaster = salon.masters.find((m) => m.id === params.master);
@@ -123,7 +131,8 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
     if (!master) return null;
     const days = weekSchedule({ salon, master, durationMin: minutes, bookings, now });
     return { days, assign: () => master };
-  }, [salon, masterId, eligible, minutes, bookings, now]);
+    // `busy` is read inside the schedule helpers (live mode).
+  }, [salon, masterId, eligible, minutes, bookings, now, busy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const firstOpenDay = schedule?.days.findIndex((d) => d.slots.length > 0) ?? -1;
   const activeDay = dayIndex ?? (firstOpenDay >= 0 ? firstOpenDay : 0);
@@ -146,7 +155,7 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
       go(lockedMaster && eligible.some((m) => m.id === lockedMaster.id) ? 'time' : 'master');
     } else if (step === 'master') go('time');
     else if (step === 'time') go('confirm');
-    else confirm();
+    else void confirm();
   };
 
   const back = () => {
@@ -155,23 +164,35 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
     go(STEPS[STEPS.indexOf(step) - 1]);
   };
 
-  const confirm = () => {
-    if (!schedule || !day || slot === null) return;
+  const confirm = async () => {
+    if (!schedule || !day || slot === null || saving) return;
     // Browsing is open to everyone; booking needs an account the salon can contact.
     if (!requireSignIn('signInToBook', i18n.t('signInToBook'))) return;
     const master = schedule.assign(day.date, slot);
     if (!master) return;
-    const booking = addBooking({
-      salonId: salon.id,
-      masterId: master.id,
-      serviceIds: services,
-      start: atMinutes(day.date, slot).toISOString(),
-      durationMin: minutes,
-      total,
-      note: note.trim() || undefined,
-    });
-    if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setDoneId(booking.id);
+    setSaving(true);
+    try {
+      const booking = await createBooking({
+        salonId: salon.id,
+        masterId: master.id,
+        serviceIds: services,
+        start: atMinutes(day.date, slot).toISOString(),
+        durationMin: minutes,
+        total,
+        note: note.trim() || undefined,
+      });
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setDoneId(booking.id);
+    } catch (e) {
+      toast(i18n.t(authErrorKey(e)), 'info');
+      // Someone else got this time: back to the times, which now show the real schedule.
+      if ((e as { code?: string }).code === 'slot_taken') {
+        setSlot(null);
+        go('time');
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (doneId) return <Done bookingId={doneId} salon={salon} />;
@@ -323,6 +344,7 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
           iconRight={step === 'confirm' ? undefined : ArrowRight}
           icon={step === 'confirm' ? CalendarCheck : undefined}
           disabled={!canContinue}
+          loading={step === 'confirm' && saving}
           haptic={step === 'confirm' ? 'none' : 'light'}
           onPress={next}
         />

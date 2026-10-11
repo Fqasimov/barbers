@@ -16,12 +16,13 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Text } from '@/components/ui/Text';
 import { anyMasterWeek, eligibleMasters } from '@/data/availability';
 import { liveRating, openState, rankForMap } from '@/data/ranking';
-import { salonById } from '@/data/salons';
+import { useSalonLookup } from '@/data/catalogue';
 import type { Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { distanceKm } from '@/lib/geo';
 import { atMinutes, fmtClock } from '@/lib/time';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -49,11 +50,12 @@ export default function CompareScreen() {
   const ids = useStore((s) => s.compare);
   const toggleCompare = useStore((s) => s.toggleCompare);
   const bookings = useStore((s) => s.bookings);
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
+  const salonById = useSalonLookup();
   const [now] = useState(() => new Date());
 
-  const chosen = useMemo(() => ids.map((id) => salonById(id)).filter((s): s is Salon => !!s), [ids]);
+  const chosen = useMemo(() => ids.map((id) => salonById(id)).filter((s): s is Salon => !!s), [ids, salonById]);
 
   // Services offered by at least one venue, most widely offered first.
   const serviceKeys = useMemo(() => {

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CatalogueGate } from '@/components/CatalogueGate';
 import { CompareTray } from '@/components/CompareTray';
 import { SalonCard } from '@/components/SalonCard';
 import { SalonRow } from '@/components/SalonRow';
@@ -20,12 +21,13 @@ import { categories } from '@/data/categories';
 import { openToday } from '@/data/find';
 import { categoryIcon } from '@/data/icons';
 import { rankForMap, topRated } from '@/data/ranking';
-import { salonById } from '@/data/salons';
+import { useSalonLookup } from '@/data/catalogue';
 import type { Booking, CategoryId, Master, Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
 import { fmtClock, minutesOfDay } from '@/lib/time';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -43,13 +45,21 @@ const TODAY_KEYS: Record<CategoryId | 'all', string[]> = {
   makeup: ['evening'],
 };
 
-export default function Discover() {
+export default function DiscoverScreen() {
+  return (
+    <CatalogueGate>
+      <Discover />
+    </CatalogueGate>
+  );
+}
+
+function Discover() {
   const { c } = useTheme();
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const bottom = useTabBarInset();
   const { origin, source } = useOrigin();
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
   const bookings = useStore((s) => s.bookings);
   const name = useStore((s) => s.name);
@@ -314,7 +324,7 @@ function MasterCard({ master, salon }: { master: Master; salon: Salon }) {
 function NextUp({ booking }: { booking: Booking }) {
   const { c } = useTheme();
   const i18n = useI18n();
-  const salon = salonById(booking.salonId);
+  const salon = useSalonLookup()(booking.salonId);
   if (!salon) return null;
   const start = new Date(booking.start);
   const master = salon.masters.find((m) => m.id === booking.masterId);

@@ -16,11 +16,11 @@ import { Text } from '@/components/ui/Text';
 import { categories } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import { liveRating } from '@/data/ranking';
-import { serviceCatalogue } from '@/data/salons';
+import { useServiceCatalogue } from '@/data/catalogue';
 import type { Loc } from '@/i18n';
 import { useI18n } from '@/i18n';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
-import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, radius } from '@/theme/tokens';
 
@@ -49,8 +49,9 @@ export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const [q, setQ] = useState('');
   const [focused, setFocused] = useState(false);
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
+  const serviceCatalogue = useServiceCatalogue();
   const needle = fold(q.trim());
 
   const results = useMemo(() => {
@@ -68,7 +69,7 @@ export default function SearchScreen() {
       .filter(({ master }) => fold(`${master.name} ${allLangs(master.role)}`).includes(needle))
       .slice(0, 6);
     return { places, services, masters };
-  }, [needle, salons]);
+  }, [needle, salons, serviceCatalogue]);
 
   const empty = results && !results.places.length && !results.services.length && !results.masters.length;
 

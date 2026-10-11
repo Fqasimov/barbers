@@ -21,8 +21,8 @@ import { fromPrice } from '@/data/salons';
 import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
+import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
-import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
 
@@ -36,7 +36,7 @@ export default function MapScreen() {
   const tabInset = useTabBarInset();
   const { width } = useWindowDimensions();
   const { origin, source, request, status } = useOrigin();
-  const localReviews = useStore((s) => s.reviews);
+  const localReviews = useLocalReviews();
 
   const [sort, setSort] = useState<MapSort>('best');
   const [prices, setPrices] = useState<PriceLevel[]>([]);

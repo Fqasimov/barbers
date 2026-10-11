@@ -20,7 +20,7 @@ import { Text } from '@/components/ui/Text';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { nextAvailable } from '@/data/availability';
 import { liveRating } from '@/data/ranking';
-import { masterById, salonById } from '@/data/salons';
+import { masterById, useCatalogue, useSalonLookup } from '@/data/catalogue';
 import { useI18n, type Locale } from '@/i18n';
 import { fmtClock, minutesOfDay } from '@/lib/time';
 import { useStore, type Appearance } from '@/store/useStore';
@@ -49,8 +49,11 @@ export default function ProfileScreen() {
   const bookings = useStore((s) => s.bookings);
   const [now] = useState(() => new Date());
 
-  const saved = useMemo(() => favorites.map((id) => salonById(id)).filter((s) => !!s), [favorites]);
-  const masters = useMemo(() => followed.map((id) => masterById(id)).filter((m) => !!m), [followed]);
+  const salonById = useSalonLookup();
+  const catalogue = useCatalogue((s) => s.salons);
+  const saved = useMemo(() => favorites.map((id) => salonById(id)).filter((s) => !!s), [favorites, salonById]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- re-resolve when the catalogue changes
+  const masters = useMemo(() => followed.map((id) => masterById(id)).filter((m) => !!m), [followed, catalogue]);
   const upcoming = bookings.filter((b) => b.status === 'upcoming' && new Date(b.start) > now).length;
 
   return (

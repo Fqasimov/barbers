@@ -41,6 +41,16 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errNetwork';
     case 'session_expired':
       return 'errSessionExpired';
+    case 'slot_taken':
+      return 'errSlotTaken';
+    case 'too_late_to_cancel':
+      return 'errTooLateToCancel';
+    case 'not_reviewable':
+      return 'errNotReviewable';
+    case 'forbidden':
+      return 'errForbidden';
+    case 'subscription_required':
+      return 'errSubscription';
     default:
       return 'errUnknown';
   }

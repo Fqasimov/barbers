@@ -3,7 +3,7 @@ import { ArrowRight, X } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 
-import { salonById } from '@/data/salons';
+import { useSalonLookup } from '@/data/catalogue';
 import { useI18n } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -22,6 +22,7 @@ export function CompareTray({ bottom }: { bottom: number }) {
   const i18n = useI18n();
   const ids = useStore((s) => s.compare);
   const clear = useStore((s) => s.clearCompare);
+  const salonById = useSalonLookup();
   if (!ids.length) return null;
   const items = ids.map((id) => salonById(id)).filter((s) => !!s);
   return (

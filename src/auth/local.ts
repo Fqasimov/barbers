@@ -363,4 +363,37 @@ export const localApi: AuthApi = {
     db.sessions = db.sessions.filter((s) => s.token !== token);
     await save(db);
   },
+
+  async deleteAccount(token, password) {
+    await pause();
+    const db = await load();
+    const user = userFor(db, token);
+    if (user.hash && !safeEqual(await hashPassword(password ?? '', user.salt), user.hash)) {
+      throw new AuthError('invalid_credentials');
+    }
+    db.users = db.users.filter((u) => u.id !== user.id);
+    db.sessions = db.sessions.filter((s) => s.userId !== user.id);
+    db.businesses = db.businesses.filter((b) => b.ownerId !== user.id);
+    db.otps = db.otps.filter((o) => o.email !== user.email);
+    db.resets = db.resets.filter((r) => r.email !== user.email);
+    await save(db);
+  },
+
+  // The demo has no push service; notifications are scheduled on the device instead.
+  async registerPushToken() {},
+  async unregisterPushToken() {},
+};
+
+/** For the other demo services (salon tools) that share this on-device store. */
+export const demoStore = {
+  load,
+  save,
+  pause,
+  ownerBusiness: async (token: string) => {
+    const db = await load();
+    const user = userFor(db, token);
+    const business = db.businesses.find((b) => b.ownerId === user.id);
+    if (!business) throw new AuthError('not_found');
+    return { db, user: publicUser(user), business };
+  },
 };

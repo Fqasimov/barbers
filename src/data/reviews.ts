@@ -1,7 +1,7 @@
 import type { Loc } from '@/i18n/types';
 import { seeded } from '@/lib/random';
 
-import { salons } from './salons';
+import { seedSalons } from './salons';
 import type { CategoryId, Review } from './types';
 
 const authors = [
@@ -174,7 +174,7 @@ const byCategory: Record<CategoryId, Snippet[]> = {
 function buildSeedReviews(): Review[] {
   const now = Date.now();
   const out: Review[] = [];
-  for (const salon of salons) {
+  for (const salon of seedSalons) {
     const rand = seeded(`reviews:${salon.id}`);
     const pool = salon.categories.flatMap((c) => byCategory[c]);
     const count = 5 + Math.floor(rand() * 3);
