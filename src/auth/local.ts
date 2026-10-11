@@ -87,6 +87,12 @@ async function save(db: Db) {
 
 const norm = (email: string) => email.trim().toLowerCase();
 const publicUser = ({ salt: _s, hash: _h, ...u }: StoredUser): User => u;
+/**
+ * Answers are copies, like a real API's JSON: the app's state must never share
+ * objects with this store, or in-place updates here would go unnoticed there.
+ */
+const copy = <T,>(v: T): T => (v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T));
+const businessOf = (db: Db, userId: string) => copy(db.businesses.find((b) => b.ownerId === userId) ?? null);
 /** A little latency so loading states are exercised like they will be on a network. */
 const pause = () => new Promise((r) => setTimeout(r, 350));
 
@@ -134,7 +140,7 @@ async function openSession(db: Db, user: StoredUser): Promise<Session> {
   const token = randomHex(24);
   db.sessions.push({ token, userId: user.id });
   await save(db);
-  return { token, user: publicUser(user), business: db.businesses.find((b) => b.ownerId === user.id) ?? null };
+  return { token, user: publicUser(user), business: businessOf(db, user.id) };
 }
 
 function userFor(db: Db, token: string): StoredUser {
@@ -330,7 +336,7 @@ export const localApi: AuthApi = {
   async me(token) {
     const db = await load();
     const user = userFor(db, token);
-    return { token, user: publicUser(user), business: db.businesses.find((b) => b.ownerId === user.id) ?? null };
+    return { token, user: publicUser(user), business: businessOf(db, user.id) };
   },
 
   async updateProfile(token, patch) {
@@ -355,7 +361,7 @@ export const localApi: AuthApi = {
       business.subscription?.trialEndsAt ?? new Date(now.getTime() + TRIAL_DAYS * 86_400_000).toISOString();
     business.subscription = { plan, status: 'trialing', startedAt, trialEndsAt };
     await save(db);
-    return business;
+    return copy(business);
   },
 
   async logout(token) {
@@ -396,4 +402,5 @@ export const demoStore = {
     if (!business) throw new AuthError('not_found');
     return { db, user: publicUser(user), business };
   },
+  copy,
 };

@@ -1,18 +1,32 @@
-import { router } from 'expo-router';
-import { Camera, Clock, Hourglass, LogOut, Users } from 'lucide-react-native';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import {
+  CalendarDays,
+  Camera,
+  CheckCircle2,
+  Circle,
+  Clock,
+  Hourglass,
+  LogOut,
+  Scissors,
+  Store,
+  Users,
+} from 'lucide-react-native';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { planById } from '@/auth/plans';
 import { useSession } from '@/auth/useSession';
+import { Card, MenuRow, useOwner } from '@/components/business/kit';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { categoryById } from '@/data/categories';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useStore } from '@/store/useStore';
 import { gutter, radius, shadow } from '@/theme/tokens';
 
 const DAY = 86_400_000;
@@ -25,6 +39,12 @@ export default function BusinessDashboard() {
   const session = useSession((s) => s.session);
   const signOut = useSession((s) => s.signOut);
   const [now] = useState(() => Date.now());
+  const { refresh } = useOwner();
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh]),
+  );
   const business = session?.business;
 
   if (!session || !business) {
@@ -39,6 +59,15 @@ export default function BusinessDashboard() {
     );
   }
 
+  const services = business.services ?? [];
+  const masters = business.masters ?? [];
+  const photos = business.photos ?? [];
+  const setup = [
+    { done: services.length > 0, label: i18n.t('setupServices'), to: '/business/services' as const },
+    { done: masters.length > 0, label: i18n.t('setupMasters'), to: '/business/masters' as const },
+    { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
+  ];
+  const ready = setup.every((s) => s.done);
   const sub = business.subscription;
   const plan = sub ? planById(sub.plan) : null;
   const ends = sub ? new Date(sub.trialEndsAt) : null;
@@ -99,31 +128,71 @@ export default function BusinessDashboard() {
           </Text>
         </View>
 
-        <Text variant="title" style={{ marginTop: 8 }}>
-          {i18n.t('dashNext')}
-        </Text>
-        <View style={[styles.list, { backgroundColor: c.surface }, shadow(c, 1)]}>
-          {[
-            { icon: Users, label: i18n.t('dashStep1') },
-            { icon: Clock, label: i18n.t('dashStep2') },
-            { icon: Camera, label: i18n.t('dashStep3') },
-          ].map(({ icon: Icon, label }, i) => (
-            <View
-              key={label}
-              style={[styles.row, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
-            >
-              <View style={[styles.icon, { backgroundColor: c.sunken }]}>
-                <Icon size={18} color={c.ink} strokeWidth={1.9} />
-              </View>
-              <Text variant="bodyStrong" style={{ flex: 1 }}>
-                {label}
-              </Text>
-              <Text variant="caption" tone="muted">
-                {i18n.t('comingSoon')}
+        {!ready ? (
+          <>
+            <View style={{ marginTop: 8, gap: 2 }}>
+              <Text variant="title">{i18n.t('setupTitle')}</Text>
+              <Text variant="subhead" tone="soft">
+                {i18n.t('setupSub')}
               </Text>
             </View>
-          ))}
-        </View>
+            <View style={[styles.list, { backgroundColor: c.surface }, shadow(c, 1)]}>
+              {setup.map(({ done, label, to }, i) => (
+                <PressableScale
+                  key={label}
+                  onPress={() => router.push(to)}
+                  haptic="light"
+                  scaleTo={0.99}
+                  accessibilityRole="button"
+                  accessibilityState={{ checked: done }}
+                  accessibilityLabel={label}
+                  style={[styles.row, i < setup.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
+                >
+                  {done ? (
+                    <CheckCircle2 size={22} color={c.success} strokeWidth={2} />
+                  ) : (
+                    <Circle size={22} color={c.lineStrong} strokeWidth={2} />
+                  )}
+                  <Text variant="bodyStrong" style={{ flex: 1, opacity: done ? 0.55 : 1 }}>
+                    {label}
+                  </Text>
+                </PressableScale>
+              ))}
+            </View>
+          </>
+        ) : null}
+
+        <Text variant="title" style={{ marginTop: 8 }}>
+          {i18n.t('dashManage')}
+        </Text>
+        <Card>
+          <MenuRow icon={CalendarDays} title={i18n.t('bkTitle')} onPress={() => router.push('/business/bookings')} />
+          <MenuRow
+            icon={Scissors}
+            title={i18n.t('svcTitle')}
+            detail={i18n.n(services.length, 'service')}
+            onPress={() => router.push('/business/services')}
+          />
+          <MenuRow
+            icon={Users}
+            title={i18n.t('mstTitle')}
+            detail={i18n.n(masters.length, 'master')}
+            onPress={() => router.push('/business/masters')}
+          />
+          <MenuRow
+            icon={Clock}
+            title={i18n.t('hoursTitle')}
+            detail={business.hours ? `${business.hours.open}–${business.hours.close}` : undefined}
+            onPress={() => router.push('/business/hours')}
+          />
+          <MenuRow
+            icon={Camera}
+            title={i18n.t('photosTitle')}
+            detail={photos.length ? String(photos.length) : undefined}
+            onPress={() => router.push('/business/photos')}
+          />
+          <MenuRow icon={Store} title={i18n.t('detailsTitle')} onPress={() => router.push('/business/details')} last />
+        </Card>
 
         <View style={{ gap: 2, marginTop: 8 }}>
           <Text variant="captionStrong" tone="soft">
@@ -139,6 +208,7 @@ export default function BusinessDashboard() {
           variant="ghost"
           onPress={async () => {
             await signOut();
+            useStore.getState().clearAccountData();
             toast(i18n.t('signedOut'), 'info');
             router.dismissAll();
           }}
