@@ -1,6 +1,7 @@
 import { getLocales } from 'expo-localization';
 import { useMemo } from 'react';
 
+import { PASSWORD_MIN } from '@/auth/validation';
 import { useStore } from '@/store/useStore';
 
 import { cal, plural } from './calendar';
@@ -28,10 +29,13 @@ const startOfDay = (d: Date) => {
   return x;
 };
 
+/** Values some strings always need, so call sites don't have to pass them. */
+const DEFAULT_VARS = { pwMin: PASSWORD_MIN };
+
 export function makeI18n(locale: Locale) {
   const t = (key: StringKey, vars?: Record<string, string | number>) => {
     let s: string = strings[key][locale];
-    if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
+    for (const [k, v] of Object.entries({ ...DEFAULT_VARS, ...vars })) s = s.split(`{${k}}`).join(String(v));
     return s;
   };
   const tx = (loc: Loc | undefined) => (loc ? (loc[locale] ?? loc.en) : '');

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ChevronRight, Heart, LogOut, PencilLine, Store, UserPlus } from 'lucide-react-native';
+import { ChevronRight, FileText, Heart, LogOut, Mail, PencilLine, ShieldCheck, Store, UserPlus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +23,7 @@ import { liveRating } from '@/data/ranking';
 import { masterById, useCatalogue, useSalonLookup } from '@/data/catalogue';
 import { useI18n, type Locale } from '@/i18n';
 import { fmtClock, minutesOfDay } from '@/lib/time';
+import { emailSupport, links, openPage } from '@/lib/links';
 import { useStore, type Appearance } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
@@ -195,17 +196,53 @@ export default function ProfileScreen() {
           </View>
         ) : null}
 
+        <Text variant="title" style={styles.sectionTitle} accessibilityRole="header">
+          {i18n.t('legalTitle')}
+        </Text>
+        <View style={[styles.list, { backgroundColor: c.surface }, shadow(c, 1)]}>
+          {[
+            { icon: ShieldCheck, label: i18n.t('privacyPolicy'), onPress: () => void openPage(links.privacy) },
+            { icon: FileText, label: i18n.t('termsOfUse'), onPress: () => void openPage(links.terms) },
+            { icon: Mail, label: i18n.t('contactSupport'), onPress: () => void emailSupport(i18n.t('supportSubject')) },
+          ].map(({ icon: Icon, label, onPress }, i) => (
+            <PressableScale
+              key={label}
+              onPress={onPress}
+              haptic="light"
+              scaleTo={0.99}
+              accessibilityRole="link"
+              accessibilityLabel={label}
+              style={[styles.row, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
+            >
+              <Icon size={18} color={c.ink} strokeWidth={1.9} />
+              <Text variant="body" style={{ flex: 1 }}>
+                {label}
+              </Text>
+              <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
+            </PressableScale>
+          ))}
+        </View>
+
         {session ? (
-          <Button
-            label={i18n.t('signOut')}
-            icon={LogOut}
-            variant="ghost"
-            style={{ marginTop: 24 }}
-            onPress={async () => {
-              await signOut();
-              toast(i18n.t('signedOut'), 'info');
-            }}
-          />
+          <>
+            <Button
+              label={i18n.t('signOut')}
+              icon={LogOut}
+              variant="ghost"
+              style={{ marginTop: 24 }}
+              onPress={async () => {
+                await signOut();
+                useStore.getState().clearAccountData();
+                toast(i18n.t('signedOut'), 'info');
+              }}
+            />
+            <Button
+              label={i18n.t('deleteAccount')}
+              variant="dangerGhost"
+              size="md"
+              onPress={() => router.push('/account/delete')}
+            />
+          </>
         ) : null}
 
         <View style={styles.colophon}>

@@ -1,3 +1,4 @@
+import { isLive } from '@/api/client';
 import type { StringKey } from '@/i18n/strings';
 
 /** Each validator returns an i18n key for the error, or null when the value is fine. */
@@ -58,7 +59,11 @@ export const checkEmail = (v: string): Check => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) && s.length <= 254 ? null : 'errEmail';
 };
 
-export const PASSWORD_MIN = 6;
+/**
+ * The real backend asks for 8+ characters. The demo backend allows 6, because the
+ * seeded demo account's password is 7 characters long.
+ */
+export const PASSWORD_MIN = isLive ? 8 : 6;
 export const checkPassword = (v: string): Check => {
   if (!v) return 'errRequired';
   if (v.length < PASSWORD_MIN || v.length > 64) return 'errPasswordLength';

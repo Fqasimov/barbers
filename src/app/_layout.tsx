@@ -91,6 +91,7 @@ function App() {
         <Stack.Screen name="business/register" />
         <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
         <Stack.Screen name="business/index" />
+        <Stack.Screen name="account/delete" />
       </Stack>
       <Toaster />
       {!splashDone ? <ScissorsSplash ready={hydrated && sessionReady} onDone={() => setSplashDone(true)} /> : null}

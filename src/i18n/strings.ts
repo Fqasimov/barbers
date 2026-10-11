@@ -470,9 +470,9 @@ export const strings = {
   phPassword: L('Şifrənizi daxil edin', 'Введите пароль', 'Enter your password'),
   phNewPassword: L('Yeni şifrəni daxil edin', 'Введите новый пароль', 'Enter a new password'),
   passwordHint: L(
-    'Ən azı 6 simvol, hərf və rəqəm',
-    'Не меньше 6 символов, буквы и цифры',
-    'At least 6 characters, letters and numbers',
+    'Ən azı {pwMin} simvol, hərf və rəqəm',
+    'Не меньше {pwMin} символов, буквы и цифры',
+    'At least {pwMin} characters, letters and numbers',
   ),
   showPassword: L('Şifrəni göstər', 'Показать пароль', 'Show password'),
   hidePassword: L('Şifrəni gizlət', 'Скрыть пароль', 'Hide password'),
@@ -496,7 +496,7 @@ export const strings = {
   ),
   errTooYoung: L('Qeydiyyat üçün ən azı 13 yaşınız olmalıdır', 'Регистрация — с 13 лет', 'You need to be 13 or older'),
   errEmail: L('Düzgün e-poçt ünvanı daxil edin', 'Введите корректный e-mail', 'Enter a valid email address'),
-  errPasswordLength: L('Şifrə 6–64 simvol olmalıdır', 'Пароль — от 6 до 64 символов', 'Use 6 to 64 characters'),
+  errPasswordLength: L('Şifrə {pwMin}–64 simvol olmalıdır', 'Пароль — от {pwMin} до 64 символов', 'Use {pwMin} to 64 characters'),
   errPasswordMix: L(
     'Həm hərf, həm rəqəm istifadə edin',
     'Используйте и буквы, и цифры',
@@ -704,6 +704,48 @@ export const strings = {
     'This needs an active subscription.',
   ),
   saving: L('Yadda saxlanılır…', 'Сохраняем…', 'Saving…'),
+
+  // Account deletion, legal and support
+  deleteAccount: L('Hesabı sil', 'Удалить аккаунт', 'Delete account'),
+  deleteTitle: L('Hesabı silmək', 'Удаление аккаунта', 'Delete your account'),
+  deleteSub: L(
+    'Bu addım geri qaytarılmır.',
+    'Это действие нельзя отменить.',
+    "This can't be undone.",
+  ),
+  deletePoint1: L(
+    'Adınız, e-poçtunuz, telefonunuz və doğum tarixiniz silinir.',
+    'Ваши имя, e-mail, телефон и дата рождения удаляются.',
+    'Your name, email, phone and date of birth are deleted.',
+  ),
+  deletePoint2: L(
+    'Gələcək növbələriniz ləğv olunur və salonlara bildiriş gedir.',
+    'Будущие записи отменяются, салоны получают уведомление.',
+    'Your upcoming bookings are cancelled and the salons are told.',
+  ),
+  deletePoint3: L(
+    'Yazdığınız rəylər anonim qalır ki, salonların reytinqi dəyişməsin.',
+    'Ваши отзывы остаются анонимными, чтобы не менять рейтинг салонов.',
+    "Reviews you wrote stay, without your name, so salons' ratings don't change.",
+  ),
+  deletePointBusiness: L(
+    'Salonunuz axtarışdan çıxarılır, gələcək növbələri ləğv olunur və müştərilərə bildiriş gedir.',
+    'Ваш салон убирается из поиска, его будущие записи отменяются, клиенты получают уведомление.',
+    'Your salon is removed from search, its upcoming bookings are cancelled and clients are told.',
+  ),
+  deleteConfirmTitle: L('Hesab silinsin?', 'Удалить аккаунт?', 'Delete your account?'),
+  deleteConfirmBody: L(
+    'Hesabınız və məlumatlarınız birdəfəlik silinəcək.',
+    'Аккаунт и данные будут удалены навсегда.',
+    'Your account and its data will be deleted for good.',
+  ),
+  accountDeleted: L('Hesabınız silindi', 'Аккаунт удалён', 'Your account was deleted'),
+  errWrongPassword: L('Şifrə düzgün deyil.', 'Неверный пароль.', "That password isn't right."),
+  legalTitle: L('Məlumat və dəstək', 'Информация и поддержка', 'About and support'),
+  privacyPolicy: L('Məxfilik siyasəti', 'Политика конфиденциальности', 'Privacy policy'),
+  termsOfUse: L('İstifadə şərtləri', 'Условия использования', 'Terms of use'),
+  contactSupport: L('Dəstəyə yazın', 'Написать в поддержку', 'Contact support'),
+  supportSubject: L('Usta: sual', 'Usta: вопрос', 'Usta: question'),
 
   // Splash
   loading: L('{app} yüklənir', '{app} загружается', '{app} is loading'),

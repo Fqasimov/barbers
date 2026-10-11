@@ -7,7 +7,7 @@ import { fonts, iconStroke, radius } from '@/theme/tokens';
 import { PressableScale, type HapticKind } from './PressableScale';
 import { Text } from './Text';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'tinted';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'tinted' | 'danger' | 'dangerGhost';
 type Size = 'lg' | 'md' | 'sm';
 
 type Props = {
@@ -48,6 +48,8 @@ export function Button({
     secondary: { bg: c.surface, fg: c.ink, border: c.lineStrong },
     tinted: { bg: c.sunken, fg: c.ink, border: c.sunken },
     ghost: { bg: 'transparent', fg: c.ink, border: 'transparent' },
+    danger: { bg: c.danger, fg: '#FFFFFF', border: c.danger },
+    dangerGhost: { bg: 'transparent', fg: c.danger, border: 'transparent' },
   }[variant];
   const inactive = disabled || loading;
   const iconSize = size === 'sm' ? 16 : 18;
