@@ -82,12 +82,12 @@ tools/shears/          three.js scene that renders the shears frames and icon ar
 promo/                 Remotion promo + the app recorder
 ```
 
-## Next steps
+## Backend and launch
 
-The data layer is local: 15 fictional venues across Baku, with bookings and reviews persisted on the device. A demo past visit is seeded so the review flow can be tried straight away. To go live:
-
-1. Back `data/` with an API (for example Supabase: `salons`, `masters`, `services`, `appointments`, `reviews`).
-2. Move availability onto the server, so two people can't book the same slot.
-3. Add phone sign-in, and send venue confirmation over WhatsApp.
-4. Add push reminders and no-show protection.
-5. Shoot real venue photos.
+- **`backend/`** is the Laravel API: accounts, catalogue, bookings with server-side slot checks, salon tools, payments and push notifications. The contract is [`docs/api.md`](docs/api.md); setup and deployment are in [`backend/README.md`](backend/README.md). Run its tests with `cd backend && php artisan test`.
+- **The app has two modes.**
+  - **Demo:** with `EXPO_PUBLIC_API_URL` unset, it runs on the on-device demo backend and the bundled sample venues.
+  - **Live:** set `EXPO_PUBLIC_API_URL` to the API's base address (no `/api`) and everything comes from the server.
+- **Salon owners** manage bookings, services, masters, hours, photos and details from the business dashboard.
+- **Builds:** `eas.json` has development, preview and production profiles. `app.config.ts` adds the per-environment values and stops a production build that has no API address.
+- **Before the stores:** [`docs/launch.md`](docs/launch.md) lists every remaining step that needs your accounts, domain or decisions. The privacy policy and terms drafts are in `docs/legal/`.
