@@ -11,7 +11,7 @@ import {
   Store,
   Users,
 } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,6 +25,7 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { categoryById } from '@/data/categories';
 import { useI18n } from '@/i18n';
+import { enableNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
 import { gutter, radius, shadow } from '@/theme/tokens';
@@ -39,7 +40,11 @@ export default function BusinessDashboard() {
   const session = useSession((s) => s.session);
   const signOut = useSession((s) => s.signOut);
   const [now] = useState(() => Date.now());
-  const { refresh } = useOwner();
+  const { refresh, token } = useOwner();
+  // Owners need new-booking alerts; ask once when they first open the dashboard.
+  useEffect(() => {
+    if (token) void enableNotifications(token);
+  }, [token]);
   useFocusEffect(
     useCallback(() => {
       void refresh();

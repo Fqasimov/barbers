@@ -12,6 +12,7 @@ import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
+import { disableNotifications } from '@/lib/notifications';
 import type { StringKey } from '@/i18n/strings';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -38,6 +39,7 @@ export default function DeleteAccount() {
   const run = async () => {
     setBusy(true);
     try {
+      await disableNotifications(session.token);
       await authApi.deleteAccount(session.token, needsPassword ? password : undefined);
       useStore.getState().clearAccountData();
       useSession.setState({ session: null });

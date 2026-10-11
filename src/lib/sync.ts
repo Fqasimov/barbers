@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import { isLive } from '@/api/client';
 import { useSession } from '@/auth/useSession';
 import { useCatalogue } from '@/data/catalogue';
+import { enableNotifications, listenForTaps } from '@/lib/notifications';
 import { useStore } from '@/store/useStore';
 
 /**
@@ -27,7 +28,11 @@ export function useAppSync() {
     return () => sub.remove();
   }, []);
 
+  useEffect(() => listenForTaps(), []);
+
   useEffect(() => {
+    // Re-register silently if permission was given before; never prompts here.
+    if (token) void enableNotifications(token, { prompt: false });
     if (!isLive) return;
     if (token) void useStore.getState().syncBookings();
     else useStore.getState().clearAccountData();

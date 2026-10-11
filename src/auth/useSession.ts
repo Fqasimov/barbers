@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 
+import { disableNotifications } from '@/lib/notifications';
+
 import { authApi } from './index';
 import type { Business, Session, User } from './types';
 
@@ -57,7 +59,9 @@ export const useSession = create<SessionState>()(
       signOut: async () => {
         const s = get().session;
         set({ session: null });
-        if (s) await authApi.logout(s.token).catch(() => undefined);
+        if (!s) return;
+        await disableNotifications(s.token);
+        await authApi.logout(s.token).catch(() => undefined);
       },
     }),
     {

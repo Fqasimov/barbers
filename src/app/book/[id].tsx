@@ -37,6 +37,8 @@ import type { StringKey } from '@/i18n/strings';
 import { firstName } from '@/lib/format';
 import { atMinutes, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
 import { authErrorKey, requireSignIn } from '@/auth/flow';
+import { useSession } from '@/auth/useSession';
+import { enableNotifications, scheduleReminders } from '@/lib/notifications';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration, ease, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
@@ -183,6 +185,16 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
       });
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDoneId(booking.id);
+      // A booking is the moment reminders make sense: ask for notifications now.
+      const when = `${i18n.relativeDay(day.date)}, ${fmtClock(slot)}`;
+      void enableNotifications(useSession.getState().session?.token ?? null).then((on) =>
+        on
+          ? scheduleReminders(booking, {
+              title: salon.name,
+              body: (k) => i18n.t(k, { when, master: firstName(master.name) }),
+            })
+          : undefined,
+      );
     } catch (e) {
       toast(i18n.t(authErrorKey(e)), 'info');
       // Someone else got this time: back to the times, which now show the real schedule.

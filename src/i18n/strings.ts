@@ -864,6 +864,9 @@ export const strings = {
     'Location access is off. Allow it in Settings.',
   ),
 
+  reminderDay: L('Sabah növbəniz var: {when}, {master}', 'Завтра у вас запись: {when}, {master}', 'You have a booking tomorrow: {when}, {master}'),
+  reminderSoon: L('2 saat sonra növbəniz var: {when}, {master}', 'Через 2 часа запись: {when}, {master}', 'Your booking is in 2 hours: {when}, {master}'),
+
   // Splash
   loading: L('{app} yüklənir', '{app} загружается', '{app} is loading'),
 } as const;

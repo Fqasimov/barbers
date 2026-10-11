@@ -7,6 +7,7 @@ import { isLive } from '@/api/client';
 import { useSession } from '@/auth/useSession';
 import { AuthError } from '@/auth/types';
 import { useCatalogue } from '@/data/catalogue';
+import { cancelReminders } from '@/lib/notifications';
 import type { Booking, Review } from '@/data/types';
 import type { Locale } from '@/i18n/types';
 
@@ -129,6 +130,7 @@ export const useStore = create<State & Actions>()(
           return;
         }
         set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status: 'cancelled' } : b)) }));
+        void cancelReminders(id);
       },
       addReview: async (input, bookingId) => {
         const booking = get().bookings.find((b) => b.id === bookingId);
