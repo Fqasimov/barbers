@@ -110,9 +110,10 @@ export default function Plans() {
               <View style={{ gap: 8 }}>
                 {p.features.map((f) => (
                   <View key={f.en} style={styles.feature}>
-                    <Check size={16} color={c.success} strokeWidth={2.4} />
-                    <Text variant="subhead" style={{ flex: 1 }}>
+                    <Check size={16} color={f.soon ? c.inkMuted : c.success} strokeWidth={2.4} />
+                    <Text variant="subhead" tone={f.soon ? 'soft' : undefined} style={{ flex: 1 }}>
                       {i18n.tx(f)}
+                      {f.soon ? <Text variant="caption" tone="muted">{`  · ${i18n.t('soon')}`}</Text> : null}
                     </Text>
                   </View>
                 ))}

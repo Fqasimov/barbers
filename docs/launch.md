@@ -2,6 +2,8 @@
 
 What's left before the App Store and Google Play. The code is ready; these steps need your accounts, domain or decisions. Do them roughly in this order.
 
+The product side (business rules to decide, content, operations, a test week) is in [go-live.md](go-live.md). Store texts are in [store-listing.md](store-listing.md).
+
 ## 1. Decide now (hard to change later)
 
 - [ ] **Bundle ID / package name.** Currently `app.usta.booking` in `app.json`. After the first store upload it can never change. If you want it to match the domain, say `az.ustatap.app`, change it before step 3.

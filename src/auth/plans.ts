@@ -6,6 +6,10 @@ export const TRIAL_DAYS = 30;
 
 const L = (az: string, ru: string, en: string): Loc => ({ az, ru, en });
 
+/** A plan line. `soon`: promised, not built yet; the plans screen labels it so nobody pays for it unknowingly. */
+export type Feature = Loc & { soon?: true };
+const soon = (f: Loc): Feature => ({ ...f, soon: true });
+
 /** Every plan includes every master: adding staff never changes the price. */
 const unlimitedMasters = L(
   'Limitsiz usta, əlavə ödəniş yoxdur',
@@ -19,7 +23,7 @@ export type Plan = {
   /** Monthly price in AZN after the trial. */
   price: number;
   blurb: Loc;
-  features: Loc[];
+  features: Feature[];
   recommended?: boolean;
 };
 
@@ -32,7 +36,8 @@ export const plans: Plan[] = [
     features: [
       unlimitedMasters,
       L('Onlayn növbə və təqvim', 'Онлайн-запись и календарь', 'Online booking and calendar'),
-      L('WhatsApp ilə təsdiq', 'Подтверждение в WhatsApp', 'WhatsApp confirmations'),
+      L('Telefonla yazılış və istirahət vaxtı', 'Запись по телефону и нерабочее время', 'Phone bookings and time off'),
+      L('Müştərilərə xatırlatmalar', 'Напоминания клиентам', 'Reminders for clients'),
       L('Rəylərə cavab', 'Ответы на отзывы', 'Reply to reviews'),
     ],
   },
@@ -45,9 +50,9 @@ export const plans: Plan[] = [
     features: [
       unlimitedMasters,
       L('Start planındakı hər şey', 'Всё из тарифа Start', 'Everything in Start'),
-      L('Gəlməmə qorunması və depozit', 'Защита от неявок и депозит', 'No-show protection and deposits'),
-      L('Xatırlatmalar və gözləmə siyahısı', 'Напоминания и лист ожидания', 'Reminders and waitlist'),
-      L('Statistika', 'Статистика', 'Insights'),
+      soon(L('Gəlməmə qorunması və depozit', 'Защита от неявок и депозит', 'No-show protection and deposits')),
+      soon(L('Gözləmə siyahısı', 'Лист ожидания', 'Waitlist')),
+      soon(L('Statistika', 'Статистика', 'Insights')),
     ],
   },
   {
@@ -62,8 +67,8 @@ export const plans: Plan[] = [
     features: [
       unlimitedMasters,
       L('Pro planındakı hər şey', 'Всё из тарифа Pro', 'Everything in Pro'),
-      L('Limitsiz filial', 'Филиалы без ограничений', 'Unlimited branches'),
-      L('Axtarışda önə çıxma', 'Продвижение в поиске', 'Featured placement in search'),
+      soon(L('Limitsiz filial', 'Филиалы без ограничений', 'Unlimited branches')),
+      soon(L('Axtarışda önə çıxma', 'Продвижение в поиске', 'Featured placement in search')),
       L('Şəxsi menecer', 'Персональный менеджер', 'Dedicated account manager'),
     ],
   },

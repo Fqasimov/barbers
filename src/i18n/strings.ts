@@ -972,6 +972,7 @@ export const strings = {
   ),
 
   // Reviews: the salon's replies and reports
+  soon: L('tezliklə', 'скоро', 'coming soon'),
   showMore: L('Daha çox', 'Ещё', 'Show more'),
   rvReply: L('Cavab yaz', 'Ответить', 'Reply'),
   rvEditReply: L('Cavabı dəyiş', 'Изменить ответ', 'Edit reply'),
