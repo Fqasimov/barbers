@@ -1,13 +1,36 @@
 import { demoStore } from '@/auth/local';
 import { AuthError, type Business, type Hours, type Photo, type PlanId, type Subscription } from '@/auth/types';
-import type { Booking, CategoryId, Language, Master, Service } from '@/data/types';
+import type { Booking, CategoryId, Language, Master, Review, Service } from '@/data/types';
 import type { Loc } from '@/i18n/types';
 import type { ToneName } from '@/theme/tokens';
 
+import type { Page } from './catalogue';
 import { isLive, request } from './client';
 
-/** A booking as the salon sees it: who is coming. */
-export type BusinessBooking = Booking & { client: { name: string; phone: string } };
+/**
+ * A booking as the salon sees it: who is coming. `kind: 'block'` is time the
+ * salon closed off (a break, a day off); `source: 'salon'` was added by hand.
+ */
+export type BusinessBooking = Booking & {
+  client: { name: string; phone: string };
+  kind?: 'visit' | 'block';
+  source?: 'customer' | 'salon';
+  /** ISO end; time off can run for days. */
+  end?: string;
+};
+
+/** A phone call or walk-in the salon writes down. */
+export type SalonBookingInput = {
+  masterId: string;
+  serviceIds: string[];
+  start: string;
+  clientName: string;
+  clientPhone?: string | null;
+  note?: string | null;
+};
+
+/** Time off for one master, or everyone when masterId is null. */
+export type BlockInput = { masterId: string | null; start: string; end: string; note?: string | null };
 
 export type MasterInput = {
   name: string;
@@ -30,7 +53,17 @@ export type ServiceInput = {
 export type BusinessPatch = Partial<
   Pick<
     Business,
-    'salonName' | 'about' | 'phone' | 'whatsapp' | 'address' | 'district' | 'coords' | 'categories' | 'audience' | 'hours' | 'closedDays'
+    | 'salonName'
+    | 'about'
+    | 'phone'
+    | 'whatsapp'
+    | 'address'
+    | 'district'
+    | 'coords'
+    | 'categories'
+    | 'audience'
+    | 'hours'
+    | 'closedDays'
   >
 >;
 
@@ -53,6 +86,10 @@ export interface BusinessApi {
   cancelBooking(token: string, id: string, reason?: string): Promise<BusinessBooking>;
   completeBooking(token: string, id: string): Promise<BusinessBooking>;
   markNoShow(token: string, id: string): Promise<BusinessBooking>;
+  addBooking(token: string, input: SalonBookingInput): Promise<BusinessBooking>;
+  blockTime(token: string, input: BlockInput): Promise<BusinessBooking[]>;
+  reviews(token: string, page?: number): Promise<Page<Review>>;
+  reply(token: string, reviewId: string, text: string): Promise<Review>;
   checkout(token: string, plan: PlanId): Promise<Checkout>;
   subscription(token: string): Promise<Subscription>;
 }
@@ -80,6 +117,10 @@ const httpBusinessApi: BusinessApi = {
     request('POST', `/business/bookings/${enc(id)}/cancel`, { token, body: reason ? { reason } : {} }),
   completeBooking: (token, id) => request('POST', `/business/bookings/${enc(id)}/complete`, { token }),
   markNoShow: (token, id) => request('POST', `/business/bookings/${enc(id)}/no-show`, { token }),
+  addBooking: (token, input) => request('POST', '/business/bookings', { token, body: input }),
+  blockTime: (token, input) => request('POST', '/business/blocks', { token, body: input }),
+  reviews: (token, page = 1) => request('GET', '/business/reviews', { token, query: { page } }),
+  reply: (token, id, text) => request('POST', `/business/reviews/${enc(id)}/reply`, { token, body: { reply: text } }),
   checkout: (token, plan) => request('POST', '/business/subscription/checkout', { token, body: { plan } }),
   subscription: (token) => request('GET', '/business/subscription', { token }),
 };
@@ -92,7 +133,9 @@ const TONES: ToneName[] = ['oxblood', 'forest', 'navy', 'clay', 'olive', 'slate'
 const rid = (p: string) => `${p}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /** Fills the fields older demo businesses don't have yet. */
-function complete(b: Business): Required<Pick<Business, 'masters' | 'services' | 'photos' | 'hours' | 'closedDays'>> & Business {
+function complete(
+  b: Business,
+): Required<Pick<Business, 'masters' | 'services' | 'photos' | 'hours' | 'closedDays'>> & Business {
   b.masters ??= [];
   b.services ??= [];
   b.photos ??= [];
@@ -108,6 +151,22 @@ async function withBusiness<T>(token: string, fn: (b: ReturnType<typeof complete
   await demoStore.save(db);
   return demoStore.copy(out);
 }
+
+type WithCalendar = { calendar?: BusinessBooking[] };
+const calendarOf = (b: Business) => ((b as WithCalendar).calendar ??= []);
+const endOf = (x: BusinessBooking) =>
+  x.end ? new Date(x.end).getTime() : new Date(x.start).getTime() + x.durationMin * 60_000;
+const overlapping = (b: Business, masterId: string, start: number, end: number) =>
+  calendarOf(b).some(
+    (x) => x.masterId === masterId && x.status === 'upcoming' && new Date(x.start).getTime() < end && endOf(x) > start,
+  );
+const setStatus = (token: string, id: string, status: BusinessBooking['status']) =>
+  withBusiness(token, (b) => {
+    const row = calendarOf(b).find((x) => x.id === id);
+    if (!row) throw new AuthError('not_found');
+    row.status = status;
+    return row;
+  });
 
 const keyOf = (name: Loc) =>
   (name.en || name.az)
@@ -147,7 +206,12 @@ const demoBusinessApi: BusinessApi = {
     }),
   addService: (token, input) =>
     withBusiness(token, (b) => {
-      const service: Service = { ...input, description: input.description ?? undefined, id: rid('s'), key: keyOf(input.name) };
+      const service: Service = {
+        ...input,
+        description: input.description ?? undefined,
+        id: rid('s'),
+        key: keyOf(input.name),
+      };
       b.services.push(service);
       return service;
     }),
@@ -173,15 +237,70 @@ const demoBusinessApi: BusinessApi = {
     withBusiness(token, (b) => {
       b.photos = b.photos.filter((x) => x.id !== id);
     }),
-  // The demo has no customers booking into owner-made salons.
-  bookings: async () => [],
-  cancelBooking: async () => {
-    throw new AuthError('not_found');
-  },
-  completeBooking: async () => {
-    throw new AuthError('not_found');
-  },
-  markNoShow: async () => {
+  // The demo has no customers booking into owner-made salons; the calendar
+  // holds what the owner adds by hand.
+  bookings: (token, range) =>
+    withBusiness(token, (b) => {
+      const from = new Date(`${range.from}T00:00:00`).getTime();
+      const to = new Date(`${range.to}T00:00:00`).getTime() + 86_400_000;
+      return calendarOf(b).filter((x) => new Date(x.start).getTime() < to && endOf(x) > from);
+    }),
+  cancelBooking: (token, id) => setStatus(token, id, 'cancelled'),
+  completeBooking: (token, id) => setStatus(token, id, 'completed'),
+  markNoShow: (token, id) => setStatus(token, id, 'no_show'),
+  addBooking: (token, input) =>
+    withBusiness(token, (b) => {
+      const services = b.services.filter((s) => input.serviceIds.includes(s.id));
+      const durationMin = services.reduce((n, s) => n + s.durationMin, 0);
+      const start = new Date(input.start).getTime();
+      if (overlapping(b, input.masterId, start, start + durationMin * 60_000)) throw new AuthError('slot_taken');
+      const booking: BusinessBooking = {
+        id: rid('b'),
+        salonId: b.salonId ?? b.id,
+        masterId: input.masterId,
+        serviceIds: input.serviceIds,
+        start: input.start,
+        durationMin,
+        total: services.reduce((n, s) => n + s.price, 0),
+        note: input.note ?? undefined,
+        status: 'upcoming',
+        createdAt: new Date().toISOString(),
+        kind: 'visit',
+        source: 'salon',
+        client: { name: input.clientName, phone: (input.clientPhone ?? '').replace(/\D/g, '') },
+      };
+      calendarOf(b).push(booking);
+      return booking;
+    }),
+  blockTime: (token, input) =>
+    withBusiness(token, (b) => {
+      const start = new Date(input.start).getTime();
+      const end = new Date(input.end).getTime();
+      const masters = input.masterId ? b.masters.filter((m) => m.id === input.masterId) : b.masters;
+      if (masters.some((m) => overlapping(b, m.id, start, end))) throw new AuthError('overlaps_bookings');
+      const rows = masters.map(
+        (m): BusinessBooking => ({
+          id: rid('t'),
+          salonId: b.salonId ?? b.id,
+          masterId: m.id,
+          serviceIds: [],
+          start: input.start,
+          end: input.end,
+          durationMin: Math.round((end - start) / 60_000),
+          total: 0,
+          note: input.note ?? undefined,
+          status: 'upcoming',
+          createdAt: new Date().toISOString(),
+          kind: 'block',
+          source: 'salon',
+          client: { name: '', phone: '' },
+        }),
+      );
+      calendarOf(b).push(...rows);
+      return rows;
+    }),
+  reviews: async () => ({ data: [], nextPage: null }),
+  reply: async () => {
     throw new AuthError('not_found');
   },
   checkout: async () => {

@@ -24,6 +24,8 @@ class ReviewResource extends JsonResource
             'service_name' => Loc::orNull($this->service_name),
             'tags' => array_values($this->tags ?? []),
             'booking_id' => $this->booking_id,
+            'reply' => $this->reply,
+            'replied_at' => $this->replied_at ? Iso::ts($this->replied_at) : null,
         ];
     }
 }

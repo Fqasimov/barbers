@@ -78,6 +78,9 @@ export type Review = {
   mine?: boolean;
   /** Every review is tied to a completed visit. */
   bookingId?: string;
+  /** The salon's public answer. */
+  reply?: string | null;
+  repliedAt?: string | null;
 };
 
 /** The server also reports past visits as `completed`, and `no_show` when the salon marks one. */

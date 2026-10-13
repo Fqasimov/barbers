@@ -127,6 +127,7 @@ export type AuthErrorCode =
   | 'not_found'
   | 'session_expired'
   | 'slot_taken'
+  | 'overlaps_bookings'
   | 'too_late_to_cancel'
   | 'not_reviewable'
   | 'forbidden'

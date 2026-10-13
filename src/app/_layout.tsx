@@ -78,6 +78,7 @@ function App() {
         <Stack.Screen name="compare" />
         <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen
           name="auth/index"
           options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}

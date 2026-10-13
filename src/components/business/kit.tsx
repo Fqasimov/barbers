@@ -1,6 +1,6 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { businessApi } from '@/api/business';
 import { authErrorKey } from '@/auth/flow';
@@ -12,6 +12,7 @@ import { Chip } from '@/components/ui/Chip';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
+import { addDays, dayKey, startOfDay } from '@/lib/time';
 import type { Loc } from '@/i18n/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, shadow } from '@/theme/tokens';
@@ -170,7 +171,54 @@ export function DayPicker({ value, onChange }: { value: number[]; onChange: (day
   );
 }
 
+/** The next `count` days as a scrolling row of chips. */
+export function DayChips({
+  value,
+  onChange,
+  count = 30,
+}: {
+  value: Date;
+  onChange: (d: Date) => void;
+  count?: number;
+}) {
+  const i18n = useI18n();
+  const [today] = useState(() => startOfDay(new Date()));
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayRow}>
+      {Array.from({ length: count }, (_, i) => addDays(today, i)).map((d, i) => (
+        <Chip
+          key={dayKey(d)}
+          size="sm"
+          label={i < 2 ? i18n.relativeDay(d) : `${i18n.weekdayShort(d)} ${d.getDate()} ${i18n.monthShort(d)}`}
+          accessibilityLabel={i18n.fullDate(d)}
+          selected={dayKey(d) === dayKey(value)}
+          onPress={() => onChange(d)}
+        />
+      ))}
+    </ScrollView>
+  );
+}
+
+/** A labelled group of controls inside a form. */
+export function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string | null }) {
+  const { c } = useTheme();
+  return (
+    <View style={{ gap: 8 }}>
+      <Text variant="captionStrong" tone="soft">
+        {label}
+      </Text>
+      {children}
+      {error ? (
+        <Text variant="caption" style={{ color: c.danger }} accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  dayRow: { gap: 8, paddingRight: 8 },
   card: { borderRadius: radius.lg, paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },

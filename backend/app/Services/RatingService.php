@@ -14,7 +14,7 @@ class RatingService
 {
     public function refreshBusiness(Business $business): void
     {
-        $rows = Review::query()->where('business_id', $business->id)
+        $rows = Review::query()->visible()->where('business_id', $business->id)
             ->selectRaw('rating, count(*) as n')->groupBy('rating')->get();
         $stars = [0, 0, 0, 0, 0];
         $sum = 0;
@@ -30,7 +30,7 @@ class RatingService
 
     public function refreshMaster(Master $master): void
     {
-        $agg = Review::query()->where('master_id', $master->id)
+        $agg = Review::query()->visible()->where('master_id', $master->id)
             ->selectRaw('count(*) as n, coalesce(sum(rating), 0) as s')->first();
         $master->forceFill(['review_count' => (int) $agg->n, 'review_sum' => (int) $agg->s])->saveQuietly();
     }

@@ -20,6 +20,12 @@ class Booking extends Model
 
     public const NO_SHOW = 'no_show';
 
+    /** A client's appointment. */
+    public const VISIT = 'visit';
+
+    /** Time the salon closed off: a break, a day off, a holiday. */
+    public const BLOCK = 'block';
+
     protected $guarded = [];
 
     protected static function booted(): void
@@ -61,6 +67,11 @@ class Booking extends Model
     public function review(): HasOne
     {
         return $this->hasOne(Review::class);
+    }
+
+    public function isBlock(): bool
+    {
+        return $this->kind === self::BLOCK;
     }
 
     /** @return list<string> */

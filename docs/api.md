@@ -58,7 +58,8 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
 // Review
 { "id": "…", "salon_id": "…", "master_id": "…" | null, "author": "Aysel M.",
   "rating": 5, "text": "…", "date": "ISO", "service_name": Loc | null,
-  "tags": ["skilled","punctual","friendly","clean","value","relaxing"], "booking_id": "…" | null }
+  "tags": ["skilled","punctual","friendly","clean","value","relaxing"], "booking_id": "…" | null,
+  "reply": "…" | null, "replied_at": "ISO" | null }   // the salon's public answer
 
 // Booking (the customer's view)
 { "id": "…", "salon_id": "…", "master_id": "…", "service_ids": ["…"],
@@ -67,7 +68,10 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
   "reviewed": false, "created_at": "ISO" }
 
 // BusinessBooking (the salon's view): Booking plus the client
-{ ...Booking, "client": { "name": "Aysel Məmmədova", "phone": "+994…" } }
+{ ...Booking, "end": "ISO",
+  "kind": "visit|block",         // block = time off (a break, a day off, a holiday)
+  "source": "customer|salon",    // salon = added by hand (a phone call, a walk-in)
+  "client": { "name": "Aysel Məmmədova", "phone": "+994…" } }   // empty for time off
 
 // Subscription
 { "plan": "start|pro|studio", "status": "trialing|active|past_due|expired",
@@ -133,7 +137,7 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
 | GET | `/salons/{id}/reviews` | `page` | `200 { data: [Review], next_page: 2 \| null }` | Newest first, 30 per page. |
 | GET | `/salons/{id}/availability` | `service_ids[]`, `from` (date), `days` (1–14, default 7), `master_id?` | `200 { masters: [{ master_id, days: [{ date, off, slots: [minutes] }] }] }` | See "Availability". Without `master_id`, every master who does all the services. |
 | GET | `/slots` | `service_key`, `date`, `from_min?`, `to_min?` | `200 [{ salon_id, master_id, service_id, start: minutes }]` | City-wide free-slot search: every live salon's earliest start for that service on that date, within the time window. |
-| GET | `/busy` | `from` (date, default today), `days` (1–14, default 7), `salon_ids[]?` | `200 [{ master_id, start: ISO, end: ISO }]` | Time each master is already booked (`upcoming` bookings only; no client details). The app computes free slots from this with the same rules as "Availability", so lists, search and compare work offline-first. Without `salon_ids`, every live salon. Cache for 30 s. |
+| GET | `/busy` | `from` (date, default today), `days` (1–14, default 7), `salon_ids[]?` | `200 [{ master_id, start: ISO, end: ISO }]` | Time each master is already booked: `upcoming` bookings and the salon's time off, anything overlapping the window (time off can run for days; the app splits it per day). No client details. The app computes free slots from this with the same rules as "Availability", so lists, search and compare work offline-first. Without `salon_ids`, every live salon. Cache for 30 s. |
 | GET | `/plans` | — | `200 [Plan]` | Prices in AZN per month. The app shows these on Android; see "Payments". |
 
 ### Availability
@@ -155,6 +159,7 @@ The app and the server compute it the same way (`src/data/availability.ts`):
 | POST | `/bookings` | `salon_id, master_id, service_ids[], start (ISO), note?` | `201` Booking | The server recomputes `duration_min` and `total` from its own prices. Checks the master does every service and the slot is free **inside a transaction with a row lock on the master**: `409 slot_taken` when someone got there first. Notifies the salon. |
 | POST | `/bookings/{id}/cancel` | — | `200` Booking | Allowed until 2 hours before the start (`422 too_late_to_cancel`). Notifies the salon. |
 | POST | `/bookings/{id}/review` | `rating (1–5), text, tags[], master_id?` | `201` Review | Only for the booking's own customer, once, after the visit has ended (`422 not_reviewable`). Updates the salon's and master's rating. |
+| POST | `/reviews/{id}/report` | `reason: spam\|offensive\|fake\|other, note?` | `200 { ok: true }` | Any signed-in user, once per review. After **3** reports the review is hidden (not listed, not counted in ratings) until an admin checks it: `php artisan usta:reviews` lists reports, `--hide=<id>` / `--restore=<id>` decide. App Store rule 1.2 asks for reporting and a quick response (aim for 24 hours). |
 
 ## Salon tools (business owner, token required)
 
@@ -172,10 +177,14 @@ Every path acts on the signed-in owner's business; another user's business gives
 | DELETE | `/business/services/{id}` | — | `204` | Also removed from every master's `service_ids`. |
 | POST | `/business/photos` | multipart `photo` (JPEG, PNG or HEIC, ≤ 8 MB) | `201` Photo | Re-encoded as a 1600 px JPEG; metadata (GPS) stripped. At most 12. |
 | DELETE | `/business/photos/{id}` | — | `204` | |
-| GET | `/business/bookings` | `from?`, `to?` (dates, default today … +7 days), `status?` | `200 [BusinessBooking]` | Sorted by start. |
+| GET | `/business/bookings` | `from?`, `to?` (dates, default today … +7 days), `status?` | `200 [BusinessBooking]` | Everything overlapping the range, time off included, sorted by start. |
+| POST | `/business/bookings` | `master_id, service_ids[], start (ISO), client_name, client_phone?, note?` | `201` BusinessBooking | A phone call or walk-in (`source: salon`). Any 5-minute mark, from 30 minutes ago up to 90 days ahead; salon hours and the 7-day window don't apply. `409 slot_taken` over another booking or time off. Nobody is notified. |
+| POST | `/business/blocks` | `master_id?` (omit for every master), `start, end` (ISO), `note?` | `201 [BusinessBooking]` | Time off, one row per master, at most 31 days. `409 overlaps_bookings` when it would cover a booking: cancel those first. Reopen it with `/cancel`; `/complete` and `/no-show` refuse time off. |
 | POST | `/business/bookings/{id}/cancel` | `reason?` | `200` BusinessBooking | `cancelled_by: salon`. The customer is notified. |
 | POST | `/business/bookings/{id}/complete` | — | `200` BusinessBooking | |
 | POST | `/business/bookings/{id}/no-show` | — | `200` BusinessBooking | Only after the start time. |
+| GET | `/business/reviews` | `page` | `200 { data: [Review], next_page }` | The salon's visible reviews, newest first. |
+| POST | `/business/reviews/{id}/reply` | `reply` (empty removes it) | `200` Review | One public reply per review, at most 1000 characters. |
 | POST | `/business/subscription/trial` | `plan` | `200` Business | Starts the 30-day trial once per business. Calling it again only changes the plan. No card. |
 | POST | `/business/subscription/checkout` | `plan` | `200 { checkout_url, payment_id }` | See "Payments". |
 | GET | `/business/subscription` | — | `200` Subscription | |

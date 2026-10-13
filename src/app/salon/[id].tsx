@@ -430,7 +430,13 @@ function Reviews({ salon }: { salon: Salon }) {
       )}
       <View style={{ marginTop: 6 }}>
         {reviews.slice(0, 3).map((r, i, arr) => (
-          <ReviewCard key={r.id} review={r} salon={salon} last={i === arr.length - 1} />
+          <ReviewCard
+            key={r.id}
+            review={r}
+            salon={salon}
+            last={i === arr.length - 1}
+            onReport={(x) => router.push({ pathname: '/report/[id]', params: { id: x.id } })}
+          />
         ))}
       </View>
       <Button

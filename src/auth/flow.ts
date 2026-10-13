@@ -43,6 +43,8 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errSessionExpired';
     case 'slot_taken':
       return 'errSlotTaken';
+    case 'overlaps_bookings':
+      return 'errOverlapsBookings';
     case 'too_late_to_cancel':
       return 'errTooLateToCancel';
     case 'not_reviewable':

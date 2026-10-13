@@ -88,6 +88,131 @@ class BookingService
         return $booking;
     }
 
+    /**
+     * A booking the salon adds itself: a phone call or a walk-in. The salon may
+     * book outside the app's 30-minute grid and 7-day window, but never over
+     * another booking or time off.
+     *
+     * @param  array{master_id:string, service_ids:list<string>, start:string, client_name:string, client_phone?:?string, note?:?string}  $data
+     */
+    public function createBySalon(Business $salon, array $data): Booking
+    {
+        $salon->loadMissing(['services', 'masters.services']);
+        $ids = array_values(array_unique($data['service_ids']));
+        $services = $salon->services->whereIn('id', $ids);
+        if ($services->count() !== count($ids)) {
+            throw ValidationException::withMessages(['service_ids' => ['One of the services is not offered by this salon.']]);
+        }
+        /** @var Master|null $master */
+        $master = $salon->masters->firstWhere('id', $data['master_id']);
+        if (! $master) {
+            throw ValidationException::withMessages(['master_id' => ['This master does not work at this salon.']]);
+        }
+        $ordered = collect($ids)->map(fn ($id) => $services->firstWhere('id', $id));
+        $duration = (int) $ordered->sum('duration_min');
+        $start = $this->salonStart($data['start']);
+        $end = $start->addMinutes($duration);
+
+        return $this->insert($master, $start, $end, [
+            'business_id' => $salon->id,
+            'kind' => Booking::VISIT,
+            'source' => 'salon',
+            'client_name' => trim($data['client_name']),
+            'client_phone' => isset($data['client_phone']) ? (preg_replace('/\D+/', '', $data['client_phone']) ?: null) : null,
+            'services' => $ordered->map(fn ($s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+                'duration_min' => (int) $s->duration_min,
+                'price' => (int) $s->price,
+            ])->values()->all(),
+            'duration_min' => $duration,
+            'total' => (int) $ordered->sum('price'),
+            'note' => isset($data['note']) && trim((string) $data['note']) !== '' ? trim($data['note']) : null,
+        ]);
+    }
+
+    /**
+     * Closes off time for one master, or every master when master_id is null:
+     * a break, a day off, a holiday. Refused when it would cover a booking, so
+     * nobody's visit disappears silently; cancel those first.
+     *
+     * @param  array{master_id?:?string, start:string, end:string, note?:?string}  $data
+     * @return list<Booking>
+     */
+    public function block(Business $salon, array $data): array
+    {
+        $salon->loadMissing('masters');
+        $start = $this->salonStart($data['start']);
+        $end = CarbonImmutable::parse($data['end'])->utc()->startOfMinute();
+        if ($end->lte($start)) {
+            throw ValidationException::withMessages(['end' => ['The end must be after the start.']]);
+        }
+        if ($start->diffInDays($end) > config('usta.bookings.block_max_days')) {
+            throw ValidationException::withMessages(['end' => ['Time off can be at most '.config('usta.bookings.block_max_days').' days at a time.']]);
+        }
+        if (! empty($data['master_id'])) {
+            $master = $salon->masters->firstWhere('id', $data['master_id'])
+                ?? throw ValidationException::withMessages(['master_id' => ['This master does not work at this salon.']]);
+            $masters = collect([$master]);
+        } else {
+            $masters = $salon->masters;
+        }
+        if ($masters->isEmpty()) {
+            throw ValidationException::withMessages(['master_id' => ['Add a master first.']]);
+        }
+
+        return DB::transaction(fn () => $masters->map(fn (Master $m) => $this->insert($m, $start, $end, [
+            'business_id' => $salon->id,
+            'kind' => Booking::BLOCK,
+            'source' => 'salon',
+            'services' => [],
+            'duration_min' => (int) $start->diffInMinutes($end),
+            'total' => 0,
+            'note' => isset($data['note']) && trim((string) $data['note']) !== '' ? trim($data['note']) : null,
+        ], 'overlaps_bookings'))->values()->all());
+    }
+
+    private function salonStart(string $value): CarbonImmutable
+    {
+        $start = CarbonImmutable::parse($value)->utc()->startOfMinute();
+        if ($start->minute % 5 !== 0) {
+            throw ValidationException::withMessages(['start' => ['Use a time on a 5-minute mark.']]);
+        }
+        // A walk-in who just sat down still counts.
+        if ($start->lt(now()->subMinutes(30))) {
+            throw ValidationException::withMessages(['start' => ['This time has passed.']]);
+        }
+        if ($start->gt(now()->addDays(config('usta.bookings.salon_days_ahead')))) {
+            throw ValidationException::withMessages(['start' => ['This is too far ahead.']]);
+        }
+
+        return $start;
+    }
+
+    /** Saves a booking for a master unless it overlaps anything upcoming (locked per master). */
+    private function insert(Master $master, CarbonImmutable $start, CarbonImmutable $end, array $attrs, string $conflict = 'slot_taken'): Booking
+    {
+        return DB::transaction(function () use ($master, $start, $end, $attrs, $conflict) {
+            Master::query()->whereKey($master->id)->lockForUpdate()->first();
+            $taken = Booking::query()->where('master_id', $master->id)->where('status', Booking::UPCOMING)
+                ->where('start_at', '<', $end)->where('end_at', '>', $start)->exists();
+            if ($taken) {
+                throw new ApiException(409, $conflict, $conflict === 'slot_taken'
+                    ? 'This master is busy at this time.'
+                    : "{$master->name} has bookings in this time. Cancel them first.");
+            }
+            $booking = new Booking;
+            $booking->forceFill($attrs + [
+                'master_id' => $master->id,
+                'start_at' => $start,
+                'end_at' => $end,
+                'status' => Booking::UPCOMING,
+            ])->save();
+
+            return $booking;
+        });
+    }
+
     public function cancelByCustomer(Booking $booking): Booking
     {
         if ($booking->status === Booking::CANCELLED) {

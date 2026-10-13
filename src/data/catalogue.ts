@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { create } from 'zustand';
 
 import { catalogueApi, type BusyRange } from '@/api/catalogue';
 import { isLive } from '@/api/client';
-import { dayKey, minutesOfDay, startOfDay } from '@/lib/time';
+import { addDays, dayKey, minutesOfDay, startOfDay } from '@/lib/time';
 
 import { seedReviews } from './reviews';
 import { seedSalons, serviceCatalogue as seedServiceCatalogue } from './salons';
@@ -43,12 +43,19 @@ const index = (salons: Salon[]) => new Map(salons.map((s) => [s.id, s]));
 
 function indexBusy(ranges: BusyRange[], into = new Map<string, Interval[]>()) {
   for (const r of ranges) {
-    const start = new Date(r.start);
     const end = new Date(r.end);
-    const key = `${r.masterId}|${dayKey(start)}`;
-    const list = into.get(key) ?? [];
-    list.push({ start: minutesOfDay(start), end: minutesOfDay(start) + Math.round((end.getTime() - start.getTime()) / 60_000) });
-    into.set(key, list);
+    // Time off can run for days; each day gets its own piece.
+    for (let start = new Date(r.start); start < end; start = startOfDay(addDays(start, 1))) {
+      const dayEnd = startOfDay(addDays(start, 1));
+      const until = end < dayEnd ? end : dayEnd;
+      const key = `${r.masterId}|${dayKey(start)}`;
+      const list = into.get(key) ?? [];
+      list.push({
+        start: minutesOfDay(start),
+        end: minutesOfDay(start) + Math.round((until.getTime() - start.getTime()) / 60_000),
+      });
+      into.set(key, list);
+    }
   }
   return into;
 }
@@ -68,7 +75,7 @@ export const useCatalogue = create<State>()((set, get) => ({
     if (status === 'loading' || (!force && Date.now() - loadedAt < STALE_MS)) return;
     set({ status: 'loading' });
     try {
-      const [salons] = await Promise.all([catalogueApi.salons(), get().refreshBusy()]);
+      const [salons] = await Promise.all([catalogueApi.salons(force), get().refreshBusy()]);
       set({ salons, byId: index(salons), status: 'ready', loadedAt: Date.now() });
       void AsyncStorage.setItem(CACHE_KEY, JSON.stringify(salons)).catch(() => undefined);
     } catch {
@@ -83,7 +90,12 @@ export const useCatalogue = create<State>()((set, get) => ({
       if (salonIds?.length) {
         // A partial refresh replaces just those venues' masters.
         const masters = new Set(
-          salonIds.flatMap((id) => get().byId.get(id)?.masters.map((m) => m.id) ?? []),
+          salonIds.flatMap(
+            (id) =>
+              get()
+                .byId.get(id)
+                ?.masters.map((m) => m.id) ?? [],
+          ),
         );
         const busy = new Map([...get().busy].filter(([k]) => !masters.has(k.split('|')[0])));
         set({ busy: indexBusy(ranges, busy) });
@@ -138,8 +150,19 @@ export function useSalonLookup() {
   return useMemo(() => (id: string | undefined) => (id ? byId.get(id) : undefined), [byId]);
 }
 
+/** Ids looked up once and not found, so a missing venue triggers one refetch, not a loop. */
+const refetched = new Set<string>();
+
 export function useSalonById(id: string | undefined) {
-  return useCatalogue((s) => (id ? s.byId.get(id) : undefined));
+  const salon = useCatalogue((s) => (id ? s.byId.get(id) : undefined));
+  const status = useCatalogue((s) => s.status);
+  // A salon newer than the saved list (a fresh link, a just-approved venue): fetch the list again.
+  useEffect(() => {
+    if (!isLive || !id || salon || status === 'loading' || refetched.has(id)) return;
+    refetched.add(id);
+    void useCatalogue.getState().load(true);
+  }, [id, salon, status]);
+  return salon;
 }
 
 /** Every distinct service on offer, for city-wide search. */
@@ -150,7 +173,8 @@ export function useServiceCatalogue() {
     const seen = new Map<string, (typeof seedServiceCatalogue)[number]>();
     for (const salon of salons) {
       for (const s of salon.services) {
-        if (!seen.has(s.key)) seen.set(s.key, { key: s.key, name: s.name, category: s.category, durationMin: s.durationMin });
+        if (!seen.has(s.key))
+          seen.set(s.key, { key: s.key, name: s.name, category: s.category, durationMin: s.durationMin });
       }
     }
     return [...seen.values()];
@@ -159,4 +183,8 @@ export function useServiceCatalogue() {
 
 /** Platform reviews for a venue (seeded in demo mode, from the server when live). */
 export const platformReviews = (salonId: string | undefined): Review[] =>
-  !salonId ? [] : isLive ? (useCatalogue.getState().reviews[salonId] ?? []) : seedReviews.filter((r) => r.salonId === salonId);
+  !salonId
+    ? []
+    : isLive
+      ? (useCatalogue.getState().reviews[salonId] ?? [])
+      : seedReviews.filter((r) => r.salonId === salonId);

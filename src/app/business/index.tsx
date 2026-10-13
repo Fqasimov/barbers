@@ -7,6 +7,7 @@ import {
   Clock,
   Hourglass,
   LogOut,
+  MessageSquareText,
   Scissors,
   Store,
   Users,
@@ -120,7 +121,9 @@ export default function BusinessDashboard() {
                     {i18n.t('trialDaysLeft', { days: i18n.n(daysLeft, 'day') })}
                   </Text>
                   <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-                    <View style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]} />
+                    <View
+                      style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]}
+                    />
                   </View>
                   <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
                     {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })}
@@ -198,7 +201,10 @@ export default function BusinessDashboard() {
                   accessibilityRole="button"
                   accessibilityState={{ checked: done }}
                   accessibilityLabel={label}
-                  style={[styles.row, i < setup.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
+                  style={[
+                    styles.row,
+                    i < setup.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
+                  ]}
                 >
                   {done ? (
                     <CheckCircle2 size={22} color={c.success} strokeWidth={2} />
@@ -242,6 +248,11 @@ export default function BusinessDashboard() {
             title={i18n.t('photosTitle')}
             detail={photos.length ? String(photos.length) : undefined}
             onPress={() => router.push('/business/photos')}
+          />
+          <MenuRow
+            icon={MessageSquareText}
+            title={i18n.t('reviewsTitle')}
+            onPress={() => router.push('/business/reviews')}
           />
           <MenuRow icon={Store} title={i18n.t('detailsTitle')} onPress={() => router.push('/business/details')} last />
         </Card>

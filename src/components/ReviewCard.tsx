@@ -1,4 +1,4 @@
-import { BadgeCheck } from 'lucide-react-native';
+import { BadgeCheck, Flag } from 'lucide-react-native';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius } from '@/theme/tokens';
 
 import { Avatar } from './ui/Avatar';
+import { PressableScale } from './ui/PressableScale';
 import { Stars } from './ui/Stars';
 import { Text } from './ui/Text';
 
@@ -19,10 +20,16 @@ export const ReviewCard = memo(function ReviewCard({
   review,
   salon,
   last,
+  onReport,
+  children,
 }: {
   review: Review;
   salon?: Salon;
   last?: boolean;
+  /** Shown for other people's reviews: opens the report sheet. */
+  onReport?: (review: Review) => void;
+  /** Extra controls under the review (the salon's reply tools). */
+  children?: React.ReactNode;
 }) {
   const { c } = useTheme();
   const i18n = useI18n();
@@ -63,7 +70,34 @@ export const ReviewCard = memo(function ReviewCard({
             </Text>
           </View>
         ))}
+        {onReport && !review.mine ? (
+          <PressableScale
+            onPress={() => onReport(review)}
+            haptic="light"
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={`${i18n.t('report')}: ${review.author}`}
+            style={styles.report}
+          >
+            <Flag size={13} color={c.inkMuted} strokeWidth={2} />
+            <Text variant="caption" tone="muted">
+              {i18n.t('report')}
+            </Text>
+          </PressableScale>
+        ) : null}
       </View>
+      {review.reply ? (
+        <View style={[styles.reply, { backgroundColor: c.sunken }]}>
+          <Text variant="captionStrong">
+            {i18n.t('salonReply')}
+            {salon ? ` · ${salon.name}` : ''}
+          </Text>
+          <Text variant="subhead" style={{ marginTop: 4 }}>
+            {review.reply}
+          </Text>
+        </View>
+      ) : null}
+      {children}
     </View>
   );
 });
@@ -113,6 +147,8 @@ const styles = StyleSheet.create({
   foot: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 10 },
   verified: { flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 4 },
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
+  report: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' },
+  reply: { marginTop: 12, padding: 12, borderRadius: radius.md },
   summary: { flexDirection: 'row', alignItems: 'center', gap: 28 },
   barRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   track: { flex: 1, height: 5, borderRadius: 3, overflow: 'hidden' },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\Iso;
 use Illuminate\Http\Request;
 
 /** The salon's view: the booking plus the client. @mixin \App\Models\Booking */
@@ -11,10 +12,15 @@ class BusinessBookingResource extends BookingResource
     {
         $user = $this->user;
 
+        $byHand = $this->source === 'salon';
+
         return parent::toArray($request) + [
+            'kind' => $this->kind,
+            'source' => $this->source,
+            'end' => Iso::ts($this->end_at),
             'client' => [
-                'name' => $user ? $user->fullName() : 'Deleted user',
-                'phone' => $user?->phone ?? '',
+                'name' => $byHand ? (string) $this->client_name : ($user ? $user->fullName() : 'Deleted user'),
+                'phone' => $byHand ? (string) $this->client_phone : ($user?->phone ?? ''),
             ],
         ];
     }

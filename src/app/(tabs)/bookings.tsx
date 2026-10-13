@@ -53,7 +53,7 @@ export default function BookingsScreen() {
         .filter((b) => b.status === 'upcoming' && bookingEnd(b) > now)
         .sort((a, b) => a.start.localeCompare(b.start)),
       past: bookings
-        .filter((b) => b.status === 'cancelled' || bookingEnd(b) <= now)
+        .filter((b) => b.status !== 'upcoming' || bookingEnd(b) <= now)
         .sort((a, b) => b.start.localeCompare(a.start)),
     }),
     [bookings, now],
@@ -118,6 +118,7 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const master = salon.masters.find((m) => m.id === booking.masterId);
   const services = salon.services.filter((s) => booking.serviceIds.includes(s.id));
   const cancelled = booking.status === 'cancelled';
+  const noShow = booking.status === 'no_show';
   const serviceNames = services.map((s) => i18n.tx(s.name)).join(' + ');
 
   const cancel = () => {
@@ -139,10 +140,18 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
       i18n.t('waMessage', { day: i18n.relativeDay(start), time: fmtClock(startMin), services: serviceNames }),
     );
 
-  const status = cancelled ? i18n.t('cancelled') : past ? i18n.t('completed') : i18n.relativeDay(start);
+  const status = cancelled
+    ? booking.cancelledBy === 'salon'
+      ? i18n.t('cancelledBySalon')
+      : i18n.t('cancelled')
+    : noShow
+      ? i18n.t('noShow')
+      : past
+        ? i18n.t('completed')
+        : i18n.relativeDay(start);
 
   return (
-    <View style={[styles.card, { backgroundColor: c.surface, opacity: cancelled ? 0.6 : 1 }, shadow(c, 1)]}>
+    <View style={[styles.card, { backgroundColor: c.surface, opacity: cancelled || noShow ? 0.6 : 1 }, shadow(c, 1)]}>
       <PressableScale
         onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
         scaleTo={0.99}
@@ -161,7 +170,10 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
           </Text>
         </View>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text variant="captionStrong" style={{ color: cancelled ? c.danger : past ? c.inkMuted : c.success }}>
+          <Text
+            variant="captionStrong"
+            style={{ color: cancelled || noShow ? c.danger : past ? c.inkMuted : c.success }}
+          >
             {status}
           </Text>
           <Text variant="headline" numberOfLines={1}>
@@ -195,7 +207,7 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
         <View style={styles.actions}>
           {past ? (
             <>
-              {booking.reviewed ? (
+              {noShow ? null : booking.reviewed ? (
                 <Text variant="caption" tone="soft" style={{ flex: 1 }}>
                   {i18n.t('thanksReviewed')}
                 </Text>

@@ -47,7 +47,12 @@ export default function ReviewsScreen() {
         keyExtractor={(r) => r.id}
         renderItem={({ item, index }) => (
           <View style={{ paddingHorizontal: gutter }}>
-            <ReviewCard review={item} salon={salon} last={index === shown.length - 1} />
+            <ReviewCard
+              review={item}
+              salon={salon}
+              last={index === shown.length - 1}
+              onReport={(r) => router.push({ pathname: '/report/[id]', params: { id: r.id } })}
+            />
           </View>
         )}
         contentContainerStyle={{ paddingBottom: insets.bottom + (reviewable ? 100 : 32) }}

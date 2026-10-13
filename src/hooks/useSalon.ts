@@ -21,6 +21,7 @@ export function useSalonReviews(salonId: string | undefined): Review[] {
   const mine = useStore((s) => s.reviews);
   const server = useCatalogue((s) => (salonId ? s.reviews[salonId] : undefined));
   const loadReviews = useCatalogue((s) => s.loadReviews);
+  const hidden = useStore((s) => s.hiddenReviews);
   useEffect(() => {
     if (isLive && salonId) void loadReviews(salonId);
   }, [salonId, loadReviews]);
@@ -28,8 +29,8 @@ export function useSalonReviews(salonId: string | undefined): Review[] {
     const platform = server ?? platformReviews(salonId);
     const ids = new Set(platform.map((r) => r.id));
     const own = mine.filter((r) => r.salonId === salonId && !ids.has(r.id));
-    return [...own, ...platform].sort((a, b) => b.date.localeCompare(a.date));
-  }, [mine, server, salonId]);
+    return [...own, ...platform].filter((r) => !hidden.includes(r.id)).sort((a, b) => b.date.localeCompare(a.date));
+  }, [mine, server, salonId, hidden]);
 }
 
 export function useLiveRating(salon: Salon | undefined) {

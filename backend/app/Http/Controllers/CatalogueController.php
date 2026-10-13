@@ -53,7 +53,7 @@ class CatalogueController extends Controller
         $salon = Business::query()->listable()->find($id) ?? throw ApiException::notFound('Salon not found.');
         $page = (int) ($data['page'] ?? 1);
         $per = 30;
-        $rows = Review::query()->where('business_id', $salon->id)
+        $rows = Review::query()->visible()->where('business_id', $salon->id)
             ->orderByDesc('created_at')->orderByDesc('id')
             ->offset(($page - 1) * $per)->limit($per + 1)->get();
 
@@ -152,7 +152,7 @@ class CatalogueController extends Controller
         return response()->json($out);
     }
 
-    /** Booked time per master (upcoming bookings only, no client details). */
+    /** Booked time per master: upcoming bookings and the salon's time off, no client details. */
     public function busy(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -172,11 +172,12 @@ class CatalogueController extends Controller
         $payload = Cache::remember($key, 30, function () use ($from, $days, $salonIds) {
             $salons = Business::query()->listable()->when($salonIds !== null, fn ($q) => $q->whereIn('id', $salonIds))->pluck('id');
 
+            // Anything overlapping the window, so time off that began earlier still counts.
             return Booking::query()
                 ->whereIn('business_id', $salons)
                 ->where('status', Booking::UPCOMING)
-                ->where('start_at', '>=', $from->utc())
                 ->where('start_at', '<', $from->addDays($days)->utc())
+                ->where('end_at', '>', $from->utc())
                 ->orderBy('start_at')
                 ->get(['master_id', 'start_at', 'end_at'])
                 ->map(fn (Booking $b) => [

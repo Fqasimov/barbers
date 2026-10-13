@@ -29,14 +29,46 @@ class BusinessBookingController extends Controller
             throw ValidationException::withMessages(['to' => ['The end date must not be before the start date.']]);
         }
 
+        // Overlapping the range, so time off that began earlier still shows.
         $rows = Booking::query()->where('business_id', $this->business($request)->id)
-            ->where('start_at', '>=', $from->utc())
             ->where('start_at', '<', $to->addDay()->utc())
+            ->where('end_at', '>', $from->utc())
             ->when($data['status'] ?? null, fn ($q, $s) => $q->where('status', $s))
             ->with('user')->withExists('review')
             ->orderBy('start_at')->limit(2000)->get();
 
         return response()->json(BusinessBookingResource::collection($rows)->resolve($request));
+    }
+
+    /** A phone call or walk-in. */
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'master_id' => ['required', 'string', 'max:64'],
+            'service_ids' => ['required', 'array', 'min:1', 'max:10'],
+            'service_ids.*' => ['string', 'max:64'],
+            'start' => ['required', 'date'],
+            'client_name' => ['required', 'string', 'max:80'],
+            'client_phone' => ['nullable', 'string', 'max:20', 'regex:/^[+\d\s()-]{7,20}$/'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+        $booking = $this->bookings->createBySalon($this->business($request), $data);
+
+        return $this->show($request, $booking)->setStatusCode(201);
+    }
+
+    /** Time off for one master (master_id) or the whole salon (no master_id). */
+    public function block(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'master_id' => ['nullable', 'string', 'max:64'],
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
+            'note' => ['nullable', 'string', 'max:200'],
+        ]);
+        $rows = $this->bookings->block($this->business($request), $data);
+
+        return response()->json(BusinessBookingResource::collection(collect($rows))->resolve($request), 201);
     }
 
     public function cancel(Request $request, string $id): JsonResponse
@@ -50,6 +82,7 @@ class BusinessBookingController extends Controller
     public function complete(Request $request, string $id): JsonResponse
     {
         $booking = $this->owned($request, Booking::class, $id);
+        $this->visitOnly($booking);
         if ($booking->status !== Booking::COMPLETED) {
             if ($booking->status !== Booking::UPCOMING) {
                 throw ValidationException::withMessages(['status' => ['Only upcoming bookings can be marked as done.']]);
@@ -63,6 +96,7 @@ class BusinessBookingController extends Controller
     public function noShow(Request $request, string $id): JsonResponse
     {
         $booking = $this->owned($request, Booking::class, $id);
+        $this->visitOnly($booking);
         if ($booking->status !== Booking::NO_SHOW) {
             if (! in_array($booking->status, [Booking::UPCOMING, Booking::COMPLETED], true)) {
                 throw ValidationException::withMessages(['status' => ['A cancelled booking can’t be marked as a no-show.']]);
@@ -74,6 +108,13 @@ class BusinessBookingController extends Controller
         }
 
         return $this->show($request, $booking);
+    }
+
+    private function visitOnly(Booking $booking): void
+    {
+        if ($booking->isBlock()) {
+            throw ValidationException::withMessages(['status' => ['Time off can only be removed.']]);
+        }
     }
 
     private function show(Request $request, Booking $booking): JsonResponse

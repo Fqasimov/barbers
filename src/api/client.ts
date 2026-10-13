@@ -34,6 +34,7 @@ const KNOWN: AuthErrorCode[] = [
   'not_found',
   'session_expired',
   'slot_taken',
+  'overlaps_bookings',
   'too_late_to_cancel',
   'not_reviewable',
   'forbidden',
@@ -58,7 +59,13 @@ function queryString(query?: Record<string, string | number | string[] | undefin
 export async function request<T>(
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
-  opts: { body?: Json | FormData; token?: string; query?: Record<string, string | number | string[] | undefined> } = {},
+  opts: {
+    body?: Json | FormData;
+    token?: string;
+    query?: Record<string, string | number | string[] | undefined>;
+    /** Skip the HTTP cache (public GETs are cacheable for a minute). */
+    fresh?: boolean;
+  } = {},
 ): Promise<T> {
   if (!API_URL) throw new AuthError('network');
   const form = opts.body instanceof FormData;
@@ -69,6 +76,7 @@ export async function request<T>(
     res = await fetch(`${API_URL}/api${path}${queryString(opts.query)}`, {
       method,
       signal: controller.signal,
+      ...(opts.fresh ? { cache: 'no-store' as const } : {}),
       headers: {
         Accept: 'application/json',
         ...(form || !opts.body ? {} : { 'Content-Type': 'application/json' }),

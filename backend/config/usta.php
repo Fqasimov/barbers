@@ -27,6 +27,14 @@ return [
 
     'bookings' => [
         'cancel_until_hours' => 2,
+        // Bookings and time off the salon adds itself (phone calls, walk-ins, holidays).
+        'salon_days_ahead' => 90,
+        'block_max_days' => 31,
+    ],
+
+    'reviews' => [
+        // A review is hidden until checked once this many people report it.
+        'auto_hide_reports' => 3,
     ],
 
     'otp' => [

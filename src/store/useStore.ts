@@ -31,6 +31,8 @@ type State = {
   authPrompted: boolean;
   /** Hide venues that don't serve the signed-in user's gender. */
   forMe: boolean;
+  /** Reviews this person reported; they stop seeing them right away. */
+  hiddenReviews: string[];
   demoSeeded: boolean;
   hydrated: boolean;
 };
@@ -55,6 +57,7 @@ type Actions = {
   setName: (name: string) => void;
   setAuthPrompted: () => void;
   setForMe: (on: boolean) => void;
+  hideReview: (id: string) => void;
 };
 
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
@@ -103,6 +106,7 @@ export const useStore = create<State & Actions>()(
       name: '',
       authPrompted: false,
       forMe: true,
+      hiddenReviews: [],
       demoSeeded: false,
       hydrated: false,
 
@@ -196,6 +200,8 @@ export const useStore = create<State & Actions>()(
       setName: (name) => set({ name }),
       setAuthPrompted: () => set({ authPrompted: true }),
       setForMe: (forMe) => set({ forMe }),
+      hideReview: (id) =>
+        set((s) => ({ hiddenReviews: s.hiddenReviews.includes(id) ? s.hiddenReviews : [...s.hiddenReviews, id] })),
     }),
     {
       name: 'usta-store-v2',
