@@ -74,7 +74,8 @@
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/promo",
-      "<rootDir>/backend"
+      "<rootDir>/backend",
+      "<rootDir>/web"
     ],
     "setupFiles": [
       "./jest.setup.js"

@@ -3,7 +3,7 @@ const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-// The Remotion promo and the Laravel backend are separate projects — keep Metro out of them.
-config.resolver.blockList = [/\/promo\/.*/, /\/backend\/.*/];
+// The Remotion promo, the Laravel backend and the website are separate projects — keep Metro out of them.
+config.resolver.blockList = [/\/promo\/.*/, /\/backend\/.*/, /\/web\/.*/];
 
 module.exports = config;
