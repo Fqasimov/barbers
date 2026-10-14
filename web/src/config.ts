@@ -5,6 +5,7 @@ export type SiteConfig = {
   playStoreUrl: string;
   supportEmail: string;
   company: { name: string; voen: string; address: string };
+  /** Raster tiles; leave light empty to draw the bundled Baku coastline instead (offline previews). */
   tiles: { light: string; dark: string; attribution: string };
   /** Show sample salons and figures. Defaults to on for localhost and ?demo, off elsewhere. */
   demo?: boolean;
@@ -34,6 +35,12 @@ export const config: SiteConfig = {
 };
 
 export const isLive = !!config.apiUrl;
+
+/** A file shipped with the site, relative to where it's served (Vite's `base`). */
+export const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+/** A text page (privacy, terms, help). Some hosts don't serve a folder's index.html, so builds can ask for the file. */
+export const page = (name: string) =>
+  `${import.meta.env.BASE_URL}${name}/${import.meta.env.VITE_PAGE_INDEX ? 'index.html' : ''}`;
 
 const localHost = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 /**

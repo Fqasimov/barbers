@@ -4,7 +4,7 @@ import type { LatLngExpression, Map as LeafletMap, Marker } from 'leaflet';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { loadReviews, loadVenues, type Venue, type VenueReview } from '../api';
-import { config } from '../config';
+import { asset, config } from '../config';
 import { categories, type CategoryId } from '../i18n';
 import { useI18n } from '../lang';
 import { SectionHead } from './ui';
@@ -218,12 +218,25 @@ export function PartnersMap() {
     void import('leaflet').then(({ default: L }) => {
       if (cancelled || !canvas.current) return;
       const m = L.map(canvas.current, { center: BAKU, zoom: 12, scrollWheelZoom: false });
-      L.tileLayer(prefersDark() ? config.tiles.dark : config.tiles.light, {
-        attribution: config.tiles.attribution,
-        maxZoom: 19,
-        subdomains: 'abcd',
-        detectRetina: true,
-      }).addTo(m);
+      if (config.tiles.light) {
+        L.tileLayer(prefersDark() ? config.tiles.dark : config.tiles.light, {
+          attribution: config.tiles.attribution,
+          maxZoom: 19,
+          subdomains: 'abcd',
+          detectRetina: true,
+        }).addTo(m);
+      } else {
+        // No tile server (an offline preview): draw the Absheron coastline from Natural Earth instead.
+        canvas.current.classList.add('map-plain');
+        m.attributionControl.addAttribution('Coastline: Natural Earth');
+        void fetch(asset('data/baku-land.json'))
+          .then((r) => r.json())
+          .then((land) => {
+            if (cancelled) return;
+            L.geoJSON(land, { interactive: false, style: { className: 'land', weight: 1, fillOpacity: 1 } }).addTo(m);
+          })
+          .catch(() => undefined);
+      }
       // The page scrolls past the map until someone clicks into it.
       m.on('click', () => {
         m.scrollWheelZoom.enable();

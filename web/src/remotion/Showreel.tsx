@@ -3,6 +3,7 @@ import { AbsoluteFill, interpolate, OffthreadVideo, Sequence, useCurrentFrame } 
 import find from '../../public/rec/find.json';
 import home from '../../public/rec/home.json';
 import map from '../../public/rec/map.json';
+import { asset } from '../config';
 import { clamp, ease } from './theme';
 
 /** Real recordings of the app (the promo's takes), at the phone's point size. */
@@ -59,7 +60,7 @@ function Clip({ take }: { take: Take }) {
   const fadeIn = interpolate(frame, [0, FADE], [0, 1], clamp);
   return (
     <AbsoluteFill style={{ opacity: fadeIn }}>
-      <OffthreadVideo src={`/rec/${take.name}.${EXT}`} muted style={{ width: SCREEN.w, height: SCREEN.h }} />
+      <OffthreadVideo src={asset(`rec/${take.name}.${EXT}`)} muted style={{ width: SCREEN.w, height: SCREEN.h }} />
       {take.events
         .filter((e) => !e.drag)
         .map((e) => (

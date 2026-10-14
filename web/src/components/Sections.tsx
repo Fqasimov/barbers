@@ -1,4 +1,4 @@
-import { config } from '../config';
+import { config, page } from '../config';
 import type { Key } from '../i18n';
 import { useI18n } from '../lang';
 import { SectionHead, Stores, Wordmark } from './ui';
@@ -116,7 +116,7 @@ export function Faq() {
               <p>{t(a)}</p>
             </details>
           ))}
-          <a className="hero-link" href="/help/">
+          <a className="hero-link" href={page('help')}>
             {t('faqMore')}
           </a>
         </div>
@@ -156,9 +156,9 @@ export function Footer() {
           {legal ? <p className="muted foot-company">{legal}</p> : null}
         </div>
         <nav className="foot-links" aria-label="Footer">
-          <a href="/privacy/">{t('footPrivacy')}</a>
-          <a href="/terms/">{t('footTerms')}</a>
-          <a href="/help/">{t('footHelp')}</a>
+          <a href={page('privacy')}>{t('footPrivacy')}</a>
+          <a href={page('terms')}>{t('footTerms')}</a>
+          <a href={page('help')}>{t('footHelp')}</a>
           <a href={`mailto:${config.supportEmail}`}>{t('footContact')}</a>
         </nav>
         <p className="muted foot-rights">{t('footRights', { year: new Date().getFullYear() })}</p>

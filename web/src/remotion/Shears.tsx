@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'react';
 
+import { asset } from '../config';
+
 /** 13 rendered frames of steel shears, 0° (shut) to 30° (open): the app's splash art. */
 export const SHEAR_FRAMES = 13;
 export const SHEARS_ASPECT = 617 / 840;
-export const shearSrc = (i: number) => `/shears/shears-${String(i).padStart(2, '0')}.webp`;
+export const shearSrc = (i: number) => asset(`shears/shears-${String(i).padStart(2, '0')}.webp`);
 
 /**
  * `open` runs 0 (shut) to 1 (wide open). Every frame stays mounted so none pops in late.

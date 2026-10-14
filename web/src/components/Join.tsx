@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
-import { isLive } from '../config';
+import { isLive, page } from '../config';
 import { categories, plans, type CategoryId, type Key, type Plan } from '../i18n';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
@@ -155,7 +155,7 @@ function withLinks(s: string) {
   return s.split(/(\[[^\]]+\]\([^)]+\))/).map((part, i) => {
     const m = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);
     return m ? (
-      <a key={i} href={m[2]} target="_blank" rel="noopener">
+      <a key={i} href={m[2].startsWith('/') ? page(m[2].replace(/\//g, '')) : m[2]} target="_blank" rel="noopener">
         {m[1]}
       </a>
     ) : (

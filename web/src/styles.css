@@ -31,6 +31,8 @@
   --band-ink: #f4f0ea;
   --band-soft: #b3ab9f;
   --band-line: rgba(244, 240, 234, 0.14);
+  --sea: #dfe4e3;
+  --land: #f8f5f0;
   --shadow: 0 1px 2px rgba(42, 32, 21, 0.05), 0 3px 10px rgba(42, 32, 21, 0.06);
   --shadow-lg: 0 2px 6px rgba(42, 32, 21, 0.06), 0 10px 22px rgba(42, 32, 21, 0.12);
 
@@ -53,8 +55,9 @@
   color-scheme: light;
 }
 
+/* Dark: follows the system unless the page is told otherwise (data-theme on the root, e.g. a viewer's setting). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #0f0e0d;
     --surface: #1a1816;
     --sunken: #25221f;
@@ -74,7 +77,32 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.5), 0 10px 22px rgba(0, 0, 0, 0.45);
     color-scheme: dark;
+    --sea: #172022;
+    --land: #24211e;
   }
+}
+:root[data-theme='dark'] {
+  --bg: #0f0e0d;
+  --surface: #1a1816;
+  --sunken: #25221f;
+  --ink: #f4f0ea;
+  --ink-soft: #b3ab9f;
+  --ink-muted: #958d82;
+  --line: #2b2724;
+  --line-strong: #3a3531;
+  --accent: #f2697b;
+  --accent-soft: #3a1d22;
+  --on-ink: #141210;
+  --success: #6fc394;
+  --success-soft: #17271f;
+  --danger: #f2697b;
+  --star: #f7c948;
+  --band: #1a1816;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.5), 0 10px 22px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+  --sea: #172022;
+  --land: #24211e;
 }
 
 *,
@@ -273,7 +301,7 @@ input {
 }
 .nav {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 40;
   background: color-mix(in srgb, var(--bg) 84%, transparent);
   backdrop-filter: saturate(1.4) blur(14px);
@@ -1166,6 +1194,14 @@ a.store:active,
 .leaflet-container {
   font-family: var(--font);
   background: var(--sunken);
+}
+/* Without tiles: sea and land in the site's own colours. */
+.map-plain.leaflet-container {
+  background: var(--sea);
+}
+.map-plain .land {
+  fill: var(--land);
+  stroke: var(--line-strong);
 }
 .leaflet-control-attribution {
   font-size: 11px;

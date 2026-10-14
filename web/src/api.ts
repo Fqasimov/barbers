@@ -1,4 +1,4 @@
-import { config, isDemo } from './config';
+import { asset, config, isDemo } from './config';
 import type { CategoryId, Key, Loc } from './i18n';
 
 /** Errors the site knows how to explain; anything else reads as "something went wrong". */
@@ -116,7 +116,7 @@ type DemoData = {
 };
 
 let demoData: Promise<DemoData> | null = null;
-const demo = () => (demoData ??= fetch('/data/demo.json').then((r) => r.json() as Promise<DemoData>));
+const demo = () => (demoData ??= fetch(asset('data/demo.json')).then((r) => r.json() as Promise<DemoData>));
 
 type ApiSalon = {
   id: string;

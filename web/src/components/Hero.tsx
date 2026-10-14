@@ -1,6 +1,7 @@
 import { Player, type PlayerRef } from '@remotion/player';
 import { useEffect, useRef, useState } from 'react';
 
+import { asset } from '../config';
 import { useI18n } from '../lang';
 import { REEL_FPS, REEL_FRAMES, SCREEN, Showreel } from '../remotion/Showreel';
 import { Stores } from './ui';
@@ -34,7 +35,7 @@ function LiveScreen({ alt }: { alt: string }) {
   return (
     <div ref={box} className="screen" role="img" aria-label={alt}>
       {still ? (
-        <img src="/img/app-home.webp" alt="" width={390} height={844} />
+        <img src={asset('img/app-home.webp')} alt="" width={390} height={844} />
       ) : (
         <Player
           ref={ref}
@@ -51,7 +52,7 @@ function LiveScreen({ alt }: { alt: string }) {
           doubleClickToFullscreen={false}
           spaceKeyToPlayOrPause={false}
           numberOfSharedAudioTags={0}
-          renderPoster={() => <img className="poster" src="/img/reel-poster.webp" alt="" />}
+          renderPoster={() => <img className="poster" src={asset('img/reel-poster.webp')} alt="" />}
           showPosterWhenUnplayed
           acknowledgeRemotionLicense
         />
@@ -84,7 +85,7 @@ export function Hero() {
         <div className="hero-art reveal">
           <figure className="phone phone-back" aria-hidden="true">
             <div className="screen">
-              <img src="/img/app-salon.webp" alt="" width={390} height={844} />
+              <img src={asset('img/app-salon.webp')} alt="" width={390} height={844} />
             </div>
           </figure>
           <figure className="phone phone-front">
