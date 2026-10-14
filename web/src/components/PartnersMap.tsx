@@ -56,7 +56,8 @@ function Reviews({ id }: { id: string }) {
       alive = false;
     };
   }, [id]);
-  const date = (iso: string) => new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(new Date(iso));
+  const date = (iso: string) =>
+    new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(new Date(iso));
 
   return (
     <div className="mc-reviews">
@@ -236,7 +237,12 @@ export function PartnersMap() {
           html: `<span class="pin-body"><span class="star">★</span>${v.rating.toFixed(1)}</span>`,
           iconSize: [0, 0],
         });
-        const mk = L.marker([v.coords.latitude, v.coords.longitude], { icon, keyboard: true, title: v.name, riseOnHover: true })
+        const mk = L.marker([v.coords.latitude, v.coords.longitude], {
+          icon,
+          keyboard: true,
+          title: v.name,
+          riseOnHover: true,
+        })
           .addTo(m)
           .on('mouseover', () => !coarse() && show(v, false))
           .on('mouseout', () => !coarse() && hide())
@@ -365,7 +371,10 @@ export function PartnersMap() {
                 .map((v) => (
                   <li key={v.id}>
                     <button type="button" className="list-item" onClick={() => focusVenue(v)}>
-                      <strong>{v.name}</strong> <span>· {v.district} · ★ {num(v.rating, 1)}</span>
+                      <strong>{v.name}</strong>{' '}
+                      <span>
+                        · {v.district} · ★ {num(v.rating, 1)}
+                      </span>
                     </button>
                   </li>
                 ))}

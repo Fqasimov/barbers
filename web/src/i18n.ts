@@ -92,12 +92,24 @@ export const dict = {
     ru: 'На азербайджанском, русском и английском',
     en: 'In Azerbaijani, Russian and English',
   },
-  aboutFact2: { az: 'Müştərilər üçün həmişə pulsuz', ru: 'Для клиентов всегда бесплатно', en: 'Always free for clients' },
-  aboutFact3: { az: 'Yerli komanda, yerli dəstək', ru: 'Местная команда и поддержка', en: 'A local team, local support' },
+  aboutFact2: {
+    az: 'Müştərilər üçün həmişə pulsuz',
+    ru: 'Для клиентов всегда бесплатно',
+    en: 'Always free for clients',
+  },
+  aboutFact3: {
+    az: 'Yerli komanda, yerli dəstək',
+    ru: 'Местная команда и поддержка',
+    en: 'A local team, local support',
+  },
 
   // Why
   whyKicker: { az: 'Niyə Usta', ru: 'Почему Usta', en: 'Why Usta' },
-  whyTitle: { az: 'Başqa platformalardan fərqimiz.', ru: 'Чем мы отличаемся от других.', en: 'What makes us different.' },
+  whyTitle: {
+    az: 'Başqa platformalardan fərqimiz.',
+    ru: 'Чем мы отличаемся от других.',
+    en: 'What makes us different.',
+  },
   whySub: {
     az: 'Bir çox yazılış xidməti salonu hər usta, hər növbə və hər klik üçün ödəməyə məcbur edir. Biz bunu fərqli qurduq.',
     ru: 'Многие сервисы записи берут с салона за каждого мастера, каждую запись и каждый клик. Мы устроили всё иначе.',
@@ -127,7 +139,11 @@ export const dict = {
     ru: 'Клиент платит в салоне, карта не нужна. Деньги сразу у вас.',
     en: 'Clients pay at the salon, no card required. The money goes straight to you.',
   },
-  why5Title: { az: 'Telefon zəngləri də təqvimdə', ru: 'Звонки тоже в календаре', en: 'Phone calls in the same calendar' },
+  why5Title: {
+    az: 'Telefon zəngləri də təqvimdə',
+    ru: 'Звонки тоже в календаре',
+    en: 'Phone calls in the same calendar',
+  },
   why5Body: {
     az: 'Zəngləri, birbaşa gələnləri və istirahət vaxtını yazın, eyni vaxt iki dəfə satılmasın.',
     ru: 'Записывайте звонки, клиентов без записи и нерабочее время, чтобы одно время не продавалось дважды.',
@@ -153,7 +169,11 @@ export const dict = {
 
   // Stats
   statsKicker: { az: 'Rəqəmlərlə', ru: 'В цифрах', en: 'In numbers' },
-  statsTitle: { az: 'Şəbəkəmiz hər gün böyüyür.', ru: 'Наша сеть растёт каждый день.', en: 'Our network grows every day.' },
+  statsTitle: {
+    az: 'Şəbəkəmiz hər gün böyüyür.',
+    ru: 'Наша сеть растёт каждый день.',
+    en: 'Our network grows every day.',
+  },
   statSalons: { az: 'Partnyor məkan', ru: 'Партнёрских мест', en: 'Partner places' },
   statMasters: { az: 'Usta', ru: 'Мастеров', en: 'Masters' },
   statBookings: { az: 'Edilmiş yazılış', ru: 'Записей сделано', en: 'Bookings made' },
@@ -204,7 +224,11 @@ export const dict = {
     ru: 'Барбершоп, салон красоты, ногтевая или бровная студия, спа, косметология — для всех одна простая регистрация.',
     en: 'Barbershops, beauty salons, nail and brow studios, spas, aesthetic clinics: one simple sign-up for all.',
   },
-  joinPoint1: { az: '30 gün pulsuz, kart lazım deyil', ru: '30 дней бесплатно, без карты', en: '30 days free, no card' },
+  joinPoint1: {
+    az: '30 gün pulsuz, kart lazım deyil',
+    ru: '30 дней бесплатно, без карты',
+    en: '30 days free, no card',
+  },
   joinPoint2: {
     az: 'Limitsiz usta, əlavə ödəniş yoxdur',
     ru: 'Мастера без ограничений и доплат',
@@ -294,7 +318,11 @@ export const dict = {
   afterTrial: { az: 'sınaqdan sonra', ru: 'после пробного периода', en: 'after the trial' },
   recommended: { az: 'Tövsiyə', ru: 'Рекомендуем', en: 'Popular' },
   soon: { az: 'tezliklə', ru: 'скоро', en: 'coming soon' },
-  startTrial: { az: '30 günlük pulsuz sınağa başla', ru: 'Начать 30 дней бесплатно', en: 'Start the 30-day free trial' },
+  startTrial: {
+    az: '30 günlük pulsuz sınağa başla',
+    ru: 'Начать 30 дней бесплатно',
+    en: 'Start the 30-day free trial',
+  },
   doneTitle: { az: 'Xoş gəldiniz, {name}!', ru: 'Добро пожаловать, {name}!', en: 'Welcome, {name}!' },
   doneBody: {
     az: '{salon} qeydə alındı və sınaq başladı. İndi tətbiqi yükləyin, eyni e-poçt və şifrə ilə daxil olun və xidmətləri, ustaları və şəkilləri əlavə edin. Bundan sonra salonu bir iş günü ərzində yoxlayırıq.',
@@ -310,15 +338,27 @@ export const dict = {
 
   // Errors
   errRequired: { az: 'Bu sahəni doldurun', ru: 'Заполните это поле', en: 'Fill in this field' },
-  errName: { az: 'Yalnız hərflər, 2–40 simvol', ru: 'Только буквы, 2–40 символов', en: 'Letters only, 2–40 characters' },
+  errName: {
+    az: 'Yalnız hərflər, 2–40 simvol',
+    ru: 'Только буквы, 2–40 символов',
+    en: 'Letters only, 2–40 characters',
+  },
   errPhone: {
     az: 'Azərbaycan mobil nömrəsi: 50 123 45 67',
     ru: 'Мобильный номер Азербайджана: 50 123 45 67',
     en: 'An Azerbaijani mobile number: 50 123 45 67',
   },
   errEmail: { az: 'Düzgün e-poçt ünvanı yazın', ru: 'Введите корректный e-mail', en: 'Enter a valid email' },
-  errPasswordLength: { az: 'Şifrə 8–64 simvol olmalıdır', ru: 'Пароль — от 8 до 64 символов', en: 'Use 8–64 characters' },
-  errPasswordMix: { az: 'Hərf və rəqəm birlikdə olmalıdır', ru: 'Нужны и буквы, и цифры', en: 'Use both letters and digits' },
+  errPasswordLength: {
+    az: 'Şifrə 8–64 simvol olmalıdır',
+    ru: 'Пароль — от 8 до 64 символов',
+    en: 'Use 8–64 characters',
+  },
+  errPasswordMix: {
+    az: 'Hərf və rəqəm birlikdə olmalıdır',
+    ru: 'Нужны и буквы, и цифры',
+    en: 'Use both letters and digits',
+  },
   errShort: { az: 'Ən azı 2 simvol', ru: 'Минимум 2 символа', en: 'At least 2 characters' },
   errCategories: { az: 'Ən azı birini seçin', ru: 'Выберите хотя бы одно', en: 'Pick at least one' },
   errCode: { az: 'Kodun 6 rəqəmini yazın', ru: 'Введите 6 цифр кода', en: 'Enter all 6 digits' },
@@ -343,7 +383,11 @@ export const dict = {
     ru: 'Подождите немного перед новым кодом',
     en: 'Wait a moment before asking for a new code',
   },
-  errNetwork: { az: 'Bağlantı yoxdur. Yenidən cəhd edin.', ru: 'Нет соединения. Попробуйте ещё раз.', en: 'No connection. Try again.' },
+  errNetwork: {
+    az: 'Bağlantı yoxdur. Yenidən cəhd edin.',
+    ru: 'Нет соединения. Попробуйте ещё раз.',
+    en: 'No connection. Try again.',
+  },
   errUnknown: {
     az: 'Nəsə alınmadı. Yenidən cəhd edin.',
     ru: 'Что-то пошло не так. Попробуйте ещё раз.',
@@ -356,11 +400,19 @@ export const dict = {
     ru: 'Следующая запись — в одно касание.',
     en: 'Your next booking is one tap away.',
   },
-  getSub: { az: 'iPhone və Android üçün pulsuz.', ru: 'Бесплатно для iPhone и Android.', en: 'Free for iPhone and Android.' },
+  getSub: {
+    az: 'iPhone və Android üçün pulsuz.',
+    ru: 'Бесплатно для iPhone и Android.',
+    en: 'Free for iPhone and Android.',
+  },
 
   // FAQ
   faqTitle: { az: 'Tez-tez verilən suallar', ru: 'Частые вопросы', en: 'Questions' },
-  faq1Q: { az: 'Usta müştərilər üçün pulludur?', ru: 'Usta платная для клиентов?', en: 'Does Usta cost clients anything?' },
+  faq1Q: {
+    az: 'Usta müştərilər üçün pulludur?',
+    ru: 'Usta платная для клиентов?',
+    en: 'Does Usta cost clients anything?',
+  },
   faq1A: {
     az: 'Xeyr. Xidmətin pulunu salonda ödəyirsiniz, tətbiq pulsuzdur.',
     ru: 'Нет. За услугу вы платите в салоне, приложение бесплатное.',
@@ -424,9 +476,17 @@ export const plans: Plan[] = [
     price: 29,
     blurb: { az: 'Kiçik salon və studiyalar', ru: 'Небольшие салоны и студии', en: 'Small salons and studios' },
     features: [
-      { az: 'Limitsiz usta, əlavə ödəniş yoxdur', ru: 'Мастера без ограничений и доплат', en: 'Unlimited masters, no per-seat fees' },
+      {
+        az: 'Limitsiz usta, əlavə ödəniş yoxdur',
+        ru: 'Мастера без ограничений и доплат',
+        en: 'Unlimited masters, no per-seat fees',
+      },
       { az: 'Onlayn növbə və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
-      { az: 'Telefonla yazılış və istirahət vaxtı', ru: 'Запись по телефону и нерабочее время', en: 'Phone bookings and time off' },
+      {
+        az: 'Telefonla yazılış və istirahət vaxtı',
+        ru: 'Запись по телефону и нерабочее время',
+        en: 'Phone bookings and time off',
+      },
       { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
       { az: 'Rəylərə cavab', ru: 'Ответы на отзывы', en: 'Reply to reviews' },
     ],
@@ -439,7 +499,12 @@ export const plans: Plan[] = [
     blurb: { az: 'Böyüyən salonlar üçün', ru: 'Для растущих салонов', en: 'For growing salons' },
     features: [
       { az: 'Start planındakı hər şey', ru: 'Всё из тарифа Start', en: 'Everything in Start' },
-      { az: 'Gəlməmə qorunması və depozit', ru: 'Защита от неявок и депозит', en: 'No-show protection and deposits', soon: true },
+      {
+        az: 'Gəlməmə qorunması və depozit',
+        ru: 'Защита от неявок и депозит',
+        en: 'No-show protection and deposits',
+        soon: true,
+      },
       { az: 'Gözləmə siyahısı', ru: 'Лист ожидания', en: 'Waitlist', soon: true },
       { az: 'Statistika', ru: 'Статистика', en: 'Insights', soon: true },
     ],
@@ -448,7 +513,11 @@ export const plans: Plan[] = [
     id: 'studio',
     name: 'Studio',
     price: 99,
-    blurb: { az: 'Bir neçə filial və böyük komandalar', ru: 'Несколько филиалов и большие команды', en: 'Several branches and large teams' },
+    blurb: {
+      az: 'Bir neçə filial və böyük komandalar',
+      ru: 'Несколько филиалов и большие команды',
+      en: 'Several branches and large teams',
+    },
     features: [
       { az: 'Pro planındakı hər şey', ru: 'Всё из тарифа Pro', en: 'Everything in Pro' },
       { az: 'Limitsiz filial', ru: 'Филиалы без ограничений', en: 'Unlimited branches', soon: true },

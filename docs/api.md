@@ -138,6 +138,7 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
 | GET | `/salons/{id}/availability` | `service_ids[]`, `from` (date), `days` (1–14, default 7), `master_id?` | `200 { masters: [{ master_id, days: [{ date, off, slots: [minutes] }] }] }` | See "Availability". Without `master_id`, every master who does all the services. |
 | GET | `/slots` | `service_key`, `date`, `from_min?`, `to_min?` | `200 [{ salon_id, master_id, service_id, start: minutes }]` | City-wide free-slot search: every live salon's earliest start for that service on that date, within the time window. |
 | GET | `/busy` | `from` (date, default today), `days` (1–14, default 7), `salon_ids[]?` | `200 [{ master_id, start: ISO, end: ISO }]` | Time each master is already booked: `upcoming` bookings and the salon's time off, anything overlapping the window (time off can run for days; the app splits it per day). No client details. The app computes free slots from this with the same rules as "Availability", so lists, search and compare work offline-first. Without `salon_ids`, every live salon. Cache for 30 s. |
+| GET | `/stats` | — | `200 { salons, masters, districts, bookings, clients, reviews, average_rating, updated_at }` | Public figures for the website: listed salons only; `bookings` and `clients` count app bookings (not salon-entered ones or time off). Cached for 10 minutes. |
 | GET | `/plans` | — | `200 [Plan]` | Prices in AZN per month. The app shows these on Android; see "Payments". |
 
 ### Availability

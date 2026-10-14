@@ -50,7 +50,21 @@ const OWNER_FIELDS: (keyof Owner)[] = ['first_name', 'last_name', 'phone', 'emai
 const STEPS: Key[] = ['stepOwner', 'stepSalon', 'stepCode', 'stepPlan'];
 const EMPTY_OWNER: Owner = { first_name: '', last_name: '', phone: '', email: '', password: '' };
 const EMPTY_SALON: Salon = { salon_name: '', categories: [], audience: 'all', district: '', address: '' };
-const DISTRICTS = ['Binəqədi', 'Xətai', 'Xəzər', 'Qaradağ', 'Nərimanov', 'Nəsimi', 'Nizami', 'Pirallahı', 'Sabunçu', 'Səbail', 'Suraxanı', 'Yasamal', 'İçərişəhər'];
+const DISTRICTS = [
+  'Binəqədi',
+  'Xətai',
+  'Xəzər',
+  'Qaradağ',
+  'Nərimanov',
+  'Nəsimi',
+  'Nizami',
+  'Pirallahı',
+  'Sabunçu',
+  'Səbail',
+  'Suraxanı',
+  'Yasamal',
+  'İçərişəhər',
+];
 const demoChallenge = (email: string): Challenge => ({
   email,
   resend_at: new Date(Date.now() + 60_000).toISOString(),
@@ -60,7 +74,19 @@ const demoChallenge = (email: string): Challenge => ({
 const checkOwner = (o: Owner, k: keyof Owner): Key | null =>
   k === 'first_name' || k === 'last_name' ? checks.name(o[k]) : checks[k](o[k]);
 
-function Field({ id, label, error, hint, children }: { id: string; label: string; error?: string; hint?: string; children: ReactNode }) {
+function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  children: ReactNode;
+}) {
   return (
     <div className={`field${error ? ' invalid' : ''}`}>
       <label htmlFor={id}>{label}</label>
@@ -245,9 +271,7 @@ export function Join() {
     setFormError(null);
     try {
       const body = { ...owner, phone: `+994${digits(owner.phone)}`, email: owner.email.trim(), ...salon };
-      const ch = isLive
-        ? await request<Challenge>('POST', '/business/register', { body })
-        : demoChallenge(body.email);
+      const ch = isLive ? await request<Challenge>('POST', '/business/register', { body }) : demoChallenge(body.email);
       setChallenge(ch);
       setCode('');
       lastTried.current = '';
@@ -302,7 +326,9 @@ export function Join() {
     setFormError(null);
     try {
       const ch = isLive
-        ? await request<Challenge>('POST', '/auth/otp/resend', { body: { email: challenge.email, purpose: 'register' } })
+        ? await request<Challenge>('POST', '/auth/otp/resend', {
+            body: { email: challenge.email, purpose: 'register' },
+          })
         : demoChallenge(challenge.email);
       setChallenge(ch);
       setNow(Date.now());
@@ -401,7 +427,13 @@ export function Join() {
             <form className="step" onSubmit={submitOwner} noValidate key="s1">
               <div className="pair">
                 <Field id="first_name" label={t('fFirst')} error={errors.first_name}>
-                  <input {...ownerInput('first_name', { autoComplete: 'given-name', maxLength: 40, 'data-step-focus': true })} />
+                  <input
+                    {...ownerInput('first_name', {
+                      autoComplete: 'given-name',
+                      maxLength: 40,
+                      'data-step-focus': true,
+                    })}
+                  />
                 </Field>
                 <Field id="last_name" label={t('fLast')} error={errors.last_name}>
                   <input {...ownerInput('last_name', { autoComplete: 'family-name', maxLength: 40 })} />
@@ -427,7 +459,11 @@ export function Join() {
               <Field id="password" label={t('fPassword')} error={errors.password} hint={t('fPasswordHint')}>
                 <div className="pw">
                   <input
-                    {...ownerInput('password', { type: showPw ? 'text' : 'password', autoComplete: 'new-password', maxLength: 64 })}
+                    {...ownerInput('password', {
+                      type: showPw ? 'text' : 'password',
+                      autoComplete: 'new-password',
+                      maxLength: 64,
+                    })}
                   />
                   <button
                     type="button"
@@ -436,7 +472,17 @@ export function Join() {
                     aria-label={t('showPassword')}
                     onClick={() => setShowPw((s) => !s)}
                   >
-                    <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
                       <circle cx="12" cy="12" r="3" />
                       {showPw ? null : <path d="M3 3l18 18" />}
@@ -610,7 +656,13 @@ export function Join() {
               <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
                 {plans.map((p) => (
                   <label className="plan" key={p.id}>
-                    <input type="radio" name="plan" value={p.id} checked={plan === p.id} onChange={() => setPlan(p.id)} />
+                    <input
+                      type="radio"
+                      name="plan"
+                      value={p.id}
+                      checked={plan === p.id}
+                      onChange={() => setPlan(p.id)}
+                    />
                     <span className="plan-body">
                       <span className="plan-head">
                         <span className="plan-name">

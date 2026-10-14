@@ -46,7 +46,8 @@ export function useReveal() {
       start();
       mo.observe(document.body, { childList: true, subtree: true });
     };
-    if (document.documentElement.classList.contains('intro-on')) window.addEventListener(INTRO_DONE, begin, { once: true });
+    if (document.documentElement.classList.contains('intro-on'))
+      window.addEventListener(INTRO_DONE, begin, { once: true });
     else begin();
     return () => {
       io.disconnect();

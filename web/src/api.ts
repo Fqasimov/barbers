@@ -168,7 +168,13 @@ export function loadReviews(id: string): Promise<VenueReview[]> {
         ).then((r) =>
           r.data
             .filter((x) => x.text?.trim())
-            .map((x) => ({ author: x.author, rating: x.rating, text: x.text, date: x.date, serviceName: x.service_name })),
+            .map((x) => ({
+              author: x.author,
+              rating: x.rating,
+              text: x.text,
+              date: x.date,
+              serviceName: x.service_name,
+            })),
         )
       : demo().then((d) => d.reviews[id] ?? []);
     p.catch(() => reviewCache.delete(id));

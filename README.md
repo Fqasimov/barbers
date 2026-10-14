@@ -58,6 +58,17 @@ Linen and ink, one pomegranate-red brand colour, a single sans-serif family and 
 
 [`promo/`](promo) is a Remotion project that renders a 9:16 promo from **real recordings of the app**, captured frame by frame with real animations, real taps and real data, and shown in a titanium phone on linen with film grain. See [`promo/README.md`](promo/README.md).
 
+## Website
+
+[`web/`](web) is the public site for the domain, in the same stack (React + TypeScript) and palette as the app:
+- an opening played with Remotion (the shears cut the wordmark and the page opens along the cut)
+- the real app playing in the hero
+- who we are, what makes us different, and live figures from `GET /api/stats`
+- a map of partners with ratings, addresses and reviews on hover
+- the business sign-up, in the same steps as the app
+
+It also hosts `/privacy`, `/terms`, `/help` and `/billing/return`. See [`web/README.md`](web/README.md).
+
 ## Project structure
 
 ```
@@ -80,6 +91,8 @@ src/
   __tests__/           Unit tests
 tools/shears/          three.js scene that renders the shears frames and icon art
 promo/                 Remotion promo + the app recorder
+web/                   The website (Vite + React + Remotion Player + Leaflet)
+backend/               Laravel API
 ```
 
 ## Backend and launch

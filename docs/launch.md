@@ -2,7 +2,7 @@
 
 What's left before the App Store and Google Play. The code is ready; these steps need your accounts, domain or decisions. Do them roughly in this order.
 
-The product side (business rules to decide, content, operations, a test week) is in [go-live.md](go-live.md). Store texts are in [store-listing.md](store-listing.md).
+The product side (business rules to decide, content, operations, a test week) is in [go-live.md](go-live.md). Store texts are in [store-listing.md](store-listing.md). The website (landing page, business sign-up, `/privacy`, `/terms`, `/help`, `/billing/return`) is in `web/`; see [web/README.md](../web/README.md) for deploying it.
 
 ## 1. Decide now (hard to change later)
 
