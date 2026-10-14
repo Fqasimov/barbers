@@ -1,7 +1,7 @@
 import type { Loc } from '@/i18n/types';
 import type { ToneName } from '@/theme/tokens';
 
-export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup';
+export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup' | 'aesthetics';
 
 export type Coords = { latitude: number; longitude: number };
 

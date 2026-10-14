@@ -35,6 +35,7 @@ final class Catalogue
             'brows' => Loc::make('Qaş studiyası', 'Brow-бар', 'Brow bar'),
             'spa' => Loc::make('Spa', 'Спа', 'Spa'),
             'makeup' => Loc::make('Makiyaj studiyası', 'Студия макияжа', 'Makeup studio'),
+            'aesthetics' => Loc::make('Kosmetologiya mərkəzi', 'Косметология', 'Aesthetic clinic'),
         ];
         $categories = array_values(array_unique($categories));
         if (count($categories) === 1 && isset($kinds[$categories[0]])) {

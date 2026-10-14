@@ -58,7 +58,7 @@ return [
 
     'tones' => ['oxblood', 'forest', 'navy', 'clay', 'olive', 'sand', 'slate', 'rose', 'ink', 'bone'],
 
-    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup'],
+    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics'],
 
     'review_tags' => ['skilled', 'punctual', 'friendly', 'clean', 'value', 'relaxing'],
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\MeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\StatsController;
 use Illuminate\Support\Facades\Route;
 
 // Accounts (rate-limited per IP and per email)
@@ -39,6 +40,7 @@ Route::middleware('throttle:public')->group(function () {
     Route::get('slots', [CatalogueController::class, 'slots']);
     Route::get('busy', [CatalogueController::class, 'busy']);
     Route::get('plans', [CatalogueController::class, 'plans']);
+    Route::get('stats', StatsController::class);
 });
 
 // Payment provider → server

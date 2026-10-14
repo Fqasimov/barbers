@@ -35,6 +35,11 @@ export const categories: Category[] = [
     label: { az: 'Makiyaj', ru: 'Макияж', en: 'Makeup' },
     plural: { az: 'Makiyaj ustaları', ru: 'Визажисты', en: 'Makeup artists' },
   },
+  {
+    id: 'aesthetics',
+    label: { az: 'Kosmetologiya', ru: 'Косметология', en: 'Aesthetics' },
+    plural: { az: 'Kosmetologiya mərkəzləri', ru: 'Косметологии', en: 'Aesthetic clinics' },
+  },
 ];
 
 export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<CategoryId, Category>;

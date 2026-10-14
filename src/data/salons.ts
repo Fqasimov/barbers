@@ -300,6 +300,32 @@ const catalogue: Record<CategoryId, ServiceTemplate[]> = {
       ),
     },
   ],
+  aesthetics: [
+    {
+      key: 'cleanse',
+      category: 'aesthetics',
+      durationMin: 60,
+      base: 70,
+      name: L('Üzün dərin təmizlənməsi', 'Глубокая чистка лица', 'Deep facial cleanse'),
+      description: L(
+        'Buxar, təmizləmə və sakitləşdirici maska.',
+        'Распаривание, чистка и успокаивающая маска.',
+        'Steam, extraction and a calming mask.',
+      ),
+    },
+    {
+      key: 'peel',
+      category: 'aesthetics',
+      durationMin: 45,
+      base: 90,
+      name: L('Kimyəvi pilinq', 'Химический пилинг', 'Chemical peel'),
+      description: L(
+        'Dəri tipinə görə seçilən yüngül pilinq.',
+        'Мягкий пилинг под ваш тип кожи.',
+        'A gentle peel chosen for your skin type.',
+      ),
+    },
+  ],
 };
 
 /** Every service key with its display name — the menu for city-wide search. */

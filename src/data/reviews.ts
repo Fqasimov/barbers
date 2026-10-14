@@ -168,6 +168,15 @@ const byCategory: Record<CategoryId, Snippet[]> = {
     },
     { rating: 4, text: 'Gözəl iş və keyfiyyətli məhsullar. Bir az gecikdi, amma dəydi.', tags: ['skilled'] },
   ],
+  aesthetics: [
+    { rating: 5, text: 'Əvvəlcə dərimə baxdı, sonra plan qurdu. Üç seansdan sonra fərq aydın görünür.', tags: ['skilled', 'clean'] },
+    {
+      rating: 5,
+      text: 'Пилинг без покраснения на следующий день. Всё объяснили заранее, никаких сюрпризов.',
+      tags: ['skilled', 'friendly'],
+    },
+    { rating: 4, text: 'Calm clinic, careful hands. Booked out two weeks ahead, which says enough.', tags: ['clean'] },
+  ],
 };
 
 /** A few visible reviews per venue, each from a verified visit. Dates are relative to now. */
