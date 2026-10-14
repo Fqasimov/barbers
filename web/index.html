@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="az">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Usta: Bakının bərbər, salon və kosmetologiya yazılışı</title>
+    <meta
+      name="description"
+      content="Bakının bərbərxana, gözəllik salonu və kosmetologiya mərkəzlərinin boş vaxtlarını canlı görün və zəngsiz yazılın. Salonlar üçün: usta sayına görə ödəniş yoxdur, 30 gün pulsuz."
+    />
+    <meta name="theme-color" content="#F3EFE8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F0E0D" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Usta: Bakının ustaları, bir toxunuşla" />
+    <meta property="og:description" content="Boş vaxtları canlı görün, ustanı seçin, zəngsiz yazılın. Salonlar üçün 30 gün pulsuz." />
+    <meta property="og:image" content="/img/og.png" />
+    <link rel="icon" href="/img/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" />
+    <link rel="preload" as="image" href="/shears/shears-00.webp" />
+    <script src="/config.js"></script>
+    <script>
+      // The opening plays once per visit and never with reduced motion; decided before first paint so nothing flashes.
+      try {
+        if (sessionStorage.getItem('usta-intro') || matchMedia('(prefers-reduced-motion: reduce)').matches)
+          document.documentElement.classList.add('no-intro');
+        else document.documentElement.classList.add('intro-on');
+      } catch (e) {
+        document.documentElement.classList.add('no-intro');
+      }
+    </script>
+    <script type="application/ld+json">
+      { "@context": "https://schema.org", "@type": "Organization", "name": "Usta", "url": "https://ustatap.az", "logo": "https://ustatap.az/img/icon-512.png" }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Usta — Bakının bərbər, salon və kosmetologiya yazılışı. Saytı görmək üçün JavaScript-i yandırın.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

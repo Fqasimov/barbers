@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Usta</title>
+<link rel="stylesheet" href="/doc.css">
+<script>
+  // The payment provider sends salons here after checkout; hand them back to the app (docs/api.md → Payments).
+  location.replace('usta://billing/return' + location.search);
+</script>
+</head>
+<body>
+<main class="doc">
+<h1>Ödəniş tamamlandı · Оплата завершена · Payment complete</h1>
+<p>Usta tətbiqinə qayıdın. · Вернитесь в приложение Usta. · Return to the Usta app.</p>
+<p><a href="usta://billing/return">Usta-nı aç · Открыть Usta · Open Usta</a></p>
+</main>
+</body>
+</html>
