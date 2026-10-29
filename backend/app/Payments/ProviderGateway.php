@@ -23,7 +23,7 @@ use RuntimeException;
  *      authenticate with merchant_id + secret_key) using Http::timeout(10).
  *    - Send: amount = $payment->amount (whole AZN; convert to qəpik ×100 if
  *      the API expects minor units), currency AZN (ISO 944 if numeric),
- *      order/description "Usta {$plan} — {$business->name}", our reference
+ *      order/description "Usta {$plan} ({$payment->billing_period}) — {$business->name}", our reference
  *      = $payment->id, language az/ru/en.
  *    - Success/return URL: url('/billing/return?payment_id='.$payment->id)
  *      (the app is sent on to usta://billing/return from there).

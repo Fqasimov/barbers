@@ -96,22 +96,19 @@ class Business extends Model
 
     /**
      * Salons customers can see and book: live, with at least one service and
-     * one master, and a trial or paid period that hasn't run out.
+     * one master, and a trial or paid period that ended less than the grace
+     * period ago. Existing bookings of a salon that drops out stay valid.
      */
     public function scopeListable(Builder $q): Builder
     {
-        $now = now();
+        $cutoff = now()->subDays((int) config('usta.grace_days'));
 
         return $q->where('status', self::LIVE)
             ->whereHas('services')
             ->whereHas('masters')
-            ->whereHas('subscription', function (Builder $s) use ($now) {
-                $s->where(function (Builder $w) use ($now) {
-                    $w->where('status', Subscription::TRIALING)->where('trial_ends_at', '>', $now);
-                })->orWhere(function (Builder $w) use ($now) {
-                    $w->where('status', Subscription::ACTIVE)->where('current_period_end', '>', $now);
-                });
-            });
+            ->whereHas('subscription', fn (Builder $s) => $s
+                ->whereIn('status', Subscription::LIVE_STATUSES)
+                ->whereRaw('COALESCE(current_period_end, trial_ends_at) > ?', [$cutoff]));
     }
 
     public function isListable(): bool

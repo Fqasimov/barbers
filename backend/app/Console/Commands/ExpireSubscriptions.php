@@ -6,34 +6,34 @@ use App\Models\Subscription;
 use Illuminate\Console\Command;
 
 /**
- * trialing (trial_ends_at passed)            → expired
- * active   (current_period_end passed)        → past_due
- * past_due (current_period_end + 3 days)      → expired
- * Listing already hides lapsed salons in real time; this keeps the stored
+ * trialing (trial_ends_at passed)                   → past_due
+ * active   (current_period_end passed)               → past_due
+ * any      (that end + usta.grace_days passed)       → expired
+ * Listing already follows the dates in real time; this keeps the stored
  * status (shown to the owner) in step.
  */
 class ExpireSubscriptions extends Command
 {
     protected $signature = 'usta:expire-subscriptions';
 
-    protected $description = 'Move lapsed trials and paid periods to past_due / expired';
+    protected $description = 'Move lapsed trials and paid periods to past_due, then expired after the grace period';
 
     public function handle(): int
     {
         $now = now();
-        $grace = (int) config('usta.grace_days');
+        $cutoff = $now->copy()->subDays((int) config('usta.grace_days'));
 
-        $expiredTrials = $this->each(Subscription::query()->where('status', Subscription::TRIALING)
-            ->where('trial_ends_at', '<=', $now), Subscription::EXPIRED);
+        // First, so a long-lapsed trial goes straight to expired.
+        $expired = $this->each(Subscription::query()->whereIn('status', Subscription::LIVE_STATUSES)
+            ->whereRaw('COALESCE(current_period_end, trial_ends_at) <= ?', [$cutoff]), Subscription::EXPIRED);
 
-        // Long-lapsed active periods go straight to expired.
-        $expiredPaid = $this->each(Subscription::query()->whereIn('status', [Subscription::ACTIVE, Subscription::PAST_DUE])
-            ->where('current_period_end', '<=', $now->copy()->subDays($grace)), Subscription::EXPIRED);
+        $trials = $this->each(Subscription::query()->where('status', Subscription::TRIALING)
+            ->where('trial_ends_at', '<=', $now), Subscription::PAST_DUE);
 
-        $pastDue = $this->each(Subscription::query()->where('status', Subscription::ACTIVE)
+        $paid = $this->each(Subscription::query()->where('status', Subscription::ACTIVE)
             ->where('current_period_end', '<=', $now), Subscription::PAST_DUE);
 
-        $this->info("Trials expired: {$expiredTrials}; past due: {$pastDue}; expired after grace: {$expiredPaid}.");
+        $this->info("Trials ended: {$trials}; paid periods ended: {$paid}; expired after grace: {$expired}.");
 
         return self::SUCCESS;
     }

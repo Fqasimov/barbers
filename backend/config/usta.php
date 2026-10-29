@@ -45,14 +45,23 @@ return [
     ],
 
     'trial_days' => 30,
-    'grace_days' => 3,
+    // After an unpaid trial or a lapsed paid period: still listed and
+    // bookable for this many days, then hidden until the owner pays.
+    'grace_days' => 7,
 
-    // Monthly prices in whole AZN.
+    // Prices in whole AZN. A year costs ten months unless set otherwise.
     'plans' => [
-        'start' => (int) env('PLAN_PRICE_START', 29),
-        'pro' => (int) env('PLAN_PRICE_PRO', 59),
-        'studio' => (int) env('PLAN_PRICE_STUDIO', 99),
+        'start' => [
+            'month' => (int) env('PLAN_PRICE_START', 29),
+            'year' => (int) env('PLAN_PRICE_START_YEAR', 10 * (int) env('PLAN_PRICE_START', 29)),
+        ],
+        'pro' => [
+            'month' => (int) env('PLAN_PRICE_PRO', 59),
+            'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 59)),
+        ],
     ],
+
+    'billing_periods' => ['month', 'year'],
 
     'currency' => 'AZN',
 

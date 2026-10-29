@@ -12,12 +12,12 @@ class TrialEndingMail extends Mailable implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public string $salonName, public int $daysLeft, public string $endsOn) {}
+    public function __construct(public string $salonName, public int $daysLeft, public string $endsOn, public string $hiddenOn) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(subject: $this->daysLeft > 0
-            ? 'Usta: sınaq müddəti 3 günə bitir / пробный период заканчивается / trial ends in 3 days'
+            ? "Usta: sınaq {$this->daysLeft} günə bitir / пробный период заканчивается через {$this->daysLeft} дн. / trial ends in {$this->daysLeft} days"
             : 'Usta: sınaq müddəti bu gün bitir / пробный период заканчивается сегодня / trial ends today');
     }
 

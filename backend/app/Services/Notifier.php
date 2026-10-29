@@ -18,6 +18,8 @@ class Notifier
 
     public const OWNER_URL = '/business/bookings';
 
+    public const DASHBOARD_URL = '/business';
+
     public function bookingCreated(Booking $b): void
     {
         $owner = $b->business?->owner;
@@ -73,14 +75,31 @@ class Notifier
         dispatch(new SendPush($b->user_id, $title, "{$salon} · {$this->when($b)}", ['type' => 'booking_reminder', 'booking_id' => $b->id, 'url' => self::CUSTOMER_URL]));
     }
 
+    /**
+     * Email with what to do, plus a push that opens the dashboard. The push
+     * names no price or payment link: it also reaches iOS, where the app
+     * shows plan status only.
+     */
     public function trialEnding(Business $business, int $daysLeft): void
     {
         $owner = $business->owner;
-        $ends = $business->subscription?->trial_ends_at;
-        if (! $owner || ! $ends) {
+        $sub = $business->subscription;
+        if (! $owner || ! $sub?->trial_ends_at) {
             return;
         }
-        Mail::to($owner->email)->queue(new TrialEndingMail($business->name, $daysLeft, Baku::local($ends)->format('d.m.Y')));
+        Mail::to($owner->email)->queue(new TrialEndingMail(
+            $business->name,
+            $daysLeft,
+            Baku::local($sub->trial_ends_at)->format('d.m.Y'),
+            Baku::local($sub->graceEndsAt())->format('d.m.Y'),
+        ));
+
+        [$title, $body] = $daysLeft > 0
+            ? ["Sınaq {$daysLeft} gün sonra bitir · Пробный период: {$daysLeft} дн. · Trial ends in {$daysLeft} days",
+                'AZ: Ödəniş üsulunu əlavə edin, ətraflı e-poçtda. RU: Добавьте способ оплаты, подробности в письме. EN: Add a payment method, details in your email.']
+            : ['Sınaq bu gün bitir · Пробный период заканчивается · Trial ends today',
+                'AZ: Salon daha 7 gün görünəcək. RU: Салон виден ещё 7 дней. EN: Your salon stays visible for 7 more days.'];
+        dispatch(new SendPush($owner->id, $title, $body, ['type' => 'trial_ending', 'days_left' => $daysLeft, 'url' => self::DASHBOARD_URL]));
     }
 
     private function when(Booking $b): string

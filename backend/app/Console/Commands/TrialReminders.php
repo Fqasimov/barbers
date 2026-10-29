@@ -7,12 +7,16 @@ use App\Services\Notifier;
 use App\Support\Baku;
 use Illuminate\Console\Command;
 
-/** Emails the owner when the trial ends in 3 days, and on the day it ends (Baku dates). */
+/**
+ * Email + push to the owner when the trial ends in 3 days, and on the day it
+ * ends (Baku dates). Nothing is charged automatically: these ask the owner to
+ * add a payment method, and the last one says the 7-day grace has started.
+ */
 class TrialReminders extends Command
 {
     protected $signature = 'usta:trial-reminders';
 
-    protected $description = 'Email salon owners whose trial ends in 3 days or today';
+    protected $description = 'Remind salon owners whose trial ends in 3 days or today';
 
     public function handle(Notifier $notifier): int
     {
@@ -40,7 +44,7 @@ class TrialReminders extends Command
                 }
             });
 
-        $this->info("Sent {$sent} trial emails.");
+        $this->info("Sent {$sent} trial reminders.");
 
         return self::SUCCESS;
     }

@@ -51,10 +51,14 @@ class SubscriptionController extends Controller
         return response()->json((new BusinessResource($business->fresh()))->resolve($request));
     }
 
+    /** `period`: month (default) or year; a year costs ten months and adds twelve. */
     public function checkout(Request $request, PaymentService $payments): JsonResponse
     {
-        $data = $request->validate(['plan' => ['required', Rule::in(array_keys(config('usta.plans')))]]);
+        $data = $request->validate([
+            'plan' => ['required', Rule::in(array_keys(config('usta.plans')))],
+            'period' => ['sometimes', Rule::in(config('usta.billing_periods'))],
+        ]);
 
-        return response()->json($payments->checkout($this->business($request), $data['plan']));
+        return response()->json($payments->checkout($this->business($request), $data['plan'], $data['period'] ?? 'month'));
     }
 }

@@ -192,7 +192,11 @@ class CatalogueController extends Controller
 
     public function plans(): JsonResponse
     {
-        $plans = collect(config('usta.plans'))->map(fn ($price, $id) => ['id' => $id, 'price' => (int) $price])->values();
+        $plans = collect(config('usta.plans'))->map(fn ($p, $id) => [
+            'id' => $id,
+            'price' => (int) $p['month'],
+            'price_year' => (int) $p['year'],
+        ])->values();
 
         return response()->json($plans)->header('Cache-Control', 'public, max-age=300');
     }

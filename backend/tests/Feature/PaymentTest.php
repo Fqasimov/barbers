@@ -38,7 +38,8 @@ class PaymentTest extends TestCase
 
         $this->getJson('/api/business/subscription', $h)->assertOk()
             ->assertJsonPath('status', 'active')->assertJsonPath('plan', 'pro')
-            ->assertJsonPath('current_period_end', '2026-11-12T06:00:00.000Z');
+            // Paid during the trial: the month starts when the trial ends.
+            ->assertJsonPath('current_period_end', '2026-12-10T06:00:00.000Z');
 
         // Unsigned / tampered checkout URLs are refused.
         $this->get("/billing/fake/{$id}")->assertStatus(403);
@@ -53,16 +54,41 @@ class PaymentTest extends TestCase
         $this->sendCallback($id)->assertOk()->assertJsonPath('status', 'paid');
         $sub = $salon->subscription()->first();
         $this->assertSame('active', $sub->status);
-        $this->assertSame('2026-11-12 06:00:00', $sub->current_period_end->toDateTimeString());
+        $this->assertSame('2026-12-10 06:00:00', $sub->current_period_end->toDateTimeString());
         $this->assertSame('paid', Payment::query()->find($id)->status);
         $this->assertNotNull(Payment::query()->find($id)->raw_callback);
 
         // A second payment extends from the current end, not from now.
-        $id2 = $this->postJson('/api/business/subscription/checkout', ['plan' => 'studio'], $h)->json('payment_id');
-        $this->sendCallback($id2, amount: 99)->assertOk();
+        $id2 = $this->postJson('/api/business/subscription/checkout', ['plan' => 'start'], $h)->json('payment_id');
+        $this->sendCallback($id2, amount: 29)->assertOk();
         $sub->refresh();
-        $this->assertSame('2026-12-12 06:00:00', $sub->current_period_end->toDateTimeString());
-        $this->assertSame('studio', $sub->plan);
+        $this->assertSame('2027-01-10 06:00:00', $sub->current_period_end->toDateTimeString());
+        $this->assertSame('start', $sub->plan);
+    }
+
+    public function test_yearly_costs_ten_months_and_adds_twelve(): void
+    {
+        [$salon, $h] = $this->setUpSalon();
+        $id = $this->postJson('/api/business/subscription/checkout', ['plan' => 'pro', 'period' => 'year'], $h)->json('payment_id');
+        $this->assertDatabaseHas('payments', ['id' => $id, 'amount' => 590, 'billing_period' => 'year']);
+
+        $this->sendCallback($id, amount: 590)->assertOk();
+        $this->getJson('/api/business/subscription', $h)->assertOk()
+            ->assertJsonPath('status', 'active')->assertJsonPath('billing_period', 'year')
+            ->assertJsonPath('current_period_end', '2027-11-10T06:00:00.000Z');
+
+        $this->postJson('/api/business/subscription/checkout', ['plan' => 'pro', 'period' => 'week'], $h)->assertStatus(422);
+        $this->postJson('/api/business/subscription/checkout', ['plan' => 'studio'], $h)->assertStatus(422);
+    }
+
+    public function test_paying_after_expiry_starts_from_now(): void
+    {
+        [$salon, $h] = $this->setUpSalon();
+        $salon->subscription->forceFill(['status' => 'expired', 'trial_ends_at' => now()->subDays(20)])->save();
+        $id = $this->postJson('/api/business/subscription/checkout', ['plan' => 'start'], $h)->json('payment_id');
+        $this->sendCallback($id, amount: 29)->assertOk();
+        $this->assertSame('2026-11-12 06:00:00', $salon->subscription()->first()->current_period_end->toDateTimeString());
+        $this->getJson('/api/salons')->assertJsonCount(1);
     }
 
     public function test_wrong_amount_currency_or_signature_is_rejected(): void

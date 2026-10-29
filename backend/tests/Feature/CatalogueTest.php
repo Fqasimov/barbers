@@ -19,14 +19,19 @@ class CatalogueTest extends TestCase
         $this->makeSalon(['name' => 'Suspended', 'status' => Business::SUSPENDED]);
         $this->makeSalon(['name' => 'No plan'], subscription: '');
         $this->makeSalon(['name' => 'Expired'], subscription: Subscription::EXPIRED);
-        $this->makeSalon(['name' => 'Past due'], subscription: Subscription::PAST_DUE);
-        $lapsed = $this->makeSalon(['name' => 'Trial over']);
-        $lapsed->subscription->forceFill(['trial_ends_at' => now()->subMinute()])->save();
+        // In the 7-day grace after the trial or paid period: still listed.
+        $pastDue = $this->makeSalon(['name' => 'Past due'], subscription: Subscription::PAST_DUE);
+        $grace = $this->makeSalon(['name' => 'Trial just over']);
+        $grace->subscription->forceFill(['trial_ends_at' => now()->subMinute()])->save();
+        $lapsed = $this->makeSalon(['name' => 'Trial over a week ago']);
+        $lapsed->subscription->forceFill(['trial_ends_at' => now()->subDays(7)->subMinute()])->save();
+        $lapsedPaid = $this->makeSalon(['name' => 'Paid over a week ago'], subscription: Subscription::ACTIVE);
+        $lapsedPaid->subscription->forceFill(['current_period_end' => now()->subDays(8)])->save();
         $noMasters = $this->makeSalon(['name' => 'No masters']);
         $noMasters->masters()->delete();
 
         $res = $this->getJson('/api/salons')->assertOk()->assertHeader('Cache-Control', 'max-age=60, public');
-        $this->assertEqualsCanonicalizing([$live->id, $paid->id], array_column($res->json(), 'id'));
+        $this->assertEqualsCanonicalizing([$live->id, $paid->id, $pastDue->id, $grace->id], array_column($res->json(), 'id'));
 
         $this->getJson("/api/salons/{$live->id}")->assertOk()->assertJsonPath('name', 'Live trial');
         $this->getJson("/api/salons/{$lapsed->id}")->assertStatus(404)->assertJsonPath('error', 'not_found');
@@ -78,7 +83,7 @@ class CatalogueTest extends TestCase
     public function test_plans(): void
     {
         $this->getJson('/api/plans')->assertOk()->assertExactJson([
-            ['id' => 'start', 'price' => 29], ['id' => 'pro', 'price' => 59], ['id' => 'studio', 'price' => 99],
+            ['id' => 'start', 'price' => 29, 'price_year' => 290], ['id' => 'pro', 'price' => 59, 'price_year' => 590],
         ]);
     }
 

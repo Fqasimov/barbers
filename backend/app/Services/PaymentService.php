@@ -16,13 +16,14 @@ class PaymentService
     public function __construct(private PaymentGateway $gateway) {}
 
     /** @return array{checkout_url:string, payment_id:string} */
-    public function checkout(Business $business, string $plan): array
+    public function checkout(Business $business, string $plan, string $period = 'month'): array
     {
         $payment = new Payment;
         $payment->forceFill([
             'business_id' => $business->id,
             'plan' => $plan,
-            'amount' => (int) config("usta.plans.{$plan}"),
+            'billing_period' => $period,
+            'amount' => (int) config("usta.plans.{$plan}.{$period}"),
             'currency' => config('usta.currency'),
             'status' => Payment::PENDING,
             'provider' => $this->gateway->name(),
@@ -83,6 +84,10 @@ class PaymentService
         return $payment;
     }
 
+    /**
+     * A month or a year on top of what the salon already has: the rest of
+     * the free trial or of the paid period is never lost by paying early.
+     */
     private function activate(Payment $payment): void
     {
         $now = now();
@@ -92,11 +97,13 @@ class PaymentService
             // Paying first uses up the free trial.
             $sub->forceFill(['business_id' => $payment->business_id, 'started_at' => $now, 'trial_ends_at' => $now]);
         }
-        $from = $sub->current_period_end && $sub->current_period_end->gt($now) ? $sub->current_period_end : $now;
+        $covered = $sub->status === Subscription::EXPIRED ? null : $sub->coveredUntil();
+        $from = $covered && $covered->gt($now) ? $covered : $now;
         $sub->forceFill([
             'plan' => $payment->plan,
+            'billing_period' => $payment->billing_period,
             'status' => Subscription::ACTIVE,
-            'current_period_end' => $from->copy()->addMonthNoOverflow(),
+            'current_period_end' => $from->copy()->addMonthsNoOverflow($payment->billing_period === 'year' ? 12 : 1),
         ])->save();
     }
 }

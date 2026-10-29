@@ -42,43 +42,83 @@ class CommandsTest extends TestCase
         $this->assertNotNull($booking->fresh()->reminded_2h_at);
     }
 
-    public function test_subscriptions_expire_with_grace(): void
+    public function test_subscriptions_expire_after_a_7_day_grace(): void
     {
         $trial = $this->makeSalon(['name' => 'Trial'])->subscription;
         $trial->forceFill(['trial_ends_at' => now()->subMinute()])->save();
+        $oldTrial = $this->makeSalon(['name' => 'Old trial'])->subscription;
+        $oldTrial->forceFill(['trial_ends_at' => now()->subDays(8)])->save();
         $active = $this->makeSalon(['name' => 'Paid'], subscription: Subscription::ACTIVE)->subscription;
         $active->forceFill(['current_period_end' => now()->subDay()])->save();
         $old = $this->makeSalon(['name' => 'Old'], subscription: Subscription::ACTIVE)->subscription;
-        $old->forceFill(['current_period_end' => now()->subDays(4)])->save();
+        $old->forceFill(['current_period_end' => now()->subDays(8)])->save();
         $ok = $this->makeSalon(['name' => 'Fine'], subscription: Subscription::ACTIVE)->subscription;
 
         $this->artisan('usta:expire-subscriptions')->assertSuccessful();
 
-        $this->assertSame('expired', $trial->fresh()->status);
+        $this->assertSame('past_due', $trial->fresh()->status);
+        $this->assertSame('expired', $oldTrial->fresh()->status);
         $this->assertSame('past_due', $active->fresh()->status);
         $this->assertSame('expired', $old->fresh()->status);
         $this->assertSame('active', $ok->fresh()->status);
 
-        $this->travel(3)->days();
+        $this->travel(6)->days();
         $this->artisan('usta:expire-subscriptions');
+        $this->assertSame('past_due', $trial->fresh()->status);
         $this->assertSame('expired', $active->fresh()->status);
+
+        $this->travel(1)->days();
+        $this->artisan('usta:expire-subscriptions');
+        $this->assertSame('expired', $trial->fresh()->status);
     }
 
-    public function test_trial_ending_emails(): void
+    public function test_an_unpaid_trial_stays_bookable_for_the_grace_then_hides(): void
     {
         Mail::fake();
+        $salon = $this->makeSalon();
+        $salon->subscription->forceFill(['trial_ends_at' => now()->subDays(6)])->save();
+        $customer = User::factory()->create();
+        $h = ['Authorization' => 'Bearer '.$this->tokenFor($customer)];
+        $book = fn (string $start) => $this->postJson('/api/bookings', [
+            'salon_id' => $salon->id,
+            'master_id' => $salon->masters()->first()->id,
+            'service_ids' => [$salon->services()->first()->id],
+            'start' => $start,
+        ], $h);
+
+        $this->artisan('usta:expire-subscriptions');
+        $this->assertSame('past_due', $salon->subscription->fresh()->status);
+        $this->getJson('/api/salons')->assertJsonCount(1);
+        $booked = $book('2026-10-13T08:00:00.000Z')->assertStatus(201)->json('id');
+
+        // Day 7 after the trial: hidden, no new bookings, the old one stays.
+        $this->travel(1)->days();
+        $this->getJson('/api/salons')->assertJsonCount(0);
+        $this->getJson("/api/salons/{$salon->id}")->assertNotFound();
+        $book('2026-10-13T10:00:00.000Z')->assertNotFound();
+        $this->getJson('/api/bookings', $h)->assertOk()->assertJsonPath('0.id', $booked)->assertJsonPath('0.status', 'upcoming');
+    }
+
+    public function test_trial_ending_emails_and_pushes(): void
+    {
+        Mail::fake();
+        Bus::fake([SendPush::class]);
         $salon = $this->makeSalon();
         $salon->subscription->forceFill(['trial_ends_at' => now()->addDays(3)])->save();
 
         $this->artisan('usta:trial-reminders');
         $this->artisan('usta:trial-reminders');
         Mail::assertQueuedCount(1);
-        Mail::assertQueued(TrialEndingMail::class, fn ($m) => $m->hasTo($salon->owner->email) && $m->daysLeft === 3);
+        Mail::assertQueued(TrialEndingMail::class, fn ($m) => $m->hasTo($salon->owner->email) && $m->daysLeft === 3
+            && $m->endsOn === '15.10.2026' && $m->hiddenOn === '22.10.2026');
+        Bus::assertDispatched(SendPush::class, fn ($p) => $p->userId === $salon->owner_id
+            && $p->data['type'] === 'trial_ending' && $p->data['url'] === '/business' && ! str_contains($p->body, '₼'));
 
         $this->travel(3)->days();
         $this->artisan('usta:trial-reminders');
         Mail::assertQueued(TrialEndingMail::class, fn ($m) => $m->daysLeft === 0);
         Mail::assertQueuedCount(2);
+        Bus::assertDispatchedTimes(SendPush::class, 2);
     }
 
     public function test_admin_approve_and_suspend(): void
