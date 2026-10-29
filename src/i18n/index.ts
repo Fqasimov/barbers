@@ -43,10 +43,10 @@ export function makeI18n(locale: Locale) {
   const decimal = (x: number, digits = 1) =>
     locale === 'en' ? x.toFixed(digits) : x.toFixed(digits).replace('.', ',');
 
-  /** Manat after the amount in az/ru ("30 ₼"), before it in English ("₼30"). */
-  const price = (amount: number) => (locale === 'en' ? `₼${Math.round(amount)}` : `${Math.round(amount)} ₼`);
+  /** Manat after the amount in every language ("30 ₼"), as on Azerbaijani price tags. */
+  const price = (amount: number) => `${Math.round(amount)} ₼`;
   const fromPrice = (amount: number) =>
-    ({ az: `${Math.round(amount)} ₼-dan`, ru: `от ${Math.round(amount)} ₼`, en: `from ₼${Math.round(amount)}` })[
+    ({ az: `${Math.round(amount)} ₼-dan`, ru: `от ${Math.round(amount)} ₼`, en: `from ${Math.round(amount)} ₼` })[
       locale
     ];
   /** Rounded down — a 4.95 never reads as a perfect 5.0. */

@@ -28,12 +28,12 @@
 
 1. **Abunə.**
    - İlk 30 gün pulsuzdur; kart tələb olunmur.
-   - Sonra seçdiyiniz plan üzrə aylıq ödəniş edilir.
+   - Sonra seçdiyiniz plan üzrə aylıq və ya illik ödəniş edilir (illik: 12 ay 10 ayın qiymətinə). Avtomatik ödəniş yoxdur: ödəniş üsulunu sınaq bitəndə siz əlavə edirsiniz.
    - **Usta sayına görə əlavə ödəniş yoxdur.**
 2. **Ödəniş.**
    - Ödəniş [ödəniş provayderi] vasitəsilə qəbul olunur.
-   - Ödənilməyən abunədə salon 3 gün sonra axtarışdan çıxarılır, mövcud növbələr isə qüvvədə qalır.
-3. **Ləğv.** İstənilən vaxt ləğv edə bilərsiniz; cari ay sonuna qədər xidmət davam edir. Qaytarma: [siyasət].
+   - Sınaq və ya ödənilmiş müddət bitib ödəniş edilməsə, salon daha 7 gün axtarışda qalır, sonra axtarışdan çıxarılır və yeni bron qəbul etmir; mövcud bronlar qüvvədə qalır.
+3. **Ləğv.** İstənilən vaxt ləğv edə bilərsiniz; ödənilmiş müddətin sonuna qədər xidmət davam edir. Qaytarma: [siyasət].
 4. **Salonun məlumatları.**
    - Qiymətlər, xidmətlər, iş saatları və şəkillərin düzgünlüyünə siz cavabdehsiniz.
    - Şəkillərə hüququnuz olmalıdır.
@@ -59,9 +59,9 @@ Bu şərtlər Azərbaycan Respublikasının qanunvericiliyi ilə tənzimlənir. 
 - You can delete your account at any time in the app.
 
 ## For salons
-- The first 30 days are free, with no card. After that you pay a monthly plan, with **no extra charge per master**.
-- Payment goes through [provider]. If a plan goes unpaid, the salon is hidden from search after a 3-day grace period, and existing bookings stay valid.
-- You can cancel at any time; service continues to the end of the paid month. Refunds: [policy].
+- The first 30 days are free, with no card. After that you pay a monthly or yearly plan (yearly: 12 months for the price of 10), with **no extra charge per master**.
+- Payment goes through [provider]. Nothing is charged automatically: you add a payment method when the trial ends. If the trial or a paid period ends unpaid, the salon stays in search for a 7-day grace period, then is hidden and takes no new bookings; existing bookings stay valid.
+- You can cancel at any time; service continues to the end of the paid period. Refunds: [policy].
 - You are responsible for your listing (prices, services, hours, photos) and must have the rights to your photos.
 - You may use clients' details only for their bookings; marketing needs separate consent.
 - New salons are reviewed before going live, and we may suspend salons that break these terms.

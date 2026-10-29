@@ -1,5 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import {
+  BellRing,
   CalendarDays,
   Camera,
   CheckCircle2,
@@ -16,7 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { planById } from '@/auth/plans';
+import { GRACE_DAYS, planById, REMIND_DAYS } from '@/auth/plans';
 import { authErrorKey } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
@@ -82,7 +83,7 @@ export default function BusinessDashboard() {
     if (!token || !business.subscription) return;
     setPaying(true);
     try {
-      await payForPlan(token, business.subscription.plan);
+      await payForPlan(token, business.subscription.plan, business.subscription.billingPeriod ?? 'month');
     } catch (e) {
       toast(i18n.t(authErrorKey(e)), 'info');
     } finally {
@@ -97,6 +98,18 @@ export default function BusinessDashboard() {
   const used = sub
     ? Math.min(1, (now - new Date(sub.startedAt).getTime()) / (ends!.getTime() - new Date(sub.startedAt).getTime()))
     : 0;
+  const period = sub?.billingPeriod ?? 'month';
+  const price = plan ? i18n.price(prices[plan.id][period]) : '';
+  const per = i18n.t(period === 'year' ? 'perYear' : 'perMonth');
+  // From REMIND_DAYS before the end (when the email and push go out) the card asks for a payment method.
+  const endingSoon = sub?.status === 'trialing' && daysLeft <= REMIND_DAYS;
+  const graceEnds = sub
+    ? new Date(
+        sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY,
+      )
+    : null;
+  // On iOS there is no buy button; otherwise it shows whenever a payment is needed or due soon.
+  const showPay = canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -127,10 +140,16 @@ export default function BusinessDashboard() {
                   </View>
                   <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
                     {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })}
-                    {canBuyInApp
-                      ? ` · ${i18n.t('thenPrice', { price: i18n.price(prices[plan.id]), per: i18n.t('perMonth') })}`
-                      : ''}
+                    {canBuyInApp ? ` · ${i18n.t('thenPrice', { price, per })}` : ''}
                   </Text>
+                  {endingSoon ? (
+                    <View style={[styles.notice, { backgroundColor: 'rgba(255,255,255,0.14)' }]}>
+                      <BellRing size={16} color={c.onPrimary} strokeWidth={2} />
+                      <Text variant="caption" style={{ color: c.onPrimary, flex: 1 }}>
+                        {i18n.t(canBuyInApp ? 'trialEndingSoon' : 'trialEndingSoonIos')}
+                      </Text>
+                    </View>
+                  ) : null}
                 </>
               ) : sub.status === 'active' ? (
                 <Text variant="title" style={{ color: c.onPrimary }}>
@@ -144,14 +163,16 @@ export default function BusinessDashboard() {
                     {sub.status === 'past_due' ? i18n.t('paymentDue') : i18n.t('planExpired')}
                   </Text>
                   <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
-                    {sub.status === 'past_due' ? i18n.t('paymentDueBody') : i18n.t('planExpiredBody')}
+                    {sub.status === 'past_due'
+                      ? i18n.t('paymentDueBody', { date: i18n.fullDate(graceEnds!) })
+                      : i18n.t('planExpiredBody')}
                   </Text>
                 </>
               )}
               <View style={styles.cardActions}>
-                {canBuyInApp && sub.status !== 'active' ? (
+                {showPay ? (
                   <Button
-                    label={i18n.t('payNow', { price: i18n.price(prices[plan.id]) })}
+                    label={endingSoon ? i18n.t('addPayment') : i18n.t('payNow', { price })}
                     variant="secondary"
                     size="sm"
                     loading={paying}
@@ -160,7 +181,7 @@ export default function BusinessDashboard() {
                 ) : null}
                 <Button
                   label={i18n.t('changePlan')}
-                  variant={canBuyInApp && sub.status !== 'active' ? 'ghost' : 'secondary'}
+                  variant={showPay ? 'ghost' : 'secondary'}
                   size="sm"
                   onPress={() => router.push('/business/plans')}
                 />
@@ -284,6 +305,7 @@ export default function BusinessDashboard() {
 const styles = StyleSheet.create({
   card: { borderRadius: radius.lg, padding: 18, gap: 8 },
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 6, flexWrap: 'wrap' },
+  notice: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 10, borderRadius: radius.md, marginTop: 4 },
   track: { height: 6, borderRadius: 3, overflow: 'hidden', marginVertical: 4 },
   fill: { height: 6, borderRadius: 3 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },

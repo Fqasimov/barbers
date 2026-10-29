@@ -642,6 +642,15 @@ export const strings = {
     'Every plan is free for the first 30 days. Change or cancel any time after that.',
   ),
   perMonth: L('/ay', '/мес', '/mo'),
+  perYear: L('/il', '/год', '/yr'),
+  billMonthly: L('Aylıq', 'Помесячно', 'Monthly'),
+  billYearly: L('İllik · 2 ay pulsuz', 'За год · 2 мес. бесплатно', 'Yearly · 2 months free'),
+  yearDeal: L('12 ay, 10 ayın qiymətinə', '12 месяцев по цене 10', '12 months for the price of 10'),
+  trialTerms: L(
+    'Sınağa başlamaqla İstifadə şərtləri və Məxfilik siyasəti ilə razılaşırsınız. İstənilən vaxt ləğv edə bilərsiniz.',
+    'Начиная пробный период, вы соглашаетесь с Условиями использования и Политикой конфиденциальности. Отменить можно в любой момент.',
+    'By starting the trial you agree to the Terms of Use and Privacy Policy. Cancel any time.',
+  ),
   recommended: L('Tövsiyə', 'Рекомендуем', 'Recommended'),
   startTrial: L('30 günlük pulsuz sınağa başla', 'Начать 30 дней бесплатно', 'Start 30-day free trial'),
   trialNote: L(
@@ -887,15 +896,26 @@ export const strings = {
   planActive: L('Plan aktivdir', 'Тариф активен', 'Plan is active'),
   paymentDue: L('Ödəniş gözlənilir', 'Ожидается оплата', 'Payment due'),
   paymentDueBody: L(
-    'Ödəniş edilməsə, salon 3 gün sonra axtarışdan çıxacaq.',
-    'Без оплаты салон пропадёт из поиска через 3 дня.',
-    'Without payment, your salon leaves search in 3 days.',
+    'Salon {date} tarixinədək axtarışda qalır və bron qəbul edir. Ödəniş edilməsə, sonra gizlənəcək; mövcud bronlar qüvvədə qalır.',
+    'Салон остаётся в поиске и принимает записи до {date}. Без оплаты он затем скроется; существующие записи сохранятся.',
+    'Your salon stays in search and takes bookings until {date}. Without payment it is hidden after that; existing bookings stay.',
   ),
+  trialEndingSoon: L(
+    'Sınaq tezliklə bitir. Salonun axtarışda qalması üçün ödəniş üsulunu əlavə edin. Sınaq bitənə qədər heç nə alınmır.',
+    'Пробный период скоро закончится. Добавьте способ оплаты, чтобы салон остался в поиске. До конца периода ничего не списывается.',
+    'Your trial ends soon. Add a payment method to stay in search. Nothing is charged before the trial ends.',
+  ),
+  trialEndingSoonIos: L(
+    'Sınaq tezliklə bitir. Ətraflı məlumatı e-poçtunuza göndərdik.',
+    'Пробный период скоро закончится. Подробности мы отправили на вашу почту.',
+    'Your trial ends soon. We’ve emailed you the details.',
+  ),
+  addPayment: L('Ödəniş üsulu əlavə et', 'Добавить способ оплаты', 'Add payment method'),
   planExpired: L('Plan bitib', 'Тариф закончился', 'Your plan has ended'),
   planExpiredBody: L(
-    'Salon axtarışda görünmür. Mövcud növbələr qüvvədədir.',
-    'Салон скрыт из поиска. Существующие записи действуют.',
-    'Your salon is hidden from search. Existing bookings still stand.',
+    'Salon axtarışda görünmür və yeni bron qəbul etmir. Mövcud bronlar qüvvədədir.',
+    'Салон скрыт из поиска и не принимает новые записи. Существующие записи действуют.',
+    'Your salon is hidden from search and takes no new bookings. Existing bookings still stand.',
   ),
   payNow: L('{price} ödə', 'Оплатить {price}', 'Pay {price}'),
 

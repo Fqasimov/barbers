@@ -19,7 +19,8 @@ export function createHttpApi(): AuthApi {
     socialSignIn: (provider, profile) => request<Session>('POST', `/auth/social/${provider}`, { body: profile }),
     me: (token) => request<Session>('GET', '/me', { token }),
     updateProfile: (token, patch) => request<User>('PATCH', '/me', { body: patch, token }),
-    startTrial: (token, plan) => request<Business>('POST', '/business/subscription/trial', { body: { plan }, token }),
+    startTrial: (token, plan, period = 'month') =>
+      request<Business>('POST', '/business/subscription/trial', { body: { plan, period }, token }),
     logout: (token) => request<void>('POST', '/auth/logout', { token }),
     deleteAccount: (token, password) =>
       request<void>('DELETE', '/me', { body: password ? { password } : {}, token }),

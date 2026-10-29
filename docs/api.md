@@ -74,8 +74,10 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
   "client": { "name": "Aysel Məmmədova", "phone": "+994…" } }   // empty for time off
 
 // Subscription
-{ "plan": "start|pro|studio", "status": "trialing|active|past_due|expired",
-  "started_at": "ISO", "trial_ends_at": "ISO", "current_period_end": "ISO" | null }
+{ "plan": "start|pro", "billing_period": "month|year",
+  "status": "trialing|active|past_due|expired",
+  "started_at": "ISO", "trial_ends_at": "ISO", "current_period_end": "ISO" | null,
+  "grace_ends_at": "ISO" }   // (current_period_end ?? trial_ends_at) + 7 days
 
 // Business: the owner's private view of their salon
 { "id": "…", "owner_id": "…", "salon_id": "…",
@@ -92,7 +94,7 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
 { "id": "…", "url": "https://…" }
 
 // Plan (what the server sells)
-{ "id": "start|pro|studio", "price": 29 }
+{ "id": "start|pro", "price": 29, "price_year": 290 }   // whole AZN; a year = 10 months
 ```
 
 ## Accounts
@@ -132,14 +134,14 @@ The app talks to a Laravel API (`backend/`) with Sanctum bearer tokens. Until `E
 
 | Method | Path | Query | Success | Notes |
 | --- | --- | --- | --- | --- |
-| GET | `/salons` | — | `200 [Salon]` | Every `live` salon with an active or trialing subscription. The app filters, sorts and ranks on the device. Cache for 60 s. |
+| GET | `/salons` | — | `200 [Salon]` | Every listable salon (see "Salon visibility"), including those in the 7-day grace. The app filters, sorts and ranks on the device. Cache for 60 s. |
 | GET | `/salons/{id}` | — | `200` Salon | `404 not_found` if unknown or not live. |
 | GET | `/salons/{id}/reviews` | `page` | `200 { data: [Review], next_page: 2 \| null }` | Newest first, 30 per page. |
 | GET | `/salons/{id}/availability` | `service_ids[]`, `from` (date), `days` (1–14, default 7), `master_id?` | `200 { masters: [{ master_id, days: [{ date, off, slots: [minutes] }] }] }` | See "Availability". Without `master_id`, every master who does all the services. |
 | GET | `/slots` | `service_key`, `date`, `from_min?`, `to_min?` | `200 [{ salon_id, master_id, service_id, start: minutes }]` | City-wide free-slot search: every live salon's earliest start for that service on that date, within the time window. |
 | GET | `/busy` | `from` (date, default today), `days` (1–14, default 7), `salon_ids[]?` | `200 [{ master_id, start: ISO, end: ISO }]` | Time each master is already booked: `upcoming` bookings and the salon's time off, anything overlapping the window (time off can run for days; the app splits it per day). No client details. The app computes free slots from this with the same rules as "Availability", so lists, search and compare work offline-first. Without `salon_ids`, every live salon. Cache for 30 s. |
 | GET | `/stats` | — | `200 { salons, masters, districts, bookings, clients, reviews, average_rating, updated_at }` | Public figures for the website: listed salons only; `bookings` and `clients` count app bookings (not salon-entered ones or time off). Cached for 10 minutes. |
-| GET | `/plans` | — | `200 [Plan]` | Prices in AZN per month. The app shows these on Android; see "Payments". |
+| GET | `/plans` | — | `200 [Plan]` | Monthly and yearly prices in AZN. The app shows these on Android; see "Payments". |
 
 ### Availability
 
@@ -186,8 +188,8 @@ Every path acts on the signed-in owner's business; another user's business gives
 | POST | `/business/bookings/{id}/no-show` | — | `200` BusinessBooking | Only after the start time. |
 | GET | `/business/reviews` | `page` | `200 { data: [Review], next_page }` | The salon's visible reviews, newest first. |
 | POST | `/business/reviews/{id}/reply` | `reply` (empty removes it) | `200` Review | One public reply per review, at most 1000 characters. |
-| POST | `/business/subscription/trial` | `plan` | `200` Business | Starts the 30-day trial once per business. Calling it again only changes the plan. No card. |
-| POST | `/business/subscription/checkout` | `plan` | `200 { checkout_url, payment_id }` | See "Payments". |
+| POST | `/business/subscription/trial` | `plan`, `period?: month\|year` | `200` Business | Starts the 30-day trial once per business. No card and no payment details. Calling it again only changes the plan. `period` (default `month`) is kept as the default for the first payment. Unknown plans (e.g. the retired `studio`) are `422`. |
+| POST | `/business/subscription/checkout` | `plan`, `period?: month\|year` | `200 { checkout_url, payment_id }` | See "Payments". |
 | GET | `/business/subscription` | — | `200` Subscription | |
 
 ### Going live
@@ -196,18 +198,23 @@ Every path acts on the signed-in owner's business; another user's business gives
 - A salon appears in `/salons` only when **all** of these hold:
   - it is `live`
   - it has at least one service and one master
-  - its subscription is `trialing` or `active`
-- When a trial ends without payment, the status becomes `expired`. The salon disappears from search, but existing bookings stay valid.
+  - its subscription is not `expired`, and its trial or paid period ended less than 7 days ago (`usta.grace_days`)
+- Nothing is charged automatically. When a trial (or a paid period) ends without payment:
+  1. The status becomes `past_due`. For 7 days the salon stays in search and keeps taking bookings, and the owner is asked to pay.
+  2. After 7 days it becomes `expired`. The salon leaves search and `POST /bookings` for it returns `404`. Existing bookings stay valid.
+  3. A payment at any point makes it `active` again.
+- Visibility follows the dates in real time. `usta:expire-subscriptions` (every 5 minutes) keeps the stored status in step.
+- Studio subscriptions from before October 2026 were migrated to Pro.
 
 ## Payments
 
 - The server talks to the payment provider and keeps every secret. **The app never sees card data or provider keys.**
 - **Checkout flow:**
-  1. The app calls `POST /business/subscription/checkout`.
+  1. The app calls `POST /business/subscription/checkout` with `plan` and `period` (`month` by default; `year` costs `price_year`, which is 10 months).
   2. The server creates an order with the provider and returns its hosted `checkout_url`.
   3. The app opens it in the system browser (an auth session). The provider redirects to `https://<domain>/billing/return?payment_id=…`, which redirects to `usta://billing/return`.
   4. The app then re-reads `GET /business/subscription`.
-- **The provider's callback** goes to `POST /payments/{provider}/callback`. The server verifies the provider's signature and the amount and currency, and treats the callback as **idempotent** (the same payment can be reported twice). On success it sets `status: active` and extends `current_period_end` by a month from `max(now, current_period_end)`.
+- **The provider's callback** goes to `POST /payments/{provider}/callback`. The server verifies the provider's signature and the amount and currency, and treats the callback as **idempotent** (the same payment can be reported twice). On success it sets `status: active` and `billing_period`, and extends `current_period_end` by 1 month (or 12 for `year`). It extends from the end of what the salon already has (the paid period, or the rest of the free trial), so paying early never loses days. After `expired` it extends from now.
 - **Prices** come from `/plans`. The app's `src/auth/plans.ts` is only the fallback.
 - **On iOS:** the app shows the current plan and the trial, but **no prices and no buy button**. Apple requires in-app purchase for digital subscriptions bought inside an iOS app, so salons pay on Android or on the website. Decide with Apple review before turning a buy button on (`EXPO_PUBLIC_IOS_CHECKOUT`).
 
@@ -221,7 +228,7 @@ The server sends these through Expo's push service (`https://exp.host/--/api/v2/
 | Booking cancelled by the customer | Salon owner | Push. |
 | Booking cancelled by the salon | Customer | Push and email. |
 | 24 hours and 2 hours before the start | Customer | Push reminder (scheduler, every 5 minutes; sent once). |
-| Trial ends in 3 days, and on the day it ends | Salon owner | Email. |
+| Trial ends in 3 days, and on the day it ends | Salon owner | Email (how to add a payment method, and the date the salon would leave search) and a push that opens the dashboard. The push names no price or link, since it also reaches iOS. Scheduler `usta:trial-reminders`, hourly; each one is sent once. |
 
 Tokens that Expo reports as `DeviceNotRegistered` are deleted.
 

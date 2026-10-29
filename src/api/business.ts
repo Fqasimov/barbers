@@ -1,5 +1,6 @@
 import { demoStore } from '@/auth/local';
 import { AuthError, type Business, type Hours, type Photo, type PlanId, type Subscription } from '@/auth/types';
+import type { BillingPeriod } from '@/auth/plans';
 import type { Booking, CategoryId, Language, Master, Review, Service } from '@/data/types';
 import type { Loc } from '@/i18n/types';
 import type { ToneName } from '@/theme/tokens';
@@ -90,7 +91,8 @@ export interface BusinessApi {
   blockTime(token: string, input: BlockInput): Promise<BusinessBooking[]>;
   reviews(token: string, page?: number): Promise<Page<Review>>;
   reply(token: string, reviewId: string, text: string): Promise<Review>;
-  checkout(token: string, plan: PlanId): Promise<Checkout>;
+  /** `period`: a month, or a year for the price of ten months. */
+  checkout(token: string, plan: PlanId, period?: BillingPeriod): Promise<Checkout>;
   subscription(token: string): Promise<Subscription>;
 }
 
@@ -121,7 +123,8 @@ const httpBusinessApi: BusinessApi = {
   blockTime: (token, input) => request('POST', '/business/blocks', { token, body: input }),
   reviews: (token, page = 1) => request('GET', '/business/reviews', { token, query: { page } }),
   reply: (token, id, text) => request('POST', `/business/reviews/${enc(id)}/reply`, { token, body: { reply: text } }),
-  checkout: (token, plan) => request('POST', '/business/subscription/checkout', { token, body: { plan } }),
+  checkout: (token, plan, period = 'month') =>
+    request('POST', '/business/subscription/checkout', { token, body: { plan, period } }),
   subscription: (token) => request('GET', '/business/subscription', { token }),
 };
 

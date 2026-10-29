@@ -14,7 +14,7 @@ export const catalogueApi = {
   busy: (args: { from: string; days: number; salonIds?: string[] }) => request<BusyRange[]>('GET', '/busy', { query: args }),
   reviews: (salonId: string, page = 1) =>
     request<Page<Review>>('GET', `/salons/${encodeURIComponent(salonId)}/reviews`, { query: { page } }),
-  plans: () => request<{ id: PlanId; price: number }[]>('GET', '/plans'),
+  plans: () => request<{ id: PlanId; price: number; priceYear?: number }[]>('GET', '/plans'),
 };
 
 export type ReportReason = 'spam' | 'offensive' | 'fake' | 'other';

@@ -5,7 +5,7 @@ export type Lang = (typeof LANGS)[number];
 export type Loc = Record<Lang, string>;
 export type Feature = Loc & { soon?: boolean };
 export type Plan = {
-  id: 'start' | 'pro' | 'studio';
+  id: 'start' | 'pro';
   name: string;
   price: number;
   recommended?: boolean;
@@ -310,13 +310,29 @@ export const dict = {
   verify: { az: 'Təsdiqlə', ru: 'Подтвердить', en: 'Verify' },
   planTitle: { az: 'Plan seçin', ru: 'Выберите тариф', en: 'Choose a plan' },
   planSub: {
-    az: '30 gün pulsuz. Kart istəmirik, istənilən vaxt dəyişmək olar.',
-    ru: '30 дней бесплатно. Без карты, сменить можно в любой момент.',
-    en: '30 days free. No card, change it any time.',
+    az: 'İlk 30 gün hər plan pulsuzdur. Sonra istənilən vaxt dəyişə və ya ləğv edə bilərsiniz.',
+    ru: 'Первые 30 дней любой тариф бесплатен. Потом его можно сменить или отменить в любой момент.',
+    en: 'Every plan is free for the first 30 days. Change or cancel any time after that.',
+  },
+  trialBadge: { az: 'İlk 30 gün pulsuz', ru: 'Первые 30 дней бесплатно', en: 'First 30 days free' },
+  yearDeal: {
+    az: 'İllik ödənişdə 12 ay 10 ayın qiymətinə',
+    ru: 'При оплате за год 12 месяцев по цене 10',
+    en: 'Pay yearly: 12 months for the price of 10',
+  },
+  trialNote: {
+    az: 'Sınaq bitənə qədər heç bir ödəniş alınmır. Ödəniş üsulunu sonra əlavə edəcəksiniz.',
+    ru: 'До конца пробного периода ничего не списывается. Способ оплаты добавите позже.',
+    en: 'Nothing is charged during the trial. You’ll add a payment method later.',
+  },
+  trialTerms: {
+    az: 'Sınağa başlamaqla İstifadə şərtləri və Məxfilik siyasəti ilə razılaşırsınız. İstənilən vaxt ləğv edə bilərsiniz.',
+    ru: 'Начиная пробный период, вы соглашаетесь с Условиями использования и Политикой конфиденциальности. Отменить можно в любой момент.',
+    en: 'By starting the trial you agree to the Terms of Use and Privacy Policy. Cancel any time.',
   },
   perMonth: { az: '/ay', ru: '/мес', en: '/mo' },
   afterTrial: { az: 'sınaqdan sonra', ru: 'после пробного периода', en: 'after the trial' },
-  recommended: { az: 'Tövsiyə', ru: 'Рекомендуем', en: 'Popular' },
+  recommended: { az: 'Tövsiyə', ru: 'Рекомендуем', en: 'Recommended' },
   soon: { az: 'tezliklə', ru: 'скоро', en: 'coming soon' },
   startTrial: {
     az: '30 günlük pulsuz sınağa başla',
@@ -474,21 +490,16 @@ export const plans: Plan[] = [
     id: 'start',
     name: 'Start',
     price: 29,
-    blurb: { az: 'Kiçik salon və studiyalar', ru: 'Небольшие салоны и студии', en: 'Small salons and studios' },
+    blurb: { az: 'Tək salon üçün', ru: 'Для одного салона', en: 'For a single salon' },
     features: [
+      { az: 'Onlayn bron və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
       {
         az: 'Limitsiz usta, əlavə ödəniş yoxdur',
         ru: 'Мастера без ограничений и доплат',
         en: 'Unlimited masters, no per-seat fees',
       },
-      { az: 'Onlayn növbə və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
-      {
-        az: 'Telefonla yazılış və istirahət vaxtı',
-        ru: 'Запись по телефону и нерабочее время',
-        en: 'Phone bookings and time off',
-      },
-      { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
-      { az: 'Rəylərə cavab', ru: 'Ответы на отзывы', en: 'Reply to reviews' },
+      { az: 'WhatsApp ilə təsdiq', ru: 'Подтверждения в WhatsApp', en: 'WhatsApp confirmations', soon: true },
+      { az: 'Rəylərə cavab', ru: 'Ответы на отзывы', en: 'Replies to reviews' },
     ],
   },
   {
@@ -501,28 +512,13 @@ export const plans: Plan[] = [
       { az: 'Start planındakı hər şey', ru: 'Всё из тарифа Start', en: 'Everything in Start' },
       {
         az: 'Gəlməmə qorunması və depozit',
-        ru: 'Защита от неявок и депозит',
+        ru: 'Защита от неявок и депозиты',
         en: 'No-show protection and deposits',
         soon: true,
       },
+      { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
       { az: 'Gözləmə siyahısı', ru: 'Лист ожидания', en: 'Waitlist', soon: true },
-      { az: 'Statistika', ru: 'Статистика', en: 'Insights', soon: true },
-    ],
-  },
-  {
-    id: 'studio',
-    name: 'Studio',
-    price: 99,
-    blurb: {
-      az: 'Bir neçə filial və böyük komandalar',
-      ru: 'Несколько филиалов и большие команды',
-      en: 'Several branches and large teams',
-    },
-    features: [
-      { az: 'Pro planındakı hər şey', ru: 'Всё из тарифа Pro', en: 'Everything in Pro' },
-      { az: 'Limitsiz filial', ru: 'Филиалы без ограничений', en: 'Unlimited branches', soon: true },
-      { az: 'Axtarışda önə çıxma', ru: 'Продвижение в поиске', en: 'Featured placement in search', soon: true },
-      { az: 'Şəxsi menecer', ru: 'Персональный менеджер', en: 'Dedicated account manager' },
+      { az: 'Statistika', ru: 'Статистика', en: 'Statistics', soon: true },
     ],
   },
 ];

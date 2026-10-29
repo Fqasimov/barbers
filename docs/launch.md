@@ -8,7 +8,7 @@ The product side (business rules to decide, content, operations, a test week) is
 
 - [ ] **Bundle ID / package name.** Currently `app.usta.booking` in `app.json`. After the first store upload it can never change. If you want it to match the domain, say `az.ustatap.app`, change it before step 3.
 - [ ] **Payment provider.** Tell the backend which Azerbaijani provider you use. Then fill in `backend/app/Payments/ProviderGateway.php`; the TODOs in it say exactly what goes where.
-- [ ] **Plan prices.** The server reads `PLAN_PRICE_START`, `PLAN_PRICE_PRO` and `PLAN_PRICE_STUDIO`; the defaults are 29, 59 and 99 ₼.
+- [ ] **Plan prices.** The server reads `PLAN_PRICE_START` and `PLAN_PRICE_PRO` (defaults 29 and 59 ₼ a month). Yearly prices default to 10 months (290 and 590 ₼); override them with `PLAN_PRICE_START_YEAR` and `PLAN_PRICE_PRO_YEAR`.
 
 ## 2. Server (when hosting and the domain are ready)
 

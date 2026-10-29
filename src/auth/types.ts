@@ -24,7 +24,7 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'start' | 'pro' | 'studio';
+export type PlanId = 'start' | 'pro';
 
 export type Subscription = {
   plan: PlanId;
@@ -33,6 +33,13 @@ export type Subscription = {
   trialEndsAt: string;
   /** Paid until (active plans). */
   currentPeriodEnd?: string | null;
+  /** What the last payment bought. */
+  billingPeriod?: 'month' | 'year';
+  /**
+   * The end of the 7-day grace after the trial or paid period: until then a
+   * lapsed salon stays listed and bookable. Older servers omit it.
+   */
+  graceEndsAt?: string | null;
 };
 
 export type Photo = { id: string; url: string };
@@ -165,7 +172,8 @@ export interface AuthApi {
   socialSignIn(provider: 'google' | 'apple', profile: SocialProfile): Promise<Session>;
   me(token: string): Promise<Session>;
   updateProfile(token: string, patch: ProfilePatch): Promise<User>;
-  startTrial(token: string, plan: PlanId): Promise<Business>;
+  /** `period`: the billing picked on the plans screen, the default for the first payment. */
+  startTrial(token: string, plan: PlanId, period?: 'month' | 'year'): Promise<Business>;
   logout(token: string): Promise<void>;
   /** Permanently deletes the account (App Store rule 5.1.1(v)). Password accounts confirm with the password. */
   deleteAccount(token: string, password?: string): Promise<void>;

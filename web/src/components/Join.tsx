@@ -183,7 +183,7 @@ export function Join() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [code, setCode] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [plan, setPlan] = useState<PlanId>('start');
+  const [plan, setPlan] = useState<PlanId>('pro');
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [now, setNow] = useState(Date.now());
   const card = useRef<HTMLDivElement>(null);
@@ -675,6 +675,7 @@ export function Join() {
                         </span>
                       </span>
                       <span className="plan-blurb">{tx(p.blurb)}</span>
+                      <span className="plan-trial">{t('trialBadge')}</span>
                       <ul>
                         {p.features.map((f) => (
                           <li key={f.en} className={f.soon ? 'soon' : undefined}>
@@ -687,10 +688,13 @@ export function Join() {
                   </label>
                 ))}
               </div>
+              <p className="plan-note plan-note-left">{t('yearDeal')}</p>
               {formErr}
               <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
                 {t('startTrial')}
               </button>
+              <p className="plan-note">{t('trialNote')}</p>
+              <p className="plan-note">{t('trialTerms')}</p>
             </form>
           ) : null}
 

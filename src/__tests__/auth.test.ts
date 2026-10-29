@@ -142,8 +142,9 @@ describe('demo backend', () => {
     const days =
       (new Date(b.subscription!.trialEndsAt).getTime() - new Date(b.subscription!.startedAt).getTime()) / 86_400_000;
     expect(Math.round(days)).toBe(30);
-    const again = await localApi.startTrial(session.token, 'studio');
-    expect(again.subscription!.plan).toBe('studio');
+    const again = await localApi.startTrial(session.token, 'start', 'year');
+    expect(again.subscription!.plan).toBe('start');
+    expect(again.subscription!.billingPeriod).toBe('year');
     expect(again.subscription!.trialEndsAt).toBe(b.subscription!.trialEndsAt);
   });
 

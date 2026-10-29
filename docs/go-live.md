@@ -62,24 +62,25 @@ These are business rules the app already enforces. The current value works, but 
 | No-shows | Recorded only; no penalty | Decide whether repeat no-shows get blocked. Not built yet. |
 | Reports that hide a review | 3 | `auto_hide_reports` |
 | Payment | At the salon, no card | Shown on the confirm screen (`policy`). |
-| Plans | Start 29 / Pro 59 / Studio 99 ₼, 30-day trial | See below. |
+| Grace after an unpaid trial or a missed payment | 7 days still listed and bookable, then hidden | `grace_days`. The dashboard and the email name the date. |
+| Plans | Start 29 / Pro 59 ₼ a month (yearly 290 / 590 ₼), 30-day trial with no card | See below. |
 
 ### Plans: what is real today
 
-Every plan currently gets the same working features:
+Two plans: **Start** (29 ₼/month, for a single salon) and **Pro** (59 ₼/month, recommended, for growing salons). Studio was retired; its subscriptions moved to Pro.
+
+Every salon currently gets the same working features:
 - unlimited masters
 - online booking and the calendar
 - phone bookings and time off
 - reminders
 - review replies
 
-The extras in Pro and Studio (deposits and no-show protection, waitlist, statistics, several branches, featured placement) **aren't built**. The plans screen now marks them "coming soon", so no one pays for them unknowingly.
+These are promised but **not built**, and the plans screen marks them "coming soon":
+- Start: WhatsApp confirmations
+- Pro: deposits and no-show protection, the waitlist, statistics
 
-Pick one before launch:
-1. **One plan at launch** (recommended): sell Start only, and add Pro when its features exist.
-2. **Keep three plans:** make Pro worth its price by building at least deposits or statistics first.
-
-"Dedicated account manager" in Studio is a promise someone on your team has to keep.
+Until they exist, Pro costs more for the same tools. Build at least deposits or statistics before you push salons towards Pro.
 
 ## Prepare the content
 
@@ -111,7 +112,7 @@ The app only feels alive when the first screen is full.
   - Approve within a day, or owners lose interest.
 - [ ] **Review reports:** someone checks `usta:reviews` every day.
 - [ ] **Salon support:** a WhatsApp number for owners, printed in the salon guide.
-- [ ] **Trial ending:** owners get emails 3 days before and on the last day. Decide whether someone also calls salons in their last trial week; it converts far better than email.
+- [ ] **Trial ending:** owners get an email and a push 3 days before and on the last day; then the 7-day grace starts. Decide whether someone also calls salons in their last trial week; it converts far better than email.
 - [ ] **Salons cancelling on clients:** the client gets a push and an email. Watch salons that cancel often.
 
 ## Test with real people (one week)

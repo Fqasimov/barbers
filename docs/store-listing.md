@@ -108,7 +108,7 @@ No card needed
 You pay at the salon. Usta is free for clients.
 
 Own a salon?
-Put your salon on Usta: online booking, a calendar, phone bookings, time off and replies to reviews. No fee per master. 30 days free.
+Put your salon on Usta: online booking, a calendar, phone bookings, time off and replies to reviews. No fee per master. Every plan starts with a 30-day free trial: no card at sign-up, cancel any time.
 ```
 
 ## Keywords (App Store ≤ 100, comma-separated, no spaces)
@@ -124,7 +124,7 @@ Demo account (customer): faiq.farid0604@gmail.com / <password — give it in App
 
 What the app does: customers book appointments at barbershops and beauty salons in Baku; salons manage their bookings.
 
-Payments: customers pay the salon in person for the haircut or treatment (a real-world service, guideline 3.1.3(e)). Salons pay a monthly subscription for the business tools; on iOS the app shows the current plan only, with no price, no purchase button and no link to buy. Salons subscribe on Android or our website.
+Payments: customers pay the salon in person for the haircut or treatment (a real-world service, guideline 3.1.3(e)). Salons get a 30-day free trial with no payment details, then pay a monthly or yearly subscription for the business tools. On iOS the app shows the current plan and the trial status only, with no price, no purchase button and no link to buy. Salons subscribe on Android or our website.
 
 Account deletion: Profile → Delete account (in-app, immediate).
 

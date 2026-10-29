@@ -43,8 +43,8 @@ Tests: `php artisan test` (SQLite in memory). Formatting: `./vendor/bin/pint`.
 | `usta:suspend-business {id}` | `suspended`: hidden from search. Existing bookings stay. |
 | `usta:create-user [--email= --first-name= --last-name= --role=customer]` | Creates a verified password account, or resets the password of an existing one. The password is read from a hidden prompt. |
 | `usta:send-reminders` | Every 5 min. Push reminders 24 h and 2 h before a visit, each once. |
-| `usta:expire-subscriptions` | Every 5 min. `trialing` → `expired`, `active` → `past_due` → `expired`. |
-| `usta:trial-reminders` | Hourly. Emails "trial ends in 3 days" and "trial ends today". |
+| `usta:expire-subscriptions` | Every 5 min. `trialing` / `active` → `past_due` when the period ends, → `expired` 7 days later. |
+| `usta:trial-reminders` | Hourly. Email + push "trial ends in 3 days" and "trial ends today". |
 
 The schedule is in `routes/console.php`.
 
@@ -52,12 +52,12 @@ The schedule is in `routes/console.php`.
 
 | State | Meaning | Listed in `/salons` |
 | --- | --- | --- |
-| `trialing` | Free 30-day trial (once per business), until `trial_ends_at`. | yes, until `trial_ends_at` |
-| `active` | Paid until `current_period_end`. | yes, until `current_period_end` |
-| `past_due` | The paid period ended. 3-day grace to pay. | no (the contract lists only trialing/active) |
-| `expired` | The trial or the grace ran out. Existing bookings stay valid. | no |
+| `trialing` | Free 30-day trial (once per business), until `trial_ends_at`. | yes, then 7 more days as `past_due` |
+| `active` | Paid until `current_period_end`. | yes, then 7 more days as `past_due` |
+| `past_due` | The trial or the paid period ended unpaid. 7-day grace to pay (`usta.grace_days`). | yes, for the 7 days |
+| `expired` | The grace ran out. No new bookings; existing bookings stay valid. | no |
 
-A paid callback always sets `active` and `current_period_end = max(now, current_period_end) + 1 month`. Listing checks the dates in real time, so a lapsed salon disappears even before the scheduler updates its stored status.
+A paid callback always sets `active` and `current_period_end = max(now, what the salon already has) + 1 month` (12 for a yearly payment, which costs 10 months). "What it already has" is the paid period or the rest of the trial, so paying early loses nothing. Listing checks the dates in real time, so a lapsed salon disappears even before the scheduler updates its stored status.
 
 ## Deploying (production checklist)
 

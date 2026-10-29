@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 import { businessApi } from '@/api/business';
 import { catalogueApi } from '@/api/catalogue';
 import { isLive } from '@/api/client';
-import { plans } from '@/auth/plans';
+import { type BillingPeriod, plans, YEAR_MONTHS_PAID } from '@/auth/plans';
 import type { PlanId } from '@/auth/types';
 
 /**
@@ -17,17 +17,30 @@ import type { PlanId } from '@/auth/types';
  */
 export const canBuyInApp = Platform.OS !== 'ios' || process.env.EXPO_PUBLIC_IOS_CHECKOUT === '1';
 
+export type PlanPrices = Record<PlanId, Record<BillingPeriod, number>>;
+
 /** Live prices from the server; the bundled plans are the fallback. */
-export function usePlanPrices(): Record<PlanId, number> {
-  const [prices, setPrices] = useState<Record<PlanId, number>>(
-    () => Object.fromEntries(plans.map((p) => [p.id, p.price])) as Record<PlanId, number>,
+export function usePlanPrices(): PlanPrices {
+  const [prices, setPrices] = useState<PlanPrices>(
+    () => Object.fromEntries(plans.map((p) => [p.id, { month: p.price, year: p.priceYear }])) as PlanPrices,
   );
   useEffect(() => {
     if (!isLive) return;
     let alive = true;
     catalogueApi
       .plans()
-      .then((list) => alive && setPrices((p) => ({ ...p, ...Object.fromEntries(list.map((x) => [x.id, x.price])) })))
+      .then(
+        (list) =>
+          alive &&
+          setPrices((p) => ({
+            ...p,
+            ...Object.fromEntries(
+              list
+                .filter((x) => x.id in p)
+                .map((x) => [x.id, { month: x.price, year: x.priceYear ?? x.price * YEAR_MONTHS_PAID }]),
+            ),
+          })),
+      )
       .catch(() => undefined);
     return () => {
       alive = false;
@@ -41,8 +54,8 @@ export function usePlanPrices(): Record<PlanId, number> {
  * app (`usta://billing/return`). Resolves when the browser closes, whatever the
  * outcome; the caller re-reads the subscription from the server.
  */
-export async function payForPlan(token: string, plan: PlanId) {
-  const { checkoutUrl } = await businessApi.checkout(token, plan);
+export async function payForPlan(token: string, plan: PlanId, period: BillingPeriod = 'month') {
+  const { checkoutUrl } = await businessApi.checkout(token, plan, period);
   const returnUrl = Linking.createURL('billing/return');
   if (Platform.OS === 'web') {
     await WebBrowser.openBrowserAsync(checkoutUrl);

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { hashCode, hashPassword, randomHex, randomOtp, safeEqual } from './crypto';
-import { TRIAL_DAYS } from './plans';
+import { settle, TRIAL_DAYS } from './plans';
 import {
   AuthError,
   type AuthApi,
@@ -73,11 +73,21 @@ const empty = (): Db => ({ users: [DEMO_USER], businesses: [], otps: [], session
 
 let cache: Db | null = null;
 async function load(): Promise<Db> {
-  if (cache) return cache;
+  if (cache) return settleAll(cache);
   const raw = await AsyncStorage.getItem(KEY);
   const db: Db = raw ? (JSON.parse(raw) as Db) : empty();
   if (!db.users.some((u) => u.id === DEMO_USER.id)) db.users.push(DEMO_USER);
   cache = db;
+  return settleAll(db);
+}
+
+/** What the server's scheduled job does: statuses follow the dates; retired plans become Pro. */
+function settleAll(db: Db): Db {
+  for (const b of db.businesses) {
+    if (!b.subscription) continue;
+    if (!['start', 'pro'].includes(b.subscription.plan)) b.subscription.plan = 'pro';
+    b.subscription = settle(b.subscription);
+  }
   return db;
 }
 async function save(db: Db) {
@@ -348,18 +358,28 @@ export const localApi: AuthApi = {
     return publicUser(user);
   },
 
-  async startTrial(token, plan) {
+  async startTrial(token, plan, period = 'month') {
     await pause();
     const db = await load();
     const user = userFor(db, token);
     const business = db.businesses.find((b) => b.ownerId === user.id);
     if (!business) throw new AuthError('not_found');
+    if (plan !== 'start' && plan !== 'pro') throw new AuthError('validation');
     // One free trial per business; choosing again only switches the plan.
     const now = new Date();
-    const startedAt = business.subscription?.startedAt ?? now.toISOString();
-    const trialEndsAt =
-      business.subscription?.trialEndsAt ?? new Date(now.getTime() + TRIAL_DAYS * 86_400_000).toISOString();
-    business.subscription = { plan, status: 'trialing', startedAt, trialEndsAt };
+    business.subscription = business.subscription
+      ? {
+          ...business.subscription,
+          plan,
+          billingPeriod: business.subscription.currentPeriodEnd ? business.subscription.billingPeriod : period,
+        }
+      : settle({
+          plan,
+          status: 'trialing',
+          billingPeriod: period,
+          startedAt: now.toISOString(),
+          trialEndsAt: new Date(now.getTime() + TRIAL_DAYS * 86_400_000).toISOString(),
+        });
     await save(db);
     return copy(business);
   },

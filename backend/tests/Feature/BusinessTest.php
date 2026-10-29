@@ -196,6 +196,9 @@ class BusinessTest extends TestCase
             ->assertJsonPath('subscription.billing_period', 'month')
             ->assertJsonPath('subscription.grace_ends_at', '2026-11-18T06:00:00.000Z');
         $this->postJson('/api/business/subscription/trial', ['plan' => 'studio'], $h)->assertStatus(422);
+        $this->postJson('/api/business/subscription/trial', ['plan' => 'start', 'period' => 'year'], $h)->assertOk()
+            ->assertJsonPath('subscription.billing_period', 'year')
+            ->assertJsonPath('subscription.trial_ends_at', '2026-11-11T06:00:00.000Z');
 
         $this->travel(40)->days();
         $salon->subscription->forceFill(['status' => 'expired'])->save();

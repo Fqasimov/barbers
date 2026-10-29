@@ -55,9 +55,11 @@ Bu addımlar bitəndə salonunuz yoxlanılır və bir iş günü ərzində axtar
 
 ### Ödəniş
 
-- 30 günlük sınaqdan sonra seçdiyiniz planı Android tətbiqində (və ya saytda) kartla ödəyirsiniz.
-- Sınaq bitməzdən 3 gün əvvəl e-poçt gəlir.
-- Ödəniş olmasa, salon axtarışdan çıxır, amma mövcud növbələr qüvvədə qalır.
+- **Planlar:** Start, aylıq 29 ₼ (tək salon üçün), və Pro, aylıq 59 ₼ (böyüyən salonlar üçün). İllik ödəsəniz, 12 ay 10 ayın qiymətinədir: 290 ₼ və 590 ₼.
+- **İlk 30 gün hər plan pulsuzdur.** Qeydiyyatda kart və ya ödəniş istənmir.
+- Sınaq bitməzdən 3 gün əvvəl e-poçt və tətbiqdə bildiriş gəlir. Sonra Android tətbiqində (və ya saytda) ödəniş üsulunu əlavə edirsiniz. Erkən ödəsəniz, sınağın qalan günləri itmir.
+- Avtomatik ödəniş yoxdur. Davam etmək istəmirsinizsə, heç nə etməyin; istənilən vaxt ləğv edə bilərsiniz.
+- Sınaq bitib ödəniş edilməsə, salon daha **7 gün** axtarışda qalır və bron qəbul edir. Sonra axtarışdan çıxır və yeni bron qəbul etmir. Mövcud bronlar qüvvədə qalır. Aylıq ödəniş gecikəndə də eyni 7 gün qaydası var.
 
 ### Kömək
 
@@ -116,9 +118,11 @@ Bu addımlar bitəndə salonunuz yoxlanılır və bir iş günü ərzində axtar
 
 ### Оплата
 
-- После 30 дней пробного периода вы оплачиваете выбранный тариф картой в Android-приложении (или на сайте).
-- За 3 дня до конца пробного периода придёт письмо.
-- Без оплаты салон пропадёт из поиска, но существующие записи останутся.
+- **Тарифы:** Start, 29 ₼ в месяц (для одного салона), и Pro, 59 ₼ в месяц (для растущих салонов). При оплате за год 12 месяцев стоят как 10: 290 ₼ и 590 ₼.
+- **Первые 30 дней любой тариф бесплатен.** При регистрации карта и оплата не нужны.
+- За 3 дня до конца пробного периода придут письмо и уведомление в приложении. Затем добавьте способ оплаты в Android-приложении (или на сайте). Если оплатить раньше, оставшиеся дни пробного периода не пропадут.
+- Автосписаний нет. Если не хотите продолжать, ничего делать не нужно; отменить можно в любой момент.
+- Если после пробного периода оплаты нет, салон ещё **7 дней** остаётся в поиске и принимает записи. Потом он пропадает из поиска и не принимает новые записи. Существующие записи сохраняются. Если опоздать с ежемесячной оплатой, действует то же правило 7 дней.
 
 ### Помощь
 
