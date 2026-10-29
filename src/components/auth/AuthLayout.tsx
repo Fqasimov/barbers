@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,6 +28,11 @@ export function AuthLayout({
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  const scroller = useRef<ScrollView>(null);
+  // A new step of a multi-step form starts at its title, not where the last one was scrolled to.
+  useEffect(() => {
+    scroller.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: c.bg }}
@@ -35,6 +40,7 @@ export function AuthLayout({
     >
       <ScreenHeader mode={mode} right={headerRight} />
       <ScrollView
+        ref={scroller}
         contentContainerStyle={[styles.content, { paddingBottom: footer ? 24 : insets.bottom + 32 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

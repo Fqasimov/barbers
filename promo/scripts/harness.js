@@ -1,0 +1,225 @@
+// Frame-accurate screen recordings of the real app (Expo web), shared by record.js
+// and record-signup.js. Time is faked: every captured frame advances the page clock
+// by exactly 1/30 s, so Reanimated transitions, press feedback and scroll physics
+// play back at true speed. Each take writes NNNN.jpg frames plus events.json:
+// { frames, events: [{ frame, x, y, drag? }], segments: [{ from, to, kind: 'typing' | 'scroll' }] }.
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+
+const OUT = process.argv[2];
+const ONLY = process.argv.slice(3);
+if (!OUT) throw new Error('usage: node <script> <outDir> [take ...]');
+const BASE = 'http://localhost:8081';
+const FPS = 30;
+const W = 390;
+const H = 844; // iPhone 15 points; the promo draws the status bar and home indicator over the insets
+
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+async function clip(browser, name, route, script, { seed } = {}) {
+  if (ONLY.length && !ONLY.includes(name)) return;
+  const dir = path.join(OUT, name);
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+  const ctx = await browser.newContext({
+    viewport: { width: W, height: H },
+    deviceScaleFactor: 2,
+    geolocation: { latitude: 40.3725, longitude: 49.8375 },
+    permissions: ['geolocation'],
+  });
+  // Give the app real iPhone safe-area insets (react-native-safe-area-context reads them via getComputedStyle).
+  await ctx.addInitScript(() => {
+    const orig = window.getComputedStyle;
+    window.getComputedStyle = function (el, ...rest) {
+      const cs = orig.call(window, el, ...rest);
+      if (el && el.style && String(el.style.paddingTop).includes('safe-area')) {
+        return new Proxy(cs, {
+          get: (t, k) => (k === 'paddingTop' ? '47px' : k === 'paddingBottom' ? '34px' : typeof t[k] === 'function' ? t[k].bind(t) : t[k]),
+        });
+      }
+      return cs;
+    };
+  });
+  await ctx.addInitScript((s) => {
+    if (!sessionStorage.getItem('seeded')) {
+      localStorage.setItem('usta-store-v2', JSON.stringify({ state: { locale: 'az', authPrompted: true, ...s }, version: 2 }));
+      sessionStorage.setItem('seeded', '1');
+    }
+  }, seed ?? {});
+  const p = await ctx.newPage();
+  p.on('pageerror', (e) => console.log('[err]', e.message));
+  await p.clock.install();
+  await p.goto(BASE + route);
+  // Let the bundle, fonts and the splash finish in fake time before the take starts.
+  for (let i = 0; i < 40; i++) {
+    await p.clock.runFor(100);
+    await p.waitForTimeout(60);
+  }
+  await p.clock.runFor(3000);
+  await p.waitForTimeout(400);
+  await p.clock.runFor(500);
+
+  let n = 0;
+  const events = [];
+  /** Frame ranges the edit may speed up (on-camera typing). */
+  const segments = [];
+  const snap = async () => {
+    await p.screenshot({ path: path.join(dir, `${String(n).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 93 });
+    n++;
+  };
+  let rolling = true;
+  const tick = async () => {
+    await p.clock.runFor(1000 / FPS);
+    if (rolling) await snap();
+  };
+  const api = {
+    p,
+    hold: async (ms) => {
+      for (let i = 0; i < Math.round((ms / 1000) * FPS); i++) await tick();
+    },
+    /** Find a pressable by its accessibility label (prefix match) and return its centre. */
+    find: async (label, { nth = 0, exact = false } = {}) => {
+      const r = await p.evaluate(
+        ({ label, nth, exact }) => {
+          const els = [...document.querySelectorAll('[aria-label]')].filter((e) => {
+            const l = e.getAttribute('aria-label');
+            const b = e.getBoundingClientRect();
+            return (exact ? l === label : l.startsWith(label)) && b.width > 0 && b.height > 0;
+          });
+          const e = els[nth];
+          if (!e) return null;
+          const b = e.getBoundingClientRect();
+          return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+        },
+        { label, nth, exact },
+      );
+      if (!r) {
+        const all = await p.evaluate(() => [...document.querySelectorAll('[aria-label]')].map((e) => e.getAttribute('aria-label')));
+        throw new Error(`[${name}] no element "${label}". Have: ${all.join(' | ')}`);
+      }
+      return r;
+    },
+    tap: async (label, opts = {}) => {
+      const { x, y } = typeof label === 'string' ? await api.find(label, opts) : label;
+      events.push({ frame: n, x, y });
+      await p.mouse.move(x, y);
+      await p.mouse.down();
+      for (let i = 0; i < 4; i++) await tick();
+      await p.mouse.up();
+      await tick();
+      await p.waitForTimeout(80);
+      await tick();
+    },
+    /** Eased scroll of the scroller under (x, y) by dy points. */
+    scroll: async (dy, ms, { x = W / 2, y = H / 2, ease = easeInOut, horizontal = false } = {}) => {
+      const frames = Math.round((ms / 1000) * FPS);
+      const start = await p.evaluate(
+        ({ x, y, horizontal }) => {
+          let e = document.elementFromPoint(x, y);
+          while (e && !(horizontal ? e.scrollWidth > e.clientWidth + 4 && /(auto|scroll)/.test(getComputedStyle(e).overflowX) : e.scrollHeight > e.clientHeight + 4 && /(auto|scroll)/.test(getComputedStyle(e).overflowY))) e = e.parentElement;
+          if (!e) return null;
+          window.__scroller = e;
+          return horizontal ? e.scrollLeft : e.scrollTop;
+        },
+        { x, y, horizontal },
+      );
+      if (start === null) throw new Error(`[${name}] nothing scrolls at ${x},${y}`);
+      for (let i = 1; i <= frames; i++) {
+        const v = start + dy * ease(i / frames);
+        await p.evaluate(({ v, horizontal }) => {
+          if (horizontal) window.__scroller.scrollLeft = v;
+          else window.__scroller.scrollTop = v;
+        }, { v, horizontal });
+        await tick();
+      }
+    },
+    box: async (label) =>
+      p.evaluate((label) => {
+        const e = [...document.querySelectorAll('[aria-label]')].find((e) => e.getAttribute('aria-label') === label);
+        const b = e.getBoundingClientRect();
+        return { x: b.x, y: b.y, w: b.width, h: b.height };
+      }, label),
+    /** Press, drag horizontally across, release — for the star slider. */
+    drag: async (from, to, ms) => {
+      events.push({ frame: n, x: from.x, y: from.y, drag: true });
+      await p.mouse.move(from.x, from.y);
+      await p.mouse.down();
+      await tick();
+      const frames = Math.round((ms / 1000) * FPS);
+      for (let i = 1; i <= frames; i++) {
+        const t = easeInOut(i / frames);
+        await p.mouse.move(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+        events.push({ frame: n, x: from.x + (to.x - from.x) * t, y: from.y, drag: true });
+        await tick();
+      }
+      await p.mouse.up();
+      await tick();
+    },
+    /** Do setup the viewer shouldn't see. */
+    offCamera: async (fn) => {
+      rolling = false;
+      const before = events.length;
+      await fn();
+      events.length = before;
+      rolling = true;
+    },
+    /** Type into the field with this placeholder (off camera only: it doesn't advance frames). */
+    fill: async (placeholder, value) => {
+      await p.getByPlaceholder(placeholder, { exact: true }).fill(value);
+      await p.clock.runFor(50);
+    },
+    settle: async (ms = 600) => {
+      for (let i = 0; i < 6; i++) {
+        await p.clock.runFor(ms / 6);
+        await p.waitForTimeout(40);
+      }
+    },
+    /**
+     * Type on camera into the field with this placeholder: a quick tap to focus,
+     * then one key every `perKey` frames. Marked as a 'typing' segment.
+     */
+    type: async (placeholder, text, { perKey = 3, locator } = {}) => {
+      const field = locator ?? p.getByPlaceholder(placeholder, { exact: true });
+      const from = n;
+      const b = await field.boundingBox();
+      if (!b) throw new Error(`[${name}] no field "${placeholder}"`);
+      const x = b.x + Math.min(b.width / 2, 120);
+      const y = b.y + b.height / 2;
+      events.push({ frame: n, x, y });
+      await p.mouse.move(x, y);
+      await p.mouse.down();
+      for (let i = 0; i < 2; i++) await tick();
+      await p.mouse.up();
+      await field.focus();
+      for (let i = 0; i < 2; i++) await tick();
+      for (const ch of text) {
+        await p.keyboard.type(ch);
+        for (let i = 0; i < perKey; i++) await tick();
+      }
+      for (let i = 0; i < 3; i++) await tick();
+      segments.push({ from, to: n, kind: 'typing' });
+    },
+    /**
+     * Eased scroll so the element's centre sits at `at` (fraction of the screen
+     * height); no-op if it's already there. Marked as a 'scroll' segment.
+     */
+    reveal: async (locator, { at = 0.4, ms = 450, margin = 150 } = {}) => {
+      const b = await locator.boundingBox();
+      if (!b) throw new Error(`[${name}] reveal: element not found`);
+      const cy = b.y + b.height / 2;
+      if (cy > 120 && cy < H - margin) return;
+      const from = n;
+      await api.scroll(cy - H * at, ms, { y: Math.min(Math.max(cy, 140), H - 200) });
+      segments.push({ from, to: n, kind: 'scroll' });
+    },
+    labels: async () => console.log(await p.evaluate(() => [...document.querySelectorAll('[aria-label]')].map((e) => e.getAttribute('aria-label')).join(' | '))),
+  };
+  await script(api);
+  fs.writeFileSync(path.join(dir, 'events.json'), JSON.stringify({ frames: n, events, segments }));
+  console.log(name, n, 'frames');
+  await ctx.close();
+}
+
+module.exports = { clip, chromium, W, H, FPS };

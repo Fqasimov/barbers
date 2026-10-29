@@ -38,6 +38,20 @@ The shears frames in `public/shears/` come from `../tools/shears`.
 
 ---
 
+# Sign-up clip (`SignupPhone`)
+
+A 14.6-second 9:16 clip for an ad: only the real app in the titanium phone, no text. A salon owner signs up from the Profile tab and starts the 30-day trial on Start. Typing and the short scrolls between fields play at 2×; taps and screen changes play at real speed. The clip ends by pulling back to the whole phone and fading to white.
+
+```console
+npx expo start --web --port 8081                   # in the repo root; wait until it serves
+node scripts/record-signup.js /tmp/rec signup      # frames + events.json (taps, fast segments)
+npx remotion ffmpeg -framerate 30 -i /tmp/rec/signup/%04d.jpg -c:v libx264 -crf 17 -pix_fmt yuv420p public/rec/signup.mp4
+cp /tmp/rec/signup/events.json public/rec/signup.json
+npx remotion render SignupPhone ../ads/04-signup-phone.mp4 --crf=17
+```
+
+Without internet access to Remotion's browser download, add `--browser-executable=<path to a Chrome headless shell>`. The recording harness shared by all takes is `scripts/harness.js`.
+
 # Salon owners ad (`SalonAd`)
 
 A 51-second 9:16 ad aimed at barbershop, beauty salon and spa owners, in Azerbaijani, in the same look as the brand promo: linen, ink type, soft product shadows, film grain and real app recordings.

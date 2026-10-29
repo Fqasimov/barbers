@@ -10,22 +10,32 @@ import map from "../public/rec/map.json";
 import past from "../public/rec/past.json";
 import review from "../public/rec/review.json";
 import salon from "../public/rec/salon.json";
+import signup from "../public/rec/signup.json";
 import { PT } from "./Phone";
 import { clamp } from "./theme";
 
 type Touch = { frame: number; x: number; y: number; drag?: boolean };
-type Take = { frames: number; events: Touch[] };
+/** Spans the edit may speed up: on-camera typing and the short scrolls between fields. */
+export type Segment = { from: number; to: number; kind: "typing" | "scroll" };
+type Take = { frames: number; events: Touch[]; segments?: Segment[] };
 
 /** Frame-accurate recordings of the real app (see promo/README.md for how they're made). */
-export const takes = { home, find, salon, book, map, compare, past, review, business } as Record<string, Take>;
+export const takes = { home, find, salon, book, map, compare, past, review, business, signup } as Record<string, Take>;
 export type TakeName = keyof typeof takes;
 
 /** Frame of the n-th tap in a take — for cutting right after a navigation tap. */
 export const tapAt = (name: TakeName, n: number) => takes[name].events.filter((e) => !e.drag)[n].frame;
 
-/** One recording, trimmed, with iOS-style "show touches" circles where the finger landed. */
-export const Clip: React.FC<{ name: TakeName; from?: number }> = ({ name, from = 0 }) => {
-  const frame = useCurrentFrame() + from;
+/**
+ * One recording, trimmed, with iOS-style "show touches" circles where the finger
+ * landed. `playbackRate` > 1 speeds it up; touch circles follow the recording's own clock.
+ */
+export const Clip: React.FC<{ name: TakeName; from?: number; playbackRate?: number }> = ({
+  name,
+  from = 0,
+  playbackRate = 1,
+}) => {
+  const frame = Math.floor(useCurrentFrame() * playbackRate) + from;
   const { events } = takes[name];
   const taps = events.filter((e) => !e.drag);
   const drag = events.filter((e) => e.drag);
@@ -37,6 +47,7 @@ export const Clip: React.FC<{ name: TakeName; from?: number }> = ({ name, from =
       <OffthreadVideo
         src={staticFile(`rec/${name}.mp4`)}
         trimBefore={from}
+        playbackRate={playbackRate}
         muted
         style={{ width: PT.w, height: PT.h, display: "block" }}
       />
