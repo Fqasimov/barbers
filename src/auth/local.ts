@@ -101,7 +101,7 @@ const publicUser = ({ salt: _s, hash: _h, ...u }: StoredUser): User => u;
  * Answers are copies, like a real API's JSON: the app's state must never share
  * objects with this store, or in-place updates here would go unnoticed there.
  */
-const copy = <T,>(v: T): T => (v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T));
+const copy = <T>(v: T): T => (v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T));
 const businessOf = (db: Db, userId: string) => copy(db.businesses.find((b) => b.ownerId === userId) ?? null);
 /** A little latency so loading states are exercised like they will be on a network. */
 const pause = () => new Promise((r) => setTimeout(r, 350));

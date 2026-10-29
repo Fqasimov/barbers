@@ -11,7 +11,8 @@ export type Page<T> = { data: T[]; nextPage: number | null };
 /** Public catalogue: venues, their booked time and reviews. docs/api.md → "Catalogue". */
 export const catalogueApi = {
   salons: (fresh = false) => request<Salon[]>('GET', '/salons', { fresh }),
-  busy: (args: { from: string; days: number; salonIds?: string[] }) => request<BusyRange[]>('GET', '/busy', { query: args }),
+  busy: (args: { from: string; days: number; salonIds?: string[] }) =>
+    request<BusyRange[]>('GET', '/busy', { query: args }),
   reviews: (salonId: string, page = 1) =>
     request<Page<Review>>('GET', `/salons/${encodeURIComponent(salonId)}/reviews`, { query: { page } }),
   plans: () => request<{ id: PlanId; price: number; priceYear?: number }[]>('GET', '/plans'),

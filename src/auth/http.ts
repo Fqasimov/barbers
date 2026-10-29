@@ -22,8 +22,7 @@ export function createHttpApi(): AuthApi {
     startTrial: (token, plan, period = 'month') =>
       request<Business>('POST', '/business/subscription/trial', { body: { plan, period }, token }),
     logout: (token) => request<void>('POST', '/auth/logout', { token }),
-    deleteAccount: (token, password) =>
-      request<void>('DELETE', '/me', { body: password ? { password } : {}, token }),
+    deleteAccount: (token, password) => request<void>('DELETE', '/me', { body: password ? { password } : {}, token }),
     registerPushToken: (token, pushToken, platform) =>
       request<void>('POST', '/me/push-tokens', { body: { token: pushToken, platform }, token }),
     unregisterPushToken: (token, pushToken) =>

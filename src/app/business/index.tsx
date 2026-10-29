@@ -104,9 +104,7 @@ export default function BusinessDashboard() {
   // From REMIND_DAYS before the end (when the email and push go out) the card asks for a payment method.
   const endingSoon = sub?.status === 'trialing' && daysLeft <= REMIND_DAYS;
   const graceEnds = sub
-    ? new Date(
-        sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY,
-      )
+    ? new Date(sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY)
     : null;
   // On iOS there is no buy button; otherwise it shows whenever a payment is needed or due soon.
   const showPay = canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
@@ -181,7 +179,7 @@ export default function BusinessDashboard() {
                 ) : null}
                 <Button
                   label={i18n.t('changePlan')}
-                  variant={showPay ? 'ghost' : 'secondary'}
+                  variant={showPay ? 'ghostOnPrimary' : 'secondary'}
                   size="sm"
                   onPress={() => router.push('/business/plans')}
                 />
@@ -305,7 +303,14 @@ export default function BusinessDashboard() {
 const styles = StyleSheet.create({
   card: { borderRadius: radius.lg, padding: 18, gap: 8 },
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 6, flexWrap: 'wrap' },
-  notice: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 10, borderRadius: radius.md, marginTop: 4 },
+  notice: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'flex-start',
+    padding: 10,
+    borderRadius: radius.md,
+    marginTop: 4,
+  },
   track: { height: 6, borderRadius: 3, overflow: 'hidden', marginVertical: 4 },
   fill: { height: 6, borderRadius: 3 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
