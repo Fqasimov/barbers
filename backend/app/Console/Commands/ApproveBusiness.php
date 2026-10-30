@@ -19,7 +19,7 @@ class ApproveBusiness extends Command
 
             return self::FAILURE;
         }
-        $b->forceFill(['status' => Business::LIVE, 'approved_at' => $b->approved_at ?? now()])->save();
+        $b->approve();
         $this->info("{$b->name} ({$b->id}) is live.");
         if (! $b->isListable()) {
             $this->warn('It is not in search yet: it needs at least one service and master, and a trial or paid plan.');

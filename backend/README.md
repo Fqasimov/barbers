@@ -39,6 +39,7 @@ Tests: `php artisan test` (SQLite in memory). Formatting: `./vendor/bin/pint`.
 
 | Command | What it does |
 | --- | --- |
+| `usta:create-admin [--email= --name= --disable --enable]` | Staff account for `/admin` (password prompt + authenticator key). |
 | `usta:approve-business {id}` | Review passed: `pending_review` → `live`. Warns if the salon still can't be listed (no service, master or plan). |
 | `usta:suspend-business {id}` | `suspended`: hidden from search. Existing bookings stay. |
 | `usta:create-user [--email= --first-name= --last-name= --role=customer]` | Creates a verified password account, or resets the password of an existing one. The password is read from a hidden prompt. |
@@ -69,7 +70,8 @@ A paid callback always sets `active` and `current_period_end = max(now, what the
    - `GOOGLE_CLIENT_IDS`, `APPLE_CLIENT_IDS`, `CORS_ALLOWED_ORIGINS`, `TRUSTED_PROXIES`, `PHOTO_DISK`.
    - `PAYMENT_DRIVER=provider` with `PAYMENT_*`. The fake driver refuses to boot in production.
 2. `composer install --no-dev --optimize-autoloader`, then `php artisan migrate --force`, `php artisan storage:link`, and `php artisan config:cache route:cache event:cache`.
-3. Don't seed in production. `DatabaseSeeder` only seeds when `APP_ENV=local`. Create real accounts with `usta:create-user`.
+3. Don't seed in production. `DatabaseSeeder` only seeds when `APP_ENV=local`. Create real accounts with `usta:create-user`, and staff with `usta:create-admin` (see "Admin panel").
+   Set `SESSION_SECURE_COOKIE=true` so the admin session cookie is only sent over HTTPS.
 4. Queue worker under supervisor or systemd:
    ```ini
    [program:usta-queue]
@@ -86,6 +88,29 @@ A paid callback always sets `active` and `current_period_end = max(now, what the
 7. Mail DNS: SPF, DKIM and DMARC (`p=quarantine` or stricter) for the sending domain. Codes are emailed, so deliverability matters.
 8. Photos: `PHOTO_DISK=public` (local disk plus `storage:link`) or `s3` with `AWS_URL` pointing to a CDN. URLs are always absolute. Back up the disk or bucket and the database.
 9. Logs: ship `storage/logs` and watch failed jobs (`php artisan queue:failed`).
+
+## Admin panel (`/admin`)
+
+A server-rendered panel for Usta staff at `https://api.<domain>/admin`. It is not part of the API and needs no extra hosting.
+
+- **Accounts:** staff live in their own `admins` table, separate from app users, so no app account can become an admin. Sign-in takes the password **and** a 6-digit code from an authenticator app (TOTP). Each code works once. There are 5 tries a minute per email and IP, and the error never says which part was wrong. Sessions end after 30 minutes without activity.
+  - `php artisan usta:create-admin --email=… --name=…` asks for the password in a hidden prompt (12+ characters, letters and numbers). It prints the authenticator key once; the key is stored encrypted.
+  - Run it again for the same email to reset the password and the authenticator.
+  - `--disable` / `--enable` block or allow one admin.
+- **Overview:** salons waiting for review, reported reviews, salons in search, visits today, customers, money paid this month, the 7-day grace, trials ending in 3 days, recent admin activity.
+- **Salons:** search and filter by status and plan.
+  - The salon page shows owner, services, masters, photos, plan, bookings, reviews, payments, and a checklist of why it is or isn't in search.
+  - Actions: approve, suspend (a reason is required), reinstate, add days to the trial or paid period (a reason is required; a lapsed plan restarts from today), change plan.
+- **Reviews:** the reported queue (aim for 24 hours), hidden, all. Actions: hide, show again, dismiss reports. Ratings update at once.
+- **Users:** search customers and owners.
+  - Sign out everywhere, which revokes app sessions and push tokens.
+  - Delete an account: the same deletion as in the app. You must type the account's email to confirm.
+- **Bookings** and **Payments:** read-only lists with filters (Baku time).
+- **Activity:** every change and sign-in, with who, when and from which IP. It can't be edited from the panel.
+
+The panel sets strict headers: a same-origin CSP with no inline scripts or styles, `frame-ancestors 'none'`, `no-store` and `noindex`. Its CSS, JS and fonts are in `public/admin-assets`. That folder must never be named `public/admin`, or the web server would serve the folder instead of the route. In production set `SESSION_SECURE_COOKIE=true`.
+
+The commands below still work and share their logic with the panel.
 
 ## Payment provider integration
 

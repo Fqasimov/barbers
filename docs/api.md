@@ -162,7 +162,7 @@ The app and the server compute it the same way (`src/data/availability.ts`):
 | POST | `/bookings` | `salon_id, master_id, service_ids[], start (ISO), note?` | `201` Booking | The server recomputes `duration_min` and `total` from its own prices. Checks the master does every service and the slot is free **inside a transaction with a row lock on the master**: `409 slot_taken` when someone got there first. Notifies the salon. |
 | POST | `/bookings/{id}/cancel` | — | `200` Booking | Allowed until 2 hours before the start (`422 too_late_to_cancel`). Notifies the salon. |
 | POST | `/bookings/{id}/review` | `rating (1–5), text, tags[], master_id?` | `201` Review | Only for the booking's own customer, once, after the visit has ended (`422 not_reviewable`). Updates the salon's and master's rating. |
-| POST | `/reviews/{id}/report` | `reason: spam\|offensive\|fake\|other, note?` | `200 { ok: true }` | Any signed-in user, once per review. After **3** reports the review is hidden (not listed, not counted in ratings) until an admin checks it: `php artisan usta:reviews` lists reports, `--hide=<id>` / `--restore=<id>` decide. App Store rule 1.2 asks for reporting and a quick response (aim for 24 hours). |
+| POST | `/reviews/{id}/report` | `reason: spam\|offensive\|fake\|other, note?` | `200 { ok: true }` | Any signed-in user, once per review. After **3** reports the review is hidden (not listed, not counted in ratings) until an admin checks it in the admin panel (`/admin` → Reviews), or with `php artisan usta:reviews`. App Store rule 1.2 asks for reporting and a quick response (aim for 24 hours). |
 
 ## Salon tools (business owner, token required)
 

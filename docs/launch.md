@@ -24,7 +24,8 @@ Follow the production checklist in `backend/README.md`.
 - [ ] `php artisan migrate --force`, `php artisan storage:link`, a queue worker (supervisor) and a cron entry for `schedule:run`.
 - [ ] Email: a sending service plus **SPF, DKIM and DMARC** on the domain, so codes don't land in spam.
 - [ ] Create the demo account: `php artisan usta:create-user` (faiq.farid0604@gmail.com).
-- [ ] Approve each new salon with `php artisan usta:approve-business <id>`.
+- [ ] Create a staff account for each person on the team: `php artisan usta:create-admin` (they scan the printed key into an authenticator app). Set `SESSION_SECURE_COOKIE=true`.
+- [ ] Approve each new salon in the admin panel: `https://api.<domain>/admin` → Salons.
 
 ## 3. Builds (EAS)
 

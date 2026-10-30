@@ -43,6 +43,7 @@ class Business extends Model
             'base_distribution' => 'array',
             'review_stars' => 'array',
             'base_rating' => 'float',
+            'suspended_at' => 'datetime',
             'latitude' => 'float',
             'longitude' => 'float',
             'price_level' => 'integer',
@@ -109,6 +110,18 @@ class Business extends Model
             ->whereHas('subscription', fn (Builder $s) => $s
                 ->whereIn('status', Subscription::LIVE_STATUSES)
                 ->whereRaw('COALESCE(current_period_end, trial_ends_at) > ?', [$cutoff]));
+    }
+
+    /** Review passed: live (in search once it has a service, a master and a running plan). */
+    public function approve(): void
+    {
+        $this->forceFill(['status' => self::LIVE, 'approved_at' => $this->approved_at ?? now(), 'suspended_at' => null, 'suspended_reason' => null])->save();
+    }
+
+    /** Hidden from search and closed to new bookings; existing bookings stay. */
+    public function suspend(?string $reason = null): void
+    {
+        $this->forceFill(['status' => self::SUSPENDED, 'suspended_at' => now(), 'suspended_reason' => $reason])->save();
     }
 
     public function isListable(): bool

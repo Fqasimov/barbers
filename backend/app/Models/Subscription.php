@@ -40,6 +40,26 @@ class Subscription extends Model
         return $this->current_period_end ?? $this->trial_ends_at;
     }
 
+    /**
+     * Staff goodwill (an outage, a late approval, a deal): adds days to what the
+     * salon has: the paid period if it ever paid, else the trial. A lapsed plan
+     * restarts from now. The status follows the new end date.
+     */
+    public function grantDays(int $days): void
+    {
+        $now = now();
+        $field = $this->current_period_end ? 'current_period_end' : 'trial_ends_at';
+        $from = $this->{$field} && $this->{$field}->gt($now) ? $this->{$field} : $now;
+        $end = $from->copy()->addDays($days);
+        $this->forceFill([
+            $field => $end,
+            'status' => $field === 'current_period_end' ? self::ACTIVE : self::TRIALING,
+            // A new end date means new reminders.
+            'trial_reminded_3d_at' => $field === 'trial_ends_at' ? null : $this->trial_reminded_3d_at,
+            'trial_reminded_0d_at' => $field === 'trial_ends_at' ? null : $this->trial_reminded_0d_at,
+        ])->save();
+    }
+
     /** When the salon leaves search unless it pays. */
     public function graceEndsAt(): ?CarbonInterface
     {

@@ -19,7 +19,7 @@ class SuspendBusiness extends Command
 
             return self::FAILURE;
         }
-        $b->forceFill(['status' => Business::SUSPENDED])->save();
+        $b->suspend();
         $this->info("{$b->name} ({$b->id}) is suspended.");
 
         return self::SUCCESS;

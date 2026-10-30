@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Business;
+use App\Models\ReviewReport;
 use App\Payments\FakeGateway;
 use App\Payments\PaymentGateway;
 use App\Services\Photos\GdPhotoProcessor;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 
@@ -40,6 +43,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         JsonResource::withoutWrapping();
+
+        // The admin sidebar's "waiting" counts.
+        View::composer('admin.layout', fn ($view) => $view->with('navCounts', [
+            'pending' => Business::query()->where('status', Business::PENDING)->count(),
+            'reports' => ReviewReport::query()->whereNull('resolved_at')->distinct('review_id')->count('review_id'),
+        ]));
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
         $email = fn (Request $r) => mb_strtolower(trim((string) $r->input('email', '')));

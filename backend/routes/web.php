@@ -11,3 +11,5 @@ Route::get('billing/return', [PaymentController::class, 'return'])->name('billin
 // FakeGateway's hosted page (local/testing only; 404 with a real driver).
 Route::get('billing/fake/{payment}', [PaymentController::class, 'fakeCheckout'])
     ->middleware('signed')->name('billing.fake');
+
+require __DIR__.'/admin.php';

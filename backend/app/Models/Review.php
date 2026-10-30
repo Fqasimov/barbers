@@ -7,6 +7,7 @@ use App\Support\CatalogueCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Review extends Model
 {
@@ -41,5 +42,15 @@ class Review extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class)->withTrashed();
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ReviewReport::class);
     }
 }

@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Business;
-use App\Models\Master;
 use App\Models\Review;
 use App\Models\ReviewReport;
-use App\Services\RatingService;
+use App\Services\ReviewModeration;
 use Illuminate\Console\Command;
 
 /**
@@ -19,7 +17,7 @@ class ModerateReviews extends Command
 
     protected $description = 'List reported reviews, or hide / restore one';
 
-    public function handle(RatingService $ratings): int
+    public function handle(ReviewModeration $moderation): int
     {
         $id = $this->option('hide') ?? $this->option('restore');
         if ($id) {
@@ -30,14 +28,7 @@ class ModerateReviews extends Command
                 return self::FAILURE;
             }
             $hide = (bool) $this->option('hide');
-            $review->forceFill($hide ? ['hidden_at' => $review->hidden_at ?? now()] : ['hidden_at' => null, 'report_count' => 0])->save();
-            ReviewReport::query()->where('review_id', $review->id)->whereNull('resolved_at')->update(['resolved_at' => now()]);
-            if ($b = Business::withTrashed()->find($review->business_id)) {
-                $ratings->refreshBusiness($b);
-            }
-            if ($review->master_id && ($m = Master::query()->find($review->master_id))) {
-                $ratings->refreshMaster($m);
-            }
+            $hide ? $moderation->hide($review) : $moderation->restore($review);
             $this->info($hide ? "Review {$review->id} is hidden." : "Review {$review->id} is visible again.");
 
             return self::SUCCESS;

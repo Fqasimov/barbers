@@ -1,0 +1,2 @@
+@php($labels = ['pending_review' => 'Waiting for review', 'live' => 'Live', 'suspended' => 'Suspended', 'trialing' => 'Trial', 'active' => 'Paid', 'past_due' => 'Grace period', 'expired' => 'Expired', 'upcoming' => 'Upcoming', 'completed' => 'Completed', 'cancelled' => 'Cancelled', 'no_show' => 'No-show', 'pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed', 'deleted' => 'Deleted', 'hidden' => 'Hidden', 'reported' => 'Reported', 'none' => 'No plan'])
+<span class="badge b-{{ $s }}">{{ $labels[$s] ?? ucfirst(str_replace('_', ' ', $s)) }}</span>

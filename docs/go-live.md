@@ -41,13 +41,13 @@ This covers the product, not the build: what customers and salons do in the app,
 - **Alerts:** a push and an email for every new booking, and a push when a client cancels.
 - **Subscription:** pay on Android (or later the website). On iPhone the app shows the plan, without a price or a buy button.
 
-**You (admin), from the server command line**
-- `php artisan usta:approve-business <id>` approves a new salon.
-- `php artisan usta:suspend-business <id>` takes a salon down.
-- `php artisan usta:reviews` lists reported reviews.
-  - Add `--hide=<id>` or `--restore=<id>` to decide one.
-  - Apple expects reports to be handled quickly; aim for **24 hours**.
-- `php artisan usta:create-user` creates the App Review demo account.
+**You (admin), in the admin panel at `https://api.<domain>/admin`**
+- Sign in with a password and a code from an authenticator app. Create each staff account with `php artisan usta:create-admin`.
+- **Salons:** approve new salons, suspend or reinstate them, add days to a trial or paid period, change the plan.
+- **Reviews:** the reported queue. Hide, show again, or dismiss the reports. Apple expects reports to be handled quickly; aim for **24 hours**.
+- **Users:** look anyone up, sign them out everywhere, or delete an account on request.
+- **Bookings** and **payments:** read-only lists. **Activity** logs every admin change.
+- From the command line: `php artisan usta:create-user` creates the App Review demo account. `usta:approve-business`, `usta:suspend-business` and `usta:reviews` still work.
 
 ## Decide before launch
 
@@ -108,9 +108,9 @@ The app only feels alive when the first screen is full.
 
 - [ ] **Support inbox:** `support@<domain>` (the app's "Contact support" opens it). Decide who answers it and how quickly; one working day is a good goal.
 - [ ] **Salon approval:**
-  - Decide what you check before running `approve-business`: a real address, real photos, a phone number that answers.
+  - Decide what you check before approving in the admin panel: a real address, real photos, a phone number that answers.
   - Approve within a day, or owners lose interest.
-- [ ] **Review reports:** someone checks `usta:reviews` every day.
+- [ ] **Review reports:** someone checks the admin panel's Reviews queue every day.
 - [ ] **Salon support:** a WhatsApp number for owners, printed in the salon guide.
 - [ ] **Trial ending:** owners get an email and a push 3 days before and on the last day; then the 7-day grace starts. Decide whether someone also calls salons in their last trial week; it converts far better than email.
 - [ ] **Salons cancelling on clients:** the client gets a push and an email. Watch salons that cancel often.
@@ -141,4 +141,4 @@ Not needed for day one.
 5. **Salon statistics:** bookings per week, revenue, no-show rate (promised in Pro).
 6. **Waitlist:** "tell me if 18:00 frees up".
 7. **Sharing a salon link,** once the domain exists (`https://<domain>/salon/<id>` opening the app).
-8. **An admin panel** to replace the command line, once approvals and reports get busy.
+8. **Times in Baku time on every phone.** The app reads and books slots in the phone's own time zone. On a phone set to another zone (a tourist's), "12:00" books 12:00 in that zone, so the customer arrives at the wrong time. Phones on Baku time are fine.
