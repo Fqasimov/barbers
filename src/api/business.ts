@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { demoStore } from '@/auth/local';
 import { AuthError, type Business, type Hours, type Photo, type PlanId, type Subscription } from '@/auth/types';
 import type { BillingPeriod } from '@/auth/plans';
@@ -107,10 +109,15 @@ const httpBusinessApi: BusinessApi = {
   addService: (token, input) => request('POST', '/business/services', { token, body: input }),
   updateService: (token, id, input) => request('PATCH', `/business/services/${enc(id)}`, { token, body: input }),
   deleteService: (token, id) => request('DELETE', `/business/services/${enc(id)}`, { token }),
-  uploadPhoto: (token, uri) => {
+  uploadPhoto: async (token, uri) => {
     const form = new FormData();
-    // React Native's FormData takes a file descriptor object for uploads.
-    form.append('photo', { uri, name: 'photo.jpg', type: 'image/jpeg' } as unknown as Blob);
+    if (Platform.OS === 'web') {
+      // Browsers need the file itself; the picker gives a blob: or data: URI.
+      form.append('photo', await (await fetch(uri)).blob(), 'photo.jpg');
+    } else {
+      // React Native's FormData takes a file descriptor object for uploads.
+      form.append('photo', { uri, name: 'photo.jpg', type: 'image/jpeg' } as unknown as Blob);
+    }
     return request('POST', '/business/photos', { token, body: form });
   },
   deletePhoto: (token, id) => request('DELETE', `/business/photos/${enc(id)}`, { token }),
