@@ -15,6 +15,8 @@ const SIZE = +(params.get('size') || 900);
 const BG = params.get('bg'); // hex without # for opaque background, else transparent
 const SHADOW = params.get('shadow') !== '0';
 const VIEW = params.get('view') || 'splash';
+// view=check: blades up, the left one shortened (LEFT, share of full length), opening into a check mark.
+const LEFT = +(params.get('left') || 1);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !BG, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1);
@@ -90,16 +92,18 @@ function extrude(shape, depth, bevel = 0.7, mat = polished) {
  * One half of a pair of barber shears, pivot at the origin, tip along +x.
  * The upper blade and the lower handle are one forged piece; the other half is its mirror.
  */
-function half({ tang }) {
+function half({ tang, len = 1 }) {
   const g = new THREE.Group();
 
   // Blade + hub. Cutting edge runs flat along y≈0, the spine arcs over it to a fine point.
+  // A shorter blade keeps its root at the pivot and its width; only the length beyond the hub scales.
+  const X = (x) => (x > 12 ? 12 + (x - 12) * len : x);
   const s = new THREE.Shape();
   s.moveTo(0, -5.2);
-  s.lineTo(30, -5.0);
-  s.bezierCurveTo(60, -4.4, 90, -2.2, 106, -0.5);
-  s.quadraticCurveTo(108, 0, 106.4, 0.5);
-  s.bezierCurveTo(88, 2.8, 52, 6.6, 16, 7.4);
+  s.lineTo(X(30), -5.0);
+  s.bezierCurveTo(X(60), -4.4, X(90), -2.2, X(106), -0.5);
+  s.quadraticCurveTo(X(108), 0, X(106.4), 0.5);
+  s.bezierCurveTo(X(88), 2.8, X(52), 6.6, X(16), 7.4);
   s.lineTo(0, 7.4);
   s.lineTo(0, -5.2);
   const blade = extrude(s, T, 0.55, polished);
@@ -158,7 +162,7 @@ function half({ tang }) {
 }
 
 const shears = new THREE.Group();
-const A = half({ tang: false });
+const A = half({ tang: false, len: VIEW === 'check' ? LEFT : 1 });
 A.position.z = T / 2 + 0.75;
 const B = half({ tang: true });
 B.scale.y = -1;
@@ -189,11 +193,21 @@ scene.add(shears);
 // ---- Camera ----
 const camera = new THREE.PerspectiveCamera(22, 1, 10, 2000);
 function frameFor(view) {
-  if (view === 'icon') {
+  if (view === 'check') {
+    // Blades up: A (the short one) swings left, B right, so the open blades draw a check mark.
+    // The shears lie as in the splash (so the steel catches exactly the same light); the camera
+    // rolls instead, turning the picture so the blades point up at 96°.
+    shears.rotation.set(0, 0, THREE.MathUtils.degToRad(32));
+    shears.position.set(0, 0, 0);
+    camera.position.set(0, -230, 620);
+    const roll = THREE.MathUtils.degToRad(96 - 32);
+    camera.up.set(Math.sin(roll), Math.cos(roll), 0);
+  } else if (view === 'icon') {
     shears.rotation.set(0, 0, THREE.MathUtils.degToRad(40));
     shears.position.set(14, -6, 0);
     camera.position.set(0, -70, 420);
   } else {
+    camera.up.set(0, 1, 0);
     shears.rotation.set(0, 0, THREE.MathUtils.degToRad(32));
     shears.position.set(2, -2, 0);
     camera.position.set(0, -230, 520);

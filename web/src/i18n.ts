@@ -17,9 +17,9 @@ export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup
 export const dict = {
   // Meta
   metaTitle: {
-    az: 'Usta: Bakının bərbər, salon və kosmetologiya yazılışı',
-    ru: 'Usta: запись в барбершопы, салоны и косметологии Баку',
-    en: 'Usta: book Baku’s barbers, salons and aesthetic clinics',
+    az: 'yazılnow: Bakının bərbər, salon və kosmetologiya yazılışı',
+    ru: 'yazılnow: запись в барбершопы, салоны и косметологии Баку',
+    en: 'yazılnow: book Baku’s barbers, salons and aesthetic clinics',
   },
   metaDesc: {
     az: 'Bakının bərbərxana, gözəllik salonu və kosmetologiya mərkəzlərinin boş vaxtlarını canlı görün və zəngsiz yazılın. Salonlar üçün: usta sayına görə ödəniş yoxdur, 30 gün pulsuz.',
@@ -30,7 +30,7 @@ export const dict = {
   // Navigation
   skip: { az: 'Əsas məzmuna keç', ru: 'К основному содержанию', en: 'Skip to content' },
   navAbout: { az: 'Biz kimik', ru: 'О нас', en: 'About' },
-  navWhy: { az: 'Niyə Usta', ru: 'Почему Usta', en: 'Why Usta' },
+  navWhy: { az: 'Niyə yazılnow', ru: 'Почему yazılnow', en: 'Why yazılnow' },
   navMap: { az: 'Xəritə', ru: 'Карта', en: 'Map' },
   navJoin: { az: 'Salonlar üçün', ru: 'Для салонов', en: 'For salons' },
   navCta: { az: 'Salonu qoş', ru: 'Подключить салон', en: 'List your salon' },
@@ -61,26 +61,24 @@ export const dict = {
   },
   storeSoon: { az: 'Tezliklə', ru: 'Скоро', en: 'Coming soon' },
   heroForSalons: {
-    az: 'Salonunuz var? 30 gün pulsuz →',
-    ru: 'У вас салон? 30 дней бесплатно →',
-    en: 'Own a salon? 30 days free →',
+    az: 'Salonunuz var? 30 gün pulsuz',
+    ru: 'У вас салон? 30 дней бесплатно',
+    en: 'Own a salon? 30 days free',
   },
-  chipFree: { az: 'Bu gün 18:30 boşdur', ru: 'Сегодня 18:30 свободно', en: 'Free today at 18:30' },
-  chipBooked: { az: 'Növbə təsdiqləndi', ru: 'Запись подтверждена', en: 'Booking confirmed' },
-  chipReview: { az: 'Təsdiqlənmiş ziyarət', ru: 'Подтверждённый визит', en: 'Verified visit' },
+  heroCats: { az: 'Kateqoriyalar', ru: 'Категории', en: 'Categories' },
   phoneAlt: {
-    az: 'Usta tətbiqi: Bakıdakı salonlar, boş vaxt axtarışı və xəritə',
-    ru: 'Приложение Usta: салоны Баку, поиск свободного времени и карта',
-    en: 'The Usta app: Baku salons, a free-time search and the map',
+    az: 'yazılnow tətbiqi: Bakıdakı salonlar, boş vaxt axtarışı və xəritə',
+    ru: 'Приложение yazılnow: салоны Баку, поиск свободного времени и карта',
+    en: 'The yazılnow app: Baku salons, a free-time search and the map',
   },
 
   // About
   aboutKicker: { az: 'Biz kimik', ru: 'Кто мы', en: 'Who we are' },
   aboutTitle: { az: 'Bakıda, Bakı üçün qurulub.', ru: 'Сделано в Баку — для Баку.', en: 'Built in Baku, for Baku.' },
   aboutBody1: {
-    az: 'Usta-nı yaxşı ustaya yazılmaq üçün hələ də zəng edən, WhatsApp-da cavab gözləyən, "sabah saat neçədə boşsunuz?" soruşan insanlar üçün qurduq. Biz bu şəhərdə yaşayırıq və həmin növbələri özümüz də tuturuq.',
-    ru: 'Мы сделали Usta для тех, кто до сих пор звонит, ждёт ответа в WhatsApp и спрашивает «а завтра во сколько можно?», чтобы попасть к хорошему мастеру. Мы живём в этом городе и сами записываемся в те же салоны.',
-    en: 'We built Usta for everyone who still calls, waits on WhatsApp and asks “what time are you free tomorrow?” just to see a good master. We live in this city and book the same chairs ourselves.',
+    az: 'yazılnow-u yaxşı ustaya yazılmaq üçün hələ də zəng edən, WhatsApp-da cavab gözləyən, "sabah saat neçədə boşsunuz?" soruşan insanlar üçün qurduq. Biz bu şəhərdə yaşayırıq və həmin növbələri özümüz də tuturuq.',
+    ru: 'Мы сделали yazılnow для тех, кто до сих пор звонит, ждёт ответа в WhatsApp и спрашивает «а завтра во сколько можно?», чтобы попасть к хорошему мастеру. Мы живём в этом городе и сами записываемся в те же салоны.',
+    en: 'We built yazılnow for everyone who still calls, waits on WhatsApp and asks “what time are you free tomorrow?” just to see a good master. We live in this city and book the same chairs ourselves.',
   },
   aboutBody2: {
     az: 'Salonlar üçün isə məqsədimiz sadədir: dəftəri, zəngləri və unudulmuş növbələri bir təqvimə yığmaq, həm də hər yeni usta üçün əlavə pul istəmədən.',
@@ -104,7 +102,7 @@ export const dict = {
   },
 
   // Why
-  whyKicker: { az: 'Niyə Usta', ru: 'Почему Usta', en: 'Why Usta' },
+  whyKicker: { az: 'Niyə yazılnow', ru: 'Почему yazılnow', en: 'Why yazılnow' },
   whyTitle: {
     az: 'Başqa platformalardan fərqimiz.',
     ru: 'Чем мы отличаемся от других.',
@@ -151,9 +149,9 @@ export const dict = {
   },
   why6Title: { az: 'Boş vaxt canlı görünür', ru: 'Свободное время онлайн', en: 'Free times, live' },
   why6Body: {
-    az: '"Bu gün 18:00-dan sonra fade" axtarın, Usta ən yaxın boş vaxtları göstərsin.',
-    ru: 'Ищите «fade сегодня после 18:00», и Usta покажет ближайшие окна.',
-    en: 'Search “fade today after 6 pm” and Usta shows the nearest openings.',
+    az: '"Bu gün 18:00-dan sonra fade" axtarın, yazılnow ən yaxın boş vaxtları göstərsin.',
+    ru: 'Ищите «fade сегодня после 18:00», и yazılnow покажет ближайшие окна.',
+    en: 'Search “fade today after 6 pm” and yazılnow shows the nearest openings.',
   },
   cmpTitle: { az: 'Müqayisə', ru: 'Сравнение', en: 'Side by side' },
   cmpOthers: { az: 'Adi platformalar', ru: 'Типичные сервисы', en: 'Typical services' },
@@ -217,7 +215,7 @@ export const dict = {
   joinTitle: {
     az: 'Salonunuzu 15 dəqiqəyə qoşun.',
     ru: 'Подключите салон за 15 минут.',
-    en: 'Put your salon on Usta in 15 minutes.',
+    en: 'Put your salon on yazılnow in 15 minutes.',
   },
   joinSub: {
     az: 'Bərbərxana, gözəllik salonu, dırnaq və qaş studiyası, spa, kosmetologiya mərkəzi: hamısı üçün eyni sadə qeydiyyat.',
@@ -425,9 +423,9 @@ export const dict = {
   // FAQ
   faqTitle: { az: 'Tez-tez verilən suallar', ru: 'Частые вопросы', en: 'Questions' },
   faq1Q: {
-    az: 'Usta müştərilər üçün pulludur?',
-    ru: 'Usta платная для клиентов?',
-    en: 'Does Usta cost clients anything?',
+    az: 'yazılnow müştərilər üçün pulludur?',
+    ru: 'yazılnow платный для клиентов?',
+    en: 'Does yazılnow cost clients anything?',
   },
   faq1A: {
     az: 'Xeyr. Xidmətin pulunu salonda ödəyirsiniz, tətbiq pulsuzdur.',
@@ -456,7 +454,7 @@ export const dict = {
     ru: 'Отзыв может оставить только клиент после визита. Под каждым отзывом есть «Пожаловаться», жалобы проверяем за 24 часа.',
     en: 'Only clients with a booking can review. Every review has a “Report” button, and we check reports within 24 hours.',
   },
-  faqMore: { az: 'Bütün suallar →', ru: 'Все вопросы →', en: 'All questions →' },
+  faqMore: { az: 'Bütün suallar', ru: 'Все вопросы', en: 'All questions' },
 
   // Footer
   footPrivacy: { az: 'Məxfilik siyasəti', ru: 'Конфиденциальность', en: 'Privacy policy' },
@@ -464,9 +462,9 @@ export const dict = {
   footHelp: { az: 'Kömək', ru: 'Помощь', en: 'Help' },
   footContact: { az: 'Əlaqə', ru: 'Контакты', en: 'Contact' },
   footRights: {
-    az: '© {year} Usta. Bütün hüquqlar qorunur.',
-    ru: '© {year} Usta. Все права защищены.',
-    en: '© {year} Usta. All rights reserved.',
+    az: '© {year} yazılnow. Bütün hüquqlar qorunur.',
+    ru: '© {year} yazılnow. Все права защищены.',
+    en: '© {year} yazılnow. All rights reserved.',
   },
   footVoen: { az: 'VÖEN', ru: 'ВОЕН', en: 'Tax ID (VÖEN)' },
 } satisfies Record<string, Loc>;

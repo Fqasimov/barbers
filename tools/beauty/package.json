@@ -1,0 +1,8 @@
+{
+  "name": "yazilnow-beauty-render",
+  "private": true,
+  "description": "Renders the 3D salon tools (hairdryer, nail polish, trimmer, straight razor) for the website's opening.",
+  "dependencies": {
+    "three": "0.186.1"
+  }
+}

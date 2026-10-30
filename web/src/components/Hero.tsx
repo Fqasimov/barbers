@@ -2,6 +2,7 @@ import { Player, type PlayerRef } from '@remotion/player';
 import { useEffect, useRef, useState } from 'react';
 
 import { asset } from '../config';
+import { categories } from '../i18n';
 import { useI18n } from '../lang';
 import { REEL_FPS, REEL_FRAMES, SCREEN, Showreel } from '../remotion/Showreel';
 import { Stores } from './ui';
@@ -62,14 +63,14 @@ function LiveScreen({ alt }: { alt: string }) {
 }
 
 export function Hero() {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   const [line1, line2] = t('heroTitle').split('|');
   return (
     <section className="hero" id="top">
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="kicker reveal">{t('heroKicker')}</p>
-          <h1 className="hero-title reveal">
+          <h1 className="display reveal">
             {line1}
             <br />
             <em>{line2}</em>
@@ -78,32 +79,26 @@ export function Hero() {
           <div className="reveal">
             <Stores />
           </div>
-          <a className="hero-link reveal" href="#join">
+          <a className="link-arrow reveal" href="#join">
             {t('heroForSalons')}
           </a>
         </div>
-        <div className="hero-art reveal">
-          <figure className="phone phone-back" aria-hidden="true">
-            <div className="screen">
-              <img src={asset('img/app-salon.webp')} alt="" width={390} height={844} />
-            </div>
-          </figure>
-          <figure className="phone phone-front">
+        {/* A flat lay: the app on a phone among the tools of the trade, lit like the opening. */}
+        <div className="hero-stage reveal">
+          <img className="prop prop-shears" src={asset('tools/shears-18.webp')} alt="" width={720} height={720} />
+          <img className="prop prop-bottle" src={asset('tools/bottle.webp')} alt="" width={720} height={720} />
+          <img className="prop prop-razor" src={asset('tools/razor-08.webp')} alt="" width={720} height={720} />
+          <figure className="phone">
             <LiveScreen alt={t('phoneAlt')} />
           </figure>
-          <div className="float-chip chip-a" aria-hidden="true">
-            <span className="dot dot-green" />
-            {t('chipFree')}
-          </div>
-          <div className="float-chip chip-b" aria-hidden="true">
-            <span className="tick">✓</span>
-            {t('chipBooked')}
-          </div>
-          <div className="float-chip chip-c" aria-hidden="true">
-            <span className="stars">★★★★★</span>
-            {t('chipReview')}
-          </div>
         </div>
+      </div>
+      <div className="wrap">
+        <ul className="hero-cats reveal" aria-label={t('heroCats')}>
+          {categories.map((c) => (
+            <li key={c.id}>{tx(c.label)}</li>
+          ))}
+        </ul>
       </div>
     </section>
   );

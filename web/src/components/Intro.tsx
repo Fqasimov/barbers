@@ -2,16 +2,15 @@ import { Player, type PlayerRef } from '@remotion/player';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useI18n } from '../lang';
-import { Intro, INTRO_FPS, INTRO_FRAMES } from '../remotion/Intro';
-import { SHEAR_FRAMES, shearSrc } from '../remotion/Shears';
+import { Intro, INTRO_FPS, INTRO_FRAMES, INTRO_IMAGES } from '../remotion/Intro';
 
-export const INTRO_DONE = 'usta:intro-done';
+export const INTRO_DONE = 'yazilnow:intro-done';
 
-/** Resolves when Onest and the shears frames are ready, or after a short cap, whichever is first. */
-function assetsReady(cap = 900) {
-  const images = Array.from({ length: SHEAR_FRAMES }, (_, i) => {
+/** Resolves when Onest and the tool renders are ready, or after a short cap, whichever is first. */
+function assetsReady(cap = 1600) {
+  const images = INTRO_IMAGES.map((src) => {
     const img = new Image();
-    img.src = shearSrc(i);
+    img.src = src;
     return img.decode().catch(() => undefined);
   });
   return Promise.race([
@@ -21,8 +20,9 @@ function assetsReady(cap = 900) {
 }
 
 /**
- * The opening, played by Remotion's Player over the page: the shears cut "usta"
- * along the seam and the page opens there. Once per visit, skippable (button or
+ * The opening, played by Remotion's Player over the page (src/remotion/Intro.tsx):
+ * the shears cut and open into the check mark, the salon's tools play beside it, and
+ * the logo settles before the stage lifts away. Once per visit, skippable (button or
  * Escape), never shown with reduced motion (index.html decides before the first
  * paint), and never left covering the page.
  */
@@ -35,7 +35,7 @@ export function IntroOverlay() {
 
   const finish = useCallback(() => {
     try {
-      sessionStorage.setItem('usta-intro', '1');
+      sessionStorage.setItem('yazilnow-intro', '1');
     } catch {
       // Plays again next time; harmless.
     }
@@ -62,6 +62,11 @@ export function IntroOverlay() {
   useEffect(() => {
     const p = player.current;
     if (!ready || !p) return;
+    // ?introtest: leave the opening up and hand the player to a test script (frame-by-frame checks).
+    if (new URLSearchParams(location.search).has('introtest')) {
+      (window as unknown as { __introPlayer?: PlayerRef }).__introPlayer = p;
+      return;
+    }
     p.addEventListener('ended', finish);
     // Whatever happens to playback (a throttled tab, a decoding hiccup), the page never stays covered.
     const safety = window.setTimeout(finish, (INTRO_FRAMES / INTRO_FPS) * 1000 + 1200);

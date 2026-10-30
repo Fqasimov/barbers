@@ -1,0 +1,470 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>html,body{margin:0;background:transparent}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Salon tools for the website's opening, lit like the shears (tools/shears): a flat lay on a
+// linen table, overhead softboxes, polished and satin steel, soft-touch black, oxblood accents.
+// window.renderTool({ tool, pose }) → PNG data URL (transparent, with a soft contact shadow).
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const params = new URLSearchParams(location.search);
+const SIZE = +(params.get('size') || 900);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(SIZE, SIZE);
+renderer.toneMapping = THREE.AgXToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
+renderer.setClearColor(0x000000, 0);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+function studio() {
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(40, 40, 40), new THREE.MeshBasicMaterial({ color: 0x55504a, side: THREE.BackSide })));
+  const panel = (w, h, color, intensity, pos, look) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide }));
+    m.position.set(...pos);
+    m.lookAt(...look);
+    env.add(m);
+  };
+  panel(26, 14, 0xffffff, 2.6, [-3, -6, 19], [0, 0, 0]);
+  panel(5, 26, 0xffffff, 6.0, [6, 0, 19.5], [6, 0, 0]);
+  panel(16, 9, 0xffffff, 4.0, [-12, 12, 12], [0, 0, 0]);
+  panel(3, 22, 0xfff6ea, 3.2, [16, -2, 8], [0, 0, 0]);
+  panel(30, 30, 0xeee6da, 0.9, [0, 0, -18], [0, 0, 0]);
+  panel(4, 14, 0xdfe8ff, 1.6, [-14, -10, 6], [0, 0, 0]);
+  return env;
+}
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(studio(), 0.035).texture;
+
+const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+sun.position.set(-40, 70, 220);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -160, right: 160, top: 160, bottom: -160, near: 50, far: 600 });
+sun.shadow.radius = 14;
+sun.shadow.blurSamples = 25;
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.ShadowMaterial({ opacity: 0.22, color: 0x2a2015 }));
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ---- Materials ----
+const M = {
+  polished: new THREE.MeshPhysicalMaterial({ color: 0xdfe1e4, metalness: 1, roughness: 0.12, clearcoat: 0.4, clearcoatRoughness: 0.08 }),
+  satin: new THREE.MeshPhysicalMaterial({ color: 0xcfd2d6, metalness: 1, roughness: 0.3, anisotropy: 0.6 }),
+  brushed: new THREE.MeshPhysicalMaterial({ color: 0xbfc3c8, metalness: 1, roughness: 0.42, anisotropy: 0.9 }),
+  darkSteel: new THREE.MeshPhysicalMaterial({ color: 0x8d9197, metalness: 1, roughness: 0.28 }),
+  // Soft-touch black: the body of a professional dryer or clipper.
+  black: new THREE.MeshPhysicalMaterial({ color: 0x151311, metalness: 0, roughness: 0.52, clearcoat: 0.25, clearcoatRoughness: 0.4, sheen: 0.3, sheenRoughness: 0.6, sheenColor: 0x5a5550 }),
+  glossBlack: new THREE.MeshPhysicalMaterial({ color: 0x0f0e0d, metalness: 0, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }),
+  rubber: new THREE.MeshStandardMaterial({ color: 0x1b1916, roughness: 0.85 }),
+  oxblood: new THREE.MeshPhysicalMaterial({ color: 0x5e1220, metalness: 0, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.06 }),
+  oxbloodMatte: new THREE.MeshPhysicalMaterial({ color: 0x611626, metalness: 0.2, roughness: 0.42, clearcoat: 0.3 }),
+  polish: new THREE.MeshPhysicalMaterial({ color: 0x55101c, metalness: 0, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
+  nude: new THREE.MeshPhysicalMaterial({ color: 0xe6cdbd, metalness: 0, roughness: 0.35, clearcoat: 0.6, clearcoatRoughness: 0.2, sheen: 0.4, sheenColor: 0xffe9dc }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.03, transparent: true, opacity: 0.32, clearcoat: 1, clearcoatRoughness: 0.02, specularIntensity: 1, ior: 1.5, depthWrite: false }),
+  bristle: new THREE.MeshStandardMaterial({ color: 0x2a2522, roughness: 0.7 }),
+  ebony: new THREE.MeshPhysicalMaterial({ color: 0x090605, metalness: 0, roughness: 0.62, clearcoat: 0.18, clearcoatRoughness: 0.5 }),
+};
+
+const mesh = (geo, mat, cast = true) => {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = cast;
+  m.receiveShadow = false;
+  return m;
+};
+/** A solid of revolution around +x, from [x, radius] points. */
+const lathe = (pts, mat, seg = 96) => {
+  const g = new THREE.LatheGeometry(pts.map(([x, r]) => new THREE.Vector2(r, x)), seg);
+  g.rotateZ(-Math.PI / 2); // the lathe's axis (y) → x
+  return mesh(g, mat);
+};
+const extrude = (shape, depth, mat, bevel = 0.6, curve = 64) => {
+  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 6, curveSegments: curve });
+  g.translate(0, 0, -depth / 2);
+  return mesh(g, mat);
+};
+const smooth = (pts, n = 40) => new THREE.SplineCurve(pts.map(([x, y]) => new THREE.Vector2(x, y))).getPoints(n).map((v) => [v.x, v.y]);
+
+// ---------------------------------------------------------------------------
+// Hairdryer: a professional salon dryer in soft-touch black, steel trim, concentrator nozzle.
+// Barrel along +x (nozzle at +x), handle down (-y). Lies on its side on the table.
+// ---------------------------------------------------------------------------
+function hairdryer() {
+  const g = new THREE.Group();
+  // Barrel: rounded rear, slight belly, taper to the nozzle collar.
+  const barrel = lathe(smooth([[-62, 0], [-61, 18], [-57, 27], [-48, 31], [-20, 32.5], [15, 31.5], [40, 28.5], [52, 26.5]], 60), M.black);
+  g.add(barrel);
+  // Rear air-intake: a recessed steel mesh disc with three rings.
+  const rear = mesh(new THREE.CircleGeometry(20, 64), M.darkSteel);
+  rear.rotation.y = -Math.PI / 2;
+  rear.position.x = -61.6;
+  g.add(rear);
+  for (const r of [7, 13, 19]) {
+    const ring = mesh(new THREE.TorusGeometry(r, 0.9, 12, 96), M.satin);
+    ring.rotation.y = Math.PI / 2;
+    ring.position.x = -61.4;
+    g.add(ring);
+  }
+  // Steel trim ring around the rear and the collar.
+  const trim = (x, r) => {
+    const t = mesh(new THREE.TorusGeometry(r, 1.5, 20, 128), M.polished);
+    t.rotation.y = Math.PI / 2;
+    t.position.x = x;
+    g.add(t);
+  };
+  trim(-55.5, 28.8);
+  trim(52.5, 26.2);
+  // Collar and a flattened concentrator nozzle.
+  g.add(lathe([[52, 26.5], [58, 26], [60, 25]], M.satin));
+  const nozzle = lathe(smooth([[59, 25], [72, 23], [88, 19.5], [96, 18], [97, 0]], 40), M.black);
+  nozzle.scale.set(1, 0.48, 1); // flattened slot, wide side up
+  g.add(nozzle);
+  const lip = mesh(new THREE.TorusGeometry(18, 1.1, 16, 96), M.satin);
+  lip.rotation.y = Math.PI / 2;
+  lip.scale.set(1, 0.48, 1);
+  lip.position.x = 96;
+  g.add(lip);
+  // Handle: a slim grip under the barrel, angled back.
+  const handle = new THREE.Group();
+  const grip = mesh(new THREE.CapsuleGeometry(14.5, 92, 16, 48), M.black);
+  grip.scale.set(1, 1, 0.82);
+  grip.position.y = -46;
+  handle.add(grip);
+  // Steel switch plate with two sliders (speed in steel, heat in oxblood).
+  const plate = mesh(new RoundedBoxGeometry(8, 44, 4, 4, 1.8), M.satin);
+  plate.position.set(13.2, -40, 0);
+  handle.add(plate);
+  const slider = (y, mat) => {
+    const s = mesh(new RoundedBoxGeometry(5, 8, 5, 4, 1.6), mat);
+    s.position.set(16, y, 0);
+    handle.add(s);
+  };
+  slider(-30, M.polished);
+  slider(-50, M.oxblood);
+  // Cool-shot button.
+  const btn = mesh(new THREE.CylinderGeometry(3.4, 3.4, 3, 32), M.polished);
+  btn.rotation.z = Math.PI / 2;
+  btn.position.set(-13.5, -22, 0);
+  handle.add(btn);
+  // Hang loop and cable with a strain relief.
+  const relief = mesh(new THREE.CylinderGeometry(6.5, 9, 18, 32), M.rubber);
+  relief.position.y = -104;
+  handle.add(relief);
+  const cablePath = new THREE.CatmullRomCurve3([[0, -110, 0], [-4, -130, 0], [-24, -150, 0], [-60, -158, 0], [-100, -150, 0]].map((p) => new THREE.Vector3(...p)));
+  handle.add(mesh(new THREE.TubeGeometry(cablePath, 80, 3.6, 16, false), M.rubber));
+  handle.rotation.z = THREE.MathUtils.degToRad(14);
+  handle.position.set(-12, -10, 0);
+  g.add(handle);
+  return g;
+}
+
+// ---------------------------------------------------------------------------
+// Nail polish: a square glass bottle of oxblood lacquer with a tall black cap; the cap with its
+// brush; and an almond nail tip, bare or lacquered.
+// ---------------------------------------------------------------------------
+function bottleGlass() {
+  const g = new THREE.Group();
+  const glass = mesh(new RoundedBoxGeometry(36, 38, 30, 6, 7), M.glass, false);
+  g.add(glass);
+  const liquid = mesh(new RoundedBoxGeometry(31, 30, 25, 6, 5.5), M.polish);
+  liquid.position.y = -2.6;
+  g.add(liquid);
+  const neck = mesh(new THREE.CylinderGeometry(7.5, 8.5, 6, 48), M.glass, false);
+  neck.position.y = 22;
+  g.add(neck);
+  return g;
+}
+function cap({ withBrush }) {
+  const g = new THREE.Group();
+  const c = mesh(new THREE.CylinderGeometry(9.5, 10.2, 52, 96), M.glossBlack);
+  c.position.y = 26;
+  g.add(c);
+  const top = mesh(new THREE.SphereGeometry(9.5, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.glossBlack);
+  top.scale.y = 0.18;
+  top.position.y = 52;
+  g.add(top);
+  const band = mesh(new THREE.CylinderGeometry(10.4, 10.4, 3.2, 96), M.polished);
+  band.position.y = 1.8;
+  g.add(band);
+  if (withBrush) {
+    const stem = mesh(new THREE.CylinderGeometry(1.5, 1.7, 46, 24), M.glossBlack);
+    stem.position.y = -23;
+    g.add(stem);
+    // Flat brush: a fan of bristles, tip loaded with lacquer.
+    const brush = mesh(new THREE.CylinderGeometry(1.6, 4.2, 14, 32, 1, false), M.bristle);
+    brush.scale.z = 0.38;
+    brush.position.y = -52;
+    g.add(brush);
+    const wet = mesh(new THREE.SphereGeometry(4.6, 32, 16), M.polish);
+    wet.scale.set(1, 1.55, 0.42);
+    wet.position.y = -57;
+    g.add(wet);
+  }
+  return g;
+}
+function polishBottle() {
+  const g = new THREE.Group();
+  const b = bottleGlass();
+  g.add(b);
+  const c = cap({ withBrush: false });
+  c.position.y = 25;
+  g.add(c);
+  return g;
+}
+/**
+ * An almond nail as a smooth curved shell: a finely divided surface shaped to the outline
+ * (U-shaped cuticle, almond free edge), a C-curve across and an apex along.
+ */
+function nailTip(mat) {
+  const L = 52;
+  // Half-width along the length (t = 0 at the cuticle, 1 at the free edge).
+  const half = (t) => {
+    const c = 0.24; // the rounded cuticle: a half ellipse
+    if (t < c) return 13 * Math.sqrt(Math.max(0, 1 - Math.pow(1 - t / c, 2)));
+    const u = (t - c) / (1 - c);
+    return 13 * Math.pow(Math.cos(u * Math.PI / 2), 0.7); // almond taper to a soft point
+  };
+  const R = 15;
+  const surf = (top) => {
+    const geo = new THREE.PlaneGeometry(1, 1, 120, 200);
+    const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const u = pos.getX(i) + 0.5; // 0..1 across
+      const t = pos.getY(i) + 0.5; // 0..1 along
+      const w = Math.max(0.05, half(t));
+      const x = (u - 0.5) * 2 * w;
+      const y = t * L;
+      const a = x / R;
+      const apex = 2.4 * Math.sin(Math.min(1, t) * Math.PI * 0.85);
+      const z0 = (top ? 0.9 : 0) + apex - 0.0009 * y * y;
+      pos.setXYZ(i, Math.sin(a) * (R + z0), y, Math.cos(a) * (R + z0) - R);
+    }
+    if (!top) geo.scale(1, 1, 1);
+    geo.computeVertexNormals();
+    return geo;
+  };
+  const g = new THREE.Group();
+  const top = mesh(surf(true), mat);
+  const under = mesh(surf(false), mat);
+  under.material = mat.clone();
+  under.material.side = THREE.BackSide;
+  g.add(top, under);
+  return g;
+}
+function nail(painted) {
+  const g = new THREE.Group();
+  const n = nailTip(painted ? M.polish : M.nude);
+  g.add(n);
+  return g;
+}
+
+// ---------------------------------------------------------------------------
+// Trimmer: a cordless barber clipper. Body along +x, blades at +x.
+// ---------------------------------------------------------------------------
+function trimmer() {
+  const g = new THREE.Group();
+  const body = lathe(smooth([[-70, 0], [-69.5, 9], [-66, 15], [-55, 17.5], [-10, 18], [20, 17], [42, 15], [52, 14]], 50), M.black);
+  body.scale.set(1, 1, 0.8);
+  g.add(body);
+  // Knurled steel grip band: fine rings.
+  for (let i = 0; i < 18; i++) {
+    const r = mesh(new THREE.TorusGeometry(18.2, 0.55, 8, 96), M.brushed);
+    r.rotation.y = Math.PI / 2;
+    r.scale.set(1, 1, 0.8);
+    r.position.x = -36 + i * 2.1;
+    g.add(r);
+  }
+  // Rear steel cap and a charging ring.
+  const capRing = mesh(new THREE.TorusGeometry(15.5, 1.3, 16, 96), M.polished);
+  capRing.rotation.y = Math.PI / 2;
+  capRing.scale.set(1, 1, 0.8);
+  capRing.position.x = -64.5;
+  g.add(capRing);
+  // Head housing: a squared nose that widens toward the blades.
+  const head = mesh(new RoundedBoxGeometry(28, 32, 22, 6, 6), M.black);
+  head.position.x = 60;
+  g.add(head);
+  // Power button in oxblood, taper lever in steel.
+  const power = mesh(new RoundedBoxGeometry(9, 5, 12, 4, 2), M.oxblood);
+  power.position.set(8, 0, 13.6);
+  g.add(power);
+  const lever = mesh(new RoundedBoxGeometry(6, 16, 3, 4, 1.2), M.polished);
+  lever.position.set(52, 17, 6);
+  lever.rotation.z = -0.4;
+  g.add(lever);
+  // Blade set: a fixed comb blade and a moving cutter, each with teeth across the width (y).
+  const blades = new THREE.Group();
+  const plate = mesh(new RoundedBoxGeometry(10, 46, 2.4, 3, 0.8), M.polished);
+  blades.add(plate);
+  const cutter = mesh(new RoundedBoxGeometry(8, 42, 1.6, 3, 0.6), M.darkSteel);
+  cutter.position.set(-1, 0, 2.2);
+  blades.add(cutter);
+  const tooth = new RoundedBoxGeometry(6, 1.3, 2.2, 2, 0.5);
+  for (let i = 0; i < 26; i++) {
+    const t = mesh(tooth, M.polished);
+    t.position.set(7.5, -21.5 + i * 1.72, 0);
+    blades.add(t);
+  }
+  const cut = new RoundedBoxGeometry(3.4, 1.1, 1.4, 2, 0.4);
+  for (let i = 0; i < 24; i++) {
+    const t = mesh(cut, M.darkSteel);
+    t.position.set(4.6, -20 + i * 1.74, 2.2);
+    blades.add(t);
+  }
+  // Two screws on the blade plate.
+  for (const y of [-12, 12]) {
+    const sc = mesh(new THREE.CylinderGeometry(2.2, 2.2, 1.6, 32), M.satin);
+    sc.rotation.x = Math.PI / 2;
+    sc.position.set(-2, y, 3.4);
+    blades.add(sc);
+  }
+  blades.position.set(77, 0, 1);
+  g.add(blades);
+  return g;
+}
+
+// ---------------------------------------------------------------------------
+// Straight razor: polished blade, ebony scales with steel pins and an oxblood inlay.
+// The blade pivots about the pin at the origin; `open` 0 = folded into the scales, 1 = straight out.
+// ---------------------------------------------------------------------------
+const razor = { group: null, blade: null };
+function straightRazor() {
+  const g = new THREE.Group();
+  // Scales (handle) extend to -x from the pivot.
+  const sc = new THREE.Shape();
+  sc.moveTo(4, -6.5);
+  sc.bezierCurveTo(-40, -8.5, -100, -8, -128, -5);
+  sc.quadraticCurveTo(-136, 0, -128, 5.5);
+  sc.bezierCurveTo(-100, 8.5, -40, 9, 4, 7);
+  sc.quadraticCurveTo(10, 0, 4, -6.5);
+  for (const z of [-2.6, 2.6]) {
+    const scale = extrude(sc, 2.2, M.ebony, 0.8);
+    scale.position.z = z;
+    g.add(scale);
+  }
+  // Oxblood inlay on the top scale.
+  const inlay = new THREE.Shape();
+  inlay.moveTo(-30, -2.2);
+  inlay.lineTo(-100, -2);
+  inlay.quadraticCurveTo(-104, 0, -100, 2);
+  inlay.lineTo(-30, 2.2);
+  inlay.quadraticCurveTo(-26, 0, -30, -2.2);
+  const inl = extrude(inlay, 0.6, M.oxblood, 0.3);
+  inl.position.z = 4.6;
+  g.add(inl);
+  // Pins: pivot and tail, with steel collars.
+  for (const x of [0, -124]) {
+    const pin = mesh(new THREE.CylinderGeometry(2.6, 2.6, 9.6, 32), M.polished);
+    pin.rotation.x = Math.PI / 2;
+    pin.position.x = x;
+    g.add(pin);
+    for (const z of [-5, 5]) {
+      const w = mesh(new THREE.CylinderGeometry(3.6, 3.6, 0.8, 32), M.satin);
+      w.rotation.x = Math.PI / 2;
+      w.position.set(x, 0, z);
+      g.add(w);
+    }
+  }
+  // Blade: tang (with jimps) + a deep blade, edge on -y, spine on +y, square point.
+  const b = new THREE.Shape();
+  b.moveTo(-8, -4);
+  b.lineTo(18, -5);
+  b.bezierCurveTo(30, -9, 34, -14, 40, -15);
+  b.lineTo(118, -16.5);
+  b.quadraticCurveTo(124, -16, 123, -10);
+  b.lineTo(121, 6);
+  b.quadraticCurveTo(120, 8, 116, 8);
+  b.lineTo(30, 7.5);
+  b.lineTo(12, 5);
+  b.lineTo(-8, 4);
+  b.quadraticCurveTo(-12, 0, -8, -4);
+  const bladeMesh = extrude(b, 2.4, M.polished, 0.45);
+  // Hollow grind: a satin band along the blade face.
+  const grind = new THREE.Shape();
+  grind.moveTo(42, -12.5);
+  grind.lineTo(117, -14);
+  grind.lineTo(116, 2);
+  grind.lineTo(44, 2.5);
+  grind.quadraticCurveTo(38, -5, 42, -12.5);
+  const hollow = extrude(grind, 0.2, M.satin, 0.15);
+  hollow.position.z = 1.9;
+  // Jimps on the tang (file marks).
+  const jimps = new THREE.Group();
+  for (let i = 0; i < 8; i++) {
+    const j = mesh(new THREE.BoxGeometry(0.7, 2.4, 3.2), M.darkSteel);
+    j.position.set(20 + i * 1.6, 6.4, 0);
+    jimps.add(j);
+  }
+  const blade = new THREE.Group();
+  blade.add(bladeMesh, hollow, jimps);
+  g.add(blade);
+  razor.group = g;
+  razor.blade = blade;
+  return g;
+}
+function setRazor(open) {
+  // Folded: the blade lies inside the scales, edge in (rotated 180° about the pin, flipped).
+  razor.blade.rotation.z = THREE.MathUtils.degToRad(180 - 180 * open);
+}
+
+
+// ---------------------------------------------------------------------------
+const camera = new THREE.PerspectiveCamera(22, 1, 10, 3000);
+let current = null;
+
+const TOOLS = {
+  hairdryer: { build: hairdryer, rot: [0, 0, -12], pos: [-10, 30, 33], dist: 600 },
+  bottle: { build: polishBottle, rot: [0, 0, -24], pos: [0, -20, 16], dist: 520 },
+  brush: { build: () => cap({ withBrush: true }), rot: [0, 0, 210], pos: [0, -12, 11], dist: 520 },
+  nailBare: { build: () => nail(false), rot: [0, 0, -30], pos: [0, -28, 6], dist: 360 },
+  nailPainted: { build: () => nail(true), rot: [0, 0, -30], pos: [0, -28, 6], dist: 360 },
+  trimmer: { build: trimmer, rot: [0, 0, 24], pos: [-10, 0, 15.5], dist: 520 },
+  razor: { build: straightRazor, rot: [0, 0, 18], pos: [20, 0, 6], dist: 560 },
+};
+
+window.renderTool = ({ tool, open = 1, rot, fill = 0.78 } = {}) => {
+  const t = TOOLS[tool];
+  if (!t) throw new Error('unknown tool ' + tool);
+  if (current) scene.remove(current);
+  current = t.build();
+  // The razor is framed fully open for every frame, so the pivot never moves between frames.
+  if (tool === 'razor') setRazor(1);
+  const r = rot ?? t.rot;
+  current.rotation.set(...r.map((d) => THREE.MathUtils.degToRad(d)));
+  current.position.set(0, 0, 0);
+  scene.add(current);
+  // Centre in x/y, rest on the table, and frame the largest side at `fill` of the picture.
+  current.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(current);
+  const c = box.getCenter(new THREE.Vector3());
+  current.position.set(-c.x, -c.y, -box.min.z);
+  if (tool === 'razor') setRazor(open);
+  floor.position.z = 0;
+  const size = box.getSize(new THREE.Vector3());
+  const span = Math.max(size.x, size.y);
+  const dist = (span / fill / 2) / Math.tan(THREE.MathUtils.degToRad(11)) ;
+  camera.position.set(0, -dist * 0.44, dist);
+  camera.lookAt(0, 0, size.z * 0.35);
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+};
+window.ready = true;
+</script>
+</body>
+</html>

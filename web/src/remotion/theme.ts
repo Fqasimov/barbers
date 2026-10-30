@@ -1,12 +1,14 @@
 import { Easing } from 'remotion';
 
-/** Same palette as the app (src/theme/tokens.ts) and the promo (promo/src/theme.ts). */
+/** The brand: beige and black, with burgundy and silver in support (styles.css has the same tokens). */
 export const color = {
-  linen: '#F3EFE8',
-  surface: '#FFFFFF',
+  linen: '#F2EADD',
+  linenDeep: '#E7DCC9',
+  surface: '#FBF7F0',
   ink: '#141210',
-  inkSoft: '#5B554C',
-  nar: '#B4233C',
+  inkSoft: '#5B544B',
+  burgundy: '#6B1A2A',
+  silver: '#A3A8AE',
 };
 
 /** Emil Kowalski's curves, the ones the app uses. Never ease-in on UI. */

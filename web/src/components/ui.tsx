@@ -1,13 +1,18 @@
 import type { ReactNode } from 'react';
 
-import { config } from '../config';
+import { asset, config } from '../config';
 import { useI18n } from '../lang';
 
-/** The Usta wordmark: lowercase "usta", sliced by one cut, the top half a hair to the right. */
-export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+/** The logo: the steel shears opened into a check mark, and "yazılnow". */
+export function Lockup({ size = 'md', tone = 'ink' }: { size?: 'sm' | 'md' | 'lg'; tone?: 'ink' | 'light' }) {
   return (
-    <span className={`wm${size === 'md' ? '' : ` wm-${size}`}`} data-text="usta" role="img" aria-label="Usta">
-      usta
+    <span
+      className={`lockup lockup-${size}${tone === 'light' ? ' lockup-light' : ''}`}
+      role="img"
+      aria-label="yazılnow"
+    >
+      <img src={asset('tools/mark.webp')} alt="" width={64} height={64} />
+      <span aria-hidden="true">yazılnow</span>
     </span>
   );
 }

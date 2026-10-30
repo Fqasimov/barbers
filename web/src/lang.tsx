@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { dict, LANGS, type Key, type Lang, type Loc } from './i18n';
 
-const STORAGE = 'usta-lang';
+const STORAGE = 'yazilnow-lang';
 
 function initialLang(): Lang {
   const fromUrl = new URLSearchParams(location.search).get('lang');

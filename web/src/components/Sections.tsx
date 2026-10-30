@@ -1,15 +1,11 @@
-import { config, page } from '../config';
+import { asset, config, page } from '../config';
 import type { Key } from '../i18n';
 import { useI18n } from '../lang';
-import { SectionHead, Stores, Wordmark } from './ui';
+import { Lockup, SectionHead, Stores } from './ui';
 
 export function About() {
   const { t } = useI18n();
-  const facts: [string, Key][] = [
-    ['Az', 'aboutFact1'],
-    ['0₼', 'aboutFact2'],
-    ['BAK', 'aboutFact3'],
-  ];
+  const facts: Key[] = ['aboutFact1', 'aboutFact2', 'aboutFact3'];
   return (
     <section className="section about" id="about">
       <div className="wrap about-grid">
@@ -20,16 +16,14 @@ export function About() {
         <div className="about-body">
           <p className="lead reveal">{t('aboutBody1')}</p>
           <p className="reveal">{t('aboutBody2')}</p>
-          <ul className="facts reveal">
-            {facts.map(([icon, key]) => (
+          <ol className="facts reveal">
+            {facts.map((key, i) => (
               <li key={key}>
-                <span className="fact-icon" aria-hidden="true">
-                  {icon}
-                </span>
+                <span className="num">{String(i + 1).padStart(2, '0')}</span>
                 {t(key)}
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       </div>
     </section>
@@ -61,30 +55,30 @@ export function Why() {
         <SectionHead kicker={t('whyKicker')} title={t('whyTitle')} sub={t('whySub')} />
         <div className="why-grid">
           {WHY.map(([title, body], i) => (
-            <article key={title} className="card why-card reveal">
-              <span className="why-num">{String(i + 1).padStart(2, '0')}</span>
+            <article key={title} className="why-item reveal">
+              <span className="num">{String(i + 1).padStart(2, '0')}</span>
               <h3>{t(title)}</h3>
               <p>{t(body)}</p>
             </article>
           ))}
         </div>
-        <div className="card compare reveal">
+        <div className="compare reveal">
           <table>
             <caption className="sr-only">{t('cmpTitle')}</caption>
             <thead>
               <tr>
                 <td />
-                <th scope="col" className="col-usta">
-                  <Wordmark size="sm" />
+                <th scope="col" className="col-us">
+                  <Lockup size="sm" />
                 </th>
                 <th scope="col">{t('cmpOthers')}</th>
               </tr>
             </thead>
             <tbody>
-              {COMPARE.map(([row, usta, others]) => (
+              {COMPARE.map(([row, ours, others]) => (
                 <tr key={row}>
                   <th scope="row">{t(row)}</th>
-                  <td className="col-usta good">{t(usta)}</td>
+                  <td className="col-us good">{t(ours)}</td>
                   <td>{t(others)}</td>
                 </tr>
               ))}
@@ -116,7 +110,7 @@ export function Faq() {
               <p>{t(a)}</p>
             </details>
           ))}
-          <a className="hero-link" href={page('help')}>
+          <a className="link-arrow" href={page('help')}>
             {t('faqMore')}
           </a>
         </div>
@@ -128,13 +122,16 @@ export function Faq() {
 export function Download() {
   const { t } = useI18n();
   return (
-    <section className="get">
-      <div className="wrap">
-        <div className="get-inner reveal">
-          <div>
-            <h2 className="h2">{t('getTitle')}</h2>
-            <p className="section-sub">{t('getSub')}</p>
-          </div>
+    <section className="get" aria-labelledby="getTitle">
+      <div className="wrap get-inner">
+        <img className="get-mark reveal" src={asset('tools/mark.webp')} alt="" width={720} height={720} />
+        <div className="reveal">
+          <h2 className="h2" id="getTitle">
+            {t('getTitle')}
+          </h2>
+          <p className="section-sub">{t('getSub')}</p>
+        </div>
+        <div className="reveal">
           <Stores />
         </div>
       </div>
@@ -152,8 +149,8 @@ export function Footer() {
     <footer className="foot">
       <div className="wrap foot-grid">
         <div>
-          <Wordmark size="lg" />
-          {legal ? <p className="muted foot-company">{legal}</p> : null}
+          <Lockup size="lg" tone="light" />
+          {legal ? <p className="foot-company">{legal}</p> : null}
         </div>
         <nav className="foot-links" aria-label="Footer">
           <a href={page('privacy')}>{t('footPrivacy')}</a>
@@ -161,7 +158,7 @@ export function Footer() {
           <a href={page('help')}>{t('footHelp')}</a>
           <a href={`mailto:${config.supportEmail}`}>{t('footContact')}</a>
         </nav>
-        <p className="muted foot-rights">{t('footRights', { year: new Date().getFullYear() })}</p>
+        <p className="foot-rights">{t('footRights', { year: new Date().getFullYear() })}</p>
       </div>
     </footer>
   );

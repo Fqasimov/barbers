@@ -23,7 +23,7 @@ export const config: SiteConfig = {
   apiUrl: (raw.apiUrl ?? '').replace(/\/+$/, ''),
   appStoreUrl: raw.appStoreUrl ?? '',
   playStoreUrl: raw.playStoreUrl ?? '',
-  supportEmail: raw.supportEmail ?? 'support@ustatap.az',
+  supportEmail: raw.supportEmail ?? 'support@yazilnow.az',
   company: { name: '', voen: '', address: '', ...raw.company },
   tiles: {
     light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',

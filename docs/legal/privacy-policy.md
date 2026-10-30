@@ -6,7 +6,7 @@
 
 ## 1. Biz kimik
 
-Usta mobil tətbiqi və ustatap.az saytı ("Usta", "biz") [Şirkətin tam adı], VÖEN [VÖEN], ünvan: [hüquqi ünvan] tərəfindən idarə olunur. Fərdi məlumatlarınızın sahibi və operatoru bizik. Əlaqə: [support@ustatap.az].
+yazılnow mobil tətbiqi və yazilnow.az saytı ("yazılnow", "biz") [Şirkətin tam adı], VÖEN [VÖEN], ünvan: [hüquqi ünvan] tərəfindən idarə olunur. Fərdi məlumatlarınızın sahibi və operatoru bizik. Əlaqə: [support@yazilnow.az].
 
 Bu siyasət Azərbaycan Respublikasının «Fərdi məlumatlar haqqında» Qanununa uyğun hazırlanıb.
 
@@ -48,7 +48,7 @@ Reklam üçün izləmə (tracking) aparmırıq və məlumatlarınızı satmırı
 
 ## 5. Hüquqlarınız
 
-Siz məlumatlarınıza baxa, onları düzəldə və silə bilərsiniz. Hesabı tətbiqdə silmək olar: **Profil → Hesabı sil**. Digər sorğular üçün [support@ustatap.az] ünvanına yazın; 30 gün ərzində cavab veririk.
+Siz məlumatlarınıza baxa, onları düzəldə və silə bilərsiniz. Hesabı tətbiqdə silmək olar: **Profil → Hesabı sil**. Digər sorğular üçün [support@yazilnow.az] ünvanına yazın; 30 gün ərzində cavab veririk.
 
 ## 6. Təhlükəsizlik
 
@@ -73,8 +73,8 @@ Bu siyasəti yeniləsək, tətbiqdə və saytda bildirəcəyik.
 **Effective:** [date]
 
 1. **Who we are.**
-   - The Usta app and ustatap.az are run by [Company legal name], VÖEN [tax ID], [registered address]. We are the controller of your personal data.
-   - Contact: [support@ustatap.az].
+   - The yazılnow app and yazilnow.az are run by [Company legal name], VÖEN [tax ID], [registered address]. We are the controller of your personal data.
+   - Contact: [support@yazilnow.az].
    - This policy follows the Law of the Republic of Azerbaijan "On Personal Data".
 2. **What we collect and why:**
    - Your name, email and phone: your account, sending your booking to the salon, and one-time codes.
@@ -97,7 +97,7 @@ Bu siyasəti yeniləsək, tətbiqdə və saytda bildirəcəyik.
    - If you delete your account: your personal data is deleted at once, while past bookings and reviews stay without your name.
    - Payment records: as long as tax law requires ([5] years).
    - One-time codes: 10 minutes.
-5. **Your rights:** you can see, correct and delete your data. Delete your account in the app at **Profile → Delete account**, or write to [support@ustatap.az]. We reply within 30 days.
+5. **Your rights:** you can see, correct and delete your data. Delete your account in the app at **Profile → Delete account**, or write to [support@yazilnow.az]. We reply within 30 days.
 6. **Security:** HTTPS everywhere, hashed passwords, and sign-in tokens kept in the phone's Keychain or Keystore.
 7. **Children:** the app is not for anyone under 13.
 8. **Changes:** we'll announce updates in the app and on the site.

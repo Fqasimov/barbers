@@ -6,8 +6,8 @@
 
 ## A. Müştərilər üçün
 
-1. **Usta nədir.**
-   - Usta bərbərxana, gözəllik salonu və SPA-larda onlayn növbə tutmaq üçün platformadır.
+1. **yazılnow nədir.**
+   - yazılnow bərbərxana, gözəllik salonu və SPA-larda onlayn növbə tutmaq üçün platformadır.
    - Xidməti salon göstərir. Xidmətin keyfiyyətinə və qiymətinə görə salon cavabdehdir.
 2. **Hesab.**
    - Məlumatlarınız düzgün olmalıdır.
@@ -17,11 +17,11 @@
    - Növbə salonun təsdiq etdiyi vaxta tutulur.
    - Növbəni başlamasına 2 saat qalanadək tətbiqdə ləğv edə bilərsiniz; bundan sonra salona zəng edin.
    - Təkrar gəlməmə hallarında salon sizə növbə verməkdən imtina edə bilər.
-4. **Ödəniş.** Hazırda xidmətin haqqını salonda ödəyirsiniz. Usta müştəridən komissiya almır.
+4. **Ödəniş.** Hazırda xidmətin haqqını salonda ödəyirsiniz. yazılnow müştəridən komissiya almır.
 5. **Rəylər.**
    - Rəyi yalnız baş tutmuş ziyarətdən sonra yazmaq olar.
    - Təhqiramiz, yalan və ya reklam xarakterli rəyləri silə bilərik.
-6. **Məsuliyyət.** Platformanın fasiləsiz işləməsinə çalışırıq, lakin texniki nasazlıqlar ola bilər. Qanunun icazə verdiyi həddə Usta salonun xidmətinə görə məsuliyyət daşımır.
+6. **Məsuliyyət.** Platformanın fasiləsiz işləməsinə çalışırıq, lakin texniki nasazlıqlar ola bilər. Qanunun icazə verdiyi həddə yazılnow salonun xidmətinə görə məsuliyyət daşımır.
 7. **Hesabın silinməsi.** Hesabınızı istənilən vaxt tətbiqdə silə bilərsiniz (**Profil → Hesabı sil**).
 
 ## B. Salonlar üçün
@@ -42,7 +42,7 @@
 
 ## C. Ümumi
 
-Bu şərtlər Azərbaycan Respublikasının qanunvericiliyi ilə tənzimlənir. Mübahisələr [Bakı şəhəri] məhkəmələrində həll olunur. Əlaqə: [support@ustatap.az].
+Bu şərtlər Azərbaycan Respublikasının qanunvericiliyi ilə tənzimlənir. Mübahisələr [Bakı şəhəri] məhkəmələrində həll olunur. Əlaqə: [support@yazilnow.az].
 
 ---
 
@@ -51,7 +51,7 @@ Bu şərtlər Azərbaycan Respublikasının qanunvericiliyi ilə tənzimlənir. 
 > **Draft.** Have a lawyer review it before publishing.
 
 ## For customers
-- Usta is a booking platform; the salon provides the service and is responsible for its quality and price.
+- yazılnow is a booking platform; the salon provides the service and is responsible for its quality and price.
 - You must be 13 or older and give accurate details.
 - You can cancel in the app until 2 hours before the start; after that, call the salon.
 - There's no commission for customers; you pay the salon.

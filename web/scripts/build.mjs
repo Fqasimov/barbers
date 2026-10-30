@@ -69,19 +69,19 @@ const shell = (title, body) => `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title} · Usta</title>
-<link rel="icon" href="/img/favicon-32.png">
+<title>${title} · yazılnow</title>
+<link rel="icon" href="../img/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="/doc.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Onest:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../doc.css">
 </head>
 <body>
-<header class="doc-head"><a class="wm" href="/" aria-label="Usta" data-text="usta">usta</a></header>
+<header class="doc-head"><a class="lockup" href="../" aria-label="yazılnow"><img src="../tools/mark.webp" alt="" width="40" height="40"><span>yazılnow</span></a></header>
 <main class="doc">
 ${body}
 </main>
-<footer class="doc-foot"><a href="/">← ustatap.az</a></footer>
+<footer class="doc-foot"><a href="../">← yazilnow.az</a></footer>
 </body>
 </html>
 `;

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { isDemo } from '../config';
 import { LANGS } from '../i18n';
 import { useI18n } from '../lang';
-import { Wordmark } from './ui';
+import { Lockup } from './ui';
 
 export function Nav() {
   const { t, lang, setLang } = useI18n();
@@ -36,8 +36,8 @@ export function Nav() {
       {isDemo ? <div className="ribbon">{t('demoRibbon')}</div> : null}
       <header className={`nav${scrolled ? ' scrolled' : ''}`}>
         <div className="nav-inner">
-          <a className="wordmark" href="#top" aria-label="Usta">
-            <Wordmark />
+          <a className="brand" href="#top" aria-label="yazılnow">
+            <Lockup />
           </a>
           <nav className={`nav-links${open ? ' open' : ''}`} id="navLinks" aria-label={t('menu')}>
             {links.map(([href, label]) => (
@@ -54,7 +54,7 @@ export function Nav() {
                 </button>
               ))}
             </div>
-            <a className="btn btn-sm btn-ink nav-cta" href="#join">
+            <a className="btn btn-sm btn-outline nav-cta" href="#join">
               {t('navCta')}
             </a>
             <button

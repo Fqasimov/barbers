@@ -1,4 +1,4 @@
-# Usta website
+# yazılnow website
 
 The public site for the domain: the landing page, the business sign-up, the partner map and live figures, plus `/privacy`, `/terms`, `/help` and `/billing/return`.
 
@@ -24,7 +24,7 @@ npm run pages      # rebuilds public/privacy, terms, help and data/demo.json fro
    - `supportEmail`
    - `company`: the legal name, VÖEN and address shown in the footer
 3. On the API, add the site's origin to `CORS_ALLOWED_ORIGINS` in `backend/.env`, e.g. `https://<domain>,https://www.<domain>`.
-4. Make sure `/billing/return/` is reachable. The payment provider sends salons there after checkout, and the page hands them back to the app (`usta://billing/return`).
+4. Make sure `/billing/return/` is reachable. The payment provider sends salons there after checkout, and the page hands them back to the app (`usta://billing/return`; the scheme changes when the app itself is renamed).
 
 Directory URLs (`/privacy/`, `/terms/`, `/help/`, `/billing/return/`) need the host to serve `index.html` inside a folder; every common static host does this by default.
 

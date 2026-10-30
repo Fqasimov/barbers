@@ -6,7 +6,7 @@ The customer FAQ for the website's `/help` page, which is also the store support
 
 ## AZ
 
-**Usta pulludur?**
+**yazılnow pulludur?**
 Xeyr, müştərilər üçün pulsuzdur. Xidmətin pulunu salonda ödəyirsiniz.
 
 **Necə yazılım?**
@@ -22,7 +22,7 @@ Hələlik növbəni ləğv edib yenisini yazın.
 Bildiriş və e-poçt gəlir. Başqa vaxt seçmək üçün "Yenidən yazıl" basın və ya salona WhatsApp ilə yazın.
 
 **Xatırlatma gəlmir.**
-Telefonun ayarlarında Usta üçün bildirişlərə icazə verin. Xatırlatmalar 24 saat və 2 saat əvvəl gəlir.
+Telefonun ayarlarında yazılnow üçün bildirişlərə icazə verin. Xatırlatmalar 24 saat və 2 saat əvvəl gəlir.
 
 **Rəyi necə yazım?**
 Ziyarətdən sonra "Növbələr" → "Keçmiş" → "Ziyarətinizi qiymətləndirin". Rəyi yalnız olduğunuz ziyarət üçün yaza bilərsiniz.
@@ -42,7 +42,7 @@ Rəyin altındakı "Şikayət et" düyməsini basın. 24 saat ərzində yoxlayı
 
 ## RU
 
-**Usta платная?**
+**yazılnow платная?**
 Нет, для клиентов бесплатно. За услугу вы платите в салоне.
 
 **Как записаться?**
@@ -58,7 +58,7 @@ Rəyin altındakı "Şikayət et" düyməsini basın. 24 saat ərzində yoxlayı
 Вам придёт уведомление и письмо. Нажмите «Записаться снова», чтобы выбрать другое время, или напишите салону в WhatsApp.
 
 **Не приходят напоминания.**
-Разрешите уведомления для Usta в настройках телефона. Напоминания приходят за 24 часа и за 2 часа.
+Разрешите уведомления для yazılnow в настройках телефона. Напоминания приходят за 24 часа и за 2 часа.
 
 **Как оставить отзыв?**
 После визита: «Записи» → «Прошедшие» → «Оценить визит». Отзыв можно оставить только о своём визите.
@@ -78,7 +78,7 @@ Rəyin altındakı "Şikayət et" düyməsini basın. 24 saat ərzində yoxlayı
 
 ## EN
 
-**Does Usta cost anything?**
+**Does yazılnow cost anything?**
 No, it's free for clients. You pay for the service at the salon.
 
 **How do I book?**
@@ -94,7 +94,7 @@ For now, cancel the booking and book again.
 You'll get a notification and an email. Tap "Book again" to choose another time, or message the salon on WhatsApp.
 
 **I don't get reminders.**
-Allow notifications for Usta in your phone's settings. Reminders arrive 24 hours and 2 hours before.
+Allow notifications for yazılnow in your phone's settings. Reminders arrive 24 hours and 2 hours before.
 
 **How do I leave a review?**
 After your visit: Bookings → Past → Rate your visit. You can only review your own visits.

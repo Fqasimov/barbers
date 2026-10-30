@@ -1,6 +1,6 @@
 // Site settings. Edit these on the server; no rebuild needed.
 window.USTA_CONFIG = {
-  // The Laravel API, without /api, e.g. 'https://api.ustatap.az'.
+  // The Laravel API, without /api, e.g. 'https://api.yazilnow.az'.
   // The API must allow this site's origin: CORS_ALLOWED_ORIGINS in backend/.env.
   // Empty: the map and figures show empty states (sample data only on localhost or with ?demo).
   apiUrl: '',
@@ -9,7 +9,7 @@ window.USTA_CONFIG = {
   appStoreUrl: '',
   playStoreUrl: '',
 
-  supportEmail: 'support@ustatap.az',
+  supportEmail: 'support@yazilnow.az',
   // Shown in the footer once filled in.
   company: { name: '', voen: '', address: '' },
 
