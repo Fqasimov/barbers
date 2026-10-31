@@ -11,6 +11,7 @@ import past from "../public/rec/past.json";
 import review from "../public/rec/review.json";
 import salon from "../public/rec/salon.json";
 import signup from "../public/rec/signup.json";
+import trial from "../public/rec/trial.json";
 import { PT } from "./Phone";
 import { clamp } from "./theme";
 
@@ -20,7 +21,7 @@ export type Segment = { from: number; to: number; kind: "typing" | "scroll" };
 type Take = { frames: number; events: Touch[]; segments?: Segment[] };
 
 /** Frame-accurate recordings of the real app (see promo/README.md for how they're made). */
-export const takes = { home, find, salon, book, map, compare, past, review, business, signup } as Record<string, Take>;
+export const takes = { home, find, salon, book, map, compare, past, review, business, signup, trial } as Record<string, Take>;
 export type TakeName = keyof typeof takes;
 
 /** Frame of the n-th tap in a take — for cutting right after a navigation tap. */

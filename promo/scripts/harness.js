@@ -18,7 +18,7 @@ const H = 844; // iPhone 15 points; the promo draws the status bar and home indi
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
-async function clip(browser, name, route, script, { seed } = {}) {
+async function clip(browser, name, route, script, { seed, launch = false } = {}) {
   if (ONLY.length && !ONLY.includes(name)) return;
   const dir = path.join(OUT, name);
   fs.rmSync(dir, { recursive: true, force: true });
@@ -51,15 +51,28 @@ async function clip(browser, name, route, script, { seed } = {}) {
   const p = await ctx.newPage();
   p.on('pageerror', (e) => console.log('[err]', e.message));
   await p.clock.install();
+  // Launch takes: time moves only when a frame is captured, so the launch animation is exact.
+  if (launch) await p.clock.pauseAt(Date.now() + 1000);
   await p.goto(BASE + route);
-  // Let the bundle, fonts and the splash finish in fake time before the take starts.
-  for (let i = 0; i < 40; i++) {
-    await p.clock.runFor(100);
-    await p.waitForTimeout(60);
+  if (launch) {
+    // Record from the cold start: step time only until the launch animation is on screen.
+    for (let i = 0; i < 600; i++) {
+      if (await p.evaluate(() => !!document.querySelector('[aria-label="yazılnow"][role="progressbar"]'))) break;
+      await p.clock.runFor(16);
+      await p.waitForTimeout(40);
+    }
+    // Let its images decode on the first frame.
+    await p.waitForTimeout(1500);
+  } else {
+    // Let the bundle, fonts and the splash finish in fake time before the take starts.
+    for (let i = 0; i < 40; i++) {
+      await p.clock.runFor(100);
+      await p.waitForTimeout(60);
+    }
+    await p.clock.runFor(3000);
+    await p.waitForTimeout(400);
+    await p.clock.runFor(500);
   }
-  await p.clock.runFor(3000);
-  await p.waitForTimeout(400);
-  await p.clock.runFor(500);
 
   let n = 0;
   const events = [];
@@ -88,6 +101,14 @@ async function clip(browser, name, route, script, { seed } = {}) {
             const b = e.getBoundingClientRect();
             return (exact ? l === label : l.startsWith(label)) && b.width > 0 && b.height > 0;
           });
+          // Prefer the ones whose centre is on screen (above the tab bar).
+          const on = els.filter((e) => {
+            const b = e.getBoundingClientRect();
+            const cy = b.y + b.height / 2;
+            const cx = b.x + b.width / 2;
+            return cy > 50 && cy < innerHeight - 85 && cx > 0 && cx < innerWidth;
+          });
+          if (on.length) els.splice(0, els.length, ...on);
           const e = els[nth];
           if (!e) return null;
           const b = e.getBoundingClientRect();

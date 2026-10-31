@@ -212,9 +212,9 @@ export const strings = {
   ),
   whatsapp: L('WhatsApp', 'WhatsApp', 'WhatsApp'),
   waMessage: L(
-    'Salam! Usta vasitəsilə {day}, saat {time} üçün növbə götürmüşəm: {services}.',
-    'Здравствуйте! Я записался(-ась) через Usta на {day} в {time}: {services}.',
-    'Hi! I booked {services} for {day} at {time} through Usta.',
+    'Salam! yazılnow vasitəsilə {day}, saat {time} üçün növbə götürmüşəm: {services}.',
+    'Здравствуйте! Я записался(-ась) через yazılnow на {day} в {time}: {services}.',
+    'Hi! I booked {services} for {day} at {time} through yazılnow.',
   ),
 
   // Profile
@@ -306,9 +306,9 @@ export const strings = {
   visitOn: L('{date} ziyarəti · {service}', 'Визит {date} · {service}', 'Visit on {date} · {service}'),
   reviewLockedTitle: L('Rəy yalnız ziyarətdən sonra', 'Отзыв — только после визита', 'Reviews follow real visits'),
   reviewLockedBody: L(
-    'Usta-da hər rəy tamamlanmış növbəyə bağlıdır — buna görə reytinqlərə etibar etmək olur.',
-    'В Usta каждый отзыв привязан к завершённой записи — поэтому рейтингам можно доверять.',
-    'On Usta every review is tied to a completed booking — that’s why the ratings can be trusted.',
+    'yazılnow-da hər rəy tamamlanmış növbəyə bağlıdır — buna görə reytinqlərə etibar etmək olur.',
+    'В yazılnow каждый отзыв привязан к завершённой записи — поэтому рейтингам можно доверять.',
+    'On yazılnow every review is tied to a completed booking — that’s why the ratings can be trusted.',
   ),
 
   // Search
@@ -622,7 +622,7 @@ export const strings = {
   panelRegister: L('Salonu qeydiyyatdan keçir', 'Зарегистрировать салон', 'Register a salon'),
   panelSignIn: L('Daxil ol', 'Войти', 'Sign in'),
   // Business
-  bizTitle: L('Salonunuzu Usta-ya qoşun', 'Подключите салон к Usta', 'Put your salon on Usta'),
+  bizTitle: L('Salonunuzu yazılnow-a qoşun', 'Подключите салон к yazılnow', 'Put your salon on yazılnow'),
   bizSub: L(
     'İlk 30 gün pulsuzdur. Kart tələb olunmur.',
     'Первые 30 дней бесплатно. Карта не нужна.',
@@ -758,7 +758,7 @@ export const strings = {
   privacyPolicy: L('Məxfilik siyasəti', 'Политика конфиденциальности', 'Privacy policy'),
   termsOfUse: L('İstifadə şərtləri', 'Условия использования', 'Terms of use'),
   contactSupport: L('Dəstəyə yazın', 'Написать в поддержку', 'Contact support'),
-  supportSubject: L('Usta: sual', 'Usta: вопрос', 'Usta: question'),
+  supportSubject: L('yazılnow: sual', 'yazılnow: вопрос', 'yazılnow: question'),
 
   // Salon tools
   savedToast: L('Yadda saxlanıldı', 'Сохранено', 'Saved'),

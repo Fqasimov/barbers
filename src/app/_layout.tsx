@@ -3,18 +3,19 @@ import {
   Onest_500Medium,
   Onest_600SemiBold,
   Onest_700Bold,
+  Onest_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/onest';
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { useSession } from '@/auth/useSession';
-import { ScissorsSplash } from '@/components/splash/ScissorsSplash';
+import { BrandIntro } from '@/components/splash/BrandIntro';
 import { Toaster } from '@/components/Toaster';
 import { useAppSync } from '@/lib/sync';
 import { useStore } from '@/store/useStore';
@@ -24,7 +25,7 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold, Onest_700Bold });
+  const [fontsLoaded] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold, Onest_700Bold, Onest_800ExtraBold });
 
   if (!fontsLoaded) return null;
 
@@ -45,6 +46,7 @@ function App() {
   const signedIn = useSession((s) => !!s.session);
   const authPrompted = useStore((s) => s.authPrompted);
   const [splashDone, setSplashDone] = useState(false);
+  const finishSplash = useCallback(() => setSplashDone(true), []);
   useAppSync();
 
   // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
@@ -103,7 +105,7 @@ function App() {
           <Toaster />
         </View>
       </View>
-      {!splashDone ? <ScissorsSplash ready={hydrated && sessionReady} onDone={() => setSplashDone(true)} /> : null}
+      {!splashDone ? <BrandIntro ready={hydrated && sessionReady} onDone={finishSplash} /> : null}
     </NavThemeProvider>
   );
 }
