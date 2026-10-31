@@ -5,7 +5,7 @@ export type Lang = (typeof LANGS)[number];
 export type Loc = Record<Lang, string>;
 export type Feature = Loc & { soon?: boolean };
 export type Plan = {
-  id: 'start' | 'pro';
+  id: 'sade' | 'start' | 'pro';
   name: string;
   price: number;
   recommended?: boolean;
@@ -485,19 +485,37 @@ export const categories: { id: CategoryId; label: Loc }[] = [
 // Plans, as in the app (src/auth/plans.ts). Prices come from GET /api/plans when the API is set.
 export const plans: Plan[] = [
   {
+    id: 'sade',
+    name: 'Sadə',
+    price: 10,
+    blurb: { az: 'Xəritədə yer və rəylər', ru: 'Место на карте и отзывы', en: 'On the map, with reviews' },
+    features: [
+      { az: 'Xəritədə və axtarışda yer', ru: 'Место на карте и в поиске', en: 'A place on the map and in search' },
+      { az: 'QR ilə rəylər və rəylərə cavab', ru: 'Отзывы по QR и ответы на них', en: 'QR reviews and replies' },
+      { az: 'Foto qalereya', ru: 'Фотогалерея', en: 'Photo gallery' },
+      {
+        az: '«Bron et» düyməsi öz səhifənizə (DIKIDI, WhatsApp, telefon)',
+        ru: 'Кнопка «Записаться» на вашу страницу (DIKIDI, WhatsApp, телефон)',
+        en: '"Book" button to your own page (DIKIDI, WhatsApp, phone)',
+      },
+      { az: 'Aylıq klik hesabatı', ru: 'Ежемесячный отчёт по кликам', en: 'Monthly click report' },
+    ],
+  },
+  {
     id: 'start',
     name: 'Start',
     price: 29,
     blurb: { az: 'Tək salon üçün', ru: 'Для одного салона', en: 'For a single salon' },
     features: [
+      { az: 'Sadə planındakı hər şey', ru: 'Всё из тарифа Sadə', en: 'Everything in Sadə' },
       { az: 'Onlayn bron və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
+      { az: 'Limitsiz usta, əlavə ödəniş yoxdur', ru: 'Мастера без ограничений и доплат', en: 'Unlimited masters, no per-seat fees' },
+      { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
       {
-        az: 'Limitsiz usta, əlavə ödəniş yoxdur',
-        ru: 'Мастера без ограничений и доплат',
-        en: 'Unlimited masters, no per-seat fees',
+        az: 'WhatsApp təsdiqləri: əlavə paket, 10 ₼ / 300 mesaj',
+        ru: 'Подтверждения в WhatsApp: пакет 10 ₼ / 300 сообщений',
+        en: 'WhatsApp confirmations: add-on, 10 ₼ / 300 messages',
       },
-      { az: 'WhatsApp ilə təsdiq', ru: 'Подтверждения в WhatsApp', en: 'WhatsApp confirmations', soon: true },
-      { az: 'Rəylərə cavab', ru: 'Ответы на отзывы', en: 'Replies to reviews' },
     ],
   },
   {
@@ -509,14 +527,15 @@ export const plans: Plan[] = [
     features: [
       { az: 'Start planındakı hər şey', ru: 'Всё из тарифа Start', en: 'Everything in Start' },
       {
-        az: 'Gəlməmə qorunması və depozit',
-        ru: 'Защита от неявок и депозиты',
-        en: 'No-show protection and deposits',
-        soon: true,
+        az: '3 filial daxildir (hər əlavə filial +15 ₼)',
+        ru: '3 филиала включены (+15 ₼ за каждый следующий)',
+        en: 'Up to 3 branches included (+15 ₼ per extra branch)',
       },
-      { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
-      { az: 'Gözləmə siyahısı', ru: 'Лист ожидания', en: 'Waitlist', soon: true },
-      { az: 'Statistika', ru: 'Статистика', en: 'Statistics', soon: true },
+      { az: 'Filiallar üzrə ümumi hesabat', ru: 'Сводные отчёты по филиалам', en: 'Combined reports across branches' },
+      { az: 'Filial menecerləri', ru: 'Роли менеджеров филиалов', en: 'Branch manager roles' },
+      { az: 'Gəlməmə qorunması və depozit', ru: 'Защита от неявок и депозиты', en: 'No-show protection and deposits' },
+      { az: 'Gözləmə siyahısı və statistika', ru: 'Лист ожидания и статистика', en: 'Waitlist and statistics' },
+      { az: 'Prioritet dəstək və telefon xətti', ru: 'Приоритетная поддержка и телефон', en: 'Priority support and a phone line' },
     ],
   },
 ];
