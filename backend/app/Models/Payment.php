@@ -20,7 +20,7 @@ class Payment extends Model
 
     protected function casts(): array
     {
-        return ['raw_callback' => 'array', 'paid_at' => 'datetime', 'amount' => 'integer'];
+        return ['raw_callback' => 'array', 'paid_at' => 'datetime', 'refunded_at' => 'datetime', 'locations' => 'integer', 'amount' => 'integer'];
     }
 
     public function business(): BelongsTo

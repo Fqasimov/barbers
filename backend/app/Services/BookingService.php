@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Master;
 use App\Models\Review;
+use App\Models\Service;
 use App\Models\User;
 use App\Support\Baku;
 use Carbon\CarbonImmutable;
@@ -15,7 +16,55 @@ use Illuminate\Validation\ValidationException;
 
 class BookingService
 {
-    public function __construct(private Availability $availability, private Notifier $notifier, private RatingService $ratings) {}
+    public function __construct(
+        private Availability $availability,
+        private Notifier $notifier,
+        private RatingService $ratings,
+        private PaymentService $payments,
+        private Waitlist $waitlist,
+    ) {}
+
+    /** No-shows of a client across every salon. */
+    public function noShows(User $user): int
+    {
+        return Booking::query()->where('user_id', $user->id)->where('status', Booking::NO_SHOW)->count();
+    }
+
+    /** Clients who skipped this many visits pay a deposit at every salon that takes deposits. */
+    public function depositRequired(User $user): bool
+    {
+        return $this->noShows($user) >= (int) config('usta.deposits.no_show_limit');
+    }
+
+    /**
+     * The deposit in whole AZN for these services at a Pro salon: what each
+     * service asks (fixed or a share of its price), or, for a client with
+     * too many no-shows, at least the default share. Never above the total.
+     *
+     * @param  iterable<Service>  $services
+     */
+    public function depositFor(Business $salon, iterable $services, ?User $user): int
+    {
+        if (! $salon->hasFeature('deposits')) {
+            return 0;
+        }
+        $sum = 0;
+        $total = 0;
+        foreach ($services as $s) {
+            $price = (int) $s->price;
+            $total += $price;
+            $sum += match ($s->deposit_type) {
+                'fixed' => min($price, (int) $s->deposit_value),
+                'percent' => (int) ceil($price * min(100, (int) $s->deposit_value) / 100),
+                default => 0,
+            };
+        }
+        if ($sum === 0 && $user && $this->depositRequired($user)) {
+            $sum = max((int) config('usta.deposits.default_min'), (int) ceil($total * (int) config('usta.deposits.default_percent') / 100));
+        }
+
+        return min($sum, $total);
+    }
 
     /** @param array{salon_id:string, master_id:string, service_ids:list<string>, start:string, note?:?string} $data */
     public function create(User $user, array $data): Booking
@@ -23,6 +72,9 @@ class BookingService
         $salon = Business::query()->listable()->with(['services', 'masters.services'])->find($data['salon_id']);
         if (! $salon) {
             throw ApiException::notFound('This salon is not taking bookings.');
+        }
+        if (! $salon->takesBookings()) {
+            throw new ApiException(422, 'booking_external', 'This salon takes bookings on its own page.');
         }
 
         $ids = array_values(array_unique($data['service_ids']));
@@ -52,10 +104,12 @@ class BookingService
         }
         $end = $start->addMinutes($duration);
 
-        $booking = DB::transaction(function () use ($user, $salon, $master, $ordered, $start, $end, $duration, $total, $data) {
+        $deposit = $this->depositFor($salon, $ordered, $user);
+
+        $booking = DB::transaction(function () use ($user, $salon, $master, $ordered, $start, $end, $duration, $total, $data, $deposit) {
             // Serialises bookings per master; the overlap check below is then race-free.
             Master::query()->whereKey($master->id)->lockForUpdate()->first();
-            $taken = Booking::query()->where('master_id', $master->id)->where('status', Booking::UPCOMING)
+            $taken = Booking::query()->where('master_id', $master->id)->blocking()
                 ->where('start_at', '<', $end)->where('end_at', '>', $start)->exists();
             if ($taken) {
                 throw new ApiException(409, 'slot_taken', 'Someone just took this time. Pick another one.');
@@ -77,15 +131,49 @@ class BookingService
                 'duration_min' => $duration,
                 'total' => $total,
                 'note' => isset($data['note']) && trim((string) $data['note']) !== '' ? trim($data['note']) : null,
-                'status' => Booking::UPCOMING,
+                'deposit' => $deposit,
+                'deposit_status' => $deposit > 0 ? 'pending' : null,
+                // With a deposit the slot is held while the client pays.
+                'status' => $deposit > 0 ? Booking::PENDING_PAYMENT : Booking::UPCOMING,
+                'hold_until' => $deposit > 0 ? now()->addMinutes((int) config('usta.deposits.hold_minutes')) : null,
             ])->save();
 
             return $booking;
         });
 
-        $this->notifier->bookingCreated($booking);
+        if ($deposit > 0) {
+            $booking->checkout_url = $this->payments->depositCheckout($booking, $user)['checkout_url'];
+        } else {
+            $this->notifier->bookingCreated($booking);
+        }
 
         return $booking;
+    }
+
+    /** A new payment page for a booking still waiting for its deposit. */
+    public function payDeposit(User $user, Booking $booking): string
+    {
+        if ($booking->status !== Booking::PENDING_PAYMENT || ! $booking->hold_until?->isFuture()) {
+            throw new ApiException(422, 'hold_expired', 'The time is no longer held. Book again.');
+        }
+
+        return $this->payments->depositCheckout($booking, $user)['checkout_url'];
+    }
+
+    /** Unpaid holds that ran out: the slot goes back (and to the waitlist). */
+    public function expireHolds(): int
+    {
+        $n = 0;
+        Booking::query()->where('status', Booking::PENDING_PAYMENT)->where('hold_until', '<=', now())
+            ->chunkById(100, function ($rows) use (&$n) {
+                foreach ($rows as $b) {
+                    $b->forceFill(['status' => Booking::CANCELLED, 'cancelled_by' => 'system', 'cancelled_at' => now(), 'deposit_status' => 'expired'])->save();
+                    $this->waitlist->slotFreed($b);
+                    $n++;
+                }
+            });
+
+        return $n;
     }
 
     /**
@@ -194,7 +282,7 @@ class BookingService
     {
         return DB::transaction(function () use ($master, $start, $end, $attrs, $conflict) {
             Master::query()->whereKey($master->id)->lockForUpdate()->first();
-            $taken = Booking::query()->where('master_id', $master->id)->where('status', Booking::UPCOMING)
+            $taken = Booking::query()->where('master_id', $master->id)->blocking()
                 ->where('start_at', '<', $end)->where('end_at', '>', $start)->exists();
             if ($taken) {
                 throw new ApiException(409, $conflict, $conflict === 'slot_taken'
@@ -218,14 +306,24 @@ class BookingService
         if ($booking->status === Booking::CANCELLED) {
             return $booking;
         }
+        // Not paid yet: just let go of the slot.
+        if ($booking->status === Booking::PENDING_PAYMENT) {
+            $booking->forceFill(['status' => Booking::CANCELLED, 'cancelled_by' => 'customer', 'cancelled_at' => now(), 'deposit_status' => null, 'hold_until' => null])->save();
+            $this->waitlist->slotFreed($booking);
+
+            return $booking;
+        }
         $limit = $booking->start_at->copy()->subHours(config('usta.bookings.cancel_until_hours'));
         if ($booking->status !== Booking::UPCOMING || now()->gt($limit)) {
             throw new ApiException(422, 'too_late_to_cancel', 'Bookings can be cancelled until 2 hours before the start.');
         }
         $booking->forceFill(['status' => Booking::CANCELLED, 'cancelled_by' => 'customer', 'cancelled_at' => now()])->save();
+        // In time (2 h+ before): the deposit goes back in full.
+        $this->refundDeposit($booking);
         $this->notifier->bookingCancelledByCustomer($booking);
+        $this->waitlist->slotFreed($booking);
 
-        return $booking;
+        return $booking->fresh();
     }
 
     public function cancelBySalon(Booking $booking, ?string $reason): Booking
@@ -233,7 +331,7 @@ class BookingService
         if ($booking->status === Booking::CANCELLED) {
             return $booking;
         }
-        if ($booking->status !== Booking::UPCOMING) {
+        if (! in_array($booking->status, [Booking::UPCOMING, Booking::PENDING_PAYMENT], true)) {
             throw ValidationException::withMessages(['status' => ['Only upcoming bookings can be cancelled.']]);
         }
         $booking->forceFill([
@@ -242,7 +340,48 @@ class BookingService
             'cancel_reason' => $reason,
             'cancelled_at' => now(),
         ])->save();
+        // The salon cancelled: the client always gets the deposit back.
+        $this->refundDeposit($booking);
         $this->notifier->bookingCancelledBySalon($booking);
+        $this->waitlist->slotFreed($booking);
+
+        return $booking->fresh();
+    }
+
+    private function refundDeposit(Booking $booking): void
+    {
+        if ($booking->deposit_status === 'paid' && ($payment = $this->payments->depositPayment($booking))) {
+            $this->payments->refund($payment);
+        } elseif ($booking->deposit_status === 'pending') {
+            $booking->forceFill(['deposit_status' => null])->save();
+        }
+    }
+
+    /** The visit happened: a paid deposit counts toward the bill. */
+    public function complete(Booking $booking): Booking
+    {
+        if ($booking->status !== Booking::COMPLETED) {
+            if ($booking->status !== Booking::UPCOMING) {
+                throw ValidationException::withMessages(['status' => ['Only upcoming bookings can be marked as done.']]);
+            }
+            $booking->forceFill(['status' => Booking::COMPLETED] + ($booking->deposit_status === 'paid' ? ['deposit_status' => 'applied'] : []))->save();
+        }
+
+        return $booking;
+    }
+
+    /** The client didn't come: the salon keeps a paid deposit. */
+    public function noShow(Booking $booking): Booking
+    {
+        if ($booking->status !== Booking::NO_SHOW) {
+            if (! in_array($booking->status, [Booking::UPCOMING, Booking::COMPLETED], true)) {
+                throw ValidationException::withMessages(['status' => ['A cancelled booking can’t be marked as a no-show.']]);
+            }
+            if ($booking->start_at->isFuture()) {
+                throw ValidationException::withMessages(['status' => ['A no-show can only be marked after the start time.']]);
+            }
+            $booking->forceFill(['status' => Booking::NO_SHOW] + (in_array($booking->deposit_status, ['paid', 'applied'], true) ? ['deposit_status' => 'kept'] : []))->save();
+        }
 
         return $booking;
     }

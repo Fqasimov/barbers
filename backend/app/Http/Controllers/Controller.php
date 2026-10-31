@@ -37,6 +37,26 @@ abstract class Controller
         return $request->attributes->get('business');
     }
 
+    /** The main salon: holds the plan, the branches and the team. */
+    protected function account(Request $request): Business
+    {
+        return $request->attributes->get('account') ?? $this->business($request)->account();
+    }
+
+    /** owner | manager */
+    protected function role(Request $request): string
+    {
+        return $request->attributes->get('business_role', 'owner');
+    }
+
+    /** Billing, branches and the team are the owner's alone. */
+    protected function ownerOnly(Request $request): void
+    {
+        if ($this->role($request) !== 'owner') {
+            throw ApiException::forbidden('Only the salon owner can do this.');
+        }
+    }
+
     /**
      * Ownership check for anything addressed by id under /business:
      * unknown → 404 not_found, someone else's → 403 forbidden.

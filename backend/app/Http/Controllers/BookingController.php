@@ -47,6 +47,14 @@ class BookingController extends Controller
         return response()->json((new BookingResource($booking))->resolve($request));
     }
 
+    /** A fresh payment page for a booking waiting for its deposit. */
+    public function pay(Request $request, string $id): JsonResponse
+    {
+        $booking = $this->mine($request, $id);
+
+        return response()->json(['checkout_url' => $this->bookings->payDeposit($request->user(), $booking)]);
+    }
+
     public function review(Request $request, string $id): JsonResponse
     {
         $data = $request->validate([

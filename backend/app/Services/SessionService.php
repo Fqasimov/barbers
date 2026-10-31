@@ -19,12 +19,12 @@ class SessionService
 
     public function payload(User $user, string $token, Request $request): array
     {
-        $business = $user->business()->first();
+        $business = app(BusinessAccess::class)->resolve($user)['business'] ?? null;
 
         return [
             'token' => $token,
             'user' => (new UserResource($user))->resolve($request),
-            'business' => $business ? (new BusinessResource($business))->resolve($request) : null,
+            'business' => $business ? (new BusinessResource($business))->forUser($user)->resolve($request) : null,
         ];
     }
 }

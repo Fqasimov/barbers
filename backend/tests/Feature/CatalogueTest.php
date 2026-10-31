@@ -53,7 +53,7 @@ class CatalogueTest extends TestCase
         $this->assertSame(['open' => '10:00', 'close' => '20:00'], $s['hours']);
         $this->assertSame(2, $s['price_level']);
         $this->assertSame([0, 0, 0, 0, 0], $s['distribution']);
-        $this->assertSame(['id', 'key', 'name', 'description', 'category', 'duration_min', 'price'], array_keys($s['services'][0]));
+        $this->assertSame(['id', 'key', 'name', 'description', 'category', 'duration_min', 'price', 'deposit'], array_keys($s['services'][0]));
         $this->assertSame(['id', 'name', 'role', 'years', 'rating', 'review_count', 'service_ids', 'work_days', 'shift', 'tone', 'languages', 'photo_url'], array_keys($s['masters'][0]));
         $this->assertSame([$s['services'][0]['id']], $s['masters'][0]['service_ids']);
     }
@@ -82,9 +82,14 @@ class CatalogueTest extends TestCase
 
     public function test_plans(): void
     {
-        $this->getJson('/api/plans')->assertOk()->assertExactJson([
-            ['id' => 'start', 'price' => 29, 'price_year' => 290], ['id' => 'pro', 'price' => 59, 'price_year' => 590],
-        ]);
+        $plans = $this->getJson('/api/plans')->assertOk()->json();
+        $this->assertSame(['sade', 'start', 'pro'], array_column($plans, 'id'));
+        $this->assertSame([10, 29, 49], array_column($plans, 'price'));
+        $this->assertSame([100, 290, 490], array_column($plans, 'price_year'));
+        $this->assertNotContains('booking', $plans[0]['features']);
+        $this->assertContains('booking', $plans[1]['features']);
+        $this->assertContains('deposits', $plans[2]['features']);
+        $this->assertSame(['included' => 3, 'extra_price' => 15], $plans[2]['branches']);
     }
 
     public function test_busy_lists_upcoming_bookings_without_client_details(): void

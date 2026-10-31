@@ -38,11 +38,17 @@ class SalonResource extends JsonResource
             'coords' => $coords,
             'price_level' => $this->price_level ?: Catalogue::priceLevel($this->services->pluck('price')->all()),
             'tone' => $this->tone ?: Catalogue::tone($this->id),
-            'rating' => RatingService::average((float) $this->base_rating, (int) $this->base_review_count, (int) $this->review_sum, (int) $this->review_count),
+            'rating' => RatingService::score($this->resource),
             'review_count' => (int) $this->base_review_count + (int) $this->review_count,
             'distribution' => RatingService::distribution($this->resource),
             'hours' => ['open' => $this->hours_open, 'close' => $this->hours_close],
             'closed_days' => array_values(array_map('intval', $this->closed_days ?? [])),
+            // app: book here. link: Sadə, "Book" opens booking_url (or WhatsApp/phone when unset).
+            'booking' => $this->resource->takesBookings() ? 'app' : 'link',
+            'booking_url' => $this->booking_url,
+            // Pro: deposits for no-show protection and the waitlist.
+            'deposits' => $this->resource->hasFeature('deposits'),
+            'waitlist' => $this->resource->hasFeature('waitlist'),
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
             'women_only' => $this->audience === 'women',

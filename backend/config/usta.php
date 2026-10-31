@@ -51,15 +51,82 @@ return [
 
     // Prices in whole AZN. A year costs ten months unless set otherwise.
     'plans' => [
+        // On the map with QR reviews and a "Book" button to the salon's own page.
+        'sade' => [
+            'month' => (int) env('PLAN_PRICE_SADE', 10),
+            'year' => (int) env('PLAN_PRICE_SADE_YEAR', 10 * (int) env('PLAN_PRICE_SADE', 10)),
+        ],
         'start' => [
             'month' => (int) env('PLAN_PRICE_START', 29),
             'year' => (int) env('PLAN_PRICE_START_YEAR', 10 * (int) env('PLAN_PRICE_START', 29)),
         ],
         'pro' => [
-            'month' => (int) env('PLAN_PRICE_PRO', 59),
-            'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 59)),
+            'month' => (int) env('PLAN_PRICE_PRO', 49),
+            'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 49)),
         ],
     ],
+
+    // What each plan unlocks. A Pro trial unlocks Pro.
+    'plan_features' => [
+        'sade' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report'],
+        'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon'],
+        'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
+            'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+    ],
+
+    // Pro: locations (the main salon + branches) in the price, then each extra one per month.
+    'branches' => [
+        'included' => 3,
+        'extra_month' => (int) env('PLAN_PRICE_BRANCH', 15),
+        'max' => 20,
+    ],
+
+    'deposits' => [
+        // Unpaid deposit bookings hold the slot this long, then free it.
+        'hold_minutes' => 15,
+        // Clients with this many no-shows pay a deposit at every salon that takes them…
+        'no_show_limit' => 2,
+        // …of this share of the price, at least this much, when the service has none set.
+        'default_percent' => 20,
+        'default_min' => 5,
+    ],
+
+    'qr_reviews' => [
+        'ttl_hours' => 24,
+        // A QR review counts this much of a review after a booked visit (in tenths).
+        'weight' => 8,
+        // One QR review per salon per account in this many days, and at most this many a day.
+        'per_salon_days' => 30,
+        'per_day' => 3,
+    ],
+
+    'waitlist' => [
+        'per_user' => 5,
+    ],
+
+    // Paid add-on for Start and Pro: confirmations and reminders on WhatsApp.
+    'whatsapp' => [
+        'price' => (int) env('WHATSAPP_PACK_PRICE', 10),
+        'messages' => (int) env('WHATSAPP_PACK_MESSAGES', 300),
+        'days' => 30,
+        // log (default: writes to the log) | meta (WhatsApp Cloud API)
+        'driver' => env('WHATSAPP_DRIVER', 'log'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'template_confirm' => env('WHATSAPP_TEMPLATE_CONFIRM', 'booking_confirmed'),
+        'template_reminder' => env('WHATSAPP_TEMPLATE_REMINDER', 'booking_reminder'),
+        'template_lang' => env('WHATSAPP_TEMPLATE_LANG', 'az'),
+    ],
+
+    'support' => [
+        'email' => env('SUPPORT_EMAIL', 'support@yazilnow.az'),
+        // Pro only: the priority phone line.
+        'phone' => env('SUPPORT_PHONE', '+994 12 000 00 00'),
+        'hours' => env('SUPPORT_HOURS', '09:00–21:00'),
+    ],
+
+    // Where QR codes and shared links point.
+    'web_url' => env('WEB_URL', 'https://yazilnow.az'),
 
     'billing_periods' => ['month', 'year'],
 

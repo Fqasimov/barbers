@@ -27,6 +27,11 @@ class FakeGateway implements PaymentGateway
         );
     }
 
+    public function refund(Payment $payment): bool
+    {
+        return true;
+    }
+
     public function verifyCallback(Request $request): CallbackResult
     {
         $data = $request->only(['payment_id', 'status', 'amount', 'currency', 'signature']);

@@ -25,6 +25,8 @@ class Master extends Model
             'base_review_count' => 'integer',
             'review_count' => 'integer',
             'review_sum' => 'integer',
+            'review_weight' => 'integer',
+            'review_weighted_sum' => 'integer',
         ];
     }
 

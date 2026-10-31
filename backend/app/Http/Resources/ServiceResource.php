@@ -20,6 +20,8 @@ class ServiceResource extends JsonResource
             'category' => $this->category,
             'duration_min' => (int) $this->duration_min,
             'price' => (int) $this->price,
+            // Pro salons: paid when booking, refunded on a timely cancel, kept on a no-show.
+            'deposit' => ['type' => $this->deposit_type ?? 'none', 'value' => (int) $this->deposit_value],
         ];
     }
 }

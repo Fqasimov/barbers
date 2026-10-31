@@ -46,7 +46,7 @@ class User extends Authenticatable
 
     public function business(): HasOne
     {
-        return $this->hasOne(Business::class, 'owner_id');
+        return $this->hasOne(Business::class, 'owner_id')->whereNull('parent_id');
     }
 
     public function bookings(): HasMany

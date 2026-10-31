@@ -52,7 +52,7 @@ class BookingTest extends TestCase
             ->assertJsonPath('reviewed', false)
             ->assertJsonPath('start', '2026-10-13T08:00:00.000Z')
             ->assertJsonPath('note', 'Qısa saxlayın');
-        $this->assertSame(['id', 'salon_id', 'master_id', 'service_ids', 'start', 'duration_min', 'total', 'note', 'status', 'cancelled_by', 'reviewed', 'created_at'], array_keys($res->json()));
+        $this->assertSame(['id', 'salon_id', 'master_id', 'service_ids', 'start', 'duration_min', 'total', 'note', 'status', 'cancelled_by', 'reviewed', 'deposit', 'deposit_status', 'hold_until', 'checkout_url', 'created_at'], array_keys($res->json()));
         Mail::assertQueued(BookingMail::class, fn ($m) => $m->hasTo($salon->owner->email) && $m->kind === 'created');
 
         $this->getJson('/api/bookings', $this->h)->assertOk()->assertJsonCount(1)->assertJsonPath('0.id', $res->json('id'));

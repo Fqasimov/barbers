@@ -17,7 +17,7 @@ class PaymentTest extends TestCase
         return [$salon, $h];
     }
 
-    private function sendCallback(string $id, string $status = 'paid', int $amount = 59, string $currency = 'AZN', ?string $sig = null)
+    private function sendCallback(string $id, string $status = 'paid', int $amount = 49, string $currency = 'AZN', ?string $sig = null)
     {
         return $this->postJson('/api/payments/fake/callback', [
             'payment_id' => $id, 'status' => $status, 'amount' => $amount, 'currency' => $currency,
@@ -31,7 +31,7 @@ class PaymentTest extends TestCase
         $res = $this->postJson('/api/business/subscription/checkout', ['plan' => 'pro'], $h)->assertOk()
             ->assertJsonStructure(['checkout_url', 'payment_id']);
         $id = $res->json('payment_id');
-        $this->assertDatabaseHas('payments', ['id' => $id, 'status' => 'pending', 'amount' => 59, 'currency' => 'AZN', 'provider' => 'fake']);
+        $this->assertDatabaseHas('payments', ['id' => $id, 'status' => 'pending', 'amount' => 49, 'currency' => 'AZN', 'provider' => 'fake']);
 
         $this->get($res->json('checkout_url'))->assertRedirect("/billing/return?payment_id={$id}");
         $this->get("/billing/return?payment_id={$id}")->assertRedirect("usta://billing/return?payment_id={$id}");
@@ -70,9 +70,9 @@ class PaymentTest extends TestCase
     {
         [$salon, $h] = $this->setUpSalon();
         $id = $this->postJson('/api/business/subscription/checkout', ['plan' => 'pro', 'period' => 'year'], $h)->json('payment_id');
-        $this->assertDatabaseHas('payments', ['id' => $id, 'amount' => 590, 'billing_period' => 'year']);
+        $this->assertDatabaseHas('payments', ['id' => $id, 'amount' => 490, 'billing_period' => 'year']);
 
-        $this->sendCallback($id, amount: 590)->assertOk();
+        $this->sendCallback($id, amount: 490)->assertOk();
         $this->getJson('/api/business/subscription', $h)->assertOk()
             ->assertJsonPath('status', 'active')->assertJsonPath('billing_period', 'year')
             ->assertJsonPath('current_period_end', '2027-11-10T06:00:00.000Z');

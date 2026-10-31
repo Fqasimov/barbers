@@ -56,7 +56,7 @@ class Availability
         }
         $rows = Booking::query()
             ->whereIn('master_id', $masterIds)
-            ->where('status', Booking::UPCOMING)
+            ->blocking()
             ->where('start_at', '<', $to->utc())
             ->where('end_at', '>', $from->utc())
             ->when($exceptBookingId, fn ($q) => $q->whereKeyNot($exceptBookingId))

@@ -15,7 +15,7 @@ describe('plans', () => {
   it('offers Start and Pro, Pro recommended, a year for ten months', () => {
     expect(plans.map((p) => [p.id, p.price, p.priceYear])).toEqual([
       ['start', 29, 290],
-      ['pro', 59, 590],
+      ['pro', 49, 490],
     ]);
     expect(plans.find((p) => p.recommended)?.id).toBe('pro');
     expect(YEAR_MONTHS_PAID).toBe(10);

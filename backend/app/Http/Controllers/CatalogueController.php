@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Master;
 use App\Models\Review;
+use App\Models\SalonClick;
 use App\Services\Availability;
 use App\Services\RatingService;
 use App\Support\Baku;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class CatalogueController extends Controller
@@ -27,7 +29,7 @@ class CatalogueController extends Controller
 
     private function salonQuery(): Builder
     {
-        return Business::query()->listable()->with(['services', 'masters.services', 'photos']);
+        return Business::query()->listable()->with(['services', 'masters.services', 'photos', 'subscription', 'parent.subscription']);
     }
 
     public function salons(Request $request): JsonResponse
@@ -73,6 +75,9 @@ class CatalogueController extends Controller
             'master_id' => ['sometimes', 'nullable', 'string', 'max:64'],
         ]);
         $salon = $this->salonQuery()->find($id) ?? throw ApiException::notFound('Salon not found.');
+        if (! $salon->takesBookings()) {
+            throw new ApiException(422, 'booking_external', 'This salon takes bookings on its own page.');
+        }
 
         $ids = array_values(array_unique($data['service_ids']));
         $services = $salon->services->whereIn('id', $ids);
@@ -119,7 +124,8 @@ class CatalogueController extends Controller
             return response()->json([]);
         }
 
-        $salons = $this->salonQuery()->whereHas('services', fn ($q) => $q->where('key', $data['service_key']))->get();
+        $salons = Business::query()->bookable()->with(['services', 'masters.services', 'parent.subscription', 'subscription'])
+            ->whereHas('services', fn ($q) => $q->where('key', $data['service_key']))->get();
         $masterIds = $salons->flatMap(fn ($s) => $s->masters->pluck('id'))->all();
         $busy = $this->availability->busy($masterIds, $date, $date->addDay());
         $now = Baku::now();
@@ -129,7 +135,7 @@ class CatalogueController extends Controller
             $best = null;
             foreach ($salon->services->where('key', $data['service_key']) as $service) {
                 $masters = $this->availability->eligible($salon, [$service->id])
-                    ->sortByDesc(fn (Master $m) => RatingService::average((float) $m->base_rating, (int) $m->base_review_count, (int) $m->review_sum, (int) $m->review_count));
+                    ->sortByDesc(fn (Master $m) => RatingService::score($m));
                 foreach ($masters as $master) {
                     $day = $this->availability->day($salon, $master, $date, (int) $service->duration_min, $busy[$master->id] ?? [], $now);
                     foreach ($day['slots'] as $t) {
@@ -175,7 +181,7 @@ class CatalogueController extends Controller
             // Anything overlapping the window, so time off that began earlier still counts.
             return Booking::query()
                 ->whereIn('business_id', $salons)
-                ->where('status', Booking::UPCOMING)
+                ->blocking()
                 ->where('start_at', '<', $from->addDays($days)->utc())
                 ->where('end_at', '>', $from->utc())
                 ->orderBy('start_at')
@@ -196,8 +202,22 @@ class CatalogueController extends Controller
             'id' => $id,
             'price' => (int) $p['month'],
             'price_year' => (int) $p['year'],
-        ])->values();
+            'features' => array_values(config("usta.plan_features.{$id}", [])),
+        ] + ($id === 'pro' ? ['branches' => [
+            'included' => (int) config('usta.branches.included'),
+            'extra_price' => (int) config('usta.branches.extra_month'),
+        ]] : []))->values();
 
         return response()->json($plans)->header('Cache-Control', 'public, max-age=300');
+    }
+
+    /** What people tap on a salon page; the salon sees the monthly totals. */
+    public function click(Request $request, string $id): JsonResponse
+    {
+        $data = $request->validate(['kind' => ['required', Rule::in(SalonClick::KINDS)]]);
+        $salon = Business::query()->listable()->find($id) ?? throw ApiException::notFound('Salon not found.');
+        SalonClick::bump($salon->id, $data['kind']);
+
+        return response()->json(['ok' => true]);
     }
 }

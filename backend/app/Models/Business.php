@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\ApiException;
 use App\Models\Concerns\HasStringId;
 use App\Support\CatalogueCache;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 /**
  * The owner's business and the public salon are one row: `id` is the salon id.
@@ -51,6 +53,11 @@ class Business extends Model
             'review_count' => 'integer',
             'review_sum' => 'integer',
             'approved_at' => 'datetime',
+            'review_weight' => 'integer',
+            'review_weighted_sum' => 'integer',
+            'whatsapp_quota' => 'integer',
+            'whatsapp_used' => 'integer',
+            'whatsapp_until' => 'datetime',
         ];
     }
 
@@ -63,6 +70,65 @@ class Business extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    /** The main salon of a Pro branch. */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /** A Pro salon's other locations. */
+    public function branches(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id')->orderBy('created_at');
+    }
+
+    public function members(): HasMany
+    {
+        return $this->hasMany(BusinessMember::class);
+    }
+
+    /** Who pays: the main salon for a branch, else the salon itself. */
+    public function account(): self
+    {
+        return $this->parent_id ? ($this->parent ?? $this) : $this;
+    }
+
+    /** Every location of the account: the main salon first, then its branches. */
+    public function locations(): Collection
+    {
+        $main = $this->account();
+
+        return collect([$main])->concat($main->branches()->get());
+    }
+
+    /** The account's plan id (sade | start | pro), whatever the payment state. */
+    public function planId(): ?string
+    {
+        return $this->account()->subscription?->plan;
+    }
+
+    /** What the plan unlocks (config usta.plan_features). */
+    public function hasFeature(string $feature): bool
+    {
+        $plan = $this->planId();
+
+        return $plan !== null && in_array($feature, config("usta.plan_features.{$plan}", []), true);
+    }
+
+    /** In-app booking (Start and Pro); Sadə sends clients to its own link. */
+    public function takesBookings(): bool
+    {
+        return $this->hasFeature('booking');
+    }
+
+    /** Throws 402 plan_required unless the plan includes the feature. */
+    public function requireFeature(string $feature): void
+    {
+        if (! $this->hasFeature($feature)) {
+            throw new ApiException(402, 'plan_required', 'Your plan doesn’t include this. Upgrade to use it.');
+        }
     }
 
     public function subscription(): HasOne
@@ -96,20 +162,36 @@ class Business extends Model
     }
 
     /**
-     * Salons customers can see and book: live, with at least one service and
-     * one master, and a trial or paid period that ended less than the grace
-     * period ago. Existing bookings of a salon that drops out stay valid.
+     * Salons customers can see: live with a trial or paid period that ended
+     * less than the grace period ago. Booking plans also need a service and a
+     * master; a Sadə salon is on the map without them. A branch goes by its
+     * main salon, which must be live on Pro. Existing bookings of a salon
+     * that drops out stay valid.
      */
     public function scopeListable(Builder $q): Builder
     {
         $cutoff = now()->subDays((int) config('usta.grace_days'));
+        $running = fn (Builder $s) => $s
+            ->whereIn('status', Subscription::LIVE_STATUSES)
+            ->whereRaw('COALESCE(current_period_end, trial_ends_at) > ?', [$cutoff]);
 
         return $q->where('status', self::LIVE)
-            ->whereHas('services')
-            ->whereHas('masters')
-            ->whereHas('subscription', fn (Builder $s) => $s
-                ->whereIn('status', Subscription::LIVE_STATUSES)
-                ->whereRaw('COALESCE(current_period_end, trial_ends_at) > ?', [$cutoff]));
+            ->where(fn (Builder $q) => $q
+                ->where(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', $running))
+                ->orWhere(fn (Builder $q) => $q->whereNotNull('parent_id')->whereHas('parent', fn (Builder $p) => $p
+                    ->where('status', self::LIVE)
+                    ->whereHas('subscription', fn (Builder $s) => $running($s)->where('plan', 'pro')))))
+            ->where(fn (Builder $q) => $q
+                ->where(fn (Builder $q) => $q->whereHas('services')->whereHas('masters'))
+                ->orWhere(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', fn (Builder $s) => $s->where('plan', 'sade'))));
+    }
+
+    /** Listed salons that take bookings in the app (not Sadə). */
+    public function scopeBookable(Builder $q): Builder
+    {
+        return $q->listable()->where(fn (Builder $q) => $q
+            ->whereNotNull('parent_id')
+            ->orWhereHas('subscription', fn (Builder $s) => $s->where('plan', '!=', 'sade')));
     }
 
     /** Review passed: live (in search once it has a service, a master and a running plan). */

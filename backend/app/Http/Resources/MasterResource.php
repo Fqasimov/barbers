@@ -26,7 +26,7 @@ class MasterResource extends JsonResource
             'name' => $this->name,
             'role' => Loc::fill($this->role),
             'years' => (int) $this->years,
-            'rating' => RatingService::average((float) $this->base_rating, (int) $this->base_review_count, (int) $this->review_sum, (int) $this->review_count),
+            'rating' => RatingService::score($this->resource),
             'review_count' => (int) $this->base_review_count + (int) $this->review_count,
             'service_ids' => $this->serviceIds(),
             'work_days' => array_values(array_map('intval', $this->work_days ?? [])),

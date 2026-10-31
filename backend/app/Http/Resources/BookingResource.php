@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Booking;
 use App\Support\Iso;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,6 +24,11 @@ class BookingResource extends JsonResource
             'status' => $this->status(),
             'cancelled_by' => $this->cancelled_by,
             'reviewed' => $this->reviewed(),
+            // Pro salons: pending (pay to confirm) | paid | refunded | refund_due | kept | applied | expired.
+            'deposit' => (int) $this->deposit,
+            'deposit_status' => $this->deposit_status,
+            'hold_until' => $this->status === Booking::PENDING_PAYMENT ? Iso::ts($this->hold_until) : null,
+            'checkout_url' => $this->checkout_url ?? null,
             'created_at' => Iso::ts($this->created_at),
         ];
     }

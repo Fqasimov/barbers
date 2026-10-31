@@ -503,7 +503,7 @@ export const plans: Plan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 59,
+    price: 49,
     recommended: true,
     blurb: { az: 'Böyüyən salonlar üçün', ru: 'Для растущих салонов', en: 'For growing salons' },
     features: [

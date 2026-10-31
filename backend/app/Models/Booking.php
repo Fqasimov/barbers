@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasStringId;
 use App\Support\BusyCache;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,6 +20,9 @@ class Booking extends Model
     public const CANCELLED = 'cancelled';
 
     public const NO_SHOW = 'no_show';
+
+    /** A Pro salon's deposit is not paid yet: the slot is held until hold_until. */
+    public const PENDING_PAYMENT = 'pending_payment';
 
     /** A client's appointment. */
     public const VISIT = 'visit';
@@ -44,9 +48,18 @@ class Booking extends Model
             'cancelled_at' => 'datetime',
             'reminded_24h_at' => 'datetime',
             'reminded_2h_at' => 'datetime',
+            'hold_until' => 'datetime',
+            'deposit' => 'integer',
             'duration_min' => 'integer',
             'total' => 'integer',
         ];
+    }
+
+    /** Bookings that take the master's time: upcoming, or waiting for a deposit inside the hold. */
+    public function scopeBlocking(Builder $q): void
+    {
+        $q->where(fn (Builder $q) => $q->where('status', self::UPCOMING)
+            ->orWhere(fn (Builder $q) => $q->where('status', self::PENDING_PAYMENT)->where('hold_until', '>', now())));
     }
 
     public function business(): BelongsTo

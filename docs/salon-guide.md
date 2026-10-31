@@ -55,7 +55,7 @@ Bu addımlar bitəndə salonunuz yoxlanılır və bir iş günü ərzində axtar
 
 ### Ödəniş
 
-- **Planlar:** Start, aylıq 29 ₼ (tək salon üçün), və Pro, aylıq 59 ₼ (böyüyən salonlar üçün). İllik ödəsəniz, 12 ay 10 ayın qiymətinədir: 290 ₼ və 590 ₼.
+- **Planlar:** Start, aylıq 29 ₼ (tək salon üçün), və Pro, aylıq 49 ₼ (böyüyən salonlar üçün). İllik ödəsəniz, 12 ay 10 ayın qiymətinədir: 290 ₼ və 490 ₼.
 - **İlk 30 gün hər plan pulsuzdur.** Qeydiyyatda kart və ya ödəniş istənmir.
 - Sınaq bitməzdən 3 gün əvvəl e-poçt və tətbiqdə bildiriş gəlir. Sonra Android tətbiqində (və ya saytda) ödəniş üsulunu əlavə edirsiniz. Erkən ödəsəniz, sınağın qalan günləri itmir.
 - Avtomatik ödəniş yoxdur. Davam etmək istəmirsinizsə, heç nə etməyin; istənilən vaxt ləğv edə bilərsiniz.
@@ -118,7 +118,7 @@ Bu addımlar bitəndə salonunuz yoxlanılır və bir iş günü ərzində axtar
 
 ### Оплата
 
-- **Тарифы:** Start, 29 ₼ в месяц (для одного салона), и Pro, 59 ₼ в месяц (для растущих салонов). При оплате за год 12 месяцев стоят как 10: 290 ₼ и 590 ₼.
+- **Тарифы:** Start, 29 ₼ в месяц (для одного салона), и Pro, 49 ₼ в месяц (для растущих салонов). При оплате за год 12 месяцев стоят как 10: 290 ₼ и 490 ₼.
 - **Первые 30 дней любой тариф бесплатен.** При регистрации карта и оплата не нужны.
 - За 3 дня до конца пробного периода придут письмо и уведомление в приложении. Затем добавьте способ оплаты в Android-приложении (или на сайте). Если оплатить раньше, оставшиеся дни пробного периода не пропадут.
 - Автосписаний нет. Если не хотите продолжать, ничего делать не нужно; отменить можно в любой момент.

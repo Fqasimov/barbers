@@ -59,8 +59,8 @@ export const plans: Plan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 59,
-    priceYear: 59 * YEAR_MONTHS_PAID,
+    price: 49,
+    priceYear: 49 * YEAR_MONTHS_PAID,
     recommended: true,
     blurb: L('Böyüyən salonlar üçün', 'Для растущих салонов', 'For growing salons'),
     features: [

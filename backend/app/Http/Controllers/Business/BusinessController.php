@@ -27,6 +27,8 @@ class BusinessController extends Controller
             'about' => ['sometimes', 'nullable', new LocText(2000)],
             'phone' => ['sometimes', 'required', 'string', 'regex:'.V::AZ_PHONE],
             'whatsapp' => ['sometimes', 'nullable', 'string', 'regex:/^\+?994\d{9}$/'],
+            // The salon's own booking page (DIKIDI, a website, wa.me…), optional.
+            'booking_url' => ['sometimes', 'nullable', 'string', 'max:500', 'url:https,http'],
             'address' => ['sometimes', 'required', 'string', 'max:255'],
             'district' => ['sometimes', 'required', 'string', 'max:120'],
             'coords' => ['sometimes', 'nullable', 'array'],
@@ -52,6 +54,7 @@ class BusinessController extends Controller
                 'salon_name' => $map['name'] = $value,
                 'about' => $map['about'] = Loc::from($value),
                 'whatsapp' => $map['whatsapp'] = $value ? ltrim($value, '+') : '',
+                'booking_url' => $map['booking_url'] = $value ? trim($value) : null,
                 'coords' => [$map['latitude'], $map['longitude']] = $value ? [(float) $value['latitude'], (float) $value['longitude']] : [null, null],
                 'categories' => $map['categories'] = array_values($value),
                 'hours' => [$map['hours_open'], $map['hours_close']] = [$value['open'], $value['close']],

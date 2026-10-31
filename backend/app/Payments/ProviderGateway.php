@@ -44,7 +44,11 @@ use RuntimeException;
  *    extends the subscription. If the provider needs a specific response body
  *    (e.g. "OK"), adjust PaymentCallbackController.
  *
- * 4. Tests: add a feature test with Http::fake() for the create-order call and
+ * 4. refund(): call the provider's refund/reverse API for $payment->provider_ref
+ *    (full amount). Return true on success. Deposits use it when a client
+ *    cancels in time or the salon cancels.
+ *
+ * 5. Tests: add a feature test with Http::fake() for the create-order call and
  *    a signed sample callback from the provider's docs.
  */
 class ProviderGateway implements PaymentGateway
@@ -59,6 +63,11 @@ class ProviderGateway implements PaymentGateway
     public function createCheckout(Business $business, string $plan, Payment $payment): CheckoutResult
     {
         throw new RuntimeException('ProviderGateway is not implemented yet. See the TODO in app/Payments/ProviderGateway.php.');
+    }
+
+    public function refund(Payment $payment): bool
+    {
+        throw new RuntimeException('ProviderGateway refunds are not implemented yet.');
     }
 
     public function verifyCallback(Request $request): CallbackResult

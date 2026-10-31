@@ -63,11 +63,11 @@ These are business rules the app already enforces. The current value works, but 
 | Reports that hide a review | 3 | `auto_hide_reports` |
 | Payment | At the salon, no card | Shown on the confirm screen (`policy`). |
 | Grace after an unpaid trial or a missed payment | 7 days still listed and bookable, then hidden | `grace_days`. The dashboard and the email name the date. |
-| Plans | Start 29 / Pro 59 ₼ a month (yearly 290 / 590 ₼), 30-day trial with no card | See below. |
+| Plans | Start 29 / Pro 49 ₼ a month (yearly 290 / 490 ₼), 30-day trial with no card | See below. |
 
 ### Plans: what is real today
 
-Two plans: **Start** (29 ₼/month, for a single salon) and **Pro** (59 ₼/month, recommended, for growing salons). Studio was retired; its subscriptions moved to Pro.
+Two plans: **Start** (29 ₼/month, for a single salon) and **Pro** (49 ₼/month, recommended, for growing salons). Studio was retired; its subscriptions moved to Pro.
 
 Every salon currently gets the same working features:
 - unlimited masters

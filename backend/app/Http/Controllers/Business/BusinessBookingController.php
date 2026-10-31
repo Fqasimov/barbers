@@ -21,7 +21,7 @@ class BusinessBookingController extends Controller
         $data = $request->validate([
             'from' => ['sometimes', 'date_format:Y-m-d'],
             'to' => ['sometimes', 'date_format:Y-m-d'],
-            'status' => ['sometimes', Rule::in([Booking::UPCOMING, Booking::COMPLETED, Booking::CANCELLED, Booking::NO_SHOW])],
+            'status' => ['sometimes', Rule::in([Booking::UPCOMING, Booking::PENDING_PAYMENT, Booking::COMPLETED, Booking::CANCELLED, Booking::NO_SHOW])],
         ]);
         $from = isset($data['from']) ? Baku::date($data['from']) : Baku::today();
         $to = isset($data['to']) ? Baku::date($data['to']) : Baku::today()->addDays(7);
@@ -83,31 +83,16 @@ class BusinessBookingController extends Controller
     {
         $booking = $this->owned($request, Booking::class, $id);
         $this->visitOnly($booking);
-        if ($booking->status !== Booking::COMPLETED) {
-            if ($booking->status !== Booking::UPCOMING) {
-                throw ValidationException::withMessages(['status' => ['Only upcoming bookings can be marked as done.']]);
-            }
-            $booking->forceFill(['status' => Booking::COMPLETED])->save();
-        }
 
-        return $this->show($request, $booking);
+        return $this->show($request, $this->bookings->complete($booking));
     }
 
     public function noShow(Request $request, string $id): JsonResponse
     {
         $booking = $this->owned($request, Booking::class, $id);
         $this->visitOnly($booking);
-        if ($booking->status !== Booking::NO_SHOW) {
-            if (! in_array($booking->status, [Booking::UPCOMING, Booking::COMPLETED], true)) {
-                throw ValidationException::withMessages(['status' => ['A cancelled booking can’t be marked as a no-show.']]);
-            }
-            if ($booking->start_at->isFuture()) {
-                throw ValidationException::withMessages(['status' => ['A no-show can only be marked after the start time.']]);
-            }
-            $booking->forceFill(['status' => Booking::NO_SHOW])->save();
-        }
 
-        return $this->show($request, $booking);
+        return $this->show($request, $this->bookings->noShow($booking));
     }
 
     private function visitOnly(Booking $booking): void

@@ -19,6 +19,9 @@ class ReviewResource extends JsonResource
             'master_id' => $this->master_id,
             'author' => $this->author,
             'rating' => (int) $this->rating,
+            'master_rating' => $this->master_rating !== null ? (int) $this->master_rating : null,
+            // booking: after a visit booked here (verified). qr: from the master's one-time code.
+            'source' => $this->source ?? 'booking',
             'text' => $this->text,
             'date' => Iso::ts($this->created_at),
             'service_name' => Loc::orNull($this->service_name),

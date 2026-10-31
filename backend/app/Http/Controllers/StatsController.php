@@ -20,14 +20,14 @@ class StatsController extends Controller
     public function __invoke(): JsonResponse
     {
         $payload = Cache::remember('stats:public', self::TTL, function () {
-            $salons = Business::query()->listable()->get(['id', 'district', 'base_rating', 'base_review_count', 'review_sum', 'review_count']);
+            $salons = Business::query()->listable()->get(['id', 'district', 'base_rating', 'base_review_count', 'review_sum', 'review_count', 'review_weight', 'review_weighted_sum']);
             $ids = $salons->pluck('id');
             $reviews = 0;
             $stars = 0.0;
             foreach ($salons as $s) {
                 $count = (int) $s->base_review_count + (int) $s->review_count;
                 $reviews += $count;
-                $stars += RatingService::average((float) $s->base_rating, (int) $s->base_review_count, (int) $s->review_sum, (int) $s->review_count) * $count;
+                $stars += RatingService::score($s) * $count;
             }
             $visits = Booking::query()->where('kind', Booking::VISIT)->where('source', 'customer');
 
