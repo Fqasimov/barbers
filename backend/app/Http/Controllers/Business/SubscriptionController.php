@@ -17,7 +17,7 @@ class SubscriptionController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $sub = $this->business($request)->subscription()->first();
+        $sub = $this->account($request)->subscription()->first();
         if (! $sub) {
             throw new ApiException(402, 'subscription_required', 'This salon has no plan yet. Start the free trial.');
         }
@@ -36,7 +36,8 @@ class SubscriptionController extends Controller
             'plan' => ['required', Rule::in(array_keys(config('usta.plans')))],
             'period' => ['sometimes', Rule::in(config('usta.billing_periods'))],
         ]);
-        $business = $this->business($request);
+        $this->ownerOnly($request);
+        $business = $this->account($request);
 
         DB::transaction(function () use ($business, $data) {
             $sub = Subscription::query()->where('business_id', $business->id)->lockForUpdate()->first();
@@ -58,7 +59,7 @@ class SubscriptionController extends Controller
             ])->save();
         });
 
-        return response()->json((new BusinessResource($business->fresh()))->resolve($request));
+        return response()->json((new BusinessResource($this->business($request)->fresh()))->resolve($request));
     }
 
     /** `period`: month (default) or year; a year costs ten months and adds twelve. */
@@ -69,6 +70,8 @@ class SubscriptionController extends Controller
             'period' => ['sometimes', Rule::in(config('usta.billing_periods'))],
         ]);
 
-        return response()->json($payments->checkout($this->business($request), $data['plan'], $data['period'] ?? 'month'));
+        $this->ownerOnly($request);
+
+        return response()->json($payments->checkout($this->account($request), $data['plan'], $data['period'] ?? 'month'));
     }
 }

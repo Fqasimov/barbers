@@ -17,7 +17,6 @@ class WaitlistEntry extends Model
     {
         return [
             'service_ids' => 'array',
-            'date' => 'date:Y-m-d',
             'from_min' => 'integer',
             'to_min' => 'integer',
             'notified_at' => 'datetime',

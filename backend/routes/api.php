@@ -2,19 +2,26 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Business\AddonController;
+use App\Http\Controllers\Business\BranchController;
 use App\Http\Controllers\Business\BusinessBookingController;
 use App\Http\Controllers\Business\BusinessController;
 use App\Http\Controllers\Business\BusinessReviewController;
+use App\Http\Controllers\Business\InsightsController;
 use App\Http\Controllers\Business\MasterController;
 use App\Http\Controllers\Business\PhotoController;
+use App\Http\Controllers\Business\ReviewCodeController;
 use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\SubscriptionController;
+use App\Http\Controllers\Business\TeamController;
 use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\QrReviewController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
 // Accounts (rate-limited per IP and per email)
@@ -40,6 +47,8 @@ Route::middleware('throttle:public')->group(function () {
     Route::get('slots', [CatalogueController::class, 'slots']);
     Route::get('busy', [CatalogueController::class, 'busy']);
     Route::get('plans', [CatalogueController::class, 'plans']);
+    Route::post('salons/{id}/click', [CatalogueController::class, 'click'])->middleware('throttle:60,1');
+    Route::get('reviews/qr/{code}', [QrReviewController::class, 'show']);
     Route::get('stats', StatsController::class);
 });
 
@@ -59,6 +68,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('bookings', [BookingController::class, 'store'])->middleware('throttle:bookings');
     Route::post('bookings/{id}/cancel', [BookingController::class, 'cancel']);
     Route::post('bookings/{id}/review', [BookingController::class, 'review']);
+    Route::post('bookings/{id}/pay', [BookingController::class, 'pay'])->middleware('throttle:bookings');
+    Route::post('reviews/qr/{code}', [QrReviewController::class, 'store'])->middleware('throttle:bookings');
+    Route::get('me/waitlist', [WaitlistController::class, 'index']);
+    Route::post('salons/{id}/waitlist', [WaitlistController::class, 'store'])->middleware('throttle:bookings');
+    Route::delete('me/waitlist/{id}', [WaitlistController::class, 'destroy']);
     Route::post('reviews/{id}/report', [ReviewController::class, 'report'])->middleware('throttle:bookings');
 
     Route::middleware('business')->prefix('business')->group(function () {
@@ -85,6 +99,22 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         Route::get('reviews', [BusinessReviewController::class, 'index']);
         Route::post('reviews/{id}/reply', [BusinessReviewController::class, 'reply']);
+
+        Route::post('review-codes', [ReviewCodeController::class, 'store']);
+
+        Route::get('branches', [BranchController::class, 'index']);
+        Route::post('branches', [BranchController::class, 'store']);
+        Route::delete('branches/{id}', [BranchController::class, 'destroy']);
+        Route::get('team', [TeamController::class, 'index']);
+        Route::post('team', [TeamController::class, 'store']);
+        Route::delete('team/{id}', [TeamController::class, 'destroy']);
+
+        Route::get('stats', [InsightsController::class, 'stats']);
+        Route::get('clicks', [InsightsController::class, 'clicks']);
+        Route::get('waitlist', [InsightsController::class, 'waitlist']);
+
+        Route::post('whatsapp/checkout', [AddonController::class, 'whatsapp']);
+        Route::get('support', [AddonController::class, 'support']);
 
         Route::get('subscription', [SubscriptionController::class, 'show']);
         Route::post('subscription/trial', [SubscriptionController::class, 'trial']);

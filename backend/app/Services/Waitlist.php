@@ -28,7 +28,7 @@ class Waitlist
         }
         $date = Baku::local($freed->start_at)->startOfDay();
         $entries = WaitlistEntry::query()->where('business_id', $salon->id)
-            ->whereDate('date', $date->toDateString())->whereNull('notified_at')
+            ->where('date', $date->toDateString())->whereNull('notified_at')
             ->where(fn ($q) => $q->whereNull('master_id')->orWhere('master_id', $freed->master_id))
             ->orderBy('created_at')->get();
         $sent = 0;

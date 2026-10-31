@@ -201,7 +201,7 @@ class BookingService
         $start = $this->salonStart($data['start']);
         $end = $start->addMinutes($duration);
 
-        return $this->insert($master, $start, $end, [
+        $booking = $this->insert($master, $start, $end, [
             'business_id' => $salon->id,
             'kind' => Booking::VISIT,
             'source' => 'salon',
@@ -217,6 +217,9 @@ class BookingService
             'total' => (int) $ordered->sum('price'),
             'note' => isset($data['note']) && trim((string) $data['note']) !== '' ? trim($data['note']) : null,
         ]);
+        $this->notifier->whatsapp($booking, 'confirm');
+
+        return $booking;
     }
 
     /**

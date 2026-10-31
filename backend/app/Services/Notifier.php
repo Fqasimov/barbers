@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Jobs\SendPush;
+use App\Jobs\SendWhatsApp;
 use App\Mail\BookingMail;
 use App\Mail\TrialEndingMail;
 use App\Models\Booking;
 use App\Models\Business;
 use App\Support\Baku;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 /** Every notification in the contract's table; all of it goes through the queue. */
@@ -20,8 +22,34 @@ class Notifier
 
     public const DASHBOARD_URL = '/business';
 
+    /**
+     * WhatsApp add-on: one message from the salon's pack to the client, if
+     * the pack has messages left and the client has a phone number.
+     */
+    public function whatsapp(Booking $b, string $which): bool
+    {
+        $phone = $b->source === 'salon' ? $b->client_phone : $b->user?->phone;
+        $salon = $b->business;
+        if (! $phone || ! $salon) {
+            return false;
+        }
+        $account = $salon->account();
+        $taken = DB::table('businesses')->where('id', $account->id)
+            ->where('whatsapp_until', '>', now())->whereColumn('whatsapp_used', '<', 'whatsapp_quota')
+            ->increment('whatsapp_used');
+        if (! $taken) {
+            return false;
+        }
+        dispatch(new SendWhatsApp($phone, (string) config("usta.whatsapp.template_{$which}"), [
+            $salon->name, $this->when($b), $b->master?->name ?? '—',
+        ]));
+
+        return true;
+    }
+
     public function bookingCreated(Booking $b): void
     {
+        $this->whatsapp($b, 'confirm');
         $owner = $b->business?->owner;
         if (! $owner) {
             return;
@@ -67,6 +95,9 @@ class Notifier
 
     public function reminder(Booking $b, string $which): void
     {
+        if ($which === '24h') {
+            $this->whatsapp($b, 'reminder');
+        }
         if (! $b->user_id) {
             return;
         }

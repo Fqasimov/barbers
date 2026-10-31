@@ -17,7 +17,7 @@ class SalonClick extends Model
 
     protected function casts(): array
     {
-        return ['day' => 'date:Y-m-d', 'taps' => 'integer'];
+        return ['taps' => 'integer'];
     }
 
     public static function bump(string $businessId, string $kind): void
