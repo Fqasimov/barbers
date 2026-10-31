@@ -1,8 +1,10 @@
 import { Linking, Platform, Share } from 'react-native';
 
+import { catalogueApi } from '@/api/catalogue';
 import type { Salon } from '@/data/types';
 
 export function openDirections(salon: Salon) {
+  catalogueApi.click(salon.id, 'directions');
   const { latitude, longitude } = salon.coords;
   const label = encodeURIComponent(salon.name);
   const web = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
@@ -15,11 +17,13 @@ export function openDirections(salon: Salon) {
 }
 
 export function callSalon(salon: Salon) {
+  catalogueApi.click(salon.id, 'phone');
   Linking.openURL(`tel:${salon.phone.replace(/\s/g, '')}`).catch(() => {});
 }
 
 /** Opens the salon's WhatsApp chat, optionally with a prefilled message. */
 export function messageSalon(salon: Salon, text?: string) {
+  catalogueApi.click(salon.id, 'whatsapp');
   const q = text ? `?text=${encodeURIComponent(text)}` : '';
   Linking.openURL(`https://wa.me/${salon.whatsapp}${q}`).catch(() => {});
 }
@@ -27,3 +31,13 @@ export function messageSalon(salon: Salon, text?: string) {
 export function shareSalon(salon: Salon, line: string) {
   Share.share({ message: `${salon.name} — ${line} ${salon.address}, ${salon.district}, Bakı.` }).catch(() => {});
 }
+
+/** Sadə salons book on their own page: the link they set, else WhatsApp, else a call. */
+export function bookExternally(salon: Salon) {
+  catalogueApi.click(salon.id, 'book');
+  const url = salon.bookingUrl || (salon.whatsapp ? `https://wa.me/${salon.whatsapp}` : `tel:${salon.phone.replace(/\s/g, '')}`);
+  Linking.openURL(url).catch(() => {});
+}
+
+/** Books in the app unless the salon takes bookings elsewhere. */
+export const booksInApp = (salon: Salon) => salon.booking !== 'link';

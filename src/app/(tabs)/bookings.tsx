@@ -1,4 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
+import { PayDepositButton } from '@/components/booking/Deposit';
+import { DEPOSIT_HOLD_MIN } from '@/auth/plans';
 import { CalendarDays, MessageCircle, Navigation, Star, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
@@ -50,10 +52,18 @@ export default function BookingsScreen() {
   const { upcoming, past } = useMemo(
     () => ({
       upcoming: bookings
-        .filter((b) => b.status === 'upcoming' && bookingEnd(b) > now)
+        .filter(
+          (b) =>
+            (b.status === 'upcoming' && bookingEnd(b) > now) ||
+            (b.status === 'pending_payment' && !!b.holdUntil && new Date(b.holdUntil).getTime() > now),
+        )
         .sort((a, b) => a.start.localeCompare(b.start)),
       past: bookings
-        .filter((b) => b.status !== 'upcoming' || bookingEnd(b) <= now)
+        .filter(
+          (b) =>
+            (b.status !== 'upcoming' && b.status !== 'pending_payment') ||
+            (b.status === 'upcoming' && bookingEnd(b) <= now),
+        )
         .sort((a, b) => b.start.localeCompare(a.start)),
     }),
     [bookings, now],
@@ -119,6 +129,20 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
   const services = salon.services.filter((s) => booking.serviceIds.includes(s.id));
   const cancelled = booking.status === 'cancelled';
   const noShow = booking.status === 'no_show';
+  const unpaid = booking.status === 'pending_payment';
+  const depositLine = booking.deposit
+    ? (
+        {
+          pending: null,
+          paid: i18n.t('depositPaid', { price: i18n.price(booking.deposit) }),
+          refunded: i18n.t('depositRefunded'),
+          refund_due: i18n.t('depositRefundDue'),
+          kept: i18n.t('depositKept'),
+          applied: i18n.t('depositApplied'),
+          expired: null,
+        } as const
+      )[booking.depositStatus ?? 'pending']
+    : null;
   const serviceNames = services.map((s) => i18n.tx(s.name)).join(' + ');
 
   const cancel = () => {
@@ -146,6 +170,8 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
       : i18n.t('cancelled')
     : noShow
       ? i18n.t('noShow')
+      : unpaid
+        ? i18n.t('pendingPayment')
       : past
         ? i18n.t('completed')
         : i18n.relativeDay(start);
@@ -196,6 +222,16 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
             <Text variant="price">{i18n.price(booking.total)}</Text>
           </View>
         ) : null}
+        {depositLine ? (
+          <Text variant="caption" tone="soft" style={{ marginTop: 8 }}>
+            {depositLine}
+          </Text>
+        ) : null}
+        {unpaid ? (
+          <Text variant="caption" tone="soft" style={{ marginTop: 8 }}>
+            {i18n.t('payToConfirm', { min: DEPOSIT_HOLD_MIN })}
+          </Text>
+        ) : null}
         {booking.note ? (
           <Text variant="caption" tone="soft" style={{ marginTop: 8 }}>
             “{booking.note}”
@@ -232,6 +268,11 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
                   })
                 }
               />
+            </>
+          ) : unpaid ? (
+            <>
+              <PayDepositButton id={booking.id} amount={booking.deposit ?? 0} />
+              <Button label={i18n.t('cancel')} icon={X} size="sm" variant="ghost" onPress={cancel} haptic="medium" />
             </>
           ) : (
             <>

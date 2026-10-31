@@ -5,7 +5,9 @@ import { Alert, Platform, StyleSheet, View } from 'react-native';
 import { businessApi } from '@/api/business';
 import { checkRequired } from '@/auth/validation';
 import { AuthLayout } from '@/components/auth/AuthLayout';
+import { Choice } from '@/components/auth/Choice';
 import { FormField } from '@/components/auth/FormField';
+import { hasFeature } from '@/auth/plans';
 import { locFrom, useOwner } from '@/components/business/kit';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
@@ -15,6 +17,8 @@ import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
+
+type DepositType = 'none' | 'fixed' | 'percent';
 
 /** Add or edit one service: name, category, duration and price. */
 export default function ServiceForm() {
@@ -29,7 +33,10 @@ export default function ServiceForm() {
   const [duration, setDuration] = useState(existing ? String(existing.durationMin) : '');
   const [price, setPrice] = useState(existing ? String(existing.price) : '');
   const [description, setDescription] = useState(existing?.description ? i18n.tx(existing.description) : '');
-  const [errors, setErrors] = useState<Partial<Record<'name' | 'duration' | 'price', StringKey>>>({});
+  const deposits = hasFeature(business, 'deposits');
+  const [depositType, setDepositType] = useState<DepositType>(existing?.deposit?.type ?? 'none');
+  const [depositValue, setDepositValue] = useState(existing?.deposit?.value ? String(existing.deposit.value) : '');
+  const [errors, setErrors] = useState<Partial<Record<'name' | 'duration' | 'price' | 'deposit', StringKey>>>({});
 
   const save = async () => {
     const minutes = Number(duration);
@@ -38,15 +45,23 @@ export default function ServiceForm() {
       name: checkRequired(name) ?? undefined,
       duration: Number.isInteger(minutes) && minutes >= 5 && minutes <= 480 ? undefined : ('errDuration' as const),
       price: price.trim() && Number.isFinite(amount) && amount >= 0 && amount <= 10000 ? undefined : ('errPrice' as const),
+      deposit:
+        depositType === 'none' ||
+        (Number(depositValue) >= 1 && (depositType === 'fixed' || Number(depositValue) <= 100))
+          ? undefined
+          : ('errPrice' as const),
     };
     setErrors(e);
-    if (e.name || e.duration || e.price) return;
+    if (e.name || e.duration || e.price || e.deposit) return;
     const input = {
       name: locFrom(name, existing?.name),
       category,
       durationMin: minutes,
       price: Math.round(amount),
       description: description.trim() ? locFrom(description, existing?.description) : null,
+      ...(deposits
+        ? { deposit: { type: depositType, value: depositType === 'none' ? 0 : Math.round(Number(depositValue)) } }
+        : {}),
     };
     const ok = await run(
       (token) => (existing ? businessApi.updateService(token, existing.id, input) : businessApi.addService(token, input)),
@@ -132,6 +147,35 @@ export default function ServiceForm() {
           />
         </View>
       </View>
+      {deposits ? (
+        <View style={{ gap: 8 }}>
+          <Choice<DepositType>
+            label={i18n.t('depositLabel')}
+            options={[
+              { value: 'none', label: i18n.t('depositNone') },
+              { value: 'fixed', label: i18n.t('depositFixed') },
+              { value: 'percent', label: i18n.t('depositPercent') },
+            ]}
+            value={depositType}
+            onChange={setDepositType}
+          />
+          {depositType !== 'none' ? (
+            <FormField
+              label={i18n.t('depositValue')}
+              placeholder={depositType === 'percent' ? '20' : '10'}
+              prefix={depositType === 'percent' ? '%' : '₼'}
+              value={depositValue}
+              onChangeText={(v) => setDepositValue(v.replace(/\D/g, ''))}
+              keyboardType="number-pad"
+              maxLength={depositType === 'percent' ? 3 : 5}
+              error={err('deposit')}
+            />
+          ) : null}
+          <Text variant="caption" tone="soft">
+            {i18n.t('depositHint')}
+          </Text>
+        </View>
+      ) : null}
       <FormField
         label={i18n.t('fDescription')}
         placeholder={i18n.t('phDescription')}

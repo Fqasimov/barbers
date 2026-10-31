@@ -35,7 +35,11 @@ import { useSalon } from '@/hooks/useSalon';
 import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { firstName } from '@/lib/format';
-import { atMinutes, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
+import { atMinutes, dayKey, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
+import { bookExternally, booksInApp } from '@/lib/actions';
+import { waitlistApi } from '@/api/catalogue';
+import { depositEstimate, openDepositCheckout, PayDepositButton } from '@/components/booking/Deposit';
+import { DEPOSIT_HOLD_MIN } from '@/auth/plans';
 import { authErrorKey, requireSignIn } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { enableNotifications, scheduleReminders } from '@/lib/notifications';
@@ -65,7 +69,15 @@ type Params = { id: string; services?: string; master?: string; date?: string; t
 export default function BookScreen() {
   const params = useLocalSearchParams<Params>();
   const salon = useSalon(params.id);
-  if (!salon) return null;
+  const external = !!salon && !booksInApp(salon);
+  // Sadə salons take bookings on their own page.
+  useEffect(() => {
+    if (salon && external) {
+      bookExternally(salon);
+      goBack();
+    }
+  }, [salon, external]);
+  if (!salon || external) return null;
   return <Booking salon={salon} params={params} />;
 }
 
@@ -183,6 +195,10 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
         total,
         note: note.trim() || undefined,
       });
+      if (booking.status === 'pending_payment' && booking.checkoutUrl) {
+        await openDepositCheckout(booking.checkoutUrl);
+        await useStore.getState().syncBookings();
+      }
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDoneId(booking.id);
       // A booking is the moment reminders make sense: ask for notifications now.
@@ -312,7 +328,12 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
                     {day.slots.length ? (
                       <TimeGrid slots={day.slots} selected={slot} onSelect={setSlot} />
                     ) : (
-                      <Text tone="soft">{day.off ? i18n.t('dayOff') : i18n.t('dayFull')}</Text>
+                      <View style={{ gap: 12 }}>
+                        <Text tone="soft">{day.off ? i18n.t('dayOff') : i18n.t('dayFull')}</Text>
+                        {!day.off && salon.waitlist ? (
+                          <JoinWaitlist salon={salon} date={day.date} serviceIds={services} masterId={masterId} />
+                        ) : null}
+                      </View>
                     )}
                   </Animated.View>
                 ) : null}
@@ -576,6 +597,7 @@ function ConfirmStep({
   const { c } = useTheme();
   const i18n = useI18n();
   const start = minutesOfDay(date);
+  const deposit = depositEstimate(salon, services);
   return (
     <View style={{ gap: 18 }}>
       <View style={[styles.ticket, { backgroundColor: c.surface }, shadow(c, 1)]}>
@@ -631,8 +653,29 @@ function ConfirmStep({
             </Text>
             <Text variant="title">{i18n.price(total)}</Text>
           </View>
+          {deposit > 0 ? (
+            <>
+              <View style={styles.lineItem}>
+                <Text variant="subhead" style={{ flex: 1 }}>
+                  {i18n.t('depositNow')}
+                </Text>
+                <Text variant="price">{i18n.price(deposit)}</Text>
+              </View>
+              <View style={styles.lineItem}>
+                <Text variant="subhead" tone="soft" style={{ flex: 1 }}>
+                  {i18n.t('depositRest')}
+                </Text>
+                <Text variant="price">{i18n.price(total - deposit)}</Text>
+              </View>
+            </>
+          ) : null}
         </View>
       </View>
+      {salon.deposits ? (
+        <Text variant="caption" tone="soft">
+          {i18n.t('depositPolicy')}
+        </Text>
+      ) : null}
 
       <View>
         <Text variant="headline" style={{ marginBottom: 8 }}>
@@ -674,8 +717,17 @@ function Done({ bookingId, salon }: { bookingId: string; salon: Salon }) {
       <View style={{ alignItems: 'center', gap: 16, flex: 1, justifyContent: 'center' }}>
         <SuccessMark />
         <Text variant="largeTitle" align="center">
-          {i18n.t('booked')}
+          {booking.status === 'pending_payment' ? i18n.t('pendingPayment') : i18n.t('booked')}
         </Text>
+        {booking.status === 'pending_payment' ? (
+          <Text variant="subhead" tone="soft" align="center" style={{ maxWidth: 310 }}>
+            {i18n.t('payToConfirm', { min: DEPOSIT_HOLD_MIN })}
+          </Text>
+        ) : booking.deposit ? (
+          <Text variant="captionStrong" tone="success" align="center">
+            {i18n.t('depositPaid', { price: i18n.price(booking.deposit) })}
+          </Text>
+        ) : null}
         <Text variant="body" tone="soft" align="center" style={{ maxWidth: 310 }}>
           {i18n.t('bookedBody', {
             day: dayLabel,
@@ -686,6 +738,9 @@ function Done({ bookingId, salon }: { bookingId: string; salon: Salon }) {
         </Text>
       </View>
       <View style={{ gap: 10, alignSelf: 'stretch' }}>
+        {booking.status === 'pending_payment' && booking.deposit ? (
+          <PayDepositButton id={booking.id} amount={booking.deposit} />
+        ) : null}
         <Button
           label={i18n.t('viewBookings')}
           onPress={() => {
@@ -696,6 +751,50 @@ function Done({ bookingId, salon }: { bookingId: string; salon: Salon }) {
         <Button label={i18n.t('done')} variant="ghost" onPress={goBack} haptic="none" />
       </View>
     </Animated.View>
+  );
+}
+
+/** Pro salons: a full day can still turn up a time when someone cancels. */
+function JoinWaitlist({
+  salon,
+  date,
+  serviceIds,
+  masterId,
+}: {
+  salon: Salon;
+  date: Date;
+  serviceIds: string[];
+  masterId: string | 'any' | null;
+}) {
+  const i18n = useI18n();
+  const [busy, setBusy] = useState(false);
+  const [joined, setJoined] = useState(false);
+  if (joined) return <Text variant="captionStrong" tone="success">{i18n.t('waitlistJoined')}</Text>;
+  return (
+    <Button
+      label={i18n.t('waitlistJoin')}
+      variant="secondary"
+      loading={busy}
+      onPress={async () => {
+        if (!requireSignIn('signInToBook', i18n.t('signInToBook'))) return;
+        const token = useSession.getState().session?.token;
+        if (!token) return;
+        setBusy(true);
+        try {
+          await waitlistApi.join(token, salon.id, {
+            serviceIds,
+            date: dayKey(date),
+            masterId: masterId && masterId !== 'any' ? masterId : null,
+          });
+          setJoined(true);
+          toast(i18n.t('waitlistJoined'));
+        } catch (e) {
+          toast(i18n.t(authErrorKey(e)), 'info');
+        } finally {
+          setBusy(false);
+        }
+      }}
+    />
   );
 }
 

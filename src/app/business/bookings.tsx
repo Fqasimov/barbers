@@ -226,6 +226,7 @@ const STATUS: Record<BusinessBooking['status'], StringKey> = {
   completed: 'completed',
   cancelled: 'cancelled',
   no_show: 'noShow',
+  pending_payment: 'pendingPayment',
 };
 
 function BookingCard({
@@ -270,6 +271,20 @@ function BookingCard({
           {serviceNames}
           {masterName ? ` · ${masterName}` : ''} · {i18n.price(b.total)}
         </Text>
+        {b.deposit ? (
+          <Text variant="caption" tone="soft">
+            {i18n.t('depositLabel')} {i18n.price(b.deposit)} ·{' '}
+            {b.depositStatus === 'kept'
+              ? i18n.t('depositKept')
+              : b.depositStatus === 'applied'
+                ? i18n.t('depositApplied')
+                : b.depositStatus === 'refunded' || b.depositStatus === 'refund_due'
+                  ? i18n.t('depositRefunded')
+                  : b.depositStatus === 'paid'
+                    ? i18n.t('depositPaid', { price: i18n.price(b.deposit) })
+                    : i18n.t('pendingPayment')}
+          </Text>
+        ) : null}
         {b.note ? (
           <Text variant="subhead" style={{ fontStyle: 'italic' }}>
             “{b.note}”

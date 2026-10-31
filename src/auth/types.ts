@@ -24,7 +24,35 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'start' | 'pro';
+export type PlanId = 'sade' | 'start' | 'pro';
+
+/** What a plan unlocks (server: config usta.plan_features). */
+export type Feature =
+  | 'listing'
+  | 'qr_reviews'
+  | 'replies'
+  | 'gallery'
+  | 'booking_link'
+  | 'click_report'
+  | 'booking'
+  | 'whatsapp_addon'
+  | 'branches'
+  | 'managers'
+  | 'deposits'
+  | 'waitlist'
+  | 'stats'
+  | 'priority_support';
+
+/** One salon location the signed-in person may run. */
+export type Location = {
+  id: string;
+  name: string;
+  address: string;
+  district: string;
+  status: 'pending_review' | 'live' | 'suspended';
+  isMain: boolean;
+  role: 'owner' | 'manager';
+};
 
 export type Subscription = {
   plan: PlanId;
@@ -70,6 +98,17 @@ export type Business = {
   masters?: Master[];
   services?: Service[];
   photos?: Photo[];
+  /** A Pro branch: billed through the main salon. */
+  parentId?: string | null;
+  /** owner, or a manager the owner invited (no billing, branches or team). */
+  role?: 'owner' | 'manager';
+  features?: Feature[];
+  /** Every location this person may switch to. */
+  locations?: Location[];
+  /** Sadə and up: where "Book" sends clients (DIKIDI, a website, wa.me…). */
+  bookingUrl?: string | null;
+  /** WhatsApp add-on: messages left and until when. */
+  whatsappPack?: { left: number; until: string | null };
 };
 
 export type Session = { token: string; user: User; business: Business | null };
@@ -139,6 +178,14 @@ export type AuthErrorCode =
   | 'not_reviewable'
   | 'forbidden'
   | 'subscription_required'
+  | 'plan_required'
+  | 'booking_external'
+  | 'hold_expired'
+  | 'code_used'
+  | 'own_salon'
+  | 'review_limit'
+  | 'waitlist_limit'
+  | 'has_bookings'
   | 'validation'
   | 'network'
   | 'unknown';

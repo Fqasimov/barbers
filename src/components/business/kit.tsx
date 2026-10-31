@@ -1,5 +1,5 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { businessApi } from '@/api/business';
@@ -223,4 +223,52 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   days: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+});
+
+/** Loads something for the signed-in owner and reloads on `reload()` (or when `deps` change). */
+export function useOwnerData<T>(load: (token: string) => Promise<T>, deps: unknown[] = []) {
+  const token = useSession((s) => s.session?.token ?? null);
+  const businessId = useSession((s) => s.session?.business?.id ?? null);
+  const [tick, setTick] = useState(0);
+  const [state, setState] = useState<{ key: string; data: T | null; error: unknown }>({ key: '', data: null, error: null });
+  const loadRef = useRef(load);
+  useEffect(() => {
+    loadRef.current = load;
+  });
+  const key = `${businessId}|${JSON.stringify(deps)}|${tick}`;
+  useEffect(() => {
+    if (!token) return;
+    let alive = true;
+    loadRef
+      .current(token)
+      .then((data) => alive && setState({ key, data, error: null }))
+      .catch((error) => alive && setState((s) => ({ key, data: s.data, error })));
+    return () => {
+      alive = false;
+    };
+  }, [token, key]);
+  const reload = useCallback(() => setTick((n) => n + 1), []);
+  return { data: state.data, error: state.error, loading: state.key !== key, reload, token };
+}
+
+/** A big number with a label, for the statistics and click screens. */
+export function Stat({ label, value, detail }: { label: string; value: string; detail?: string }) {
+  const { c } = useTheme();
+  return (
+    <View style={[kitStyles.stat, { backgroundColor: c.surface }, shadow(c, 1)]}>
+      <Text variant="caption" tone="soft" numberOfLines={1}>
+        {label}
+      </Text>
+      <Text variant="title">{value}</Text>
+      {detail ? (
+        <Text variant="micro" tone="muted" numberOfLines={1}>
+          {detail}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+const kitStyles = StyleSheet.create({
+  stat: { flexGrow: 1, flexBasis: '45%', minWidth: 140, padding: 14, borderRadius: radius.lg, gap: 2 },
 });

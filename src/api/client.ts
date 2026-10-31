@@ -39,7 +39,22 @@ const KNOWN: AuthErrorCode[] = [
   'not_reviewable',
   'forbidden',
   'subscription_required',
+  'plan_required',
+  'booking_external',
+  'hold_expired',
+  'code_used',
+  'own_salon',
+  'review_limit',
+  'waitlist_limit',
+  'has_bookings',
 ];
+
+/** The salon location /business calls act on (Pro branches); null = the main salon. */
+let branch: string | null = null;
+export const setBranch = (id: string | null) => {
+  branch = id;
+};
+export const currentBranch = () => branch;
 
 const TIMEOUT_MS = 20_000;
 
@@ -81,6 +96,7 @@ export async function request<T>(
         Accept: 'application/json',
         ...(form || !opts.body ? {} : { 'Content-Type': 'application/json' }),
         ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+        ...(branch && path.startsWith('/business') ? { 'X-Branch': branch } : {}),
       },
       body: !opts.body ? undefined : form ? (opts.body as FormData) : JSON.stringify(convert(opts.body, snake)),
     });
@@ -104,6 +120,8 @@ export async function request<T>(
   if (res.status === 403 && !known) throw new AuthError('forbidden');
   if (res.status === 404 && !known) throw new AuthError('not_found');
   if (res.status === 409 && !known) throw new AuthError('slot_taken');
+  if (res.status === 410) throw new AuthError('code_used');
+  if (res.status === 429 && known === 'review_limit') throw new AuthError(known);
   if (res.status === 429) throw new AuthError(known === 'resend_too_soon' ? known : 'too_many_attempts');
   const challenge = data.otp ? (convert(data.otp, camel) as OtpChallenge) : undefined;
   throw new AuthError(known ?? 'unknown', undefined, challenge);

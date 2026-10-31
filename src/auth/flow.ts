@@ -53,6 +53,22 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errForbidden';
     case 'subscription_required':
       return 'errSubscription';
+    case 'plan_required':
+      return 'errPlanRequired';
+    case 'booking_external':
+      return 'errBookingExternal';
+    case 'hold_expired':
+      return 'errHoldExpired';
+    case 'code_used':
+      return 'errCodeUsed';
+    case 'own_salon':
+      return 'errOwnSalon';
+    case 'review_limit':
+      return 'errReviewLimit';
+    case 'waitlist_limit':
+      return 'errWaitlistLimit';
+    case 'has_bookings':
+      return 'errHasBookings';
     default:
       return 'errUnknown';
   }

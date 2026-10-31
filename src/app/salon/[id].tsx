@@ -14,7 +14,7 @@ import {
   UserPlus,
   type LucideIcon,
 } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Extrapolation,
@@ -48,7 +48,8 @@ import type { Master, Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useDistribution, useLiveRating, useSalon, useSalonReviews } from '@/hooks/useSalon';
 import { useI18n } from '@/i18n';
-import { callSalon, messageSalon, openDirections, shareSalon } from '@/lib/actions';
+import { bookExternally, booksInApp, callSalon, messageSalon, openDirections, shareSalon } from '@/lib/actions';
+import { catalogueApi } from '@/api/catalogue';
 import { distanceKm, walkMinutes } from '@/lib/geo';
 import { fmtClock, minutesOfDay } from '@/lib/time';
 import { isCompleted, useStore } from '@/store/useStore';
@@ -113,8 +114,15 @@ function SalonDetail({ salon }: { salon: Salon }) {
   const total = picked.reduce((a, s) => a + s.price, 0);
   const minutes = picked.reduce((a, s) => a + s.durationMin, 0);
 
+  // Once per opening: the salon's click report counts page views.
+  useEffect(() => {
+    catalogueApi.click(salon.id, 'view');
+  }, [salon.id]);
+
   const book = (params: { master?: string } = {}) =>
-    router.push({
+    !booksInApp(salon)
+      ? bookExternally(salon)
+      : router.push({
       pathname: '/book/[id]',
       params: { id: salon.id, ...(selected.length ? { services: selected.join(',') } : {}), ...params },
     });
@@ -258,7 +266,14 @@ function SalonDetail({ salon }: { salon: Salon }) {
           { paddingBottom: Math.max(insets.bottom, 14), backgroundColor: c.surface, borderColor: c.line },
         ]}
       >
-        {picked.length ? (
+        {!booksInApp(salon) ? (
+          <View style={{ flex: 1 }}>
+            <Text variant="caption" tone="soft">
+              {i18n.t('bookExternalHint')}
+            </Text>
+            <Text variant="bodyStrong">{salon.name}</Text>
+          </View>
+        ) : picked.length ? (
           <View style={{ flex: 1 }}>
             <Text variant="caption" tone="soft">
               {i18n.n(picked.length, 'service')} · {i18n.duration(minutes)}
@@ -273,7 +288,10 @@ function SalonDetail({ salon }: { salon: Salon }) {
             <Text variant="bodyStrong">{i18n.t('pickTime')}</Text>
           </View>
         )}
-        <Button label={picked.length ? i18n.t('chooseTime') : i18n.t('book')} onPress={() => book()} />
+        <Button
+          label={!booksInApp(salon) ? i18n.t('bookExternal') : picked.length ? i18n.t('chooseTime') : i18n.t('book')}
+          onPress={() => book()}
+        />
       </View>
     </View>
   );

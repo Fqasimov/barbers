@@ -85,7 +85,7 @@ async function load(): Promise<Db> {
 function settleAll(db: Db): Db {
   for (const b of db.businesses) {
     if (!b.subscription) continue;
-    if (!['start', 'pro'].includes(b.subscription.plan)) b.subscription.plan = 'pro';
+    if (!['sade', 'start', 'pro'].includes(b.subscription.plan)) b.subscription.plan = 'pro';
     b.subscription = settle(b.subscription);
   }
   return db;
@@ -364,7 +364,7 @@ export const localApi: AuthApi = {
     const user = userFor(db, token);
     const business = db.businesses.find((b) => b.ownerId === user.id);
     if (!business) throw new AuthError('not_found');
-    if (plan !== 'start' && plan !== 'pro') throw new AuthError('validation');
+    if (!['sade', 'start', 'pro'].includes(plan)) throw new AuthError('validation');
     // One free trial per business; choosing again only switches the plan.
     const now = new Date();
     business.subscription = business.subscription

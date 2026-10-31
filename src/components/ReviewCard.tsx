@@ -1,4 +1,4 @@
-import { BadgeCheck, Flag } from 'lucide-react-native';
+import { BadgeCheck, Flag, QrCode } from 'lucide-react-native';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -57,12 +57,21 @@ export const ReviewCard = memo(function ReviewCard({
         </Text>
       ) : null}
       <View style={styles.foot}>
-        <View style={styles.verified}>
-          <BadgeCheck size={14} color={c.success} strokeWidth={2} />
-          <Text variant="caption" style={{ color: c.success, fontFamily: fonts.medium }}>
-            {i18n.t('verifiedVisit')}
-          </Text>
-        </View>
+        {review.source === 'qr' ? (
+          <View style={styles.verified}>
+            <QrCode size={14} color={c.inkSoft} strokeWidth={2} />
+            <Text variant="caption" tone="soft" style={{ fontFamily: fonts.medium }}>
+              {i18n.t('reviewViaQr')}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.verified}>
+            <BadgeCheck size={14} color={c.success} strokeWidth={2} />
+            <Text variant="caption" style={{ color: c.success, fontFamily: fonts.medium }}>
+              {i18n.t('verifiedVisit')}
+            </Text>
+          </View>
+        )}
         {review.tags?.map((tag) => (
           <View key={tag} style={[styles.tag, { backgroundColor: c.sunken }]}>
             <Text variant="caption" tone="soft" style={{ fontSize: 12 }}>

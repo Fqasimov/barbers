@@ -393,7 +393,7 @@ function AccountCard() {
           variant="secondary"
           onPress={() => router.push('/auth/complete')}
         />
-        {u.role === 'business' ? (
+        {u.role === 'business' || session.business ? (
           <Button label={i18n.t('dashTitle')} icon={Store} size="sm" onPress={() => router.push('/business')} />
         ) : null}
       </View>

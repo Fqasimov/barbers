@@ -1,4 +1,4 @@
-import type { PlanId } from '@/auth/types';
+import { AuthError, type Feature, type PlanId } from '@/auth/types';
 import type { Booking, Review, Salon } from '@/data/types';
 
 import { isLive, request } from './client';
@@ -15,7 +15,56 @@ export const catalogueApi = {
     request<BusyRange[]>('GET', '/busy', { query: args }),
   reviews: (salonId: string, page = 1) =>
     request<Page<Review>>('GET', `/salons/${encodeURIComponent(salonId)}/reviews`, { query: { page } }),
-  plans: () => request<{ id: PlanId; price: number; priceYear?: number }[]>('GET', '/plans'),
+  plans: () =>
+    request<
+      {
+        id: PlanId;
+        price: number;
+        priceYear?: number;
+        features?: Feature[];
+        branches?: { included: number; extraPrice: number };
+      }[]
+    >('GET', '/plans'),
+  /** What people tap on a salon page (the salon's click report). Fire and forget. */
+  click: (salonId: string, kind: 'view' | 'book' | 'phone' | 'whatsapp' | 'directions') => {
+    if (!isLive) return;
+    void request('POST', `/salons/${encodeURIComponent(salonId)}/click`, { body: { kind } }).catch(() => undefined);
+  },
+};
+
+export type QrInfo = { salonId: string; salonName: string | null; masterId: string | null; masterName: string | null; usable: boolean };
+export type QrReviewInput = { rating: number; masterRating?: number | null; text?: string; tags?: string[] };
+
+/** One-time QR reviews: the master shows a code after the visit. */
+export const qrReviewsApi = {
+  show: (code: string) =>
+    isLive
+      ? request<QrInfo>('GET', `/reviews/qr/${encodeURIComponent(code)}`, { fresh: true })
+      : Promise.reject(new AuthError('not_found')),
+  submit: (token: string, code: string, input: QrReviewInput) =>
+    request<Review>('POST', `/reviews/qr/${encodeURIComponent(code)}`, { token, body: input }),
+};
+
+export type WaitlistEntry = {
+  id: string;
+  salonId: string;
+  date: string;
+  serviceIds: string[];
+  masterId: string | null;
+  fromMin: number;
+  toMin: number;
+  notified: boolean;
+};
+
+/** Pro salons: "tell me if a time opens". */
+export const waitlistApi = {
+  mine: (token: string) => request<WaitlistEntry[]>('GET', '/me/waitlist', { token }),
+  join: (
+    token: string,
+    salonId: string,
+    input: { serviceIds: string[]; date: string; masterId?: string | null; fromMin?: number; toMin?: number },
+  ) => request<WaitlistEntry>('POST', `/salons/${encodeURIComponent(salonId)}/waitlist`, { token, body: input }),
+  leave: (token: string, id: string) => request<void>('DELETE', `/me/waitlist/${encodeURIComponent(id)}`, { token }),
 };
 
 export type ReportReason = 'spam' | 'offensive' | 'fake' | 'other';
@@ -33,6 +82,9 @@ export type NewReview = { rating: number; text: string; tags: string[]; masterId
 export const bookingsApi = {
   list: (token: string) => request<Booking[]>('GET', '/bookings', { token }),
   create: (token: string, input: NewBooking) => request<Booking>('POST', '/bookings', { token, body: input }),
+  /** A fresh payment page for a booking waiting for its deposit. */
+  pay: (token: string, id: string) =>
+    request<{ checkoutUrl: string }>('POST', `/bookings/${encodeURIComponent(id)}/pay`, { token }),
   cancel: (token: string, id: string) =>
     request<Booking>('POST', `/bookings/${encodeURIComponent(id)}/cancel`, { token }),
   review: (token: string, id: string, input: NewReview) =>

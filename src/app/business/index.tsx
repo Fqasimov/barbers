@@ -1,6 +1,14 @@
 import { router, useFocusEffect } from 'expo-router';
 import {
+  BarChart3,
   BellRing,
+  Building2,
+  ListTodo,
+  LifeBuoy,
+  MessageCircle,
+  MousePointerClick,
+  QrCode,
+  UserCog,
   CalendarDays,
   Camera,
   CheckCircle2,
@@ -17,7 +25,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GRACE_DAYS, planById, REMIND_DAYS } from '@/auth/plans';
+import { GRACE_DAYS, hasFeature, planById, REMIND_DAYS } from '@/auth/plans';
+import { setBranch } from '@/api/client';
+import type { Feature } from '@/auth/types';
 import { authErrorKey } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
@@ -73,11 +83,26 @@ export default function BusinessDashboard() {
   const services = business.services ?? [];
   const masters = business.masters ?? [];
   const photos = business.photos ?? [];
+  const can = (f: Feature) => hasFeature(business, f);
+  const owner = (business.role ?? 'owner') === 'owner';
+  const takesBookings = !business.subscription || can('booking');
   const setup = [
     { done: services.length > 0, label: i18n.t('setupServices'), to: '/business/services' as const },
-    { done: masters.length > 0, label: i18n.t('setupMasters'), to: '/business/masters' as const },
+    ...(takesBookings
+      ? [{ done: masters.length > 0, label: i18n.t('setupMasters'), to: '/business/masters' as const }]
+      : []),
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
+  const locations = business.locations ?? [];
+  const lockedTo = (f: Feature) => planById(f === 'click_report' || f === 'qr_reviews' ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro').name;
+  /** A Grow row: opens the tool, or the plans screen with what it needs. */
+  const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
+    can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
+  const lockDetail = (f: Feature) => (can(f) ? undefined : i18n.t('planLocked', { plan: lockedTo(f) }));
+  const switchTo = (id: string) => {
+    setBranch(id === locations.find((l) => l.isMain)?.id ? null : id);
+    void refresh();
+  };
   const ready = setup.every((s) => s.done);
   const pay = async () => {
     if (!token || !business.subscription) return;
@@ -107,7 +132,7 @@ export default function BusinessDashboard() {
     ? new Date(sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY)
     : null;
   // On iOS there is no buy button; otherwise it shows whenever a payment is needed or due soon.
-  const showPay = canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
+  const showPay = owner && canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -119,6 +144,45 @@ export default function BusinessDashboard() {
             {business.categories.map((id) => i18n.tx(categoryById[id].label)).join(' · ')} · {business.district}
           </Text>
         </View>
+
+        {locations.length > 1 ? (
+          <View style={{ gap: 6 }}>
+            <Text variant="captionStrong" tone="soft">
+              {i18n.t('switchLocation')}
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {locations.map((l) => {
+                const on = l.id === business.id;
+                return (
+                  <PressableScale
+                    key={l.id}
+                    onPress={() => switchTo(l.id)}
+                    haptic="selection"
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                    style={[
+                      styles.loc,
+                      { backgroundColor: on ? c.ink : c.surface, borderColor: on ? c.ink : c.line },
+                    ]}
+                  >
+                    <Text variant="captionStrong" style={{ color: on ? c.bg : c.ink }}>
+                      {l.name}
+                    </Text>
+                    <Text variant="micro" style={{ color: on ? c.bg : c.inkSoft, opacity: 0.8 }}>
+                      {l.isMain ? i18n.t('mainSalon') : l.district}
+                      {l.role === 'manager' ? ` · ${i18n.t('roleManager')}` : ''}
+                    </Text>
+                  </PressableScale>
+                );
+              })}
+            </ScrollView>
+          </View>
+        ) : null}
+        {!owner ? (
+          <Text variant="caption" tone="soft">
+            {i18n.t('managerNote')}
+          </Text>
+        ) : null}
 
         <View style={[styles.card, { backgroundColor: c.primary }]}>
           {sub && plan ? (
@@ -177,12 +241,14 @@ export default function BusinessDashboard() {
                     onPress={pay}
                   />
                 ) : null}
-                <Button
-                  label={i18n.t('changePlan')}
-                  variant={showPay ? 'ghostOnPrimary' : 'secondary'}
-                  size="sm"
-                  onPress={() => router.push('/business/plans')}
-                />
+                {owner ? (
+                  <Button
+                    label={i18n.t('changePlan')}
+                    variant={showPay ? 'ghostOnPrimary' : 'secondary'}
+                    size="sm"
+                    onPress={() => router.push('/business/plans')}
+                  />
+                ) : null}
               </View>
             </>
           ) : (
@@ -243,19 +309,23 @@ export default function BusinessDashboard() {
           {i18n.t('dashManage')}
         </Text>
         <Card>
-          <MenuRow icon={CalendarDays} title={i18n.t('bkTitle')} onPress={() => router.push('/business/bookings')} />
+          {takesBookings ? (
+            <MenuRow icon={CalendarDays} title={i18n.t('bkTitle')} onPress={() => router.push('/business/bookings')} />
+          ) : null}
           <MenuRow
             icon={Scissors}
             title={i18n.t('svcTitle')}
             detail={i18n.n(services.length, 'service')}
             onPress={() => router.push('/business/services')}
           />
-          <MenuRow
-            icon={Users}
-            title={i18n.t('mstTitle')}
-            detail={i18n.n(masters.length, 'master')}
-            onPress={() => router.push('/business/masters')}
-          />
+          {takesBookings ? (
+            <MenuRow
+              icon={Users}
+              title={i18n.t('mstTitle')}
+              detail={i18n.n(masters.length, 'master')}
+              onPress={() => router.push('/business/masters')}
+            />
+          ) : null}
           <MenuRow
             icon={Clock}
             title={i18n.t('hoursTitle')}
@@ -275,6 +345,63 @@ export default function BusinessDashboard() {
           />
           <MenuRow icon={Store} title={i18n.t('detailsTitle')} onPress={() => router.push('/business/details')} last />
         </Card>
+
+        {sub ? (
+          <>
+            <Text variant="title" style={{ marginTop: 8 }}>
+              {i18n.t('dashGrow')}
+            </Text>
+            <Card>
+              <MenuRow icon={QrCode} title={i18n.t('qrTitle')} onPress={() => router.push('/business/qr')} />
+              <MenuRow
+                icon={MousePointerClick}
+                title={i18n.t('clicksTitle')}
+                detail={lockDetail('click_report')}
+                onPress={tool('click_report', '/business/clicks')}
+              />
+              <MenuRow
+                icon={BarChart3}
+                title={i18n.t('statsTitle')}
+                detail={lockDetail('stats')}
+                onPress={tool('stats', '/business/stats')}
+              />
+              <MenuRow
+                icon={ListTodo}
+                title={i18n.t('waitlistTitle')}
+                detail={lockDetail('waitlist')}
+                onPress={tool('waitlist', '/business/waitlist')}
+              />
+              {owner ? (
+                <>
+                  <MenuRow
+                    icon={Building2}
+                    title={i18n.t('branchesTitle')}
+                    detail={lockDetail('branches') ?? (locations.length > 1 ? String(locations.length) : undefined)}
+                    onPress={tool('branches', '/business/branches')}
+                  />
+                  <MenuRow
+                    icon={UserCog}
+                    title={i18n.t('teamTitle')}
+                    detail={lockDetail('managers')}
+                    onPress={tool('managers', '/business/team')}
+                  />
+                  <MenuRow
+                    icon={MessageCircle}
+                    title={i18n.t('waTitle')}
+                    detail={
+                      lockDetail('whatsapp_addon') ??
+                      (business.whatsappPack?.left
+                        ? i18n.t('waLeft', { n: business.whatsappPack.left })
+                        : i18n.t('waNone'))
+                    }
+                    onPress={tool('whatsapp_addon', '/business/whatsapp')}
+                  />
+                </>
+              ) : null}
+              <MenuRow icon={LifeBuoy} title={i18n.t('supportTitle')} onPress={() => router.push('/business/support')} last />
+            </Card>
+          </>
+        ) : null}
 
         <View style={{ gap: 2, marginTop: 8 }}>
           <Text variant="captionStrong" tone="soft">
@@ -317,4 +444,5 @@ const styles = StyleSheet.create({
   list: { borderRadius: radius.lg, paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  loc: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md, borderWidth: 1, gap: 2, minWidth: 120 },
 });

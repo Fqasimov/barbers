@@ -23,7 +23,9 @@ import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { useTheme } from '@/theme/ThemeProvider';
 
-type Errors = Partial<Record<'salonName' | 'district' | 'address' | 'phone' | 'whatsapp' | 'categories', StringKey>>;
+type Errors = Partial<
+  Record<'salonName' | 'district' | 'address' | 'phone' | 'whatsapp' | 'categories' | 'bookingUrl', StringKey>
+>;
 
 /** The public details clients see on the salon's page. */
 export default function SalonDetails() {
@@ -39,6 +41,7 @@ export default function SalonDetails() {
   const [phone, setPhone] = useState(formatPhone(business?.phone || ownerPhone));
   const [whatsapp, setWhatsapp] = useState(business?.whatsapp ? formatPhone(business.whatsapp) : '');
   const [about, setAbout] = useState(business?.about ? i18n.tx(business.about) : '');
+  const [bookingUrl, setBookingUrl] = useState(business?.bookingUrl ?? '');
   const [coords, setCoords] = useState<Coords | null>(business?.coords ?? null);
   const [locating, setLocating] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -65,6 +68,7 @@ export default function SalonDetails() {
       phone: phone ? (checkPhone(phone) ?? undefined) : undefined,
       whatsapp: whatsapp ? (checkPhone(whatsapp) ?? undefined) : undefined,
       categories: cats.length ? undefined : 'errCategories',
+      bookingUrl: bookingUrl.trim() && !/^https?:\/\/\S+\.\S+/i.test(bookingUrl.trim()) ? 'errUrl' : undefined,
     };
     setErrors(e);
     if (Object.values(e).some(Boolean)) return;
@@ -80,6 +84,7 @@ export default function SalonDetails() {
           whatsapp: whatsapp ? `994${phoneDigits(whatsapp)}` : '',
           about: about.trim() ? locFrom(about, business?.about) : null,
           coords,
+          bookingUrl: bookingUrl.trim() || null,
         }),
       i18n.t('savedToast'),
     );
@@ -176,6 +181,17 @@ export default function SalonDetails() {
         onChangeText={(v) => setWhatsapp(formatPhone(v))}
         keyboardType="phone-pad"
         error={err('whatsapp')}
+      />
+      <FormField
+        label={i18n.t('bookingUrlLabel')}
+        hint={i18n.t('bookingUrlHint')}
+        placeholder="https://dikidi.net/…"
+        value={bookingUrl}
+        onChangeText={setBookingUrl}
+        keyboardType="url"
+        autoCapitalize="none"
+        autoCorrect={false}
+        error={err('bookingUrl')}
       />
       <FormField
         label={i18n.t('fAbout')}

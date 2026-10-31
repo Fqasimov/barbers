@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { authApi, type PlanId } from '@/auth';
 import { authErrorKey, useExitAuthFlow } from '@/auth/flow';
-import { type BillingPeriod, plans, TRIAL_DAYS } from '@/auth/plans';
+import { type BillingPeriod, BRANCH_PRICE, plans, TRIAL_DAYS } from '@/auth/plans';
 import { useSession } from '@/auth/useSession';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { toast } from '@/components/Toaster';
@@ -142,6 +142,13 @@ export default function Plans() {
                   </View>
                 ))}
               </View>
+              {p.id === 'sade' || (p.id === 'pro' && canBuyInApp) ? (
+                <Text variant="caption" tone="soft">
+                  {p.id === 'sade'
+                    ? i18n.t('planSadeNote')
+                    : i18n.t('planBranchNote', { price: i18n.price(BRANCH_PRICE) })}
+                </Text>
+              ) : null}
               <Text variant="captionStrong" tone="success">
                 {i18n.t('trialBadge', { days: i18n.n(TRIAL_DAYS, 'day') })}
                 {canBuyInApp && period === 'year' ? (
