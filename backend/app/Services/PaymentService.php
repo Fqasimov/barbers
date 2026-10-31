@@ -86,6 +86,9 @@ class PaymentService
 
     private function open(Business $business, array $attrs, string $label): array
     {
+        if (! config('usta.payments_enabled')) {
+            throw new ApiException(503, 'payments_off', 'Payments are turned off for now.');
+        }
         $payment = new Payment;
         $payment->forceFill($attrs + [
             'business_id' => $business->id,

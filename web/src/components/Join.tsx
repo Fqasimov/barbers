@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
-import { isLive, page } from '../config';
+import { config, isLive, page } from '../config';
 import { categories, plans, type CategoryId, type Key, type Plan } from '../i18n';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
@@ -392,6 +392,17 @@ export function Join() {
           <p className="kicker reveal">{t('joinKicker')}</p>
           <h2 className="h2 reveal">{t('joinTitle')}</h2>
           <p className="section-sub reveal">{t('joinSub')}</p>
+          <p className="reveal panel-link">
+            {t('joinPanel')}{' '}
+            <a
+              className="btn btn-sm btn-outline"
+              href={config.panelUrl}
+              target={/^https?:/.test(config.panelUrl ?? '') ? '_blank' : undefined}
+              rel="noopener"
+            >
+              {t('joinPanelCta')}
+            </a>
+          </p>
           <ul className="ticks reveal">
             {(['joinPoint1', 'joinPoint2', 'joinPoint3', 'joinPoint4'] as const).map((k) => (
               <li key={k}>{t(k)}</li>

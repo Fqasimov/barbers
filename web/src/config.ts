@@ -7,6 +7,8 @@ export type SiteConfig = {
   company: { name: string; voen: string; address: string };
   /** Raster tiles; leave light empty to draw the bundled Baku coastline instead (offline previews). */
   tiles: { light: string; dark: string; attribution: string };
+  /** The salon panel (the app's salon screens in a browser). Default /panel on this site. */
+  panelUrl?: string;
   /** Show sample salons and figures. Defaults to on for localhost and ?demo, off elsewhere. */
   demo?: boolean;
 };
@@ -24,6 +26,7 @@ export const config: SiteConfig = {
   appStoreUrl: raw.appStoreUrl ?? '',
   playStoreUrl: raw.playStoreUrl ?? '',
   supportEmail: raw.supportEmail ?? 'support@yazilnow.az',
+  panelUrl: raw.panelUrl || '/panel',
   company: { name: '', voen: '', address: '', ...raw.company },
   tiles: {
     light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',

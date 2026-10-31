@@ -2144,3 +2144,11 @@ a.store:active {
     grid-template-columns: 1fr;
   }
 }
+
+.panel-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}

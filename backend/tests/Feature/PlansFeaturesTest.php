@@ -392,4 +392,14 @@ class PlansFeaturesTest extends TestCase
         $this->getJson('/api/business/support', $h)->assertOk()->assertJsonPath('priority', true);
         $this->assertNotNull($this->getJson('/api/business/support', $h)->json('phone'));
     }
+
+    public function test_payments_off_takes_no_money(): void
+    {
+        config(['usta.payments_enabled' => false]);
+        $salon = $this->onPlan($this->makeSalon(), 'pro');
+        $salon->services()->update(['deposit_type' => 'fixed', 'deposit_value' => 10]);
+        $this->book($salon, User::factory()->create())->assertCreated()->assertJsonPath('status', 'upcoming')->assertJsonPath('deposit', 0);
+        $this->postJson('/api/business/subscription/checkout', ['plan' => 'pro'], $this->auth($salon->owner))
+            ->assertStatus(503)->assertJsonPath('error', 'payments_off');
+    }
 }

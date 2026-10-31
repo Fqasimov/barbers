@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { isDemo } from '../config';
+import { config, isDemo } from '../config';
 import { LANGS } from '../i18n';
 import { useI18n } from '../lang';
 import { Lockup } from './ui';
@@ -31,6 +31,7 @@ export function Nav() {
     ['#join', t('navJoin')],
   ] as const;
 
+  const external = /^https?:/.test(config.panelUrl ?? '');
   return (
     <>
       {isDemo ? <div className="ribbon">{t('demoRibbon')}</div> : null}
@@ -54,8 +55,13 @@ export function Nav() {
                 </button>
               ))}
             </div>
-            <a className="btn btn-sm btn-outline nav-cta" href="#join">
-              {t('navCta')}
+            <a
+              className="btn btn-sm btn-outline nav-cta"
+              href={config.panelUrl}
+              target={external ? '_blank' : undefined}
+              rel="noopener"
+            >
+              {t('navPanel')}
             </a>
             <button
               className="nav-toggle"

@@ -612,6 +612,15 @@ export const strings = {
     'Демо-сервер: пока аккаунты хранятся только на этом устройстве.',
     'Demo server: for now, accounts are stored on this device only.',
   ),
+  // The salon panel on the website
+  panelTitle: L('Salon paneli', 'Панель салона', 'Salon panel'),
+  panelSub: L(
+    'Salonunuzu qeydiyyatdan keçirin və hər şeyi buradan idarə edin: təqvim, ustalar, xidmətlər, rəylər, plan.',
+    'Зарегистрируйте салон и управляйте всем отсюда: календарь, мастера, услуги, отзывы, тариф.',
+    'Register your salon and run everything from here: calendar, masters, services, reviews, plan.',
+  ),
+  panelRegister: L('Salonu qeydiyyatdan keçir', 'Зарегистрировать салон', 'Register a salon'),
+  panelSignIn: L('Daxil ol', 'Войти', 'Sign in'),
   // Business
   bizTitle: L('Salonunuzu Usta-ya qoşun', 'Подключите салон к Usta', 'Put your salon on Usta'),
   bizSub: L(

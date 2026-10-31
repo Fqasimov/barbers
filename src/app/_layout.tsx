@@ -9,6 +9,7 @@ import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvid
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
 
@@ -48,7 +49,9 @@ function App() {
 
   // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
   useEffect(() => {
-    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted) router.push('/auth');
+    // Not over the salon panel's own front door on the website.
+    const onPanel = Platform.OS === 'web' && window.location.pathname.endsWith('/panel');
+    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && !onPanel) router.push('/auth');
   }, [splashDone, hydrated, sessionReady, signedIn, authPrompted]);
 
   const navTheme = useMemo(() => {
@@ -61,41 +64,52 @@ function App() {
 
   return (
     <NavThemeProvider value={navTheme}>
-      <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: c.bg },
-          animation: reduced ? 'fade' : 'default',
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="salon/[id]" />
-        <Stack.Screen name="top-rated" />
-        <Stack.Screen name="reviews/[id]" />
-        <Stack.Screen name="search" options={{ animation: 'fade' }} />
-        <Stack.Screen name="find" />
-        <Stack.Screen name="compare" />
-        <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
-        <Stack.Screen
-          name="auth/index"
-          options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}
-        />
-        <Stack.Screen name="auth/sign-in" />
-        <Stack.Screen name="auth/register" />
-        <Stack.Screen name="auth/verify" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="auth/forgot" />
-        <Stack.Screen name="auth/new-password" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="auth/complete" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="business/register" />
-        <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="business/index" />
-        <Stack.Screen name="account/delete" />
-      </Stack>
-      <Toaster />
+      <View style={[styles.page, { backgroundColor: Platform.OS === 'web' ? c.sunken : c.bg }]}>
+        <View style={[styles.column, { backgroundColor: c.bg }]}>
+          <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: c.bg },
+              animation: reduced ? 'fade' : 'default',
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="salon/[id]" />
+            <Stack.Screen name="top-rated" />
+            <Stack.Screen name="reviews/[id]" />
+            <Stack.Screen name="search" options={{ animation: 'fade' }} />
+            <Stack.Screen name="find" />
+            <Stack.Screen name="compare" />
+            <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen
+              name="auth/index"
+              options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}
+            />
+            <Stack.Screen name="auth/sign-in" />
+            <Stack.Screen name="auth/register" />
+            <Stack.Screen name="auth/verify" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="auth/forgot" />
+            <Stack.Screen name="auth/new-password" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="auth/complete" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="business/register" />
+            <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="business/index" />
+            <Stack.Screen name="account/delete" />
+            <Stack.Screen name="panel" />
+          </Stack>
+          <Toaster />
+        </View>
+      </View>
       {!splashDone ? <ScissorsSplash ready={hydrated && sessionReady} onDone={() => setSplashDone(true)} /> : null}
     </NavThemeProvider>
   );
 }
+
+// In a browser (the salon panel on the website) the app is a centred column; on phones it fills the screen.
+const styles = StyleSheet.create({
+  page: { flex: 1, alignItems: 'center' },
+  column: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 760 : undefined, overflow: 'hidden' },
+});

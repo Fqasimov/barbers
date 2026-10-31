@@ -44,6 +44,9 @@ return [
         'reset_token_minutes' => 15,
     ],
 
+    // PAYMENTS_ENABLED=false: nothing can be bought and no deposits are taken (testing without a provider).
+    'payments_enabled' => (bool) env('PAYMENTS_ENABLED', true),
+
     'trial_days' => 30,
     // After an unpaid trial or a lapsed paid period: still listed and
     // bookable for this many days, then hidden until the owner pays.

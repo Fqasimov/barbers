@@ -61,7 +61,7 @@ const DEMO_USER: StoredUser = {
   phone: '',
   birthDate: '',
   gender: null,
-  role: 'customer',
+  role: 'business',
   provider: 'password',
   emailVerified: true,
   createdAt: '2026-10-06T00:00:00.000Z',
@@ -69,7 +69,50 @@ const DEMO_USER: StoredUser = {
   hash: 'f9f393a8799d01bbf514dd214c0d77907a3e313fdd30771e1b1d2d5f91087047',
 };
 
-const empty = (): Db => ({ users: [DEMO_USER], businesses: [], otps: [], sessions: [], resets: [] });
+/** The demo account's barbershop: live, on a Pro trial, with services and masters, so every tool can be tried. */
+function demoBarbershop(): Business {
+  const now = Date.now();
+  const L = (az: string, ru: string, en: string) => ({ az, ru, en });
+  const days = [1, 2, 3, 4, 5, 6];
+  return {
+    id: 'b_demo_faiq',
+    ownerId: DEMO_USER.id,
+    salonId: 'b_demo_faiq',
+    salonName: 'Faiq Barbershop',
+    categories: ['barber'],
+    district: 'Nəsimi',
+    address: 'Nizami küç. 90',
+    audience: 'men',
+    status: 'live',
+    createdAt: new Date(now).toISOString(),
+    coords: { latitude: 40.3777, longitude: 49.8436 },
+    phone: '+994501234567',
+    whatsapp: '994501234567',
+    hours: { open: '10:00', close: '21:00' },
+    closedDays: [0],
+    about: L('Klassik və müasir kişi kəsimləri.', 'Классические и современные мужские стрижки.', 'Classic and modern men’s cuts.'),
+    role: 'owner',
+    subscription: settle({
+      plan: 'pro',
+      status: 'trialing',
+      billingPeriod: 'month',
+      startedAt: new Date(now).toISOString(),
+      trialEndsAt: new Date(now + TRIAL_DAYS * 86_400_000).toISOString(),
+    }),
+    services: [
+      { id: 's_demo_cut', key: 'haircut', name: L('Saç kəsimi', 'Стрижка', 'Haircut'), category: 'barber', durationMin: 45, price: 25, deposit: { type: 'none', value: 0 } },
+      { id: 's_demo_fade', key: 'fade', name: L('Fade', 'Фейд', 'Fade'), category: 'barber', durationMin: 60, price: 35, deposit: { type: 'none', value: 0 } },
+      { id: 's_demo_beard', key: 'beard', name: L('Saqqal', 'Борода', 'Beard trim'), category: 'barber', durationMin: 30, price: 15, deposit: { type: 'none', value: 0 } },
+    ],
+    masters: [
+      { id: 'm_demo_1', name: 'Rauf Məmmədov', role: L('Bərbər', 'Барбер', 'Barber'), years: 8, rating: 0, reviewCount: 0, serviceIds: ['s_demo_cut', 's_demo_fade', 's_demo_beard'], workDays: days, shift: { start: '10:00', end: '20:00' }, tone: 'oxblood', languages: ['az', 'ru'] },
+      { id: 'm_demo_2', name: 'Elvin Quliyev', role: L('Bərbər', 'Барбер', 'Barber'), years: 4, rating: 0, reviewCount: 0, serviceIds: ['s_demo_cut', 's_demo_beard'], workDays: days, shift: { start: '12:00', end: '21:00' }, tone: 'navy', languages: ['az', 'en'] },
+    ],
+    photos: [],
+  };
+}
+
+const empty = (): Db => ({ users: [DEMO_USER], businesses: [demoBarbershop()], otps: [], sessions: [], resets: [] });
 
 let cache: Db | null = null;
 async function load(): Promise<Db> {
@@ -77,6 +120,12 @@ async function load(): Promise<Db> {
   const raw = await AsyncStorage.getItem(KEY);
   const db: Db = raw ? (JSON.parse(raw) as Db) : empty();
   if (!db.users.some((u) => u.id === DEMO_USER.id)) db.users.push(DEMO_USER);
+  // Older demo stores: the account is now a salon owner with a barbershop.
+  const me = db.users.find((u) => u.id === DEMO_USER.id)!;
+  if (!db.businesses.some((b) => b.ownerId === me.id)) {
+    me.role = 'business';
+    db.businesses.push(demoBarbershop());
+  }
   cache = db;
   return settleAll(db);
 }

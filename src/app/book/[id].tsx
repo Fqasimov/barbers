@@ -40,6 +40,7 @@ import { bookExternally, booksInApp } from '@/lib/actions';
 import { waitlistApi } from '@/api/catalogue';
 import { depositEstimate, openDepositCheckout, PayDepositButton } from '@/components/booking/Deposit';
 import { DEPOSIT_HOLD_MIN } from '@/auth/plans';
+import { paymentsEnabled } from '@/lib/billing';
 import { authErrorKey, requireSignIn } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { enableNotifications, scheduleReminders } from '@/lib/notifications';
@@ -671,7 +672,7 @@ function ConfirmStep({
           ) : null}
         </View>
       </View>
-      {salon.deposits ? (
+      {salon.deposits && paymentsEnabled ? (
         <Text variant="caption" tone="soft">
           {i18n.t('depositPolicy')}
         </Text>

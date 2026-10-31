@@ -15,7 +15,11 @@ import type { PlanId } from '@/auth/types';
  * bought inside the app, so there the app shows the plan but no price and no buy
  * button unless EXPO_PUBLIC_IOS_CHECKOUT=1 (only after Apple has agreed).
  */
-export const canBuyInApp = Platform.OS !== 'ios' || process.env.EXPO_PUBLIC_IOS_CHECKOUT === '1';
+/** EXPO_PUBLIC_PAYMENTS=off: no prices to pay, no buy buttons, no deposits (testing before a payment provider). */
+export const paymentsEnabled = process.env.EXPO_PUBLIC_PAYMENTS !== 'off';
+
+export const canBuyInApp =
+  paymentsEnabled && (Platform.OS !== 'ios' || process.env.EXPO_PUBLIC_IOS_CHECKOUT === '1');
 
 export type PlanPrices = Record<PlanId, Record<BillingPeriod, number>>;
 

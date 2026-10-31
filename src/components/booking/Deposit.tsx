@@ -10,11 +10,12 @@ import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
 import type { Salon } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { paymentsEnabled } from '@/lib/billing';
 import { useStore } from '@/store/useStore';
 
 /** What a Pro salon asks now, before the server's answer (which also applies the no-show rule). */
 export function depositEstimate(salon: Salon, services: Salon['services']) {
-  if (!salon.deposits) return 0;
+  if (!salon.deposits || !paymentsEnabled) return 0;
   const sum = services.reduce((n, s) => {
     const d = s.deposit;
     if (!d || d.type === 'none') return n;

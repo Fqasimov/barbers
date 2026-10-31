@@ -34,6 +34,13 @@ export const dict = {
   navMap: { az: 'Xəritə', ru: 'Карта', en: 'Map' },
   navJoin: { az: 'Salonlar üçün', ru: 'Для салонов', en: 'For salons' },
   navCta: { az: 'Salonu qoş', ru: 'Подключить салон', en: 'List your salon' },
+  navPanel: { az: 'Salon paneli', ru: 'Панель салона', en: 'Salon panel' },
+  joinPanel: {
+    az: 'Qeydiyyatdan keçib hər şeyi saytdan idarə edin: təqvim, ustalar, xidmətlər, rəylər, statistika.',
+    ru: 'Зарегистрируйтесь и управляйте всем на сайте: календарь, мастера, услуги, отзывы, статистика.',
+    en: 'Register and run everything on the website: calendar, masters, services, reviews, statistics.',
+  },
+  joinPanelCta: { az: 'Salon panelini aç', ru: 'Открыть панель салона', en: 'Open the salon panel' },
   menu: { az: 'Menyu', ru: 'Меню', en: 'Menu' },
   demoRibbon: {
     az: 'Önizləmə: nümunə məlumatlar göstərilir',

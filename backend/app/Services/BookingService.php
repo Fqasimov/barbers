@@ -45,7 +45,7 @@ class BookingService
      */
     public function depositFor(Business $salon, iterable $services, ?User $user): int
     {
-        if (! $salon->hasFeature('deposits')) {
+        if (! $salon->hasFeature('deposits') || ! config('usta.payments_enabled')) {
             return 0;
         }
         $sum = 0;
