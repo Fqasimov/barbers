@@ -39,3 +39,14 @@ Market figures come from our research doc “Usta — Məhsul planı və bazar
 araşdırması” (Oct 2026): DIKIDI, Arnica, Rezneed, Altegio, YCLIENTS, Fresha
 (CostBench), Booksy (Koalendar), and a field check of 37 top-rated Baku salons.
 Prices, plans and features are the app’s own.
+
+## PowerPoint and PDF
+
+- `npm run pptx` writes `export/yazilnow-pitch-deck-editable.pptx`: real text
+  boxes, native shapes and a native price chart, built from the same
+  `src/content.ts`. Change the words there and rebuild, or edit in PowerPoint.
+  Headings use Cambria and text Calibri (both ship with Office).
+- `npm run phones` remakes the phone pictures in `export/phones/` after you
+  replace a screen in `public/screens/`.
+- `export/yazilnow-pitch-deck.pdf` and `export/yazilnow-pitch-deck.pptx` are
+  pictures of the web deck, exactly as it looks (not editable).
