@@ -3,7 +3,8 @@ import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
 import { problem } from '../content';
 import { clamp, color, ease } from './theme';
 
-export const CHAT_FRAMES = 200;
+/** Long enough to hold the last message: the Player clears the frame when a composition ends. */
+export const CHAT_FRAMES = 1800;
 /** When each line of `problem.chat` lands (frames at 30 fps). */
 const AT = [12, 48, 92, 118, 158];
 
