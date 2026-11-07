@@ -157,7 +157,7 @@ export const model = {
       price: 49,
       lines: [
         'Everything in Start',
-        '3 branches included, +15 ₼ each extra',
+        '3 locations included, +15 ₼ each extra',
         'Manager roles, combined reports',
         'Deposits, waitlist, statistics',
       ],

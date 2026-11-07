@@ -77,7 +77,7 @@ Three plans, each with a 30-day trial and no card:
 
 Yearly billing costs 10 months. Everything above is built.
 - **Deposits and the paid add-ons** need a payment provider. Until then payments are switched off (`PAYMENTS_ENABLED=false`): salons can't set deposits and nothing is charged.
-- **Mismatch to fix:** the pitch deck says Pro includes **4** branches; the app and server include **3** (`usta.branches.included`). Make them the same before salons see either.
+- **Pro locations:** 3 are included (the main salon and two branches), set in `usta.branches.included`; the deck says the same.
 
 ## Prepare the content
 
