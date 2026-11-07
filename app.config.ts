@@ -13,7 +13,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
  */
 export default ({ config }: ConfigContext): ExpoConfig => {
   const profile = process.env.EAS_BUILD_PROFILE;
-  const projectId = process.env.EAS_PROJECT_ID;
+  const projectId = process.env.EAS_PROJECT_ID || config.extra?.eas?.projectId;
 
   // A store build must talk to the real server. Without it the app falls back to the
   // on-device demo backend, which shows sign-up codes on screen.

@@ -24,6 +24,7 @@
     "promo",
     "backend",
     "web",
-    "deck"
+    "deck",
+    "deploy"
   ]
 }
