@@ -18,6 +18,8 @@ class AuthController extends Controller
 {
     private const MAX_ATTEMPTS = 5;
 
+    private const MAX_ACCOUNT_ATTEMPTS = 20;
+
     public function show(): View|RedirectResponse
     {
         if (Auth::guard('admin')->check()) {
@@ -37,9 +39,13 @@ class AuthController extends Controller
         ]);
         $email = mb_strtolower(trim($data['email']));
         $key = 'admin-login:'.sha1($email.'|'.$request->ip());
+        // Per account too, whatever the IP: 20 wrong tries lock it for 15 minutes.
+        $accountKey = 'admin-login-account:'.sha1($email);
 
-        if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
-            throw ValidationException::withMessages(['email' => 'Too many attempts. Try again in '.RateLimiter::availableIn($key).' seconds.']);
+        foreach ([[$key, self::MAX_ATTEMPTS], [$accountKey, self::MAX_ACCOUNT_ATTEMPTS]] as [$k, $max]) {
+            if (RateLimiter::tooManyAttempts($k, $max)) {
+                throw ValidationException::withMessages(['email' => 'Too many attempts. Try again in '.RateLimiter::availableIn($k).' seconds.']);
+            }
         }
 
         $admin = Admin::query()->where('email', $email)->first();
@@ -49,11 +55,13 @@ class AuthController extends Controller
 
         if ($step === null) {
             RateLimiter::hit($key, 60);
+            RateLimiter::hit($accountKey, 900);
 
             throw ValidationException::withMessages(['email' => 'The email, password or code is wrong.']);
         }
 
         RateLimiter::clear($key);
+        RateLimiter::clear($accountKey);
         $admin->forceFill(['totp_last_step' => $step, 'last_login_at' => now()])->save();
         Auth::guard('admin')->login($admin);
         $request->session()->regenerate();

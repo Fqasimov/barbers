@@ -16,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 class PhotoController extends Controller
 {
+    public const MAX_PIXELS = 50_000_000;
+
     public function store(Request $request, PhotoProcessor $processor): JsonResponse
     {
         $request->validate([
@@ -24,6 +26,12 @@ class PhotoController extends Controller
         $business = $this->business($request);
         if (Photo::query()->where('business_id', $business->id)->count() >= config('usta.max_photos')) {
             throw ValidationException::withMessages(['photo' => ['A salon can have at most '.config('usta.max_photos').' photos.']]);
+        }
+
+        // A small file can still unpack to gigabytes of pixels; refuse before decoding.
+        $size = @getimagesize($request->file('photo')->getRealPath());
+        if ($size && $size[0] * $size[1] > self::MAX_PIXELS) {
+            throw ValidationException::withMessages(['photo' => ['This photo is too large. Use one under 50 megapixels.']]);
         }
 
         try {

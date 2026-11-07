@@ -155,8 +155,10 @@ class PaymentService
         }
         if ($confirmed instanceof Booking) {
             $this->notifier->bookingCreated($confirmed);
-        } elseif ($confirmed === false) {
+        } elseif ($confirmed === 'refund') {
             $this->refund($payment);
+        } elseif ($confirmed === 'duplicate') {
+            $this->refund($payment, markBooking: false);
         }
 
         return $payment;
@@ -165,13 +167,20 @@ class PaymentService
     /**
      * The deposit came in: the booking is confirmed if it still holds the
      * slot, or the slot is still free after a late payment. Otherwise the
-     * money goes back (returns false).
+     * money goes back ('refund'), and so does a second payment for a booking
+     * that is already paid ('duplicate', which leaves the booking alone).
      */
-    private function depositPaid(Payment $payment): Booking|false
+    private function depositPaid(Payment $payment): Booking|string
     {
         $booking = Booking::query()->whereKey($payment->booking_id)->lockForUpdate()->first();
         if (! $booking) {
-            return false;
+            return 'refund';
+        }
+        // A second payment page paid for the same booking goes back.
+        $paidBefore = Payment::query()->where('booking_id', $booking->id)->where('kind', self::DEPOSIT)
+            ->where('status', Payment::PAID)->whereKeyNot($payment->id)->exists();
+        if ($paidBefore) {
+            return 'duplicate';
         }
         if ($booking->status === Booking::UPCOMING) {
             return $booking;
@@ -200,11 +209,11 @@ class PaymentService
             'hold_until' => null,
         ])->save();
 
-        return false;
+        return 'refund';
     }
 
     /** Gives a deposit back. Marks the booking refunded, or refund_due for staff when the provider refuses. */
-    public function refund(Payment $payment): bool
+    public function refund(Payment $payment, bool $markBooking = true): bool
     {
         if ($payment->status !== Payment::PAID || $payment->refunded_at) {
             return (bool) $payment->refunded_at;
@@ -217,19 +226,22 @@ class PaymentService
         }
         if ($ok) {
             $payment->forceFill(['refunded_at' => now()])->save();
+        } else {
+            // Staff refund it by hand: admin → Payments shows it paid without refunded_at.
+            Log::warning('Refund still due', ['payment' => $payment->id, 'booking' => $payment->booking_id]);
         }
-        if ($payment->booking_id) {
+        if ($payment->booking_id && $markBooking) {
             Booking::query()->whereKey($payment->booking_id)->update(['deposit_status' => $ok ? 'refunded' : 'refund_due', 'updated_at' => now()]);
         }
 
         return $ok;
     }
 
-    /** The paid deposit of a booking, if any. */
+    /** The paid deposit of a booking that hasn't gone back yet, if any. */
     public function depositPayment(Booking $booking): ?Payment
     {
         return Payment::query()->where('booking_id', $booking->id)->where('kind', self::DEPOSIT)
-            ->where('status', Payment::PAID)->latest('paid_at')->first();
+            ->where('status', Payment::PAID)->whereNull('refunded_at')->oldest('paid_at')->first();
     }
 
     /** A new pack replaces what is left of the old one and runs 30 days. */

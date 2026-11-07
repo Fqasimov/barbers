@@ -41,6 +41,10 @@ return [
         'ttl_minutes' => 10,
         'resend_seconds' => 60,
         'max_attempts' => 5,
+        // Wrong codes per email and purpose in 24 hours, across new codes.
+        'daily_failures' => 15,
+        // Code emails per address per hour; more requests reuse the last code.
+        'mails_per_hour' => 6,
         'reset_token_minutes' => 15,
     ],
 
@@ -96,6 +100,8 @@ return [
 
     'qr_reviews' => [
         'ttl_hours' => 24,
+        // New codes a location can make in 24 hours.
+        'codes_per_day' => 150,
         // A QR review counts this much of a review after a booked visit (in tenths).
         'weight' => 8,
         // One QR review per salon per account in this many days, and at most this many a day.

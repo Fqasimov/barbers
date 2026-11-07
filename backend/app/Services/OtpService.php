@@ -8,10 +8,13 @@ use App\Models\OneTimeCode;
 use App\Support\Iso;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Emailed six-digit codes. Only an HMAC of the code is stored; codes expire
  * after 10 minutes, die after 5 wrong attempts and can be resent after 60 s.
+ * Asking for a new code never buys more guesses: an address gets at most
+ * `daily_failures` wrong codes a day and `mails_per_hour` emails an hour.
  */
 class OtpService
 {
@@ -20,11 +23,25 @@ class OtpService
     {
         $now = now();
         $prev = OneTimeCode::query()->where('email', $email)->where('purpose', $purpose)->first();
-        if ($prev && ! $force && $prev->resend_at->isFuture()) {
-            throw new ApiException(429, 'resend_too_soon', 'Please wait before requesting another code.', [
-                'resend_at' => Iso::ts($prev->resend_at),
-            ]);
+        $mailKey = 'otp-mail:'.sha1($email);
+        $cooling = $prev && $prev->resend_at->isFuture() && $prev->expires_at->isFuture();
+        $capped = RateLimiter::tooManyAttempts($mailKey, (int) config('usta.otp.mails_per_hour', 6));
+        if ($cooling || $capped) {
+            if (! $force) {
+                $at = $cooling ? $prev->resend_at : $now->copy()->addSeconds(RateLimiter::availableIn($mailKey));
+                throw new ApiException(429, 'resend_too_soon', 'Please wait before requesting another code.', [
+                    'resend_at' => Iso::ts($at),
+                ]);
+            }
+            // Sign-up, login and "forgot" ask again: the code already sent still works.
+            if ($prev && $prev->expires_at->isFuture()) {
+                return $this->challenge($email, $purpose, $prev->expires_at, $prev->resend_at);
+            }
+            if ($capped) {
+                return $this->decoy($email, $purpose);
+            }
         }
+        RateLimiter::hit($mailKey, 3600);
 
         $code = str_pad((string) random_int(0, 999_999), 6, '0', STR_PAD_LEFT);
         $otp = OneTimeCode::query()->updateOrCreate(
@@ -66,11 +83,13 @@ class OtpService
             throw new ApiException(422, 'otp_expired', 'This code has expired. Request a new one.');
         }
         $max = config('usta.otp.max_attempts');
-        if ($otp->attempts >= $max) {
+        $failKey = "otp-fail:{$purpose}:".sha1($email);
+        if ($otp->attempts >= $max || RateLimiter::tooManyAttempts($failKey, (int) config('usta.otp.daily_failures', 15))) {
             throw new ApiException(422, 'too_many_attempts', 'Too many wrong codes. Request a new one.');
         }
         if (! hash_equals($otp->code_hash, $this->hash($email, $purpose, $code))) {
             $otp->increment('attempts');
+            RateLimiter::hit($failKey, 86400);
             if ($otp->attempts >= $max) {
                 throw new ApiException(422, 'too_many_attempts', 'Too many wrong codes. Request a new one.');
             }

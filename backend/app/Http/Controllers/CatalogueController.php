@@ -16,6 +16,7 @@ use App\Support\Baku;
 use App\Support\BusyCache;
 use App\Support\CatalogueCache;
 use App\Support\Iso;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -124,6 +125,17 @@ class CatalogueController extends Controller
             return response()->json([]);
         }
 
+        // The heaviest public query: cached briefly and dropped by any booking or catalogue change.
+        $key = 'catalogue:slots:'.CatalogueCache::version().':'.BusyCache::version().':'
+            .sha1(json_encode([$data['service_key'], $date->toDateString(), $fromMin, $toMin, Baku::now()->format('Y-m-d H:i')]));
+
+        return response()->json(Cache::remember($key, 30, fn () => $this->earliest($data['service_key'], $date, $fromMin, $toMin)));
+    }
+
+    /** @return list<array{salon_id:string, master_id:string, service_id:string, start:int}> */
+    private function earliest(string $serviceKey, CarbonImmutable $date, int $fromMin, int $toMin): array
+    {
+        $data = ['service_key' => $serviceKey];
         $salons = Business::query()->bookable()->with(['services', 'masters.services', 'parent.subscription', 'subscription'])
             ->whereHas('services', fn ($q) => $q->where('key', $data['service_key']))->get();
         $masterIds = $salons->flatMap(fn ($s) => $s->masters->pluck('id'))->all();
@@ -155,7 +167,7 @@ class CatalogueController extends Controller
         }
         usort($out, fn ($a, $b) => [$a['start'], $a['salon_id']] <=> [$b['start'], $b['salon_id']]);
 
-        return response()->json($out);
+        return $out;
     }
 
     /** Booked time per master: upcoming bookings and the salon's time off, no client details. */

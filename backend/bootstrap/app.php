@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApiSecurityHeaders;
 use App\Http\Middleware\EnsureBusinessOwner;
 use App\Http\Middleware\ForceJson;
 use App\Http\Middleware\TrustProxiesFromConfig;
@@ -27,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(prepend: [ForceJson::class]);
+        $middleware->api(prepend: [ForceJson::class], append: [ApiSecurityHeaders::class]);
         $middleware->alias(['business' => EnsureBusinessOwner::class]);
         // Behind a load balancer / reverse proxy: TRUSTED_PROXIES="*" or a list of IPs.
         $middleware->replace(TrustProxies::class, TrustProxiesFromConfig::class);

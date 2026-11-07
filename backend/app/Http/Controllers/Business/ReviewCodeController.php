@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Business;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\Master;
 use App\Models\ReviewCode;
@@ -19,6 +20,11 @@ class ReviewCodeController extends Controller
         $business = $this->business($request);
         $business->requireFeature('qr_reviews');
         $master = ! empty($data['master_id']) ? $this->owned($request, Master::class, $data['master_id']) : null;
+        // More codes than visits a day would only feed fake reviews.
+        $today = ReviewCode::query()->where('business_id', $business->id)->where('created_at', '>', now()->subDay())->count();
+        if ($today >= (int) config('usta.qr_reviews.codes_per_day', 150)) {
+            throw new ApiException(429, 'code_limit', 'That is a lot of review codes for one day. Try again tomorrow or contact support.');
+        }
 
         $code = Str::random(24);
         $row = new ReviewCode;

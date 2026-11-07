@@ -8,6 +8,12 @@ class ImagickPhotoProcessor implements PhotoProcessor
     public function toJpeg(string $path, int $maxPx): string
     {
         try {
+            $probe = new \Imagick;
+            $probe->pingImage($path);
+            if ($probe->getImageWidth() * $probe->getImageHeight() > 50_000_000) {
+                throw new \RuntimeException('Too many pixels.');
+            }
+            $probe->clear();
             $im = new \Imagick($path);
             $im->setIteratorIndex(0);
             if (method_exists($im, 'autoOrient')) {
