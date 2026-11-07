@@ -24,16 +24,7 @@
     />
     <link rel="preload" as="image" href="/tools/shears-00.webp" />
     <script src="/config.js"></script>
-    <script>
-      // The opening plays once per visit and never with reduced motion; decided before first paint so nothing flashes.
-      try {
-        if (sessionStorage.getItem('yazilnow-intro') || matchMedia('(prefers-reduced-motion: reduce)').matches)
-          document.documentElement.classList.add('no-intro');
-        else document.documentElement.classList.add('intro-on');
-      } catch (e) {
-        document.documentElement.classList.add('no-intro');
-      }
-    </script>
+    <script src="/boot.js"></script>
     <script type="application/ld+json">
       { "@context": "https://schema.org", "@type": "Organization", "name": "yazılnow", "url": "https://yazilnow.az", "logo": "https://yazilnow.az/img/icon-512.png" }
     </script>

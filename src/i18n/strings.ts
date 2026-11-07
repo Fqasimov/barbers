@@ -204,6 +204,7 @@ export const strings = {
     'Запись отменена. Время снова свободно.',
     'Booking cancelled. The slot is free again.',
   ),
+  pinNew: L('Yeni', 'Новый', 'New'),
   bookAgain: L('Yenidən yazıl', 'Записаться снова', 'Book again'),
   thanksReviewed: L(
     'Bu ziyarətə rəy yazmısınız. Təşəkkürlər!',

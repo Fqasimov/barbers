@@ -10,15 +10,15 @@ import { Text } from '../ui/Text';
 /** Rating-first map pin. The active pin turns brand red and grows slightly. */
 export function RatingPin({ rating, active, best }: { rating: number; active: boolean; best?: boolean }) {
   const { c } = useTheme();
-  const { rating: fmt } = useI18n();
+  const { rating: fmt, t } = useI18n();
   const bg = active ? c.accent : c.primary;
   const fg = active ? c.onAccent : c.onPrimary;
   return (
     <View style={[styles.wrap, active && styles.active]}>
       <View style={[styles.pill, { backgroundColor: bg, borderColor: active ? c.onAccent : c.bg }]}>
-        <Star size={10} color={fg} fill={fg} strokeWidth={1.2} />
+        {rating > 0 ? <Star size={10} color={fg} fill={fg} strokeWidth={1.2} /> : null}
         <Text style={[styles.num, { color: fg }]} maxFontSizeMultiplier={1}>
-          {fmt(rating)}
+          {rating > 0 ? fmt(rating) : t('pinNew')}
         </Text>
         {best ? <View style={[styles.best, { backgroundColor: active ? c.onAccent : c.accent }]} /> : null}
       </View>
