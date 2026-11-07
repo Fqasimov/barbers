@@ -11,7 +11,7 @@ if [ "${2:-}" = "--preview" ]; then
   export EXPO_PUBLIC_API_URL= EXPO_PUBLIC_PAYMENTS=off
 fi
 rm -rf "$OUT"
-EXPO_OFFLINE=1 npx expo export --platform web --output-dir "$OUT"
+EXPO_OFFLINE=1 npx expo export --platform web --output-dir "$OUT" --clear
 if [ "${2:-}" = "--preview" ]; then
   python3 - "$OUT" <<'PY'
 import glob, sys

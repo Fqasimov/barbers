@@ -6,7 +6,7 @@ import {
   Onest_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/onest';
-import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -25,7 +25,13 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ Onest_400Regular, Onest_500Medium, Onest_600SemiBold, Onest_700Bold, Onest_800ExtraBold });
+  const [fontsLoaded] = useFonts({
+    Onest_400Regular,
+    Onest_500Medium,
+    Onest_600SemiBold,
+    Onest_700Bold,
+    Onest_800ExtraBold,
+  });
 
   if (!fontsLoaded) return null;
 
@@ -50,11 +56,13 @@ function App() {
   useAppSync();
 
   // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
+  // Only on the home screen: a scanned QR, a shared salon link or the salon panel's front door
+  // opens where it points, and asks for an account only when it needs one.
+  const pathname = usePathname();
+  const onHome = pathname === '/';
   useEffect(() => {
-    // Not over the salon panel's own front door on the website.
-    const onPanel = Platform.OS === 'web' && window.location.pathname.endsWith('/panel');
-    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && !onPanel) router.push('/auth');
-  }, [splashDone, hydrated, sessionReady, signedIn, authPrompted]);
+    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
+  }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
 
   const navTheme = useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;

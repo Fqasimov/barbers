@@ -5,6 +5,10 @@ window.USTA_CONFIG = {
   // Empty: the map and figures show empty states (sample data only on localhost or with ?demo).
   apiUrl: '',
 
+  // The app in a browser: the salon panel, QR review links (/r/…) and salon pages (/s/…, /salon/…).
+  // e.g. 'https://app.yazilnow.az'. The "Salon panel" button opens <appUrl>/panel.
+  appUrl: '',
+
   // Store pages. Empty: the buttons say "Coming soon".
   appStoreUrl: '',
   playStoreUrl: '',
