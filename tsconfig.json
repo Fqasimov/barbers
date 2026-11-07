@@ -23,6 +23,7 @@
   "exclude": [
     "promo",
     "backend",
-    "web"
+    "web",
+    "deck"
   ]
 }
