@@ -17,6 +17,7 @@ import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
+import { paymentsEnabled } from '@/lib/billing';
 
 type DepositType = 'none' | 'fixed' | 'percent';
 
@@ -33,7 +34,8 @@ export default function ServiceForm() {
   const [duration, setDuration] = useState(existing ? String(existing.durationMin) : '');
   const [price, setPrice] = useState(existing ? String(existing.price) : '');
   const [description, setDescription] = useState(existing?.description ? i18n.tx(existing.description) : '');
-  const deposits = hasFeature(business, 'deposits');
+  // Deposits are card payments: offered once payments are switched on.
+  const deposits = paymentsEnabled && hasFeature(business, 'deposits');
   const [depositType, setDepositType] = useState<DepositType>(existing?.deposit?.type ?? 'none');
   const [depositValue, setDepositValue] = useState(existing?.deposit?.value ? String(existing.deposit.value) : '');
   const [errors, setErrors] = useState<Partial<Record<'name' | 'duration' | 'price' | 'deposit', StringKey>>>({});
@@ -44,7 +46,8 @@ export default function ServiceForm() {
     const e = {
       name: checkRequired(name) ?? undefined,
       duration: Number.isInteger(minutes) && minutes >= 5 && minutes <= 480 ? undefined : ('errDuration' as const),
-      price: price.trim() && Number.isFinite(amount) && amount >= 0 && amount <= 10000 ? undefined : ('errPrice' as const),
+      price:
+        price.trim() && Number.isFinite(amount) && amount >= 0 && amount <= 10000 ? undefined : ('errPrice' as const),
       deposit:
         depositType === 'none' ||
         (Number(depositValue) >= 1 && (depositType === 'fixed' || Number(depositValue) <= 100))
@@ -64,7 +67,8 @@ export default function ServiceForm() {
         : {}),
     };
     const ok = await run(
-      (token) => (existing ? businessApi.updateService(token, existing.id, input) : businessApi.addService(token, input)),
+      (token) =>
+        existing ? businessApi.updateService(token, existing.id, input) : businessApi.addService(token, input),
       i18n.t('savedToast'),
     );
     if (ok !== undefined) router.back();

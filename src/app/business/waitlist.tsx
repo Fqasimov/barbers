@@ -27,7 +27,7 @@ export default function Waitlist() {
       <ScreenHeader title={i18n.t('waitlistTitle')} />
       <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 16 }}>
         {data && !data.length ? (
-          <EmptyState icon={ListTodo} title={i18n.t('waitlistEmpty')} body={i18n.t('waitlistJoined')} />
+          <EmptyState icon={ListTodo} title={i18n.t('waitlistEmpty')} body={i18n.t('waitlistSalonBody')} />
         ) : data ? (
           <Card>
             {data.map((e, i) => (

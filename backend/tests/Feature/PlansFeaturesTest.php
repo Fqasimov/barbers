@@ -385,6 +385,7 @@ class PlansFeaturesTest extends TestCase
 
     public function test_support_phone_line_is_for_pro(): void
     {
+        config(['usta.support.phone' => '+994 12 555 00 00']);
         $salon = $this->makeSalon();
         $h = $this->auth($salon->owner);
         $this->getJson('/api/business/support', $h)->assertOk()->assertJsonPath('priority', false)->assertJsonPath('phone', null);

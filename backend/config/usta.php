@@ -129,8 +129,8 @@ return [
 
     'support' => [
         'email' => env('SUPPORT_EMAIL', 'support@yazilnow.az'),
-        // Pro only: the priority phone line.
-        'phone' => env('SUPPORT_PHONE', '+994 12 000 00 00'),
+        // Pro only: the priority phone line. Empty: Pro sees email support only.
+        'phone' => env('SUPPORT_PHONE') ?: null,
         'hours' => env('SUPPORT_HOURS', '09:00–21:00'),
     ],
 

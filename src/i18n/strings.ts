@@ -1135,6 +1135,11 @@ export const strings = {
   waitlistNotified: L('Xəbər verildi', 'Уведомлён', 'Notified'),
   waitlistJoin: L('Vaxt boşalsa, xəbər ver', 'Сообщить, если время освободится', 'Tell me if a time opens'),
   waitlistJoined: L('Siyahıdasınız. Vaxt boşalsa bildiriş gələcək.', 'Вы в списке. Сообщим, если время освободится.', "You're on the list. We'll notify you if a time opens."),
+  waitlistSalonBody: L(
+    'Gün dolu olanda müştərilər bu siyahıya yazılır. Vaxt boşalsa, onlara avtomatik bildiriş gedir.',
+    'Когда день занят, клиенты встают в этот список. Освободится время — им сразу придёт уведомление.',
+    'When a day is full, clients join this list. If a time opens, they get a notification right away.',
+  ),
   waitlistLeave: L('Siyahıdan çıx', 'Выйти из списка', 'Leave the list'),
   waitlistNoSlots: L('Bu gün boş vaxt yoxdur', 'На этот день окон нет', 'No free times this day'),
 

@@ -27,7 +27,7 @@ class AddonController extends Controller
             'email' => config('usta.support.email'),
             'hours' => config('usta.support.hours'),
             'priority' => $priority,
-            'phone' => $priority ? config('usta.support.phone') : null,
+            'phone' => $priority ? (config('usta.support.phone') ?: null) : null,
             'whatsapp_pack' => ['price' => (int) config('usta.whatsapp.price'), 'messages' => (int) config('usta.whatsapp.messages'), 'days' => (int) config('usta.whatsapp.days')],
         ]);
     }
