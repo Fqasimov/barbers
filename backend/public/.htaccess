@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # HTTPS only (Apache / cPanel; nginx does this in deploy/nginx). Not for local http://localhost.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -23,3 +29,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Never serve dotfiles or the PHP ini from here.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

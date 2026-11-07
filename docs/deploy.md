@@ -93,16 +93,23 @@ If certbot can't start because nginx refuses the config without certificates, co
 
 **Updates later:** `git pull`, copy `backend/` again (keep `.env` and `storage/`), `composer install --no-dev -o`, `php artisan migrate --force`, `php artisan config:cache route:cache`, `sudo supervisorctl restart yazilnow-queue`. Re-run `deploy/build.sh` and upload `site/` and `app/` for website or app changes.
 
-## 3b. Shared hosting (cPanel)
+## 3b. Shared hosting (cPanel): what yazilnow.az uses
 
-It works if the plan has **PHP 8.3, MySQL, SSH or a terminal, and cron jobs**, and lets each subdomain have its own folder.
+Nothing to install on your computer. One zip holds the website, the app, and the server with its dependencies and a production `.env`:
 
-1. **Subdomains:** create `app.yazilnow.az` and `api.yazilnow.az`. Point the API's document root at `backend/public`, never at `backend/`.
-2. **Website and app:** upload `deploy/out/site/*` to the main domain's folder (usually `public_html`) and `deploy/out/app/*` to the app subdomain's folder. Both include an `.htaccess`. Show hidden files when uploading so it isn't skipped.
-3. **API:** upload `backend/` next to `public_html`, not inside it. In the terminal: `composer install --no-dev -o`, then copy `deploy/backend.env.production` to `backend/.env`, fill it in, and run `php artisan key:generate`, `migrate --force`, `storage:link` and `config:cache`.
-4. **MySQL:** create the database and user in cPanel and put them in `.env`.
-5. **Cron jobs** (cPanel → Cron Jobs, every minute): both lines in `deploy/crontab.txt`, with your home path. The second one sends queued emails, since shared hosting can't keep a worker running.
-6. **HTTPS:** cPanel → SSL/TLS Status → AutoSSL for all four names.
+```bash
+DOMAIN=yazilnow.az deploy/package-cpanel.sh          # → deploy/out/yazilnow-cpanel.zip
+UPDATE=1 DOMAIN=yazilnow.az deploy/package-cpanel.sh # later updates: same zip without .env
+```
+
+Upload it in File Manager and extract it in your home folder. Then follow `README-FIRST.txt` inside it (also in [deploy/cpanel/README-FIRST.txt](../deploy/cpanel/README-FIRST.txt)):
+1. Set PHP 8.3.
+2. Create the subdomains (the API's document root is `yazilnow-api/public`).
+3. Create the MySQL database and the `no-reply@` mailbox (cPanel's own mail server, with SPF/DKIM via Email Deliverability).
+4. Fill in four lines of `.env`.
+5. In Terminal, run `migrate` and `usta:create-admin`.
+6. Add two cron jobs: the scheduler, and the queue worker, which sends emails within seconds.
+7. Run AutoSSL.
 
 ---
 
