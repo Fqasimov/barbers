@@ -3,8 +3,8 @@
 #
 #   deploy/out/yazilnow-cpanel.zip
 #     public_html/        the website            → https://yazilnow.az
-#     app.yazilnow.az/    the app in a browser   → https://app.yazilnow.az   (subdomain document root)
-#     yazilnow-api/       the server (Laravel)   → https://api.yazilnow.az   (document root: yazilnow-api/public)
+#     public_html/app/    the app in a browser   → https://yazilnow.az/app
+#     yazilnow-api/       the server (Laravel)   → https://yazilnow.az/api and /admin, through the link public_html/server
 #       .env              production settings, APP_KEY already generated; fill in the database and mail passwords
 #     README-FIRST.txt
 #
@@ -17,12 +17,14 @@ DOMAIN=${DOMAIN:-yazilnow.az}
 OUT=deploy/out
 PKG=$OUT/cpanel
 
-[ -n "${SKIP_BUILD:-}" ] || DOMAIN=$DOMAIN deploy/build.sh
+# cPanel without subdomains: website at /, the app at /app, the server at /api and /admin.
+export LAYOUT=single
+[ -n "${SKIP_BUILD:-}" ] || DOMAIN=$DOMAIN LAYOUT=single deploy/build.sh
 
 rm -rf "$PKG" "$OUT/yazilnow-cpanel.zip"
 mkdir -p "$PKG"
 cp -R "$OUT/site" "$PKG/public_html"
-cp -R "$OUT/app" "$PKG/app.${DOMAIN}"
+cp -R "$OUT/app" "$PKG/public_html/app"
 
 echo "› Server → $PKG/yazilnow-api"
 API=$PKG/yazilnow-api
@@ -46,12 +48,15 @@ sed -i \
   -e "s|^DB_USERNAME=.*|DB_USERNAME=CPANELUSER_yazilnow|" \
   -e "s|^MAIL_HOST=.*|MAIL_HOST=mail.${DOMAIN}|" \
   -e "s|^MAIL_USERNAME=.*|MAIL_USERNAME=no-reply@${DOMAIN}|" \
+  -e "s|^APP_URL=.*|APP_URL=https://${DOMAIN}|" \
+  -e "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=|" \
+  -e "s|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}|" \
   "$API/.env"
 chmod 600 "$API/.env"
 fi
 cp deploy/cpanel/README-FIRST.txt "$PKG/README-FIRST.txt"
 sed -i "s|yazilnow\.az|${DOMAIN}|g" "$PKG/README-FIRST.txt"
 
-(cd "$PKG" && zip -qr -X ../yazilnow-cpanel.zip public_html "app.${DOMAIN}" yazilnow-api README-FIRST.txt)
+(cd "$PKG" && zip -qr -X ../yazilnow-cpanel.zip public_html yazilnow-api README-FIRST.txt)
 echo
 echo "Done: $OUT/yazilnow-cpanel.zip ($(du -h "$OUT/yazilnow-cpanel.zip" | cut -f1)). Follow README-FIRST.txt inside it."

@@ -1,0 +1,52 @@
+# Everything on one domain (cPanel without subdomains). This is public_html/.htaccess:
+#   /                     the website (this folder)
+#   /app/                 the app in a browser (public_html/app, its own .htaccess)
+#   /api /admin /up …     the server: public_html/server is a link to ~/yazilnow-api/public
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # HTTPS and the bare domain.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+  # The app's sign-in token reaches the server.
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # The server: its files (admin styles, salon photos), then everything else it answers.
+  RewriteCond %{DOCUMENT_ROOT}/server/$1 -f
+  RewriteRule ^((?:admin-assets|storage)/.+)$ server/$1 [L]
+  RewriteRule ^(?:api|admin|billing|up)(?:/.*)?$ server/index.php [L]
+  # Nobody browses the link itself (only checks what the browser asked for, not the rewrite above).
+  RewriteCond %{THE_REQUEST} \s/server(?:[/?\s])
+  RewriteRule ^ - [R=404,L]
+
+  # QR codes, the wall QR, shared salon links and the salon panel open the app.
+  RewriteRule ^(r|s|salon)/([A-Za-z0-9_-]+)/?$ /app/$1/$2 [L,R=302,QSA]
+  RewriteRule ^panel/?$ /app/panel [L,R=302,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # The website's own pages; the app and the server send their own policies.
+  <If "%{REQUEST_URI} !~ m#^/(api|admin|billing|up|app|storage|admin-assets)(/|$)#">
+    Header always set X-Frame-Options "DENY"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+  </If>
+  <FilesMatch "\.(webp|png|jpg|svg|mp4|webm|woff2)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "^(index\.html|config\.js|404\.html)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

@@ -20,8 +20,17 @@ cd "$(dirname "$0")/.."
 
 DOMAIN=${DOMAIN:?set DOMAIN, e.g. DOMAIN=yazilnow.az}
 SITE_URL="https://${DOMAIN}"
-API_URL=${API_URL:-https://api.${DOMAIN}}
-APP_URL=${APP_URL:-https://app.${DOMAIN}}
+# LAYOUT=single: everything on the one domain, for hosting without subdomains (cPanel):
+#   https://<domain>/  website · /app/ the app in a browser · /api, /admin the server
+LAYOUT=${LAYOUT:-subdomains}
+if [ "$LAYOUT" = single ]; then
+  API_URL=${API_URL:-https://${DOMAIN}}
+  APP_URL=${APP_URL:-https://${DOMAIN}/app}
+  export EXPO_WEB_BASE_URL=/app
+else
+  API_URL=${API_URL:-https://api.${DOMAIN}}
+  APP_URL=${APP_URL:-https://app.${DOMAIN}}
+fi
 PAYMENTS=${PAYMENTS:-off}
 OUT=deploy/out
 BUNDLE_ID=$(node -p "require('./app.json').expo.ios.bundleIdentifier")
@@ -46,7 +55,11 @@ window.USTA_CONFIG = {
   company: { name: '', voen: '', address: '' },
 };
 JS
-cp deploy/apache/site.htaccess "$OUT/site/.htaccess"
+if [ "$LAYOUT" = single ]; then
+  cp deploy/apache/single-site.htaccess "$OUT/site/.htaccess"
+else
+  cp deploy/apache/site.htaccess "$OUT/site/.htaccess"
+fi
 
 echo "› App in a browser → $OUT/app"
 npm ci --no-audit --no-fund
@@ -61,7 +74,11 @@ if ! grep -q "${API_URL#https://}" "$OUT"/app/_expo/static/js/web/*.js || grep -
   echo "The app bundle does not point at ${API_URL}. Stop." >&2
   exit 1
 fi
-cp deploy/apache/app.htaccess "$OUT/app/.htaccess"
+if [ "$LAYOUT" = single ]; then
+  cp deploy/apache/single-app.htaccess "$OUT/app/.htaccess"
+else
+  cp deploy/apache/app.htaccess "$OUT/app/.htaccess"
+fi
 # The configs name yazilnow.az; point them at this domain.
 sed -i "s|https://app.yazilnow.az|${APP_URL}|g; s|https://api.yazilnow.az|${API_URL}|g" "$OUT/site/.htaccess" "$OUT/app/.htaccess"
 

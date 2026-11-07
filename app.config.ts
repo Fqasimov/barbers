@@ -25,8 +25,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const site = new URL(process.env.EXPO_PUBLIC_SITE_URL || 'https://yazilnow.az').host;
   const paths = ['/r/', '/s/', '/salon/'];
 
+  // Web builds served from a sub-folder (cPanel: https://yazilnow.az/app). Native builds ignore it.
+  const webBase = process.env.EXPO_WEB_BASE_URL;
+
   return {
     ...config,
+    ...(webBase ? { experiments: { ...config.experiments, baseUrl: webBase } } : {}),
     ios: {
       ...config.ios,
       associatedDomains: [`applinks:${site}`],
