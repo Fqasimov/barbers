@@ -306,9 +306,9 @@ export const strings = {
   visitOn: L('{date} ziyarəti · {service}', 'Визит {date} · {service}', 'Visit on {date} · {service}'),
   reviewLockedTitle: L('Rəy yalnız ziyarətdən sonra', 'Отзыв — только после визита', 'Reviews follow real visits'),
   reviewLockedBody: L(
-    'yazılnow-da hər rəy tamamlanmış növbəyə bağlıdır — buna görə reytinqlərə etibar etmək olur.',
-    'В yazılnow каждый отзыв привязан к завершённой записи — поэтому рейтингам можно доверять.',
-    'On yazılnow every review is tied to a completed booking — that’s why the ratings can be trusted.',
+    'yazılnow-da rəyi yalnız salonda olmuş müştəri yazır: növbədən sonra və ya ustanın birdəfəlik QR kodu ilə. Buna görə reytinqlərə etibar etmək olur.',
+    'В yazılnow отзыв пишет только тот, кто был в салоне: после записи или по одноразовому QR-коду мастера. Поэтому рейтингам можно доверять.',
+    'On yazılnow only people who were there can review: after a booking, or with the master’s one-time QR code. That’s why the ratings can be trusted.',
   ),
 
   // Search
