@@ -23,7 +23,7 @@ import type { Booking } from '@/data/types';
 import { useI18n } from '@/i18n';
 import { messageSalon, openDirections } from '@/lib/actions';
 import { firstName } from '@/lib/format';
-import { fmtClock, minutesOfDay } from '@/lib/time';
+import { dayOfMonth, fmtClock, minutesOfDay } from '@/lib/time';
 import { bookingEnd, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, radius, shadow } from '@/theme/tokens';
@@ -172,9 +172,9 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
       ? i18n.t('noShow')
       : unpaid
         ? i18n.t('pendingPayment')
-      : past
-        ? i18n.t('completed')
-        : i18n.relativeDay(start);
+        : past
+          ? i18n.t('completed')
+          : i18n.relativeDay(start);
 
   return (
     <View style={[styles.card, { backgroundColor: c.surface, opacity: cancelled || noShow ? 0.6 : 1 }, shadow(c, 1)]}>
@@ -189,7 +189,7 @@ function BookingCard({ booking, past }: { booking: Booking; past: boolean }) {
             {i18n.weekdayShort(start)}
           </Text>
           <Text style={{ fontFamily: fonts.bold, fontSize: 24, lineHeight: 28, color: past ? c.ink : c.onPrimary }}>
-            {start.getDate()}
+            {dayOfMonth(start)}
           </Text>
           <Text variant="micro" style={{ color: past ? c.inkSoft : c.onPrimary }}>
             {i18n.monthShort(start)}

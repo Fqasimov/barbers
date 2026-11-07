@@ -13,28 +13,55 @@ export function fmtClock(minutes: number): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+/**
+ * Every salon is in Baku, so the app's calendar is Baku's wall clock (UTC+4,
+ * no daylight saving since 2016), whatever time zone the phone is set to. A
+ * tourist's phone on London time still sees and books 12:00 Baku time.
+ * Dates stay real instants; only reading and building calendar fields goes
+ * through Baku.
+ */
+export const BAKU_OFFSET_MIN = 240;
+const OFFSET_MS = BAKU_OFFSET_MIN * 60_000;
+
+/** The instant shifted so that its UTC fields read as Baku's wall clock. */
+const wall = (d: Date) => new Date(d.getTime() + OFFSET_MS);
+
+/** 0 = Sunday … 6 = Saturday, in Baku. */
+export const weekday = (d: Date) => wall(d).getUTCDay();
+/** Day of the month in Baku. */
+export const dayOfMonth = (d: Date) => wall(d).getUTCDate();
+/** 0 = January, in Baku. */
+export const monthIndex = (d: Date) => wall(d).getUTCMonth();
+export const yearOf = (d: Date) => wall(d).getUTCFullYear();
+
+/** Baku midnight of the day the instant falls on. */
 export function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
+  const w = wall(d);
+  return new Date(Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - OFFSET_MS);
 }
 
+/** Whole days later (Baku has no DST, so a day is always 24 hours). */
 export function addDays(d: Date, n: number): Date {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
+  return new Date(d.getTime() + n * DAY_MS);
 }
 
-/** Local calendar key — 'YYYY-MM-DD'. */
+/** Baku calendar key — 'YYYY-MM-DD'. */
 export function dayKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const w = wall(d);
+  return `${w.getUTCFullYear()}-${String(w.getUTCMonth() + 1).padStart(2, '0')}-${String(w.getUTCDate()).padStart(2, '0')}`;
 }
 
-/** 'YYYY-MM-DD' → local midnight. */
+/** 'YYYY-MM-DD' → Baku midnight. */
 export function fromDayKey(key: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key);
   if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) - OFFSET_MS);
+}
+
+/** The first day of a month in Baku, `offset` months from the one `d` is in. */
+export function monthStart(d: Date, offset = 0): Date {
+  const w = wall(d);
+  return new Date(Date.UTC(w.getUTCFullYear(), w.getUTCMonth() + offset, 1) - OFFSET_MS);
 }
 
 export function sameDay(a: Date, b: Date): boolean {
@@ -47,12 +74,13 @@ export function weekFrom(today: Date): Date[] {
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
+/** Minutes since Baku midnight. */
 export function minutesOfDay(d: Date): number {
-  return d.getHours() * 60 + d.getMinutes();
+  const w = wall(d);
+  return w.getUTCHours() * 60 + w.getUTCMinutes();
 }
 
+/** That day in Baku at minutes past midnight. */
 export function atMinutes(day: Date, minutes: number): Date {
-  const x = startOfDay(day);
-  x.setMinutes(minutes);
-  return x;
+  return new Date(startOfDay(day).getTime() + minutes * 60_000);
 }

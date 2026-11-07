@@ -12,7 +12,7 @@ import { Chip } from '@/components/ui/Chip';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
-import { addDays, dayKey, startOfDay } from '@/lib/time';
+import { addDays, dayKey, dayOfMonth, fromDayKey, startOfDay } from '@/lib/time';
 import type { Loc } from '@/i18n/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, shadow } from '@/theme/tokens';
@@ -155,7 +155,7 @@ export function DayPicker({ value, onChange }: { value: number[]; onChange: (day
       {[1, 2, 3, 4, 5, 6, 0].map((d) => {
         const on = value.includes(d);
         // 7 Jan 2024 was a Sunday.
-        const date = new Date(2024, 0, 7 + d);
+        const date = fromDayKey(`2024-01-${String(7 + d).padStart(2, '0')}`)!;
         return (
           <Chip
             key={d}
@@ -189,7 +189,7 @@ export function DayChips({
         <Chip
           key={dayKey(d)}
           size="sm"
-          label={i < 2 ? i18n.relativeDay(d) : `${i18n.weekdayShort(d)} ${d.getDate()} ${i18n.monthShort(d)}`}
+          label={i < 2 ? i18n.relativeDay(d) : `${i18n.weekdayShort(d)} ${dayOfMonth(d)} ${i18n.monthShort(d)}`}
           accessibilityLabel={i18n.fullDate(d)}
           selected={dayKey(d) === dayKey(value)}
           onPress={() => onChange(d)}
@@ -230,7 +230,11 @@ export function useOwnerData<T>(load: (token: string) => Promise<T>, deps: unkno
   const token = useSession((s) => s.session?.token ?? null);
   const businessId = useSession((s) => s.session?.business?.id ?? null);
   const [tick, setTick] = useState(0);
-  const [state, setState] = useState<{ key: string; data: T | null; error: unknown }>({ key: '', data: null, error: null });
+  const [state, setState] = useState<{ key: string; data: T | null; error: unknown }>({
+    key: '',
+    data: null,
+    error: null,
+  });
   const loadRef = useRef(load);
   useEffect(() => {
     loadRef.current = load;

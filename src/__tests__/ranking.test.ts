@@ -2,6 +2,10 @@ import { bayesian, liveRating, matchScore, openState, rankForMap, topRated } fro
 import { distributionFor, seedSalons as salons } from '@/data/salons';
 import type { Review } from '@/data/types';
 import { BAKU_CENTER, distanceKm, fmtDistance } from '@/lib/geo';
+import { atMinutes, fromDayKey } from '@/lib/time';
+/** October 2026, at that hour in Baku. */
+const baku = (d: number, h: number, m = 0) =>
+  atMinutes(fromDayKey(`2026-10-${String(d).padStart(2, '0')}`)!, h * 60 + m);
 
 describe('ratings', () => {
   it('folds local reviews into the live rating', () => {
@@ -83,9 +87,9 @@ describe('geo & hours', () => {
 
   it('reports open and closed states', () => {
     const salon = salons.find((s) => s.id === 'maison-leyla')!; // 10–20, closed Mondays
-    expect(openState(salon, new Date(2026, 9, 5, 12)).kind).toBe('closedToday');
-    expect(openState(salon, new Date(2026, 9, 6, 9))).toEqual({ open: false, kind: 'opensAt', time: '10:00' });
-    expect(openState(salon, new Date(2026, 9, 6, 12)).open).toBe(true);
-    expect(openState(salon, new Date(2026, 9, 6, 19, 30))).toEqual({ open: true, kind: 'closesSoon', time: '20:00' });
+    expect(openState(salon, baku(5, 12, 0)).kind).toBe('closedToday');
+    expect(openState(salon, baku(6, 9, 0))).toEqual({ open: false, kind: 'opensAt', time: '10:00' });
+    expect(openState(salon, baku(6, 12, 0)).open).toBe(true);
+    expect(openState(salon, baku(6, 19, 30))).toEqual({ open: true, kind: 'closesSoon', time: '20:00' });
   });
 });

@@ -26,7 +26,7 @@ import type { Booking, CategoryId, Master, Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
-import { fmtClock, minutesOfDay } from '@/lib/time';
+import { dayOfMonth, fmtClock, minutesOfDay } from '@/lib/time';
 import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
@@ -342,7 +342,7 @@ function NextUp({ booking }: { booking: Booking }) {
           {i18n.weekdayShort(start)}
         </Text>
         <Text style={{ fontFamily: fonts.bold, fontSize: 22, lineHeight: 26, color: c.primary }}>
-          {start.getDate()}
+          {dayOfMonth(start)}
         </Text>
       </View>
       <View style={{ flex: 1, gap: 2 }}>

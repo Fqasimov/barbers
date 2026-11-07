@@ -10,14 +10,17 @@ import {
 } from '@/data/availability';
 import { seedSalons as salons } from '@/data/salons';
 import type { Booking } from '@/data/types';
-import { addDays, atMinutes, startOfDay, toMinutes } from '@/lib/time';
+import { addDays, atMinutes, startOfDay, toMinutes, dayKey, fromDayKey, weekday } from '@/lib/time';
+/** October 2026, at that hour in Baku. */
+const baku = (d: number, h: number, m = 0) =>
+  atMinutes(fromDayKey(`2026-10-${String(d).padStart(2, '0')}`)!, h * 60 + m);
 
 const salon = salons.find((s) => s.id === 'old-town-barbers')!;
 const rauf = salon.masters[0]; // Tue–Sat, 10:00–20:00
 const cut = salon.services.find((s) => s.key === 'cut')!;
 
 /** A Monday morning, so the week ahead is predictable. */
-const monday = new Date(2026, 9, 5, 8, 0);
+const monday = baku(5, 8, 0);
 
 describe('working window', () => {
   it('is closed on a master’s day off', () => {
@@ -98,14 +101,14 @@ describe('week', () => {
   it('covers exactly seven days starting today', () => {
     const week = weekSchedule({ salon, master: rauf, durationMin: 45, bookings: [], now: monday });
     expect(week).toHaveLength(7);
-    expect(week[0].date.getDate()).toBe(monday.getDate());
+    expect(dayKey(week[0].date)).toBe(dayKey(monday));
     expect(week[0].off).toBe(true); // Monday
   });
 
   it('finds the next open slot', () => {
     const next = nextAvailable({ salon, master: rauf, durationMin: 45, bookings: [], now: monday });
     expect(next).not.toBeNull();
-    expect(next!.getDay()).not.toBe(1);
+    expect(weekday(next!)).not.toBe(1);
   });
 
   it('merges masters for "any master" and assigns someone who is free', () => {

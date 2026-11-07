@@ -10,7 +10,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
 import type { Loc } from '@/i18n/types';
-import { dayKey } from '@/lib/time';
+import { addDays, dayKey, startOfDay } from '@/lib/time';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius } from '@/theme/tokens';
 
@@ -27,7 +27,7 @@ export default function StatsScreen() {
   const many =
     (business?.locations?.length ?? 1) > 1 && business?.role !== 'manager' && hasFeature(business, 'branches');
   const today = new Date();
-  const from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (days - 1));
+  const from = addDays(startOfDay(today), -(days - 1));
   const { data } = useOwnerData(
     (t) => businessApi.stats(t, { from: dayKey(from), to: dayKey(today), scope }),
     [days, scope],

@@ -21,7 +21,7 @@ import type { Salon } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { distanceKm } from '@/lib/geo';
-import { atMinutes, fmtClock } from '@/lib/time';
+import { atMinutes, fmtClock, minutesOfDay } from '@/lib/time';
 import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
@@ -211,7 +211,7 @@ export default function CompareScreen() {
                     highlight={!!col.next && col.next.getTime() === bestNext}
                     sub={col.next ? i18n.relativeDay(col.next) : undefined}
                   >
-                    {col.next ? fmtClock(col.next.getHours() * 60 + col.next.getMinutes()) : '—'}
+                    {col.next ? fmtClock(minutesOfDay(col.next)) : '—'}
                   </Cell>
                 ))}
               </Row>

@@ -13,6 +13,7 @@ import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
+import { dayKey, monthStart, yearOf } from '@/lib/time';
 
 const KINDS: [ClickKind, StringKey][] = [
   ['view', 'clickView'],
@@ -22,7 +23,7 @@ const KINDS: [ClickKind, StringKey][] = [
   ['directions', 'clickDirections'],
 ];
 
-const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+const monthKey = (d: Date) => dayKey(d).slice(0, 7);
 
 /** Every plan: what people tapped on the salon page, month by month. */
 export default function Clicks() {
@@ -31,10 +32,10 @@ export default function Clicks() {
   const insets = useSafeAreaInsets();
   const [offset, setOffset] = useState(0);
   const now = new Date();
-  const month = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  const month = monthStart(now, -offset);
   const { data } = useOwnerData((t) => businessApi.clicks(t, monthKey(month)), [offset]);
   const total = data ? Object.values(data.totals).reduce((a, b) => a + b, 0) : 0;
-  const label = `${i18n.monthShort(month)} ${month.getFullYear()}`;
+  const label = `${i18n.monthShort(month)} ${yearOf(month)}`;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>

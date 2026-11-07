@@ -51,7 +51,7 @@ import { useI18n } from '@/i18n';
 import { bookExternally, booksInApp, callSalon, messageSalon, openDirections, shareSalon } from '@/lib/actions';
 import { catalogueApi } from '@/api/catalogue';
 import { distanceKm, walkMinutes } from '@/lib/geo';
-import { fmtClock, minutesOfDay } from '@/lib/time';
+import { addDays, fmtClock, minutesOfDay, weekday } from '@/lib/time';
 import { isCompleted, useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, radius, shadow } from '@/theme/tokens';
@@ -123,9 +123,9 @@ function SalonDetail({ salon }: { salon: Salon }) {
     !booksInApp(salon)
       ? bookExternally(salon)
       : router.push({
-      pathname: '/book/[id]',
-      params: { id: salon.id, ...(selected.length ? { services: selected.join(',') } : {}), ...params },
-    });
+          pathname: '/book/[id]',
+          params: { id: salon.id, ...(selected.length ? { services: selected.join(',') } : {}), ...params },
+        });
 
   const onCompare = () => {
     const ok = toggleCompare(salon.id);
@@ -471,7 +471,8 @@ function Reviews({ salon }: { salon: Salon }) {
 function About({ salon, distance }: { salon: Salon; distance: number }) {
   const { c } = useTheme();
   const i18n = useI18n();
-  const today = new Date().getDay();
+  const now = new Date();
+  const today = weekday(now);
   const days = [1, 2, 3, 4, 5, 6, 0];
   return (
     <View style={{ paddingTop: 20, gap: 26 }}>
@@ -486,8 +487,7 @@ function About({ salon, distance }: { salon: Salon; distance: number }) {
         {days.map((d) => {
           const closed = salon.closedDays.includes(d);
           const isToday = d === today;
-          const date = new Date();
-          date.setDate(date.getDate() + ((d - today + 7) % 7));
+          const date = addDays(now, (d - today + 7) % 7);
           return (
             <View key={d} style={[styles.hoursRow, { borderColor: c.line }]}>
               <Text variant="subhead" style={isToday && { fontFamily: fonts.semibold }}>

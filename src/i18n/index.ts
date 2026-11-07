@@ -7,6 +7,7 @@ import { useStore } from '@/store/useStore';
 import { cal, plural } from './calendar';
 import { forms, strings, type FormKey, type StringKey } from './strings';
 import type { Loc, Locale } from './types';
+import { startOfDay } from '@/lib/time';
 
 export type { Loc, Locale } from './types';
 export { LOCALES, localeNames } from './types';
@@ -23,11 +24,6 @@ export function deviceLocale(): Locale {
 }
 
 const DAY = 86_400_000;
-const startOfDay = (d: Date) => {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-};
 
 /** Values some strings always need, so call sites don't have to pass them. */
 const DEFAULT_VARS = { pwMin: PASSWORD_MIN };

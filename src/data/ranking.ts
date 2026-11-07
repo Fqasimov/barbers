@@ -1,5 +1,5 @@
 import { distanceKm } from '@/lib/geo';
-import { minutesOfDay, toMinutes } from '@/lib/time';
+import { minutesOfDay, toMinutes, weekday } from '@/lib/time';
 
 import type { CategoryId, Coords, PriceLevel, Review, Salon } from './types';
 
@@ -87,7 +87,7 @@ export type OpenState = {
 };
 
 export function openState(salon: Salon, now = new Date()): OpenState {
-  const dow = now.getDay();
+  const dow = weekday(now);
   if (salon.closedDays.includes(dow)) return { open: false, kind: 'closedToday' };
   const t = minutesOfDay(now);
   const open = toMinutes(salon.hours.open);

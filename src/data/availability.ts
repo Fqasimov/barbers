@@ -1,6 +1,6 @@
 import { isLive } from '@/api/client';
 import { seeded } from '@/lib/random';
-import { addDays, atMinutes, dayKey, minutesOfDay, sameDay, startOfDay, toMinutes } from '@/lib/time';
+import { addDays, atMinutes, dayKey, minutesOfDay, sameDay, startOfDay, toMinutes, weekday } from '@/lib/time';
 
 import { busyFor } from './catalogue';
 import type { Booking, Master, Salon } from './types';
@@ -23,7 +23,7 @@ const overlaps = (a: Interval, b: Interval) => a.start < b.end && b.start < a.en
 
 /** The hours a master can actually take clients on a given weekday. */
 export function workingWindow(salon: Salon, master: Master, date: Date): Interval | null {
-  const dow = date.getDay();
+  const dow = weekday(date);
   if (salon.closedDays.includes(dow) || !master.workDays.includes(dow)) return null;
   const start = Math.max(toMinutes(master.shift.start), toMinutes(salon.hours.open));
   const end = Math.min(toMinutes(master.shift.end), toMinutes(salon.hours.close));
@@ -38,7 +38,7 @@ export function existingAppointments(master: Master, date: Date, window: Interva
   // Live: the time the server says is booked. Demo: a stable, made-up schedule.
   if (isLive) return busyFor(master.id, date);
   const rand = seeded(`busy:${master.id}:${dayKey(date)}`);
-  const dow = date.getDay();
+  const dow = weekday(date);
   const load = dow === 5 || dow === 6 ? 0.24 : dow === 0 ? 0.2 : 0.17;
   const busy: Interval[] = [];
   let t = window.start;

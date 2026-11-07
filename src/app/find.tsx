@@ -22,7 +22,7 @@ import type { CategoryId, PriceLevel } from '@/data/types';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
-import { addDays, fmtClock, startOfDay } from '@/lib/time';
+import { addDays, dayOfMonth, fmtClock, startOfDay } from '@/lib/time';
 import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
@@ -146,7 +146,7 @@ function Find({ serviceCatalogue }: { serviceCatalogue: ReturnType<typeof useSer
         {Array.from({ length: 7 }, (_, i) => {
           const d = addDays(startOfDay(now), i);
           const label =
-            i === 0 ? i18n.t('today') : i === 1 ? i18n.t('tomorrow') : `${i18n.weekdayShort(d)} ${d.getDate()}`;
+            i === 0 ? i18n.t('today') : i === 1 ? i18n.t('tomorrow') : `${i18n.weekdayShort(d)} ${dayOfMonth(d)}`;
           return <Chip key={i} label={label} selected={dayOffset === i} onPress={() => setDayOffset(i)} />;
         })}
       </ScrollView>

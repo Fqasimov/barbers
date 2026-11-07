@@ -35,7 +35,7 @@ import { useSalon } from '@/hooks/useSalon';
 import { useI18n } from '@/i18n';
 import type { StringKey } from '@/i18n/strings';
 import { firstName } from '@/lib/format';
-import { atMinutes, dayKey, fmtClock, fromDayKey, minutesOfDay, sameDay } from '@/lib/time';
+import { atMinutes, dayKey, fmtClock, fromDayKey, minutesOfDay, sameDay, startOfDay } from '@/lib/time';
 import { bookExternally, booksInApp } from '@/lib/actions';
 import { waitlistApi } from '@/api/catalogue';
 import { depositEstimate, openDepositCheckout, PayDepositButton } from '@/components/booking/Deposit';
@@ -109,7 +109,7 @@ function Booking({ salon, params }: { salon: Salon; params: Params }) {
     if (lockedMaster && date && Number.isFinite(time) && minutes) {
       const free = slotStillFree({ salon, master: lockedMaster, date, time, durationMin: minutes, bookings, now });
       if (free) {
-        const dayIndex = Math.round((date.getTime() - new Date(now).setHours(0, 0, 0, 0)) / 86_400_000);
+        const dayIndex = Math.round((date.getTime() - startOfDay(new Date(now)).getTime()) / 86_400_000);
         return { step: 'confirm' as Step, dayIndex, slot: time };
       }
       return { step: 'time' as Step, dayIndex: null, slot: null, stale: true };
@@ -770,7 +770,12 @@ function JoinWaitlist({
   const i18n = useI18n();
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
-  if (joined) return <Text variant="captionStrong" tone="success">{i18n.t('waitlistJoined')}</Text>;
+  if (joined)
+    return (
+      <Text variant="captionStrong" tone="success">
+        {i18n.t('waitlistJoined')}
+      </Text>
+    );
   return (
     <Button
       label={i18n.t('waitlistJoin')}

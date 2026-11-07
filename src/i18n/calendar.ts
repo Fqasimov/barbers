@@ -1,3 +1,5 @@
+import { dayOfMonth, monthIndex, weekday } from '@/lib/time';
+
 import type { Locale } from './types';
 
 /**
@@ -53,13 +55,13 @@ const monthLong: Record<Locale, string[]> = {
 };
 
 export const cal = {
-  weekdayShort: (l: Locale, d: Date) => weekdayShort[l][d.getDay()],
-  weekdayLong: (l: Locale, d: Date) => weekdayLong[l][d.getDay()],
-  monthShort: (l: Locale, d: Date) => monthShort[l][d.getMonth()],
+  weekdayShort: (l: Locale, d: Date) => weekdayShort[l][weekday(d)],
+  weekdayLong: (l: Locale, d: Date) => weekdayLong[l][weekday(d)],
+  monthShort: (l: Locale, d: Date) => monthShort[l][monthIndex(d)],
   /** "Monday, 5 October" / "Bazar ertəsi, 5 oktyabr" / "Понедельник, 5 октября". */
-  fullDate: (l: Locale, d: Date) => `${weekdayLong[l][d.getDay()]}, ${d.getDate()} ${monthLong[l][d.getMonth()]}`,
+  fullDate: (l: Locale, d: Date) => `${weekdayLong[l][weekday(d)]}, ${dayOfMonth(d)} ${monthLong[l][monthIndex(d)]}`,
   /** "Mon 5 Oct". */
-  shortDate: (l: Locale, d: Date) => `${weekdayShort[l][d.getDay()]} ${d.getDate()} ${monthShort[l][d.getMonth()]}`,
+  shortDate: (l: Locale, d: Date) => `${weekdayShort[l][weekday(d)]} ${dayOfMonth(d)} ${monthShort[l][monthIndex(d)]}`,
 };
 
 /**

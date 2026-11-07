@@ -3,7 +3,7 @@ import Animated from 'react-native-reanimated';
 
 import type { DaySchedule } from '@/data/availability';
 import { useI18n } from '@/i18n';
-import { sameDay } from '@/lib/time';
+import { dayOfMonth, sameDay } from '@/lib/time';
 import { useTheme } from '@/theme/ThemeProvider';
 import { cssEase, duration, fonts, radius } from '@/theme/tokens';
 
@@ -54,7 +54,7 @@ export function WeekStrip({ days, selected, onSelect, now }: Props) {
                 style={[styles.date, { color: fg, textDecorationLine: d.off ? 'line-through' : 'none' }]}
                 maxFontSizeMultiplier={1.2}
               >
-                {d.date.getDate()}
+                {dayOfMonth(d.date)}
               </Animated.Text>
               <View style={[styles.dot, { backgroundColor: off ? 'transparent' : active ? c.onPrimary : c.success }]} />
             </Animated.View>

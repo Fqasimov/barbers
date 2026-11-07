@@ -10,6 +10,7 @@ import { useCatalogue } from '@/data/catalogue';
 import { cancelReminders } from '@/lib/notifications';
 import type { Booking, Review } from '@/data/types';
 import type { Locale } from '@/i18n/types';
+import { addDays, atMinutes } from '@/lib/time';
 
 export type Appearance = 'system' | 'light' | 'dark';
 
@@ -77,9 +78,7 @@ const token = () => {
  * "review only after a visit" flow straight away.
  */
 function demoVisit(): Booking {
-  const start = new Date();
-  start.setDate(start.getDate() - 3);
-  start.setHours(11, 0, 0, 0);
+  const start = atMinutes(addDays(new Date(), -3), 11 * 60);
   return {
     id: 'demo-visit',
     salonId: 'old-town-barbers',

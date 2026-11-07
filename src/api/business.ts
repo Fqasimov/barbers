@@ -9,6 +9,7 @@ import type { ToneName } from '@/theme/tokens';
 
 import type { Page } from './catalogue';
 import { isLive, request } from './client';
+import { addDays, dayKey, fromDayKey } from '@/lib/time';
 
 /**
  * A booking as the salon sees it: who is coming. `kind: 'block'` is time the
@@ -56,7 +57,15 @@ export type ServiceInput = {
 };
 
 export type Branches = {
-  data: { id: string; name: string; address: string; district: string; status: Business['status']; isMain: boolean; masters: number }[];
+  data: {
+    id: string;
+    name: string;
+    address: string;
+    district: string;
+    status: Business['status'];
+    isMain: boolean;
+    masters: number;
+  }[];
   included: number;
   extraPrice: number;
   /** Pro's monthly price for these locations. */
@@ -171,7 +180,10 @@ export interface BusinessApi {
   checkout(token: string, plan: PlanId, period?: BillingPeriod): Promise<Checkout>;
   subscription(token: string): Promise<Subscription>;
   branches(token: string): Promise<Branches>;
-  addBranch(token: string, input: { salonName: string; address: string; district: string }): Promise<Branches['data'][number]>;
+  addBranch(
+    token: string,
+    input: { salonName: string; address: string; district: string },
+  ): Promise<Branches['data'][number]>;
   deleteBranch(token: string, id: string): Promise<void>;
   team(token: string): Promise<TeamMember[]>;
   invite(token: string, input: { email: string; branchId?: string | null }): Promise<TeamMember>;
@@ -228,7 +240,8 @@ const httpBusinessApi: BusinessApi = {
   stats: (token, q) => request('GET', '/business/stats', { token, query: q }),
   clicks: (token, month) => request('GET', '/business/clicks', { token, query: { month } }),
   waitlist: (token) => request('GET', '/business/waitlist', { token }),
-  reviewCode: (token, masterId) => request('POST', '/business/review-codes', { token, body: { masterId: masterId ?? null } }),
+  reviewCode: (token, masterId) =>
+    request('POST', '/business/review-codes', { token, body: { masterId: masterId ?? null } }),
   whatsappCheckout: (token) => request('POST', '/business/whatsapp/checkout', { token }),
   support: (token) => request('GET', '/business/support', { token }),
 };
@@ -349,8 +362,8 @@ const demoBusinessApi: BusinessApi = {
   // holds what the owner adds by hand.
   bookings: (token, range) =>
     withBusiness(token, (b) => {
-      const from = new Date(`${range.from}T00:00:00`).getTime();
-      const to = new Date(`${range.to}T00:00:00`).getTime() + 86_400_000;
+      const from = fromDayKey(range.from)!.getTime();
+      const to = fromDayKey(range.to)!.getTime() + 86_400_000;
       return calendarOf(b).filter((x) => new Date(x.start).getTime() < to && endOf(x) > from);
     }),
   cancelBooking: (token, id) => setStatus(token, id, 'cancelled'),
@@ -423,7 +436,15 @@ const demoBusinessApi: BusinessApi = {
   branches: (token) =>
     withBusiness(token, (b) => ({
       data: [
-        { id: b.id, name: b.salonName, address: b.address, district: b.district, status: b.status, isMain: true, masters: b.masters.length },
+        {
+          id: b.id,
+          name: b.salonName,
+          address: b.address,
+          district: b.district,
+          status: b.status,
+          isMain: true,
+          masters: b.masters.length,
+        },
         ...demoExtra(b).branches,
       ],
       included: BRANCHES_INCLUDED,
@@ -433,7 +454,15 @@ const demoBusinessApi: BusinessApi = {
   addBranch: (token, input) =>
     withBusiness(token, (b) => {
       if (!hasFeature(b, 'branches')) throw new AuthError('plan_required');
-      const row = { id: rid('br'), name: input.salonName, address: input.address, district: input.district, status: b.status, isMain: false, masters: 0 };
+      const row = {
+        id: rid('br'),
+        name: input.salonName,
+        address: input.address,
+        district: input.district,
+        status: b.status,
+        isMain: false,
+        masters: 0,
+      };
       demoExtra(b).branches.push(row);
       return row;
     }),
@@ -475,7 +504,10 @@ const demoBusinessApi: BusinessApi = {
   waitlist: async () => [],
   reviewCode: (token, masterId) =>
     withBusiness(token, (b) => {
-      const code = Array.from({ length: 24 }, () => 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 55)]).join('');
+      const code = Array.from(
+        { length: 24 },
+        () => 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 55)],
+      ).join('');
       return {
         code,
         url: `${WEB_URL}/r/${code}`,
@@ -500,20 +532,25 @@ const demoBusinessApi: BusinessApi = {
 const WEB_URL = 'https://yazilnow.az';
 
 type DemoExtra = { branches: Branches['data']; team: TeamMember[] };
-const demoExtra = (b: Business): DemoExtra => ((b as Business & { demoExtra?: DemoExtra }).demoExtra ??= { branches: [], team: [] });
+const demoExtra = (b: Business): DemoExtra =>
+  ((b as Business & { demoExtra?: DemoExtra }).demoExtra ??= { branches: [], team: [] });
 
 /** The Pro statistics screen over what the owner wrote into the demo calendar. */
-function demoStats(b: ReturnType<typeof complete>, q: { from?: string; to?: string; scope?: 'location' | 'all' }): Stats {
-  const to = q.to ?? new Date().toISOString().slice(0, 10);
-  const fromDate = q.from ? new Date(`${q.from}T00:00:00`) : new Date(new Date(`${to}T00:00:00`).getTime() - 29 * 86_400_000);
-  const from = `${fromDate.getFullYear()}-${String(fromDate.getMonth() + 1).padStart(2, '0')}-${String(fromDate.getDate()).padStart(2, '0')}`;
-  const visits = calendarOf(b).filter((x) => x.kind !== 'block' && x.start.slice(0, 10) >= from && x.start.slice(0, 10) <= to);
+function demoStats(
+  b: ReturnType<typeof complete>,
+  q: { from?: string; to?: string; scope?: 'location' | 'all' },
+): Stats {
+  const to = q.to ?? dayKey(new Date());
+  const from = q.from ?? dayKey(addDays(fromDayKey(to)!, -29));
+  const visits = calendarOf(b).filter(
+    (x) => x.kind !== 'block' && dayKey(new Date(x.start)) >= from && dayKey(new Date(x.start)) <= to,
+  );
   const done = (x: BusinessBooking) => x.status === 'completed' || (x.status === 'upcoming' && endOf(x) <= Date.now());
   const revenue = (xs: BusinessBooking[]) => xs.filter(done).reduce((n, x) => n + x.total, 0);
   const byDay: Stats['byDay'] = [];
-  for (let d = new Date(`${from}T00:00:00`); d <= new Date(`${to}T00:00:00`); d = new Date(d.getTime() + 86_400_000)) {
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const day = visits.filter((x) => x.start.slice(0, 10) === key);
+  for (let d = fromDayKey(from)!; d <= fromDayKey(to)!; d = addDays(d, 1)) {
+    const key = dayKey(d);
+    const day = visits.filter((x) => dayKey(new Date(x.start)) === key);
     byDay.push({ date: key, bookings: day.length, revenue: revenue(day) });
   }
   const clients = new Set(visits.filter(done).map((x) => x.client.phone || x.client.name));
