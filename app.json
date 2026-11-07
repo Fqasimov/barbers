@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "yazılnow",
-    "slug": "usta",
+    "slug": "yazilnow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "backgroundColor": "#F3EFE8",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.usta.booking",
+      "bundleIdentifier": "az.yazilnow.app",
       "infoPlist": {
         "CADisableMinimumFrameDurationOnPhone": true,
         "ITSAppUsesNonExemptEncryption": false,
@@ -19,7 +19,7 @@
       "usesAppleSignIn": true
     },
     "android": {
-      "package": "app.usta.booking",
+      "package": "az.yazilnow.app",
       "adaptiveIcon": {
         "backgroundColor": "#F3EFE8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

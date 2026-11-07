@@ -8,23 +8,47 @@
       "developmentClient": true,
       "distribution": "internal",
       "environment": "development",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SITE_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "support@yazilnow.az",
+        "EXPO_PUBLIC_PAYMENTS": "off"
+      }
     },
     "preview": {
       "distribution": "internal",
       "environment": "preview",
       "channel": "preview",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SITE_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "support@yazilnow.az",
+        "EXPO_PUBLIC_PAYMENTS": "off"
+      }
     },
     "production": {
       "environment": "production",
       "channel": "production",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SITE_URL": "https://yazilnow.az",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "support@yazilnow.az",
+        "EXPO_PUBLIC_PAYMENTS": "off"
+      }
     }
   },
   "submit": {
     "production": {
-      "android": { "track": "internal", "releaseStatus": "draft" }
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {}
     }
   }
 }
