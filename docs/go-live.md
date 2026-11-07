@@ -65,22 +65,19 @@ These are business rules the app already enforces. The current value works, but 
 | Grace after an unpaid trial or a missed payment | 7 days still listed and bookable, then hidden | `grace_days`. The dashboard and the email name the date. |
 | Plans | Start 29 / Pro 49 ₼ a month (yearly 290 / 490 ₼), 30-day trial with no card | See below. |
 
-### Plans: what is real today
+### Plans
 
-Two plans: **Start** (29 ₼/month, for a single salon) and **Pro** (49 ₼/month, recommended, for growing salons). Studio was retired; its subscriptions moved to Pro.
+Three plans, each with a 30-day trial and no card:
 
-Every salon currently gets the same working features:
-- unlimited masters
-- online booking and the calendar
-- phone bookings and time off
-- reminders
-- review replies
+| Plan | Price | What it includes |
+| --- | --- | --- |
+| **Sadə** | 10 ₼/month | On the map, QR reviews and replies, a "Book" button to the salon's own page, and a monthly click report |
+| **Start** | 29 ₼/month | Online booking and calendar, unlimited masters, reminders, and the WhatsApp pack add-on |
+| **Pro** | 49 ₼/month, recommended | 3 locations (+15 ₼ each extra), managers, deposits, the waitlist, statistics and priority support |
 
-These are promised but **not built**, and the plans screen marks them "coming soon":
-- Start: WhatsApp confirmations
-- Pro: deposits and no-show protection, the waitlist, statistics
-
-Until they exist, Pro costs more for the same tools. Build at least deposits or statistics before you push salons towards Pro.
+Yearly billing costs 10 months. Everything above is built.
+- **Deposits and the paid add-ons** need a payment provider. Until then payments are switched off (`PAYMENTS_ENABLED=false`): salons can't set deposits and nothing is charged.
+- **Mismatch to fix:** the pitch deck says Pro includes **4** branches; the app and server include **3** (`usta.branches.included`). Make them the same before salons see either.
 
 ## Prepare the content
 
@@ -137,8 +134,6 @@ Not needed for day one.
 1. **Rescheduling.** Today a customer cancels and books again.
 2. **Moving a booking in the salon inbox.** The salon calls the client, then needs to move them.
 3. **Master photos.** Avatars use initials today.
-4. **Deposits and no-show protection** (promised in Pro).
-5. **Salon statistics:** bookings per week, revenue, no-show rate (promised in Pro).
-6. **Waitlist:** "tell me if 18:00 frees up".
-7. **Sharing a salon link,** once the domain exists (`https://<domain>/salon/<id>` opening the app).
-8. **Times in Baku time on every phone.** The app reads and books slots in the phone's own time zone. On a phone set to another zone (a tourist's), "12:00" books 12:00 in that zone, so the customer arrives at the wrong time. Phones on Baku time are fine.
+4. **The payment provider** (`backend/app/Payments/ProviderGateway.php`), then turn payments on (see [deploy.md](deploy.md) § 6).
+
+Done since the first draft of this list: deposits and no-show protection, statistics, the waitlist, salon links and QR codes on the domain (they open the app, or the app in a browser), and Baku time on every phone, whatever its time zone.

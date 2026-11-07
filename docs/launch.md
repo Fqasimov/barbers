@@ -6,13 +6,13 @@ The product side (business rules to decide, content, operations, a test week) is
 
 ## 1. Decide now (hard to change later)
 
-- [ ] **Bundle ID / package name.** Currently `app.usta.booking` in `app.json`. After the first store upload it can never change. If you want it to match the domain, say `az.ustatap.app`, change it before step 3.
+- [ ] **Bundle ID / package name.** Currently `app.usta.booking` in `app.json`. After the first store upload it can never change. If you want it to match the domain, say `az.yazilnow.app`, change it before step 3.
 - [ ] **Payment provider.** Tell the backend which Azerbaijani provider you use. Then fill in `backend/app/Payments/ProviderGateway.php`; the TODOs in it say exactly what goes where.
 - [ ] **Plan prices.** The server reads `PLAN_PRICE_START` and `PLAN_PRICE_PRO` (defaults 29 and 49 ₼ a month). Yearly prices default to 10 months (290 and 490 ₼); override them with `PLAN_PRICE_START_YEAR` and `PLAN_PRICE_PRO_YEAR`.
 
 ## 2. Server (when hosting and the domain are ready)
 
-Follow the production checklist in `backend/README.md`.
+Step by step, for a VPS or cPanel hosting: **[deploy.md](deploy.md)**. In short:
 
 - [ ] DNS: `api.<domain>` for the API, `<domain>` for the website.
 - [ ] PHP 8.3 with the GD extension, MySQL 8 or Postgres, Redis (recommended), HTTPS.
@@ -74,6 +74,6 @@ Follow the production checklist in `backend/README.md`.
 
 ## 6. Before you press Publish
 
-- [ ] Run the security check (codex-security) on the app and `backend/`.
+- [x] Security audit: done in November 2026, see [security-audit.md](security-audit.md). Re-run the checks listed there before each release.
 - [ ] Test on real phones: sign-up email, Google/Apple sign-in, booking, push on both platforms, salon photo upload, and the payment round trip.
 - [ ] Onboard the first real salons and approve them.

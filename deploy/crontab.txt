@@ -1,0 +1,4 @@
+# Reminders, trial emails, subscription expiry and deposit holds. `sudo crontab -u www-data -e`, then add:
+* * * * * cd /var/www/yazilnow/backend && php artisan schedule:run >> /dev/null 2>&1
+# Shared hosting without a queue worker: also add this line (sends queued mail every minute).
+# * * * * * cd /home/<user>/backend && php artisan queue:work --stop-when-empty --max-time=55 >> /dev/null 2>&1

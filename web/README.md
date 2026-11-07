@@ -17,16 +17,16 @@ npm run pages      # rebuilds public/privacy, terms, help and data/demo.json fro
 
 ## Deploy
 
-1. Run `npm run build` and upload `dist/` to the web root of `https://<domain>`. Any static host works (nginx, Apache, Cloudflare Pages, Netlify). There are no server routes.
-2. Edit `dist/config.js` on the server; no rebuild is needed:
-   - `apiUrl`: the API, e.g. `https://api.<domain>`
-   - `appStoreUrl`, `playStoreUrl`: until set, the buttons read "Coming soon"
-   - `supportEmail`
-   - `company`: the legal name, VÖEN and address shown in the footer
-3. On the API, add the site's origin to `CORS_ALLOWED_ORIGINS` in `backend/.env`, e.g. `https://<domain>,https://www.<domain>`.
-4. Make sure `/billing/return/` is reachable. The payment provider sends salons there after checkout, and the page hands them back to the app (`usta://billing/return`; the scheme changes when the app itself is renamed).
+Use `DOMAIN=yazilnow.az deploy/build.sh` from the repository root. It builds this site together with the app-in-a-browser and writes `config.js` and `.htaccess` for the domain. The full guide is in [docs/deploy.md](../docs/deploy.md).
 
-Directory URLs (`/privacy/`, `/terms/`, `/help/`, `/billing/return/`) need the host to serve `index.html` inside a folder; every common static host does this by default.
+`config.js` stays editable on the server; no rebuild is needed:
+- `apiUrl`: the API, e.g. `https://api.yazilnow.az`
+- `appUrl`: the app in a browser, e.g. `https://app.yazilnow.az`. The "Salon panel" button opens `<appUrl>/panel`, and `/r/…`, `/s/…`, `/salon/…` links are sent there.
+- `appStoreUrl`, `playStoreUrl`: until set, the buttons read "Coming soon"
+- `supportEmail`
+- `company`: the legal name, VÖEN and address shown in the footer
+
+The site has no inline scripts, so it runs under the strict Content-Security-Policy in `deploy/nginx` and `deploy/apache`. Keep it that way: new scripts go in files.
 
 ## What talks to the API
 
