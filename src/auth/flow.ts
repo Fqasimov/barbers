@@ -86,6 +86,11 @@ export function useExitAuthFlow() {
       const routes = stackRoutes(state as NavState);
       let n = 0;
       for (let i = routes.length - 1; i >= 0 && FLOW.test(routes[i].name); i--) n++;
+      // Opened straight into sign-in (a web link): nothing behind it to go back to.
+      if (n > 0 && n >= routes.length) {
+        router.replace(then ?? '/');
+        return;
+      }
       if (n > 0 && router.canDismiss()) router.dismiss(n);
       else if (router.canGoBack()) router.back();
       if (then) router.push(then);

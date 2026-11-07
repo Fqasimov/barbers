@@ -2,8 +2,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { Linking } from 'react-native';
 
 /** The public website. Set EXPO_PUBLIC_SITE_URL once the domain is live. */
-export const SITE_URL = (process.env.EXPO_PUBLIC_SITE_URL || 'https://ustatap.az').replace(/\/+$/, '');
-export const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'support@ustatap.az';
+export const SITE_URL = (process.env.EXPO_PUBLIC_SITE_URL || 'https://yazilnow.az').replace(/\/+$/, '');
+export const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'support@yazilnow.az';
 
 export const links = {
   privacy: `${SITE_URL}/privacy`,

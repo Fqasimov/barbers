@@ -83,7 +83,7 @@ class Notifier
         if (! $user) {
             return;
         }
-        $salon = $b->business?->name ?? 'Usta';
+        $salon = $b->business?->name ?? 'yazılnow';
         dispatch(new SendPush($user->id, 'Bron ləğv edildi · Запись отменена', "{$salon} · {$this->when($b)}", ['type' => 'booking_cancelled', 'booking_id' => $b->id, 'url' => self::CUSTOMER_URL]));
         Mail::to($user->email)->queue(new BookingMail($b, 'cancelled_by_salon', array_filter([
             "AZ: {$salon} bronunuzu ləğv etdi: {$this->when($b)}.",
@@ -101,7 +101,7 @@ class Notifier
         if (! $b->user_id) {
             return;
         }
-        $salon = $b->business?->name ?? 'Usta';
+        $salon = $b->business?->name ?? 'yazılnow';
         $title = $which === '24h' ? 'Sabah · Завтра · Tomorrow' : '2 saat · 2 часа · 2 hours';
         dispatch(new SendPush($b->user_id, $title, "{$salon} · {$this->when($b)}", ['type' => 'booking_reminder', 'booking_id' => $b->id, 'url' => self::CUSTOMER_URL]));
     }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>@yield('title', 'Admin') · Usta</title>
+  <title>@yield('title', 'Admin') · yazılnow</title>
   <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=5">
   <script src="{{ asset('admin-assets/admin.js') }}?v=5" defer></script>
 </head>
@@ -22,7 +22,7 @@
 @endphp
 <div class="shell">
   <aside class="side">
-    <a class="brand" href="{{ route('admin.dashboard') }}">usta <small>admin</small></a>
+    <a class="brand" href="{{ route('admin.dashboard') }}">yazılnow <small>admin</small></a>
     <nav class="nav" aria-label="Sections">
       @foreach ($nav as [$name, $label, $count])
         <a href="{{ route($name) }}" @if (request()->routeIs($name.'*')) aria-current="page" @endif>

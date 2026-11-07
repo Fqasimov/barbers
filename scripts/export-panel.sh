@@ -21,7 +21,7 @@ for f in glob.glob(out + '/_expo/static/js/web/*.js'):
     open(f, 'w').write(s)
 h = open(out + '/index.html').read()
 h = h.replace('src="/_expo/', 'src="./expo/').replace('href="/favicon.ico"', 'href="./favicon.ico"')
-h = h.replace('<title>Usta</title>', '<title>yazılnow Salon panel</title>')
+h = h.replace('<title>yazılnow</title>', '<title>yazılnow Salon panel</title>')
 boot = """<script>
       // Preview from a sub-folder: files stay relative to it; the app starts at /panel.
       (function () {

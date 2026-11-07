@@ -1,4 +1,4 @@
-Usta
+yazılnow
 
 {{ $code }}
 

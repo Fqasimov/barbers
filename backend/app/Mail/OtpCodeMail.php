@@ -17,7 +17,7 @@ class OtpCodeMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: "Usta: {$this->code}");
+        return new Envelope(subject: "yazılnow: {$this->code}");
     }
 
     public function content(): Content

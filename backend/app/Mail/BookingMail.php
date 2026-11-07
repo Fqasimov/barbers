@@ -23,8 +23,8 @@ class BookingMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $subject = $this->kind === 'created'
-            ? 'Usta: yeni bron / новая запись / new booking'
-            : 'Usta: bron ləğv edildi / запись отменена / booking cancelled';
+            ? 'yazılnow: yeni bron / новая запись / new booking'
+            : 'yazılnow: bron ləğv edildi / запись отменена / booking cancelled';
 
         return new Envelope(subject: $subject);
     }

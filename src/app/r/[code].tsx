@@ -19,6 +19,8 @@ import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter } from '@/theme/tokens';
 
+const drafts = new Map<string, { rating: number; masterRating: number; text: string }>();
+
 /**
  * A scanned one-time review QR (https://yazilnow.az/r/<code> → usta://r/<code>).
  * The client signs in and rates the salon and the master separately.
@@ -31,9 +33,11 @@ export default function QrReview() {
   const session = useSession((s) => s.session);
   const [info, setInfo] = useState<QrInfo | null>(null);
   const [failed, setFailed] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [masterRating, setMasterRating] = useState(0);
-  const [text, setText] = useState('');
+  // Kept across the sign-in detour, so the client doesn't rate twice.
+  const draft = drafts.get(code);
+  const [rating, setRating] = useState(draft?.rating ?? 0);
+  const [masterRating, setMasterRating] = useState(draft?.masterRating ?? 0);
+  const [text, setText] = useState(draft?.text ?? '');
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
@@ -58,6 +62,7 @@ export default function QrReview() {
   if (!info) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
 
   const send = async () => {
+    drafts.set(code, { rating, masterRating, text });
     if (!requireSignIn('qrSignIn', i18n.t('qrSignIn'))) return;
     setSending(true);
     try {
@@ -66,6 +71,7 @@ export default function QrReview() {
         masterRating: info.masterId && masterRating ? masterRating : null,
         text: text.trim(),
       });
+      drafts.delete(code);
       toast(i18n.t('qrThanks'));
       void useCatalogue.getState().load(true);
       router.replace({ pathname: '/salon/[id]', params: { id: info.salonId } });

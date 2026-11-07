@@ -6,7 +6,7 @@ import { AuthError, type AuthErrorCode, type OtpChallenge } from '@/auth/types';
  * the UI knows how to explain.
  */
 
-/** Set EXPO_PUBLIC_API_URL (for example https://api.ustatap.az) to use the real server. */
+/** Set EXPO_PUBLIC_API_URL (for example https://api.yazilnow.az) to use the real server. */
 export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') || null;
 export const isLive = API_URL !== null;
 

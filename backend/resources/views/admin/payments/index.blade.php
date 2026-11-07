@@ -2,7 +2,7 @@
 @section('title', 'Payments')
 @use('App\Support\AdminView', 'V')
 @section('content')
-<div class="head"><div><h1>Payments</h1><p>Subscription payments from salons. Customers pay salons in person; that money never passes through Usta.</p></div></div>
+<div class="head"><div><h1>Payments</h1><p>Subscription payments from salons. Customers pay salons in person; that money never passes through yazılnow.</p></div></div>
 <div class="stats">
   <div class="card stat"><div class="k">Paid this month</div><div class="v">{{ V::money($totals['month']) }}</div></div>
   <div class="card stat"><div class="k">Paid all time</div><div class="v">{{ V::money($totals['all']) }}</div></div>

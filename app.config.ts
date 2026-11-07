@@ -4,7 +4,9 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
  * Build-time config on top of app.json. Secrets and per-environment values come
  * from EAS environment variables (`eas env:create`), never from the repo:
  *
- * - EXPO_PUBLIC_API_URL        the Laravel API, e.g. https://api.ustatap.az (required for store builds)
+ * - EXPO_PUBLIC_API_URL        the Laravel API, e.g. https://api.yazilnow.az (required for store builds)
+ * - EXPO_PUBLIC_SITE_URL       the website, default https://yazilnow.az. Its /r/ (review QR), /s/ (wall QR)
+ *                              and /salon/ links open the app (universal links / Android App Links).
  * - EAS_PROJECT_ID             from `eas init`; enables EAS Update
  * - GOOGLE_MAPS_ANDROID_KEY    Google Maps SDK for Android (iOS uses Apple Maps, no key)
  * - GOOGLE_SERVICES_JSON       EAS "file" variable with google-services.json, for Android push (FCM)
@@ -19,8 +21,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     throw new Error('EXPO_PUBLIC_API_URL must be set for production builds (eas env:create --environment production).');
   }
 
+  // Links on the website that open straight in the app when it's installed.
+  const site = new URL(process.env.EXPO_PUBLIC_SITE_URL || 'https://yazilnow.az').host;
+  const paths = ['/r/', '/s/', '/salon/'];
+
   return {
     ...config,
+    ios: {
+      ...config.ios,
+      associatedDomains: [`applinks:${site}`],
+    },
     name: config.name ?? 'Usta',
     slug: config.slug ?? 'usta',
     runtimeVersion: { policy: 'appVersion' },
@@ -32,6 +42,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       : {}),
     android: {
       ...config.android,
+      intentFilters: [
+        {
+          action: 'VIEW',
+          autoVerify: true,
+          data: paths.map((pathPrefix) => ({ scheme: 'https', host: site, pathPrefix })),
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+      ],
       ...(process.env.GOOGLE_SERVICES_JSON ? { googleServicesFile: process.env.GOOGLE_SERVICES_JSON } : {}),
     },
     plugins: [

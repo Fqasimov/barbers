@@ -134,9 +134,9 @@ export const dict = {
   },
   why3Title: { az: 'Yalnız real rəylər', ru: 'Только настоящие отзывы', en: 'Only real reviews' },
   why3Body: {
-    az: 'Rəyi yalnız həmin salonda növbəsi olmuş müştəri yaza bilər. Hər rəy təsdiqlənmiş ziyarətə bağlıdır.',
-    ru: 'Отзыв может оставить только клиент, у которого была запись. Каждый отзыв привязан к подтверждённому визиту.',
-    en: 'Only clients who had a booking can review. Every review is tied to a confirmed visit.',
+    az: 'Rəyi yalnız salonda olmuş müştəri yaza bilər: tətbiqdəki növbədən sonra və ya ustanın göstərdiyi birdəfəlik QR kodla.',
+    ru: 'Отзыв оставляет только тот, кто был в салоне: после записи в приложении или по одноразовому QR-коду мастера.',
+    en: 'Only people who were actually there can review: after a booking in the app, or with a one-time QR code the master shows at the chair.',
   },
   why4Title: { az: 'Pulunuza toxunmuruq', ru: 'Мы не трогаем ваши деньги', en: 'We never touch your money' },
   why4Body: {

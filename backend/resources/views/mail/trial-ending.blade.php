@@ -1,4 +1,4 @@
-Usta — {{ $salonName }}
+yazılnow — {{ $salonName }}
 
 @if ($daysLeft > 0)
 AZ: Pulsuz sınaq müddətiniz {{ $endsOn }} tarixində bitir. İndiyə qədər heç bir ödəniş alınmayıb. Salonunuzun axtarışda qalması üçün Android tətbiqində və ya saytda Biznes → Plan bölməsində ödəniş üsulunu əlavə edin. İstəmirsinizsə, heç nə etməyin: avtomatik ödəniş yoxdur.

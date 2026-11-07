@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Sign in · Usta admin</title>
+  <title>Sign in · yazılnow admin</title>
   <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=5">
 </head>
 <body>
