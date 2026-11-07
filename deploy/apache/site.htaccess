@@ -1,4 +1,5 @@
 # The website (https://yazilnow.az) on Apache / shared hosting (cPanel). deploy/build.sh copies this to out/site/.htaccess.
+# On cPanel the subdomains live inside public_html, so the headers below apply to the main domain only.
 Options -Indexes
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
@@ -16,6 +17,7 @@ ErrorDocument 404 /404.html
   RewriteRule ^panel/?$ https://app.yazilnow.az/panel [L,R=302,QSA]
 </IfModule>
 
+<If "%{HTTP_HOST} =~ /^(www\.)?yazilnow\.az$/">
 <IfModule mod_headers.c>
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
   Header always set X-Content-Type-Options "nosniff"
@@ -33,6 +35,7 @@ ErrorDocument 404 /404.html
     Header set Content-Type "application/json"
   </FilesMatch>
 </IfModule>
+</If>
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/html "access plus 0 seconds"

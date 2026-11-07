@@ -28,11 +28,10 @@ cPanel → Select PHP Version (or "PHP Extensions"): make sure these are ticked:
 3. The two subdomains
 ---------------------
 cPanel → Domains → Create A New Domain:
-  a) Domain: app.yazilnow.az
-     Untick "Share document root". Document root: app.yazilnow.az
-  b) Domain: api.yazilnow.az
-     Untick "Share document root". Document root: yazilnow-api/public
-(Older cPanel: "Subdomains" page, same names and document roots.)
+  a) Domain: app.yazilnow.az  → leave "Share document root" UNticked and accept the
+     suggested document root  /public_html/app.yazilnow.az  → Submit
+  b) Domain: api.yazilnow.az  → same: UNticked, accept  /public_html/api.yazilnow.az  → Submit
+(This host keeps every domain inside public_html. Step 4 connects them to the right files.)
 
 
 4. Upload
@@ -42,8 +41,18 @@ Upload this zip → right-click it → Extract.
   · Settings (top right) → tick "Show Hidden Files" (the .htaccess and .env files are hidden).
   · Extracting puts the website straight into your existing public_html. If the host
     left a default index.html or index.php there, delete it first.
-  · The app.yazilnow.az and yazilnow-api folders end up next to public_html in
-    /home/CPANELUSER. That's right: the server's files must not be inside public_html.
+  · The app.yazilnow.az and yazilnow-api folders end up next to public_html.
+
+Then cPanel → Terminal, and paste these three lines (they move the app into its
+subdomain folder, and link the API subdomain to the server's public folder, so the
+server's code and passwords stay outside public_html):
+
+  rm -rf ~/public_html/app.yazilnow.az && mv ~/app.yazilnow.az ~/public_html/app.yazilnow.az
+  rm -rf ~/public_html/api.yazilnow.az && ln -s ~/yazilnow-api/public ~/public_html/api.yazilnow.az
+  ls -la ~/public_html | grep yazilnow
+
+The last line should show  app.yazilnow.az  as a folder and
+api.yazilnow.az -> /home/CPANELUSER/yazilnow-api/public  as a link.
 Delete the zip afterwards.
 
 
