@@ -1,4 +1,5 @@
 import { getLocales } from 'expo-localization';
+import { Platform } from 'react-native';
 import { useMemo } from 'react';
 
 import { PASSWORD_MIN } from '@/auth/validation';
@@ -12,8 +13,9 @@ import { startOfDay } from '@/lib/time';
 export type { Loc, Locale } from './types';
 export { LOCALES, localeNames } from './types';
 
-/** Device language if we support it; Azerbaijani otherwise (Baku-first). */
+/** Device language if we support it; Azerbaijani otherwise (Baku-first). The web build is always Azerbaijani until the visitor picks another. */
 export function deviceLocale(): Locale {
+  if (Platform.OS === 'web') return 'az';
   try {
     const code = getLocales()[0]?.languageCode;
     if (code === 'ru' || code === 'en' || code === 'az') return code;

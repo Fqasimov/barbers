@@ -54,8 +54,11 @@ function App() {
   const sessionReady = useSession((s) => s.hydrated);
   const signedIn = useSession((s) => !!s.session);
   const authPrompted = useStore((s) => s.authPrompted);
-  const [splashDone, setSplashDone] = useState(false);
-  const finishSplash = useCallback(() => setSplashDone(true), []);
+  // The web build (salon panel, QR pages) has no opening animation: a plain cover until the stores are ready.
+  const [introDone, setIntroDone] = useState(false);
+  const finishSplash = useCallback(() => setIntroDone(true), []);
+  const ready = hydrated && sessionReady;
+  const splashDone = introDone || (isSite && ready);
   useAppSync();
 
   // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
@@ -123,7 +126,13 @@ function App() {
           <Toaster />
         </View>
       </View>
-      {!splashDone ? <BrandIntro ready={hydrated && sessionReady} onDone={finishSplash} /> : null}
+      {!splashDone ? (
+        isSite ? (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: c.bg }]} />
+        ) : (
+          <BrandIntro ready={ready} onDone={finishSplash} />
+        )
+      ) : null}
     </NavThemeProvider>
   );
 }

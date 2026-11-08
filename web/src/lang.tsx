@@ -11,10 +11,10 @@ function initialLang(): Lang {
     const saved = localStorage.getItem(STORAGE);
     if (saved && (LANGS as readonly string[]).includes(saved)) return saved as Lang;
   } catch {
-    // Storage can be blocked; fall through to the browser language.
+    // Storage can be blocked; fall through to the default.
   }
-  const nav = (navigator.language || 'az').slice(0, 2);
-  return nav === 'ru' || nav === 'en' ? nav : 'az';
+  // Azerbaijani is the primary language; the browser's language is not used.
+  return 'az';
 }
 
 type Vars = Record<string, string | number>;
