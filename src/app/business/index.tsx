@@ -43,6 +43,7 @@ import { enableNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
 import { gutter, isSite, radius, shadow } from '@/theme/tokens';
+import { useWide } from '@/theme/wide';
 
 const DAY = 86_400_000;
 
@@ -51,6 +52,7 @@ export default function BusinessDashboard() {
   const { c } = useTheme();
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
+  const wide = useWide();
   const session = useSession((s) => s.session);
   const signOut = useSession((s) => s.signOut);
   const [now] = useState(() => Date.now());
@@ -94,7 +96,8 @@ export default function BusinessDashboard() {
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
   const locations = business.locations ?? [];
-  const lockedTo = (f: Feature) => planById(f === 'click_report' || f === 'qr_reviews' ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro').name;
+  const lockedTo = (f: Feature) =>
+    planById(f === 'click_report' || f === 'qr_reviews' ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro').name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
     can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
@@ -132,302 +135,329 @@ export default function BusinessDashboard() {
     ? new Date(sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY)
     : null;
   // On iOS there is no buy button; otherwise it shows whenever a payment is needed or due soon.
-  const showPay = owner && canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
+  const showPay =
+    owner && canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScreenHeader title={i18n.t('dashTitle')} />
       <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 16 }}>
-        <View>
-          <Text variant="largeTitle">{business.salonName}</Text>
-          <Text variant="subhead" tone="soft" style={{ marginTop: 4 }}>
-            {business.categories.map((id) => i18n.tx(categoryById[id].label)).join(' · ')} · {business.district}
-          </Text>
-        </View>
-
-        {locations.length > 1 ? (
-          <View style={{ gap: 6 }}>
-            <Text variant="captionStrong" tone="soft">
-              {i18n.t('switchLocation')}
-            </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-              {locations.map((l) => {
-                const on = l.id === business.id;
-                return (
-                  <PressableScale
-                    key={l.id}
-                    onPress={() => switchTo(l.id)}
-                    haptic="selection"
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: on }}
-                    style={[
-                      styles.loc,
-                      { backgroundColor: on ? c.ink : c.surface, borderColor: on ? c.ink : c.line },
-                    ]}
-                  >
-                    <Text variant="captionStrong" style={{ color: on ? c.bg : c.ink }}>
-                      {l.name}
-                    </Text>
-                    <Text variant="micro" style={{ color: on ? c.bg : c.inkSoft, opacity: 0.8 }}>
-                      {l.isMain ? i18n.t('mainSalon') : l.district}
-                      {l.role === 'manager' ? ` · ${i18n.t('roleManager')}` : ''}
-                    </Text>
-                  </PressableScale>
-                );
-              })}
-            </ScrollView>
-          </View>
-        ) : null}
-        {!owner ? (
-          <Text variant="caption" tone="soft">
-            {i18n.t('managerNote')}
-          </Text>
-        ) : null}
-
-        <View style={[styles.card, { backgroundColor: c.primary }]}>
-          {sub && plan ? (
-            <>
-              <Text variant="captionStrong" style={{ color: c.onPrimary, opacity: 0.7 }}>
-                {plan.name}
+        <View style={wide ? styles.cols : { gap: 16 }}>
+          <View style={wide ? styles.colLeft : { gap: 16 }}>
+            <View>
+              <Text variant="largeTitle">{business.salonName}</Text>
+              <Text variant="subhead" tone="soft" style={{ marginTop: 4 }}>
+                {business.categories.map((id) => i18n.tx(categoryById[id].label)).join(' · ')} · {business.district}
               </Text>
-              {sub.status === 'trialing' ? (
-                <>
-                  <Text variant="title" style={{ color: c.onPrimary }}>
-                    {i18n.t('trialDaysLeft', { days: i18n.n(daysLeft, 'day') })}
-                  </Text>
-                  <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-                    <View
-                      style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]}
-                    />
-                  </View>
-                  <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
-                    {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })}
-                    {canBuyInApp ? ` · ${i18n.t('thenPrice', { price, per })}` : ''}
-                  </Text>
-                  {endingSoon ? (
-                    <View style={[styles.notice, { backgroundColor: 'rgba(255,255,255,0.14)' }]}>
-                      <BellRing size={16} color={c.onPrimary} strokeWidth={2} />
-                      <Text variant="caption" style={{ color: c.onPrimary, flex: 1 }}>
-                        {i18n.t(canBuyInApp ? 'trialEndingSoon' : 'trialEndingSoonIos')}
-                      </Text>
-                    </View>
-                  ) : null}
-                </>
-              ) : sub.status === 'active' ? (
-                <Text variant="title" style={{ color: c.onPrimary }}>
-                  {sub.currentPeriodEnd
-                    ? i18n.t('paidUntil', { date: i18n.fullDate(new Date(sub.currentPeriodEnd)) })
-                    : i18n.t('planActive')}
+            </View>
+
+            {locations.length > 1 ? (
+              <View style={{ gap: 6 }}>
+                <Text variant="captionStrong" tone="soft">
+                  {i18n.t('switchLocation')}
                 </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                  {locations.map((l) => {
+                    const on = l.id === business.id;
+                    return (
+                      <PressableScale
+                        key={l.id}
+                        onPress={() => switchTo(l.id)}
+                        haptic="selection"
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: on }}
+                        style={[
+                          styles.loc,
+                          { backgroundColor: on ? c.ink : c.surface, borderColor: on ? c.ink : c.line },
+                        ]}
+                      >
+                        <Text variant="captionStrong" style={{ color: on ? c.bg : c.ink }}>
+                          {l.name}
+                        </Text>
+                        <Text variant="micro" style={{ color: on ? c.bg : c.inkSoft, opacity: 0.8 }}>
+                          {l.isMain ? i18n.t('mainSalon') : l.district}
+                          {l.role === 'manager' ? ` · ${i18n.t('roleManager')}` : ''}
+                        </Text>
+                      </PressableScale>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            ) : null}
+            {!owner ? (
+              <Text variant="caption" tone="soft">
+                {i18n.t('managerNote')}
+              </Text>
+            ) : null}
+
+            <View style={[styles.card, { backgroundColor: c.primary }]}>
+              {sub && plan ? (
+                <>
+                  <Text variant="captionStrong" style={{ color: c.onPrimary, opacity: 0.7 }}>
+                    {plan.name}
+                  </Text>
+                  {sub.status === 'trialing' ? (
+                    <>
+                      <Text variant="title" style={{ color: c.onPrimary }}>
+                        {i18n.t('trialDaysLeft', { days: i18n.n(daysLeft, 'day') })}
+                      </Text>
+                      <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
+                        <View
+                          style={[styles.fill, { width: `${Math.round(used * 100)}%`, backgroundColor: c.onPrimary }]}
+                        />
+                      </View>
+                      <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
+                        {i18n.t('trialEnds', { date: i18n.fullDate(ends!) })}
+                        {canBuyInApp ? ` · ${i18n.t('thenPrice', { price, per })}` : ''}
+                      </Text>
+                      {endingSoon ? (
+                        <View style={[styles.notice, { backgroundColor: 'rgba(255,255,255,0.14)' }]}>
+                          <BellRing size={16} color={c.onPrimary} strokeWidth={2} />
+                          <Text variant="caption" style={{ color: c.onPrimary, flex: 1 }}>
+                            {i18n.t(canBuyInApp ? 'trialEndingSoon' : 'trialEndingSoonIos')}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </>
+                  ) : sub.status === 'active' ? (
+                    <Text variant="title" style={{ color: c.onPrimary }}>
+                      {sub.currentPeriodEnd
+                        ? i18n.t('paidUntil', { date: i18n.fullDate(new Date(sub.currentPeriodEnd)) })
+                        : i18n.t('planActive')}
+                    </Text>
+                  ) : (
+                    <>
+                      <Text variant="title" style={{ color: c.onPrimary }}>
+                        {sub.status === 'past_due' ? i18n.t('paymentDue') : i18n.t('planExpired')}
+                      </Text>
+                      <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
+                        {sub.status === 'past_due'
+                          ? i18n.t('paymentDueBody', { date: i18n.fullDate(graceEnds!) })
+                          : i18n.t('planExpiredBody')}
+                      </Text>
+                    </>
+                  )}
+                  <View style={styles.cardActions}>
+                    {showPay ? (
+                      <Button
+                        label={endingSoon ? i18n.t('addPayment') : i18n.t('payNow', { price })}
+                        variant="onPrimary"
+                        size="sm"
+                        loading={paying}
+                        onPress={pay}
+                      />
+                    ) : null}
+                    {owner ? (
+                      <Button
+                        label={i18n.t('changePlan')}
+                        variant={showPay ? 'ghostOnPrimary' : 'onPrimary'}
+                        size="sm"
+                        onPress={() => router.push('/business/plans')}
+                      />
+                    ) : null}
+                  </View>
+                </>
               ) : (
                 <>
                   <Text variant="title" style={{ color: c.onPrimary }}>
-                    {sub.status === 'past_due' ? i18n.t('paymentDue') : i18n.t('planExpired')}
+                    {i18n.t('noPlan')}
                   </Text>
-                  <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }}>
-                    {sub.status === 'past_due'
-                      ? i18n.t('paymentDueBody', { date: i18n.fullDate(graceEnds!) })
-                      : i18n.t('planExpiredBody')}
-                  </Text>
-                </>
-              )}
-              <View style={styles.cardActions}>
-                {showPay ? (
                   <Button
-                    label={endingSoon ? i18n.t('addPayment') : i18n.t('payNow', { price })}
+                    label={i18n.t('startTrial')}
                     variant="onPrimary"
-                    size="sm"
-                    loading={paying}
-                    onPress={pay}
-                  />
-                ) : null}
-                {owner ? (
-                  <Button
-                    label={i18n.t('changePlan')}
-                    variant={showPay ? 'ghostOnPrimary' : 'onPrimary'}
-                    size="sm"
                     onPress={() => router.push('/business/plans')}
                   />
-                ) : null}
-              </View>
-            </>
-          ) : (
-            <>
-              <Text variant="title" style={{ color: c.onPrimary }}>
-                {i18n.t('noPlan')}
-              </Text>
-              <Button label={i18n.t('startTrial')} variant="onPrimary" onPress={() => router.push('/business/plans')} />
-            </>
-          )}
-        </View>
+                </>
+              )}
+            </View>
 
-        <View style={[styles.status, { backgroundColor: c.surface }, shadow(c, 1)]}>
-          <Hourglass size={18} color={c.ink} strokeWidth={1.9} />
-          <Text variant="subhead" style={{ flex: 1 }}>
-            {business.status === 'live' ? i18n.t('statusLive') : i18n.t('statusReview')}
-          </Text>
-        </View>
-
-        {!ready ? (
-          <>
-            <View style={{ marginTop: 8, gap: 2 }}>
-              <Text variant="title">{i18n.t('setupTitle')}</Text>
-              <Text variant="subhead" tone="soft">
-                {i18n.t('setupSub')}
+            <View style={[styles.status, { backgroundColor: c.surface }, shadow(c, 1)]}>
+              <Hourglass size={18} color={c.ink} strokeWidth={1.9} />
+              <Text variant="subhead" style={{ flex: 1 }}>
+                {business.status === 'live' ? i18n.t('statusLive') : i18n.t('statusReview')}
               </Text>
             </View>
-            <View style={[styles.list, { backgroundColor: c.surface }, shadow(c, 1)]}>
-              {setup.map(({ done, label, to }, i) => (
-                <PressableScale
-                  key={label}
-                  onPress={() => router.push(to)}
-                  haptic="light"
-                  scaleTo={0.99}
-                  accessibilityRole="button"
-                  accessibilityState={{ checked: done }}
-                  accessibilityLabel={label}
-                  style={[
-                    styles.row,
-                    i < setup.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
-                  ]}
-                >
-                  {done ? (
-                    <CheckCircle2 size={22} color={c.success} strokeWidth={2} />
-                  ) : (
-                    <Circle size={22} color={c.lineStrong} strokeWidth={2} />
-                  )}
-                  <Text variant="bodyStrong" style={{ flex: 1, opacity: done ? 0.55 : 1 }}>
-                    {label}
+
+            {!ready ? (
+              <>
+                <View style={{ marginTop: 8, gap: 2 }}>
+                  <Text variant="title">{i18n.t('setupTitle')}</Text>
+                  <Text variant="subhead" tone="soft">
+                    {i18n.t('setupSub')}
                   </Text>
-                </PressableScale>
-              ))}
-            </View>
-          </>
-        ) : null}
-
-        <Text variant="title" style={{ marginTop: 8 }}>
-          {i18n.t('dashManage')}
-        </Text>
-        <Card>
-          {takesBookings ? (
-            <MenuRow icon={CalendarDays} title={i18n.t('bkTitle')} onPress={() => router.push('/business/bookings')} />
-          ) : null}
-          <MenuRow
-            icon={Scissors}
-            title={i18n.t('svcTitle')}
-            detail={i18n.n(services.length, 'service')}
-            onPress={() => router.push('/business/services')}
-          />
-          {takesBookings ? (
-            <MenuRow
-              icon={Users}
-              title={i18n.t('mstTitle')}
-              detail={i18n.n(masters.length, 'master')}
-              onPress={() => router.push('/business/masters')}
-            />
-          ) : null}
-          <MenuRow
-            icon={Clock}
-            title={i18n.t('hoursTitle')}
-            detail={business.hours ? `${business.hours.open}–${business.hours.close}` : undefined}
-            onPress={() => router.push('/business/hours')}
-          />
-          <MenuRow
-            icon={Camera}
-            title={i18n.t('photosTitle')}
-            detail={photos.length ? String(photos.length) : undefined}
-            onPress={() => router.push('/business/photos')}
-          />
-          <MenuRow
-            icon={MessageSquareText}
-            title={i18n.t('reviewsTitle')}
-            onPress={() => router.push('/business/reviews')}
-          />
-          <MenuRow icon={Store} title={i18n.t('detailsTitle')} onPress={() => router.push('/business/details')} last />
-        </Card>
-
-        {sub ? (
-          <>
+                </View>
+                <View style={[styles.list, { backgroundColor: c.surface }, shadow(c, 1)]}>
+                  {setup.map(({ done, label, to }, i) => (
+                    <PressableScale
+                      key={label}
+                      onPress={() => router.push(to)}
+                      haptic="light"
+                      scaleTo={0.99}
+                      accessibilityRole="button"
+                      accessibilityState={{ checked: done }}
+                      accessibilityLabel={label}
+                      style={[
+                        styles.row,
+                        i < setup.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
+                      ]}
+                    >
+                      {done ? (
+                        <CheckCircle2 size={22} color={c.success} strokeWidth={2} />
+                      ) : (
+                        <Circle size={22} color={c.lineStrong} strokeWidth={2} />
+                      )}
+                      <Text variant="bodyStrong" style={{ flex: 1, opacity: done ? 0.55 : 1 }}>
+                        {label}
+                      </Text>
+                    </PressableScale>
+                  ))}
+                </View>
+              </>
+            ) : null}
+          </View>
+          <View style={wide ? styles.colRight : { gap: 16 }}>
             <Text variant="title" style={{ marginTop: 8 }}>
-              {i18n.t('dashGrow')}
+              {i18n.t('dashManage')}
             </Text>
             <Card>
-              <MenuRow icon={QrCode} title={i18n.t('qrTitle')} onPress={() => router.push('/business/qr')} />
-              <MenuRow
-                icon={MousePointerClick}
-                title={i18n.t('clicksTitle')}
-                detail={lockDetail('click_report')}
-                onPress={tool('click_report', '/business/clicks')}
-              />
-              <MenuRow
-                icon={BarChart3}
-                title={i18n.t('statsTitle')}
-                detail={lockDetail('stats')}
-                onPress={tool('stats', '/business/stats')}
-              />
-              <MenuRow
-                icon={ListTodo}
-                title={i18n.t('waitlistTitle')}
-                detail={lockDetail('waitlist')}
-                onPress={tool('waitlist', '/business/waitlist')}
-              />
-              {owner ? (
-                <>
-                  <MenuRow
-                    icon={Building2}
-                    title={i18n.t('branchesTitle')}
-                    detail={lockDetail('branches') ?? (locations.length > 1 ? String(locations.length) : undefined)}
-                    onPress={tool('branches', '/business/branches')}
-                  />
-                  <MenuRow
-                    icon={UserCog}
-                    title={i18n.t('teamTitle')}
-                    detail={lockDetail('managers')}
-                    onPress={tool('managers', '/business/team')}
-                  />
-                  <MenuRow
-                    icon={MessageCircle}
-                    title={i18n.t('waTitle')}
-                    detail={
-                      lockDetail('whatsapp_addon') ??
-                      (business.whatsappPack?.left
-                        ? i18n.t('waLeft', { n: business.whatsappPack.left })
-                        : i18n.t('waNone'))
-                    }
-                    onPress={tool('whatsapp_addon', '/business/whatsapp')}
-                  />
-                </>
+              {takesBookings ? (
+                <MenuRow
+                  icon={CalendarDays}
+                  title={i18n.t('bkTitle')}
+                  onPress={() => router.push('/business/bookings')}
+                />
               ) : null}
-              <MenuRow icon={LifeBuoy} title={i18n.t('supportTitle')} onPress={() => router.push('/business/support')} last />
+              <MenuRow
+                icon={Scissors}
+                title={i18n.t('svcTitle')}
+                detail={i18n.n(services.length, 'service')}
+                onPress={() => router.push('/business/services')}
+              />
+              {takesBookings ? (
+                <MenuRow
+                  icon={Users}
+                  title={i18n.t('mstTitle')}
+                  detail={i18n.n(masters.length, 'master')}
+                  onPress={() => router.push('/business/masters')}
+                />
+              ) : null}
+              <MenuRow
+                icon={Clock}
+                title={i18n.t('hoursTitle')}
+                detail={business.hours ? `${business.hours.open}–${business.hours.close}` : undefined}
+                onPress={() => router.push('/business/hours')}
+              />
+              <MenuRow
+                icon={Camera}
+                title={i18n.t('photosTitle')}
+                detail={photos.length ? String(photos.length) : undefined}
+                onPress={() => router.push('/business/photos')}
+              />
+              <MenuRow
+                icon={MessageSquareText}
+                title={i18n.t('reviewsTitle')}
+                onPress={() => router.push('/business/reviews')}
+              />
+              <MenuRow
+                icon={Store}
+                title={i18n.t('detailsTitle')}
+                onPress={() => router.push('/business/details')}
+                last
+              />
             </Card>
-          </>
-        ) : null}
 
-        <View style={{ gap: 2, marginTop: 8 }}>
-          <Text variant="captionStrong" tone="soft">
-            {i18n.t('ownerLabel')}
-          </Text>
-          <Text variant="body">
-            {session.user.firstName} {session.user.lastName} · {session.user.email}
-          </Text>
+            {sub ? (
+              <>
+                <Text variant="title" style={{ marginTop: 8 }}>
+                  {i18n.t('dashGrow')}
+                </Text>
+                <Card>
+                  <MenuRow icon={QrCode} title={i18n.t('qrTitle')} onPress={() => router.push('/business/qr')} />
+                  <MenuRow
+                    icon={MousePointerClick}
+                    title={i18n.t('clicksTitle')}
+                    detail={lockDetail('click_report')}
+                    onPress={tool('click_report', '/business/clicks')}
+                  />
+                  <MenuRow
+                    icon={BarChart3}
+                    title={i18n.t('statsTitle')}
+                    detail={lockDetail('stats')}
+                    onPress={tool('stats', '/business/stats')}
+                  />
+                  <MenuRow
+                    icon={ListTodo}
+                    title={i18n.t('waitlistTitle')}
+                    detail={lockDetail('waitlist')}
+                    onPress={tool('waitlist', '/business/waitlist')}
+                  />
+                  {owner ? (
+                    <>
+                      <MenuRow
+                        icon={Building2}
+                        title={i18n.t('branchesTitle')}
+                        detail={lockDetail('branches') ?? (locations.length > 1 ? String(locations.length) : undefined)}
+                        onPress={tool('branches', '/business/branches')}
+                      />
+                      <MenuRow
+                        icon={UserCog}
+                        title={i18n.t('teamTitle')}
+                        detail={lockDetail('managers')}
+                        onPress={tool('managers', '/business/team')}
+                      />
+                      <MenuRow
+                        icon={MessageCircle}
+                        title={i18n.t('waTitle')}
+                        detail={
+                          lockDetail('whatsapp_addon') ??
+                          (business.whatsappPack?.left
+                            ? i18n.t('waLeft', { n: business.whatsappPack.left })
+                            : i18n.t('waNone'))
+                        }
+                        onPress={tool('whatsapp_addon', '/business/whatsapp')}
+                      />
+                    </>
+                  ) : null}
+                  <MenuRow
+                    icon={LifeBuoy}
+                    title={i18n.t('supportTitle')}
+                    onPress={() => router.push('/business/support')}
+                    last
+                  />
+                </Card>
+              </>
+            ) : null}
+
+            <View style={{ gap: 2, marginTop: 8 }}>
+              <Text variant="captionStrong" tone="soft">
+                {i18n.t('ownerLabel')}
+              </Text>
+              <Text variant="body">
+                {session.user.firstName} {session.user.lastName} · {session.user.email}
+              </Text>
+            </View>
+            <Button
+              label={i18n.t('signOut')}
+              icon={LogOut}
+              variant="ghost"
+              onPress={async () => {
+                await signOut();
+                useStore.getState().clearAccountData();
+                toast(i18n.t('signedOut'), 'info');
+                router.dismissAll();
+              }}
+            />
+          </View>
         </View>
-        <Button
-          label={i18n.t('signOut')}
-          icon={LogOut}
-          variant="ghost"
-          onPress={async () => {
-            await signOut();
-            useStore.getState().clearAccountData();
-            toast(i18n.t('signedOut'), 'info');
-            router.dismissAll();
-          }}
-        />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  cols: { flexDirection: 'row', alignItems: 'flex-start', gap: 64 },
+  colLeft: { flex: 1, gap: 16 },
+  colRight: { flex: 1, gap: 16 },
   card: { borderRadius: radius.lg, padding: 18, gap: 8 },
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 6, flexWrap: 'wrap' },
   notice: {
@@ -443,6 +473,12 @@ const styles = StyleSheet.create({
   status: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
   list: { borderRadius: radius.lg, paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
-  icon: { width: 36, height: 36, borderRadius: isSite ? radius.sm : 18, alignItems: 'center', justifyContent: 'center' },
+  icon: {
+    width: 36,
+    height: 36,
+    borderRadius: isSite ? radius.sm : 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   loc: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md, borderWidth: 1, gap: 2, minWidth: 120 },
 });

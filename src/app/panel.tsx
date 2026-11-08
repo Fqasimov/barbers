@@ -13,6 +13,7 @@ import { Wordmark } from '@/components/ui/Wordmark';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, isSite } from '@/theme/tokens';
+import { useWide } from '@/theme/wide';
 
 /**
  * The salon panel's front door on the website (yazilnow.az/panel): register
@@ -20,6 +21,7 @@ import { fonts, gutter, isSite } from '@/theme/tokens';
  */
 export default function Panel() {
   const { c } = useTheme();
+  const wide = useWide();
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const session = useSession((s) => s.session);
@@ -31,10 +33,17 @@ export default function Panel() {
         <Wordmark size={22} />
         <LangSwitch />
       </Reveal>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Reveal index={1}>
+      <ScrollView
+        contentContainerStyle={[styles.content, wide && styles.contentWide]}
+        showsVerticalScrollIndicator={false}
+      >
+        <Reveal index={1} style={wide ? styles.leftPane : undefined}>
           <Kicker style={{ marginBottom: 20 }}>{i18n.t('panelKicker')}</Kicker>
-          <Text variant="largeTitle" accessibilityRole="header" style={isSite ? styles.display : undefined}>
+          <Text
+            variant="largeTitle"
+            accessibilityRole="header"
+            style={isSite ? [styles.display, wide && styles.displayWide] : undefined}
+          >
             {i18n.t('panelTitle')}
           </Text>
           <Text variant="body" tone="soft" style={styles.sub}>
@@ -42,32 +51,37 @@ export default function Panel() {
           </Text>
         </Reveal>
 
-        <Reveal index={2} style={[styles.points, { borderColor: c.line }]}>
-          {points.map((p, i) => (
-            <View key={p} style={[styles.point, i < points.length - 1 && { borderBottomWidth: 1, borderColor: c.line }]}>
-              <Text style={[styles.numeral, { color: c.accent }]}>{`0${i + 1}`}</Text>
-              <Text variant="bodyStrong" style={{ flex: 1 }}>
-                {p}
-              </Text>
-            </View>
-          ))}
-        </Reveal>
+        <View style={wide ? styles.rightPane : { gap: 28 }}>
+          <Reveal index={2} style={[styles.points, { borderColor: c.line }]}>
+            {points.map((p, i) => (
+              <View
+                key={p}
+                style={[styles.point, i < points.length - 1 && { borderBottomWidth: 1, borderColor: c.line }]}
+              >
+                <Text style={[styles.numeral, { color: c.accent }]}>{`0${i + 1}`}</Text>
+                <Text variant="bodyStrong" style={{ flex: 1 }}>
+                  {p}
+                </Text>
+              </View>
+            ))}
+          </Reveal>
 
-        <Reveal index={3} style={{ gap: 12 }}>
-          <Button label={i18n.t('panelRegister')} icon={Store} onPress={() => router.push('/business/register')} />
-          <Button
-            label={i18n.t('panelSignIn')}
-            icon={LogIn}
-            variant="secondary"
-            onPress={() => router.push('/auth/sign-in')}
-          />
-        </Reveal>
+          <Reveal index={3} style={{ gap: 12 }}>
+            <Button label={i18n.t('panelRegister')} icon={Store} onPress={() => router.push('/business/register')} />
+            <Button
+              label={i18n.t('panelSignIn')}
+              icon={LogIn}
+              variant="secondary"
+              onPress={() => router.push('/auth/sign-in')}
+            />
+          </Reveal>
 
-        <Reveal index={4}>
-          <Text variant="caption" tone="muted">
-            {i18n.t('bizSub')}
-          </Text>
-        </Reveal>
+          <Reveal index={4}>
+            <Text variant="caption" tone="muted">
+              {i18n.t('bizSub')}
+            </Text>
+          </Reveal>
+        </View>
       </ScrollView>
     </View>
   );
@@ -85,6 +99,10 @@ const styles = StyleSheet.create({
   },
   content: { padding: gutter, paddingTop: 44, paddingBottom: 56, gap: 36 },
   display: { fontSize: 52, lineHeight: 50 },
+  displayWide: { fontSize: 84, lineHeight: 80 },
+  contentWide: { flexDirection: 'row', alignItems: 'center', gap: 120, paddingTop: 96, paddingBottom: 96, flexGrow: 1 },
+  leftPane: { flex: 1.1 },
+  rightPane: { flex: 1, maxWidth: 640, gap: 28 },
   sub: { marginTop: 18, maxWidth: 520 },
   points: { borderTopWidth: 1 },
   point: { flexDirection: 'row', alignItems: 'baseline', gap: 18, paddingVertical: 18 },

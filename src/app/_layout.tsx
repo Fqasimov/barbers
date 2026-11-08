@@ -10,7 +10,7 @@ import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvid
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
 
@@ -22,6 +22,7 @@ import { useStore } from '@/store/useStore';
 import { siteFonts } from '@/theme/siteFonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { isSite } from '@/theme/tokens';
+import { panelInset, WIDE_MIN, WideContext } from '@/theme/wide';
 
 // Keep the native splash (linen + closed shears) up until our own takes over.
 SplashScreen.preventAutoHideAsync();
@@ -47,6 +48,38 @@ export default function RootLayout() {
   );
 }
 
+const PANEL_FLAG = 'yazilnow-panel-flow';
+const isPanelPath = (p: string) => p === '/panel' || p.startsWith('/business');
+const isAuthPath = (p: string) => p.startsWith('/auth');
+
+/**
+ * Web only: true on the salon panel's screens (front door, sign-up, plans, dashboard) and on the sign-in /
+ * verify screens reached from them. Client screens (home, salon pages, booking) keep the narrow column.
+ */
+function usePanelWide(pathname: string): boolean {
+  const wide = isSite && (isPanelPath(pathname) || (isAuthPath(pathname) && readFlag()));
+  useEffect(() => {
+    if (!isSite) return;
+    if (isPanelPath(pathname)) writeFlag('1');
+    else if (!isAuthPath(pathname)) writeFlag('0');
+  }, [pathname]);
+  return wide;
+}
+function readFlag(): boolean {
+  try {
+    return globalThis.sessionStorage?.getItem(PANEL_FLAG) === '1';
+  } catch {
+    return false;
+  }
+}
+function writeFlag(v: '0' | '1') {
+  try {
+    globalThis.sessionStorage?.setItem(PANEL_FLAG, v);
+  } catch {
+    // Not remembered; the auth screens then use the narrow column.
+  }
+}
+
 function App() {
   const { c, scheme } = useTheme();
   const reduced = useReducedMotion();
@@ -66,6 +99,9 @@ function App() {
   // opens where it points, and asks for an account only when it needs one.
   const pathname = usePathname();
   const onHome = pathname === '/';
+  const wide = usePanelWide(pathname);
+  const { width } = useWindowDimensions();
+  const desktop = wide && width >= WIDE_MIN;
   useEffect(() => {
     if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
   }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
@@ -80,50 +116,54 @@ function App() {
 
   return (
     <NavThemeProvider value={navTheme}>
-      <View style={[styles.page, { backgroundColor: Platform.OS === 'web' ? c.sunken : c.bg }]}>
+      <View style={[styles.page, { backgroundColor: Platform.OS === 'web' && !wide ? c.sunken : c.bg }]}>
         <View
           style={[
             styles.column,
             { backgroundColor: c.bg },
-            // In a browser the column is framed by hairlines, like a sheet of paper on the desk.
-            isSite && { borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.line },
+            // In a browser the client app is a column framed by hairlines, like a sheet of paper on the desk.
+            // The salon panel, from sign-up to the dashboard, takes the whole screen.
+            isSite && !wide && { borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.line },
+            wide && { maxWidth: '100%', paddingHorizontal: panelInset(width) },
           ]}
         >
-          <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: c.bg },
-              animation: reduced ? 'fade' : 'default',
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="salon/[id]" />
-            <Stack.Screen name="top-rated" />
-            <Stack.Screen name="reviews/[id]" />
-            <Stack.Screen name="search" options={{ animation: 'fade' }} />
-            <Stack.Screen name="find" />
-            <Stack.Screen name="compare" />
-            <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
-            <Stack.Screen
-              name="auth/index"
-              options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}
-            />
-            <Stack.Screen name="auth/sign-in" />
-            <Stack.Screen name="auth/register" />
-            <Stack.Screen name="auth/verify" options={{ gestureEnabled: false }} />
-            <Stack.Screen name="auth/forgot" />
-            <Stack.Screen name="auth/new-password" options={{ gestureEnabled: false }} />
-            <Stack.Screen name="auth/complete" options={{ gestureEnabled: false }} />
-            <Stack.Screen name="business/register" />
-            <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
-            <Stack.Screen name="business/index" />
-            <Stack.Screen name="account/delete" />
-            <Stack.Screen name="panel" />
-          </Stack>
-          <Toaster />
+          <WideContext.Provider value={desktop}>
+            <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: c.bg },
+                animation: reduced ? 'fade' : 'default',
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="salon/[id]" />
+              <Stack.Screen name="top-rated" />
+              <Stack.Screen name="reviews/[id]" />
+              <Stack.Screen name="search" options={{ animation: 'fade' }} />
+              <Stack.Screen name="find" />
+              <Stack.Screen name="compare" />
+              <Stack.Screen name="book/[id]" options={{ presentation: 'modal' }} />
+              <Stack.Screen name="review/[id]" options={{ presentation: 'modal' }} />
+              <Stack.Screen name="report/[id]" options={{ presentation: 'modal' }} />
+              <Stack.Screen
+                name="auth/index"
+                options={{ presentation: 'fullScreenModal', animation: reduced ? 'fade' : 'slide_from_bottom' }}
+              />
+              <Stack.Screen name="auth/sign-in" />
+              <Stack.Screen name="auth/register" />
+              <Stack.Screen name="auth/verify" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="auth/forgot" />
+              <Stack.Screen name="auth/new-password" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="auth/complete" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="business/register" />
+              <Stack.Screen name="business/plans" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="business/index" />
+              <Stack.Screen name="account/delete" />
+              <Stack.Screen name="panel" />
+            </Stack>
+            <Toaster />
+          </WideContext.Provider>
         </View>
       </View>
       {!splashDone ? (
