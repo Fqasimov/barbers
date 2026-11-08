@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
-import { iconStroke, shadow } from '@/theme/tokens';
+import { iconStroke, isSite, radius, shadow } from '@/theme/tokens';
 
 import { PressableScale, type HapticKind } from './PressableScale';
 
@@ -49,9 +49,10 @@ export function IconButton({
         {
           width: size,
           height: size,
-          borderRadius: size / 2,
+          // Square with a hairline in the browser (the website has no round buttons).
+          borderRadius: isSite ? radius.sm : size / 2,
           backgroundColor: bg,
-          borderColor: variant === 'surface' ? c.line : 'transparent',
+          borderColor: variant === 'surface' ? (isSite ? c.lineStrong : c.line) : 'transparent',
         },
         variant === 'float' && shadow(c, 1),
         style,

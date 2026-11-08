@@ -3,7 +3,7 @@ import { Platform, StyleSheet, TextInput, type TextInputProps } from 'react-nati
 import Animated from 'react-native-reanimated';
 
 import { useTheme } from '@/theme/ThemeProvider';
-import { cssEase, duration, fonts, radius } from '@/theme/tokens';
+import { cssEase, duration, fieldBg, fonts, isSite, radius } from '@/theme/tokens';
 
 /**
  * Text input with a visible, on-brand focus state (the border darkens) instead
@@ -20,10 +20,11 @@ export const Field = forwardRef<TextInput, TextInputProps & { multilineHeight?: 
       style={[
         styles.box,
         {
-          backgroundColor: c.surface,
+          backgroundColor: fieldBg ?? c.surface,
           // Constant width — only the colour changes, so focusing never shifts layout.
-          borderColor: focused ? c.ink : c.line,
-          transitionProperty: 'borderColor',
+          borderColor: focused ? c.ink : isSite ? c.lineStrong : c.line,
+          ...(isSite ? { boxShadow: focused ? `inset 0 0 0 1px ${c.ink}` : 'inset 0 0 0 0 transparent' } : null),
+          transitionProperty: isSite ? ['borderColor', 'boxShadow'] : 'borderColor',
           transitionDuration: duration.small,
           transitionTimingFunction: cssEase.out,
         },

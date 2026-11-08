@@ -3,9 +3,11 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Kicker } from '@/components/ui/Kicker';
+import { Reveal } from '@/components/ui/Reveal';
 import { Text } from '@/components/ui/Text';
 import { useTheme } from '@/theme/ThemeProvider';
-import { gutter } from '@/theme/tokens';
+import { gutter, isSite } from '@/theme/tokens';
 
 /** Shared frame for the account screens: header, title, scrolling form, pinned action. */
 export function AuthLayout({
@@ -45,20 +47,28 @@ export function AuthLayout({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {step ? (
-          <Text variant="caption" tone="muted" style={{ marginBottom: 4 }}>
-            {step}
+        <Reveal index={0}>
+          {step ? (
+            isSite ? (
+              <Kicker style={{ marginBottom: 18 }}>{step}</Kicker>
+            ) : (
+              <Text variant="caption" tone="muted" style={{ marginBottom: 4 }}>
+                {step}
+              </Text>
+            )
+          ) : null}
+          <Text variant="largeTitle" accessibilityRole="header">
+            {title}
           </Text>
-        ) : null}
-        <Text variant="largeTitle" accessibilityRole="header">
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text variant="body" tone="soft" style={styles.subtitle}>
-            {subtitle}
-          </Text>
-        ) : null}
-        <View style={styles.body}>{children}</View>
+          {subtitle ? (
+            <Text variant="body" tone="soft" style={styles.subtitle}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </Reveal>
+        <Reveal index={1} style={styles.body}>
+          {children}
+        </Reveal>
       </ScrollView>
       {footer ? (
         <View
@@ -75,8 +85,13 @@ export function AuthLayout({
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: gutter, paddingTop: 4 },
-  subtitle: { marginTop: 8 },
-  body: { marginTop: 26, gap: 18 },
-  footer: { paddingTop: 12, paddingHorizontal: gutter, borderTopWidth: StyleSheet.hairlineWidth, gap: 10 },
+  content: { paddingHorizontal: gutter, paddingTop: isSite ? 36 : 4 },
+  subtitle: { marginTop: isSite ? 16 : 8, maxWidth: 520 },
+  body: { marginTop: isSite ? 36 : 26, gap: isSite ? 22 : 18 },
+  footer: {
+    paddingTop: isSite ? 16 : 12,
+    paddingHorizontal: gutter,
+    borderTopWidth: isSite ? 1 : StyleSheet.hairlineWidth,
+    gap: 10,
+  },
 });

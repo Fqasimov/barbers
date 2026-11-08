@@ -42,7 +42,7 @@ import { canBuyInApp, payForPlan, usePlanPrices } from '@/lib/billing';
 import { enableNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
-import { gutter, radius, shadow } from '@/theme/tokens';
+import { gutter, isSite, radius, shadow } from '@/theme/tokens';
 
 const DAY = 86_400_000;
 
@@ -235,7 +235,7 @@ export default function BusinessDashboard() {
                 {showPay ? (
                   <Button
                     label={endingSoon ? i18n.t('addPayment') : i18n.t('payNow', { price })}
-                    variant="secondary"
+                    variant="onPrimary"
                     size="sm"
                     loading={paying}
                     onPress={pay}
@@ -244,7 +244,7 @@ export default function BusinessDashboard() {
                 {owner ? (
                   <Button
                     label={i18n.t('changePlan')}
-                    variant={showPay ? 'ghostOnPrimary' : 'secondary'}
+                    variant={showPay ? 'ghostOnPrimary' : 'onPrimary'}
                     size="sm"
                     onPress={() => router.push('/business/plans')}
                   />
@@ -256,7 +256,7 @@ export default function BusinessDashboard() {
               <Text variant="title" style={{ color: c.onPrimary }}>
                 {i18n.t('noPlan')}
               </Text>
-              <Button label={i18n.t('startTrial')} variant="secondary" onPress={() => router.push('/business/plans')} />
+              <Button label={i18n.t('startTrial')} variant="onPrimary" onPress={() => router.push('/business/plans')} />
             </>
           )}
         </View>
@@ -438,11 +438,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     marginTop: 4,
   },
-  track: { height: 6, borderRadius: 3, overflow: 'hidden', marginVertical: 4 },
-  fill: { height: 6, borderRadius: 3 },
+  track: { height: 6, borderRadius: isSite ? 1 : 3, overflow: 'hidden', marginVertical: 4 },
+  fill: { height: 6, borderRadius: isSite ? 1 : 3 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
   list: { borderRadius: radius.lg, paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
-  icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 36, height: 36, borderRadius: isSite ? radius.sm : 18, alignItems: 'center', justifyContent: 'center' },
   loc: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md, borderWidth: 1, gap: 2, minWidth: 120 },
 });

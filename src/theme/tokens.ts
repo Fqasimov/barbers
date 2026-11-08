@@ -1,4 +1,13 @@
+import { Platform } from 'react-native';
 import { cubicBezier, Easing } from 'react-native-reanimated';
+
+/**
+ * The salon panel and the app in a browser wear the website's look (beige paper,
+ * black ink, one burgundy accent, hairlines, square corners, Cormorant Garamond
+ * headlines); phones keep the app's own look. Everything below that differs is
+ * keyed off this one flag.
+ */
+export const isSite = Platform.OS === 'web';
 
 /**
  * Usta design tokens, v2.
@@ -57,7 +66,40 @@ const dark: typeof light = {
   shadow: '#000000',
 };
 
-export const palettes = { light, dark };
+/**
+ * The website's palette (web/src/styles.css). Muted text is a touch darker than the
+ * site's #7a7064, which is 4.06:1 on the paper: this one is 5.15:1 and passes AA.
+ * The site has no dark mode, so neither does the panel.
+ */
+const site: typeof light = {
+  bg: '#F2EADD',
+  surface: '#FBF7F0',
+  raised: '#FBF7F0',
+  sunken: '#E8DECB',
+  ink: '#141210',
+  inkSoft: '#4E4840',
+  inkMuted: '#6A6054',
+  line: 'rgba(20, 18, 16, 0.13)',
+  lineStrong: 'rgba(20, 18, 16, 0.3)',
+  accent: '#6B1A2A',
+  accentSoft: '#ECDCD6',
+  onAccent: '#F2EADD',
+  primary: '#141210',
+  onPrimary: '#EFE6D8',
+  success: '#3C6A48',
+  successSoft: '#E2E9DD',
+  danger: '#8E1F2F',
+  dangerSoft: '#F1DDD9',
+  star: '#141210',
+  scrim: 'rgba(20, 18, 16, 0.5)',
+  glass: 'rgba(251, 247, 240, 0.94)',
+  shadow: '#1E160E',
+};
+
+export const palettes = { light: isSite ? site : light, dark: isSite ? site : dark };
+
+/** Form fields sit on a slightly brighter paper than cards (the site's --field). */
+export const fieldBg = isSite ? '#FFFDF9' : undefined;
 export type Palette = typeof light;
 export type Scheme = keyof typeof palettes;
 
@@ -89,11 +131,18 @@ export const fonts = {
   medium: 'Onest_500Medium',
   semibold: 'Onest_600SemiBold',
   bold: 'Onest_700Bold',
+  /** Headlines in the browser only (loaded from theme/siteFonts.web.ts). */
+  display: 'CormorantGaramond_500Medium',
+  displaySemibold: 'CormorantGaramond_600SemiBold',
+  displayItalic: 'CormorantGaramond_500Medium_Italic',
 };
 
 export const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32, huge: 48 };
 export const gutter = 20;
-export const radius = { xs: 6, sm: 10, md: 14, lg: 18, xl: 24, pill: 999 };
+/** Square corners in the browser (2 px controls, 4 px cards), like the website. */
+export const radius = isSite
+  ? { xs: 2, sm: 2, md: 2, lg: 4, xl: 4, pill: 2 }
+  : { xs: 6, sm: 10, md: 14, lg: 18, xl: 24, pill: 999 };
 
 /** Motion — Emil Kowalski's curves. Never ease-in on UI. */
 export const ease = {
@@ -116,7 +165,16 @@ export const iconSize = { sm: 16, md: 20, lg: 24 };
 export const iconStroke = 1.9;
 
 /** Soft, warm card shadow (iOS) / elevation (Android). */
-export const shadow = (c: Palette, level: 1 | 2 = 1) => ({
+export const shadow = (c: Palette, level: 1 | 2 = 1) =>
+  isSite
+    ? // Hairline rules instead of floating cards: a 1 px outer ring, so it never fights a component's own
+      // (selected, error) border. Only overlays (level 2) get the site's soft shadow.
+      level === 1
+      ? { boxShadow: `0 0 0 1px ${c.line}` }
+      : { boxShadow: '0 1px 2px rgba(30, 22, 14, 0.06), 0 12px 32px -12px rgba(30, 22, 14, 0.22)' }
+    : nativeShadow(c, level);
+
+const nativeShadow = (c: Palette, level: 1 | 2) => ({
   shadowColor: c.shadow,
   shadowOpacity: level === 1 ? 0.06 : 0.12,
   shadowRadius: level === 1 ? 10 : 22,

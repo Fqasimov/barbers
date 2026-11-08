@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { isSite, radius } from '@/theme/tokens';
 
 import { Button } from './ui/Button';
 import { Text } from './ui/Text';
@@ -28,5 +29,12 @@ export function EmptyState({ icon: Icon, title, body, action }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', gap: 8, paddingVertical: 48, paddingHorizontal: 24 },
-  mark: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  mark: {
+    width: 72,
+    height: 72,
+    borderRadius: isSite ? radius.lg : 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
 });

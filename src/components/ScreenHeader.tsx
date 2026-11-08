@@ -6,10 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
-import { gutter } from '@/theme/tokens';
+import { gutter, isSite } from '@/theme/tokens';
 
 import { IconButton } from './ui/IconButton';
 import { Text } from './ui/Text';
+import { Wordmark } from './ui/Wordmark';
+import { PressableScale } from './ui/PressableScale';
 
 type Props = {
   title?: string;
@@ -35,7 +37,8 @@ export function ScreenHeader({ title, mode = 'back', right, inset = true, border
       style={[
         styles.bar,
         { paddingTop: (inset ? insets.top : 0) + 8 },
-        border && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
+        (border || isSite) && { borderBottomWidth: 1, borderColor: c.line },
+        isSite && styles.siteBar,
       ]}
     >
       <IconButton
@@ -45,13 +48,32 @@ export function ScreenHeader({ title, mode = 'back', right, inset = true, border
         variant="surface"
       />
       {title ? (
-        <Text variant="headline" numberOfLines={1} style={styles.title} accessibilityRole="header">
+        <Text
+          variant={isSite ? 'overline' : 'headline'}
+          tone={isSite ? 'soft' : 'ink'}
+          numberOfLines={1}
+          style={styles.title}
+          accessibilityRole="header"
+        >
           {title}
         </Text>
       ) : (
         <View style={styles.title} />
       )}
-      <View style={styles.right}>{right}</View>
+      <View style={styles.right}>
+        {right ??
+          (isSite ? (
+            // The wordmark goes back to the website, like the nav on yazilnow.az.
+            <PressableScale
+              accessibilityRole="link"
+              accessibilityLabel="yazılnow"
+              onPress={() => globalThis.location?.assign('/')}
+              hitSlop={8}
+            >
+              <Wordmark size={20} />
+            </PressableScale>
+          ) : null)}
+      </View>
     </View>
   );
 }
@@ -60,4 +82,5 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: gutter, paddingBottom: 8, gap: 12 },
   title: { flex: 1, textAlign: 'center' },
   right: { minWidth: 44, alignItems: 'flex-end' },
+  siteBar: { minHeight: 68, paddingBottom: 12 },
 });

@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { initials } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { fonts, tones, type ToneName } from '@/theme/tokens';
+import { fonts, isSite, radius, tones, type ToneName } from '@/theme/tokens';
 
 import { Text } from './Text';
 
@@ -19,14 +19,14 @@ export function Avatar({ name, tone = 'ink', size = 48, selected }: Props) {
         {
           width: size + 8,
           height: size + 8,
-          borderRadius: (size + 8) / 2,
+          borderRadius: isSite ? radius.sm : (size + 8) / 2,
           borderColor: selected ? c.ink : 'transparent',
         },
       ]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <View style={[styles.disc, { width: size, height: size, borderRadius: size / 2, backgroundColor: t.bg }]}>
+      <View style={[styles.disc, { width: size, height: size, borderRadius: isSite ? radius.sm : size / 2, backgroundColor: t.bg }]}>
         <Text
           maxFontSizeMultiplier={1}
           style={{

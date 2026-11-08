@@ -620,6 +620,10 @@ export const strings = {
     'Зарегистрируйте салон и управляйте всем отсюда: календарь, мастера, услуги, отзывы, тариф.',
     'Register your salon and run everything from here: calendar, masters, services, reviews, plan.',
   ),
+  panelKicker: L('Salonlar üçün', 'Для салонов', 'For salons'),
+  panelPoint1: L('Təqvim və yazılışlar bir yerdə', 'Календарь и записи в одном месте', 'Calendar and bookings in one place'),
+  panelPoint2: L('Ustalar, xidmətlər və şəkillər', 'Мастера, услуги и фото', 'Masters, services and photos'),
+  panelPoint3: L('QR ilə rəylər və plan', 'Отзывы по QR и тариф', 'QR reviews and your plan'),
   panelRegister: L('Salonu qeydiyyatdan keçir', 'Зарегистрировать салон', 'Register a salon'),
   panelSignIn: L('Daxil ol', 'Войти', 'Sign in'),
   // Business

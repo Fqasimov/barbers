@@ -8,7 +8,7 @@ import { PressableScale } from '@/components/ui/PressableScale';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
-import { cssEase, duration, fonts, radius } from '@/theme/tokens';
+import { cssEase, duration, fieldBg, fonts, isSite, radius } from '@/theme/tokens';
 
 const ERROR_IN = FadeIn.duration(160);
 
@@ -34,19 +34,26 @@ export const FormField = forwardRef<TextInput, Props>(function FormField(
   const i18n = useI18n();
   const [focused, setFocused] = useState(false);
   const [shown, setShown] = useState(false);
-  const border = error ? c.danger : focused ? c.ink : c.line;
+  // The website's rule: a hairline-strong border; ink and an inner line on focus; danger when invalid.
+  const border = error ? c.danger : focused ? c.ink : isSite ? c.lineStrong : c.line;
   return (
     <View style={styles.wrap}>
-      <Text variant="captionStrong" tone="soft" style={styles.label} nativeID={`${label}-label`}>
+      <Text
+        variant={isSite ? 'overline' : 'captionStrong'}
+        tone={isSite ? 'muted' : 'soft'}
+        style={styles.label}
+        nativeID={`${label}-label`}
+      >
         {label}
       </Text>
       <Animated.View
         style={[
           styles.box,
           {
-            backgroundColor: c.surface,
+            backgroundColor: fieldBg ?? c.surface,
             borderColor: border,
-            transitionProperty: 'borderColor',
+            ...(isSite ? { boxShadow: focused || error ? `inset 0 0 0 1px ${border}` : 'inset 0 0 0 0 transparent' } : null),
+            transitionProperty: isSite ? ['borderColor', 'boxShadow'] : 'borderColor',
             transitionDuration: duration.small,
             transitionTimingFunction: cssEase.out,
           },
@@ -114,7 +121,7 @@ export const FormField = forwardRef<TextInput, Props>(function FormField(
 const styles = StyleSheet.create({
   wrap: { gap: 6 },
   label: { marginLeft: 2 },
-  box: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1, minHeight: 50 },
+  box: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1, minHeight: isSite ? 54 : 50 },
   prefix: {
     paddingLeft: 14,
     paddingRight: 10,

@@ -19,7 +19,9 @@ import { BrandIntro } from '@/components/splash/BrandIntro';
 import { Toaster } from '@/components/Toaster';
 import { useAppSync } from '@/lib/sync';
 import { useStore } from '@/store/useStore';
+import { siteFonts } from '@/theme/siteFonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+import { isSite } from '@/theme/tokens';
 
 // Keep the native splash (linen + closed shears) up until our own takes over.
 SplashScreen.preventAutoHideAsync();
@@ -31,6 +33,7 @@ export default function RootLayout() {
     Onest_600SemiBold,
     Onest_700Bold,
     Onest_800ExtraBold,
+    ...siteFonts,
   });
 
   if (!fontsLoaded) return null;
@@ -75,7 +78,14 @@ function App() {
   return (
     <NavThemeProvider value={navTheme}>
       <View style={[styles.page, { backgroundColor: Platform.OS === 'web' ? c.sunken : c.bg }]}>
-        <View style={[styles.column, { backgroundColor: c.bg }]}>
+        <View
+          style={[
+            styles.column,
+            { backgroundColor: c.bg },
+            // In a browser the column is framed by hairlines, like a sheet of paper on the desk.
+            isSite && { borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.line },
+          ]}
+        >
           <StatusBar style={splashDone && scheme === 'dark' ? 'light' : 'dark'} />
           <Stack
             screenOptions={{

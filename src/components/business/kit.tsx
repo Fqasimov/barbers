@@ -15,7 +15,7 @@ import { useI18n } from '@/i18n';
 import { addDays, dayKey, dayOfMonth, fromDayKey, startOfDay } from '@/lib/time';
 import type { Loc } from '@/i18n/types';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, shadow } from '@/theme/tokens';
+import { isSite, radius, shadow } from '@/theme/tokens';
 
 /**
  * The signed-in owner's business and a way to change it. `run` calls the API,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   dayRow: { gap: 8, paddingRight: 8 },
   card: { borderRadius: radius.lg, paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
-  icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 36, height: 36, borderRadius: isSite ? radius.sm : 18, alignItems: 'center', justifyContent: 'center' },
   days: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });
 
