@@ -151,6 +151,30 @@ class AuthTest extends TestCase
             ->assertJsonPath('business.salon_id', $business->id);
     }
 
+    public function test_customers_get_codes_through_resend_and_salons_through_our_own_mailbox(): void
+    {
+        config(['services.resend.key' => 're_test_key', 'mail.default' => 'smtp']);
+
+        $this->postJson('/api/auth/register', $this->person)->assertStatus(202);
+        Mail::assertQueued(OtpCodeMail::class, fn (OtpCodeMail $m) => $m->hasTo('aysel@example.com') && $m->mailer === 'resend');
+
+        $this->postJson('/api/business/register', [
+            'first_name' => 'Elçin', 'last_name' => 'Quliyev', 'phone' => '+994551112233',
+            'email' => 'owner@example.com', 'password' => 'secret123',
+            'salon_name' => 'Kəsim Studio', 'categories' => ['barber'],
+            'district' => 'Yasamal', 'address' => 'Şərifzadə küç. 5', 'audience' => 'men',
+        ])->assertStatus(202);
+        Mail::assertQueued(OtpCodeMail::class, fn (OtpCodeMail $m) => $m->hasTo('owner@example.com') && $m->mailer === 'smtp');
+    }
+
+    public function test_without_a_resend_key_everyone_uses_the_default_mailer(): void
+    {
+        config(['services.resend.key' => null, 'mail.default' => 'smtp']);
+
+        $this->postJson('/api/auth/register', $this->person)->assertStatus(202);
+        Mail::assertQueued(OtpCodeMail::class, fn (OtpCodeMail $m) => $m->hasTo('aysel@example.com') && $m->mailer === 'smtp');
+    }
+
     public function test_login_gives_the_same_answer_for_unknown_email_and_wrong_password(): void
     {
         User::factory()->create(['email' => 'aysel@example.com']);

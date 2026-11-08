@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Mail\OtpCodeMail;
 use App\Models\OneTimeCode;
+use App\Models\User;
 use App\Support\Iso;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Mail;
@@ -54,9 +55,24 @@ class OtpService
             ],
         );
 
-        Mail::to($email)->queue(new OtpCodeMail($code, $purpose));
+        Mail::mailer($this->mailerFor($email))->to($email)->queue(new OtpCodeMail($code, $purpose));
 
         return $this->challenge($email, $purpose, $otp->expires_at, $otp->resend_at, $code);
+    }
+
+    /**
+     * Salons and staff get their codes through our own mailbox (the default
+     * mailer, no-reply@ over SMTP). Customers get theirs through Resend, once
+     * RESEND_API_KEY is set; until then everyone uses the default mailer.
+     */
+    private function mailerFor(string $email): string
+    {
+        if (! config('services.resend.key')) {
+            return (string) config('mail.default');
+        }
+        $role = User::query()->where('email', $email)->value('role');
+
+        return $role === 'customer' ? 'resend' : (string) config('mail.default');
     }
 
     /**
