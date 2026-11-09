@@ -630,6 +630,8 @@ export const strings = {
   panelPoint3: L('QR ilə rəylər və plan', 'Отзывы по QR и тариф', 'QR reviews and your plan'),
   panelRegister: L('Salonu qeydiyyatdan keçir', 'Зарегистрировать салон', 'Register a salon'),
   panelSignIn: L('Daxil ol', 'Войти', 'Sign in'),
+  panelEnter: L('Panelə daxil ol', 'Войти в панель', 'Sign in to the panel'),
+  panelRegisterAnother: L('Yeni salon qeydiyyatdan keçir', 'Зарегистрировать новый салон', 'Register a new salon'),
   // Business
   bizTitle: L('Salonunuzu yazılnow-a qoşun', 'Подключите салон к yazılnow', 'Put your salon on yazılnow'),
   bizSub: L(

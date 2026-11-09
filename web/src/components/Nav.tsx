@@ -32,6 +32,14 @@ export function Nav() {
   ] as const;
 
   const external = /^https?:/.test(config.panelUrl ?? '');
+  // Signed in to the panel on this browser before: the button says so.
+  const knownDevice = (() => {
+    try {
+      return localStorage.getItem('yazilnow-salon-device') === '1';
+    } catch {
+      return false;
+    }
+  })();
   return (
     <>
       {isDemo ? <div className="ribbon">{t('demoRibbon')}</div> : null}
@@ -61,7 +69,7 @@ export function Nav() {
               target={external ? '_blank' : undefined}
               rel="noopener"
             >
-              {t('navPanel')}
+              {t(knownDevice ? 'knownEnter' : 'navPanel')}
             </a>
             <button
               className="nav-toggle"

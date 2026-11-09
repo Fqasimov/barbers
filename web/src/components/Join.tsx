@@ -187,6 +187,15 @@ export function Join() {
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [now, setNow] = useState(Date.now());
   const card = useRef<HTMLDivElement>(null);
+  // This browser has signed in to the salon panel before (set by the panel): offer sign-in, not sign-up.
+  const [knownDevice] = useState(() => {
+    try {
+      return localStorage.getItem('yazilnow-salon-device') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [showForm, setShowForm] = useState(false);
   const lastTried = useRef('');
 
   useEffect(() => {
@@ -418,314 +427,328 @@ export function Join() {
           </div>
         </div>
 
-        <div className="card form-card reveal" id="register" ref={card}>
-          {step <= 4 ? (
-            <>
-              <ol className="progress" aria-hidden="true">
-                {STEPS.map((k, i) => (
-                  <li key={k} className={i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>
-                    {t(k)}
-                  </li>
-                ))}
-              </ol>
-              <p className="step-of" aria-live="polite">
-                {t('stepOf', { n: step })} · {t(STEPS[step - 1])}
-              </p>
-            </>
-          ) : null}
+        {knownDevice && !showForm ? (
+          <div className="card form-card reveal known-card" id="register">
+            <p className="kicker">{t('knownKicker')}</p>
+            <h3 className="known-title">{t('knownTitle')}</h3>
+            <p className="section-sub">{t('knownSub')}</p>
+            <a className="btn btn-ink btn-block" href={config.panelUrl}>
+              {t('knownEnter')}
+            </a>
+            <button type="button" className="link-arrow known-other" onClick={() => setShowForm(true)}>
+              {t('knownRegisterOther')}
+            </button>
+          </div>
+        ) : (
+          <div className="card form-card reveal" id="register" ref={card}>
+            {step <= 4 ? (
+              <>
+                <ol className="progress" aria-hidden="true">
+                  {STEPS.map((k, i) => (
+                    <li key={k} className={i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>
+                      {t(k)}
+                    </li>
+                  ))}
+                </ol>
+                <p className="step-of" aria-live="polite">
+                  {t('stepOf', { n: step })} · {t(STEPS[step - 1])}
+                </p>
+              </>
+            ) : null}
 
-          {step === 1 ? (
-            <form className="step" onSubmit={submitOwner} noValidate key="s1">
-              <div className="pair">
-                <Field id="first_name" label={t('fFirst')} error={errors.first_name}>
-                  <input
-                    {...ownerInput('first_name', {
-                      autoComplete: 'given-name',
-                      maxLength: 40,
-                      'data-step-focus': true,
-                    })}
-                  />
-                </Field>
-                <Field id="last_name" label={t('fLast')} error={errors.last_name}>
-                  <input {...ownerInput('last_name', { autoComplete: 'family-name', maxLength: 40 })} />
-                </Field>
-              </div>
-              <Field id="phone" label={t('fPhone')} error={errors.phone}>
-                <div className="prefix">
-                  <span aria-hidden="true">+994</span>
-                  <input
-                    {...ownerInput('phone', {
-                      type: 'tel',
-                      inputMode: 'tel',
-                      autoComplete: 'tel-national',
-                      placeholder: '50 123 45 67',
-                      maxLength: 12,
-                    })}
-                  />
+            {step === 1 ? (
+              <form className="step" onSubmit={submitOwner} noValidate key="s1">
+                <div className="pair">
+                  <Field id="first_name" label={t('fFirst')} error={errors.first_name}>
+                    <input
+                      {...ownerInput('first_name', {
+                        autoComplete: 'given-name',
+                        maxLength: 40,
+                        'data-step-focus': true,
+                      })}
+                    />
+                  </Field>
+                  <Field id="last_name" label={t('fLast')} error={errors.last_name}>
+                    <input {...ownerInput('last_name', { autoComplete: 'family-name', maxLength: 40 })} />
+                  </Field>
                 </div>
-              </Field>
-              <Field id="email" label={t('fEmail')} error={errors.email}>
-                <input {...ownerInput('email', { type: 'email', autoComplete: 'email', maxLength: 254 })} />
-              </Field>
-              <Field id="password" label={t('fPassword')} error={errors.password} hint={t('fPasswordHint')}>
-                <div className="pw">
-                  <input
-                    {...ownerInput('password', {
-                      type: showPw ? 'text' : 'password',
-                      autoComplete: 'new-password',
-                      maxLength: 64,
-                    })}
-                  />
-                  <button
-                    type="button"
-                    className="pw-eye"
-                    aria-pressed={showPw}
-                    aria-label={t('showPassword')}
-                    onClick={() => setShowPw((s) => !s)}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                      width="20"
-                      height="20"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                <Field id="phone" label={t('fPhone')} error={errors.phone}>
+                  <div className="prefix">
+                    <span aria-hidden="true">+994</span>
+                    <input
+                      {...ownerInput('phone', {
+                        type: 'tel',
+                        inputMode: 'tel',
+                        autoComplete: 'tel-national',
+                        placeholder: '50 123 45 67',
+                        maxLength: 12,
+                      })}
+                    />
+                  </div>
+                </Field>
+                <Field id="email" label={t('fEmail')} error={errors.email}>
+                  <input {...ownerInput('email', { type: 'email', autoComplete: 'email', maxLength: 254 })} />
+                </Field>
+                <Field id="password" label={t('fPassword')} error={errors.password} hint={t('fPasswordHint')}>
+                  <div className="pw">
+                    <input
+                      {...ownerInput('password', {
+                        type: showPw ? 'text' : 'password',
+                        autoComplete: 'new-password',
+                        maxLength: 64,
+                      })}
+                    />
+                    <button
+                      type="button"
+                      className="pw-eye"
+                      aria-pressed={showPw}
+                      aria-label={t('showPassword')}
+                      onClick={() => setShowPw((s) => !s)}
                     >
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                      {showPw ? null : <path d="M3 3l18 18" />}
-                    </svg>
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.9"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                        <circle cx="12" cy="12" r="3" />
+                        {showPw ? null : <path d="M3 3l18 18" />}
+                      </svg>
+                    </button>
+                  </div>
+                </Field>
+                {formErr}
+                <button className="btn btn-ink btn-block" type="submit">
+                  {t('next')}
+                </button>
+              </form>
+            ) : null}
+
+            {step === 2 ? (
+              <form className="step" onSubmit={submitSalon} noValidate key="s2">
+                <Field id="salon_name" label={t('fSalonName')} error={errors.salon_name}>
+                  <input
+                    id="salon_name"
+                    name="salon_name"
+                    maxLength={120}
+                    placeholder={t('fSalonNamePh')}
+                    value={salon.salon_name}
+                    onChange={setS('salon_name')}
+                    aria-invalid={!!errors.salon_name}
+                    data-step-focus
+                  />
+                </Field>
+                <fieldset className={`field${errors.categories ? ' invalid' : ''}`}>
+                  <legend>{t('fCategories')}</legend>
+                  <small className="hint">{t('fCategoriesHint')}</small>
+                  <div className="chips chips-wrap">
+                    {categories.map((c) => {
+                      const on = salon.categories.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          className="chip"
+                          aria-pressed={on}
+                          onClick={() => {
+                            setSalon((s) => ({
+                              ...s,
+                              categories: on ? s.categories.filter((x) => x !== c.id) : [...s.categories, c.id],
+                            }));
+                            setErrors((x) => ({ ...x, categories: undefined }));
+                          }}
+                        >
+                          {tx(c.label)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.categories ? (
+                    <small className="err" role="alert">
+                      {errors.categories}
+                    </small>
+                  ) : null}
+                </fieldset>
+                <fieldset className="field">
+                  <legend>{t('fAudience')}</legend>
+                  <div className="segmented">
+                    {(
+                      [
+                        ['all', 'audAll'],
+                        ['women', 'audWomen'],
+                        ['men', 'audMen'],
+                      ] as const
+                    ).map(([v, k]) => (
+                      <label key={v}>
+                        <input
+                          type="radio"
+                          name="audience"
+                          value={v}
+                          checked={salon.audience === v}
+                          onChange={() => setSalon((s) => ({ ...s, audience: v }))}
+                        />
+                        <span>{t(k)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <Field id="district" label={t('fDistrict')} error={errors.district}>
+                  <input
+                    id="district"
+                    name="district"
+                    maxLength={120}
+                    placeholder={t('fDistrictPh')}
+                    list="districts"
+                    value={salon.district}
+                    onChange={setS('district')}
+                    aria-invalid={!!errors.district}
+                  />
+                </Field>
+                <datalist id="districts">
+                  {DISTRICTS.map((d) => (
+                    <option key={d} value={d} />
+                  ))}
+                </datalist>
+                <Field id="address" label={t('fAddress')} error={errors.address}>
+                  <input
+                    id="address"
+                    name="address"
+                    maxLength={255}
+                    placeholder={t('fAddressPh')}
+                    autoComplete="street-address"
+                    value={salon.address}
+                    onChange={setS('address')}
+                    aria-invalid={!!errors.address}
+                  />
+                </Field>
+                <p className="consent">{withLinks(t('consent'))}</p>
+                {formErr}
+                <div className="row">
+                  <button className="btn btn-ghost" type="button" onClick={() => go(1)}>
+                    {t('back')}
+                  </button>
+                  <button className={`btn btn-ink grow${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
+                    {t('sendCode')}
                   </button>
                 </div>
-              </Field>
-              {formErr}
-              <button className="btn btn-ink btn-block" type="submit">
-                {t('next')}
-              </button>
-            </form>
-          ) : null}
+              </form>
+            ) : null}
 
-          {step === 2 ? (
-            <form className="step" onSubmit={submitSalon} noValidate key="s2">
-              <Field id="salon_name" label={t('fSalonName')} error={errors.salon_name}>
-                <input
-                  id="salon_name"
-                  name="salon_name"
-                  maxLength={120}
-                  placeholder={t('fSalonNamePh')}
-                  value={salon.salon_name}
-                  onChange={setS('salon_name')}
-                  aria-invalid={!!errors.salon_name}
-                  data-step-focus
+            {step === 3 && challenge ? (
+              <form className="step" onSubmit={submitCode} noValidate key="s3">
+                <h3 className="step-title" tabIndex={-1} data-step-focus>
+                  {t('codeTitle')}
+                </h3>
+                <p className="muted">{t('codeSub', { email: challenge.email })}</p>
+                {challenge.demo_code ? <p className="demo-code">{t('codeDemo', { code: challenge.demo_code })}</p> : null}
+                <CodeInput
+                  value={code}
+                  invalid={!!errors.code}
+                  onChange={(v) => {
+                    setCode(v);
+                    if (errors.code) setErrors({});
+                  }}
                 />
-              </Field>
-              <fieldset className={`field${errors.categories ? ' invalid' : ''}`}>
-                <legend>{t('fCategories')}</legend>
-                <small className="hint">{t('fCategoriesHint')}</small>
-                <div className="chips chips-wrap">
-                  {categories.map((c) => {
-                    const on = salon.categories.includes(c.id);
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        className="chip"
-                        aria-pressed={on}
-                        onClick={() => {
-                          setSalon((s) => ({
-                            ...s,
-                            categories: on ? s.categories.filter((x) => x !== c.id) : [...s.categories, c.id],
-                          }));
-                          setErrors((x) => ({ ...x, categories: undefined }));
-                        }}
-                      >
-                        {tx(c.label)}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.categories ? (
-                  <small className="err" role="alert">
-                    {errors.categories}
-                  </small>
+                {errors.code ? (
+                  <p className="form-error" role="alert">
+                    {errors.code}
+                  </p>
                 ) : null}
-              </fieldset>
-              <fieldset className="field">
-                <legend>{t('fAudience')}</legend>
-                <div className="segmented">
-                  {(
-                    [
-                      ['all', 'audAll'],
-                      ['women', 'audWomen'],
-                      ['men', 'audMen'],
-                    ] as const
-                  ).map(([v, k]) => (
-                    <label key={v}>
+                {formErr}
+                {notice ? (
+                  <p className="notice" role="status">
+                    {t(notice)}
+                  </p>
+                ) : null}
+                <div className="row row-between">
+                  <button className="link" type="button" onClick={() => go(1)}>
+                    {t('changeEmail')}
+                  </button>
+                  <button className="link" type="button" onClick={resend} disabled={wait > 0}>
+                    {wait > 0 ? t('resendIn', { s: wait }) : t('resend')}
+                  </button>
+                </div>
+                <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
+                  {t('verify')}
+                </button>
+              </form>
+            ) : null}
+
+            {step === 4 ? (
+              <form className="step" onSubmit={submitPlan} noValidate key="s4">
+                <h3 className="step-title" tabIndex={-1} data-step-focus>
+                  {t('planTitle')}
+                </h3>
+                <p className="muted">{t('planSub')}</p>
+                <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
+                  {plans.map((p) => (
+                    <label className="plan" key={p.id}>
                       <input
                         type="radio"
-                        name="audience"
-                        value={v}
-                        checked={salon.audience === v}
-                        onChange={() => setSalon((s) => ({ ...s, audience: v }))}
+                        name="plan"
+                        value={p.id}
+                        checked={plan === p.id}
+                        onChange={() => setPlan(p.id)}
                       />
-                      <span>{t(k)}</span>
+                      <span className="plan-body">
+                        <span className="plan-head">
+                          <span className="plan-name">
+                            {p.name}
+                            {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
+                          </span>
+                          <span className="plan-price">
+                            {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
+                            <small className="plan-after">{t('afterTrial')}</small>
+                          </span>
+                        </span>
+                        <span className="plan-blurb">{tx(p.blurb)}</span>
+                        <span className="plan-trial">{t('trialBadge')}</span>
+                        <ul>
+                          {p.features.map((f) => (
+                            <li key={f.en} className={f.soon ? 'soon' : undefined}>
+                              {tx(f)}
+                              {f.soon ? <em> · {t('soon')}</em> : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </span>
                     </label>
                   ))}
                 </div>
-              </fieldset>
-              <Field id="district" label={t('fDistrict')} error={errors.district}>
-                <input
-                  id="district"
-                  name="district"
-                  maxLength={120}
-                  placeholder={t('fDistrictPh')}
-                  list="districts"
-                  value={salon.district}
-                  onChange={setS('district')}
-                  aria-invalid={!!errors.district}
-                />
-              </Field>
-              <datalist id="districts">
-                {DISTRICTS.map((d) => (
-                  <option key={d} value={d} />
-                ))}
-              </datalist>
-              <Field id="address" label={t('fAddress')} error={errors.address}>
-                <input
-                  id="address"
-                  name="address"
-                  maxLength={255}
-                  placeholder={t('fAddressPh')}
-                  autoComplete="street-address"
-                  value={salon.address}
-                  onChange={setS('address')}
-                  aria-invalid={!!errors.address}
-                />
-              </Field>
-              <p className="consent">{withLinks(t('consent'))}</p>
-              {formErr}
-              <div className="row">
-                <button className="btn btn-ghost" type="button" onClick={() => go(1)}>
-                  {t('back')}
+                <p className="plan-note plan-note-left">{t('yearDeal')}</p>
+                {formErr}
+                <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
+                  {t('startTrial')}
                 </button>
-                <button className={`btn btn-ink grow${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
-                  {t('sendCode')}
-                </button>
-              </div>
-            </form>
-          ) : null}
+                <p className="plan-note">{t('trialNote')}</p>
+                <p className="plan-note">{t('trialTerms')}</p>
+              </form>
+            ) : null}
 
-          {step === 3 && challenge ? (
-            <form className="step" onSubmit={submitCode} noValidate key="s3">
-              <h3 className="step-title" tabIndex={-1} data-step-focus>
-                {t('codeTitle')}
-              </h3>
-              <p className="muted">{t('codeSub', { email: challenge.email })}</p>
-              {challenge.demo_code ? <p className="demo-code">{t('codeDemo', { code: challenge.demo_code })}</p> : null}
-              <CodeInput
-                value={code}
-                invalid={!!errors.code}
-                onChange={(v) => {
-                  setCode(v);
-                  if (errors.code) setErrors({});
-                }}
-              />
-              {errors.code ? (
-                <p className="form-error" role="alert">
-                  {errors.code}
-                </p>
-              ) : null}
-              {formErr}
-              {notice ? (
-                <p className="notice" role="status">
-                  {t(notice)}
-                </p>
-              ) : null}
-              <div className="row row-between">
-                <button className="link" type="button" onClick={() => go(1)}>
-                  {t('changeEmail')}
-                </button>
-                <button className="link" type="button" onClick={resend} disabled={wait > 0}>
-                  {wait > 0 ? t('resendIn', { s: wait }) : t('resend')}
+            {step === 5 ? (
+              <div className="step done" key="s5">
+                <div className="done-mark" aria-hidden="true">
+                  ✓
+                </div>
+                <h3 className="step-title" tabIndex={-1} data-step-focus>
+                  {t('doneTitle', { name: owner.first_name.trim() })}
+                </h3>
+                <p>{t('doneBody', { salon: salon.salon_name.trim() })}</p>
+                {!isLive ? <p className="muted">{t('doneDemo')}</p> : null}
+                <Stores />
+                <button className="link" type="button" onClick={reset}>
+                  {t('again')}
                 </button>
               </div>
-              <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
-                {t('verify')}
-              </button>
-            </form>
-          ) : null}
-
-          {step === 4 ? (
-            <form className="step" onSubmit={submitPlan} noValidate key="s4">
-              <h3 className="step-title" tabIndex={-1} data-step-focus>
-                {t('planTitle')}
-              </h3>
-              <p className="muted">{t('planSub')}</p>
-              <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
-                {plans.map((p) => (
-                  <label className="plan" key={p.id}>
-                    <input
-                      type="radio"
-                      name="plan"
-                      value={p.id}
-                      checked={plan === p.id}
-                      onChange={() => setPlan(p.id)}
-                    />
-                    <span className="plan-body">
-                      <span className="plan-head">
-                        <span className="plan-name">
-                          {p.name}
-                          {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
-                        </span>
-                        <span className="plan-price">
-                          {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
-                          <small className="plan-after">{t('afterTrial')}</small>
-                        </span>
-                      </span>
-                      <span className="plan-blurb">{tx(p.blurb)}</span>
-                      <span className="plan-trial">{t('trialBadge')}</span>
-                      <ul>
-                        {p.features.map((f) => (
-                          <li key={f.en} className={f.soon ? 'soon' : undefined}>
-                            {tx(f)}
-                            {f.soon ? <em> · {t('soon')}</em> : null}
-                          </li>
-                        ))}
-                      </ul>
-                    </span>
-                  </label>
-                ))}
-              </div>
-              <p className="plan-note plan-note-left">{t('yearDeal')}</p>
-              {formErr}
-              <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
-                {t('startTrial')}
-              </button>
-              <p className="plan-note">{t('trialNote')}</p>
-              <p className="plan-note">{t('trialTerms')}</p>
-            </form>
-          ) : null}
-
-          {step === 5 ? (
-            <div className="step done" key="s5">
-              <div className="done-mark" aria-hidden="true">
-                ✓
-              </div>
-              <h3 className="step-title" tabIndex={-1} data-step-focus>
-                {t('doneTitle', { name: owner.first_name.trim() })}
-              </h3>
-              <p>{t('doneBody', { salon: salon.salon_name.trim() })}</p>
-              {!isLive ? <p className="muted">{t('doneDemo')}</p> : null}
-              <Stores />
-              <button className="link" type="button" onClick={reset}>
-                {t('again')}
-              </button>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -21,6 +21,8 @@ type Props = {
   /** Modals on iOS sit below the status bar already. */
   inset?: boolean;
   border?: boolean;
+  /** Replaces the default back (history, else a sensible page). */
+  onBack?: () => void;
 };
 
 /**
@@ -47,7 +49,7 @@ export function goBack() {
   else router.replace(fallback());
 }
 
-export function ScreenHeader({ title, mode = 'back', right, inset = true, border }: Props) {
+export function ScreenHeader({ title, mode = 'back', right, inset = true, border, onBack }: Props) {
   const { c } = useTheme();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -63,7 +65,7 @@ export function ScreenHeader({ title, mode = 'back', right, inset = true, border
       <IconButton
         icon={mode === 'close' ? X : ChevronLeft}
         label={mode === 'close' ? t('close') : t('back')}
-        onPress={goBack}
+        onPress={onBack ?? goBack}
         variant="surface"
       />
       {title ? (

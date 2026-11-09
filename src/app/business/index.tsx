@@ -46,6 +46,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
 import { gutter, isSite, radius, shadow } from '@/theme/tokens';
 import { useWide } from '@/theme/wide';
+import { SITE_URL } from '@/lib/links';
 import { salonDay } from '@/lib/week';
 
 const DAY = 86_400_000;
@@ -146,7 +147,11 @@ export default function BusinessDashboard() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScreenHeader title={i18n.t('dashTitle')} />
+      <ScreenHeader
+        title={i18n.t('dashTitle')}
+        // In a browser the dashboard is the top of the panel: back goes to the website.
+        onBack={isSite ? () => globalThis.location?.assign(SITE_URL) : undefined}
+      />
       <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 16 }}>
         <View style={wide ? styles.cols : { gap: 16 }}>
           <View style={wide ? styles.colLeft : { gap: 16 }}>

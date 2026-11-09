@@ -2164,3 +2164,26 @@ a.store:active {
   gap: 10px;
   margin-top: 14px;
 }
+
+/* A browser that has signed in to the panel before: sign-in instead of the sign-up form. */
+.known-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-self: start;
+}
+.known-title {
+  font-family: var(--serif, 'Cormorant Garamond', serif);
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 500;
+  margin: 0;
+}
+.known-other {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  align-self: flex-start;
+  font: inherit;
+}

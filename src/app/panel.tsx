@@ -1,5 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import { LogIn, Store } from 'lucide-react-native';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,6 +23,14 @@ import { useWide } from '@/theme/wide';
 export default function Panel() {
   const { c } = useTheme();
   const wide = useWide();
+  // This browser has signed in to the panel before (set by the root layout): sign-in comes first.
+  const [knownDevice] = useState(() => {
+    try {
+      return globalThis.localStorage?.getItem('yazilnow-salon-device') === '1';
+    } catch {
+      return false;
+    }
+  });
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const session = useSession((s) => s.session);
@@ -68,13 +77,28 @@ export default function Panel() {
           </Reveal>
 
           <Reveal index={3} style={{ gap: 12 }}>
-            <Button label={i18n.t('panelRegister')} icon={Store} onPress={() => router.push('/business/register')} />
-            <Button
-              label={i18n.t('panelSignIn')}
-              icon={LogIn}
-              variant="secondary"
-              onPress={() => router.push('/auth/sign-in')}
-            />
+            {knownDevice ? (
+              <>
+                <Button label={i18n.t('panelEnter')} icon={LogIn} onPress={() => router.push('/auth/sign-in')} />
+                <Button
+                  label={i18n.t('panelRegisterAnother')}
+                  icon={Store}
+                  variant="ghost"
+                  size="md"
+                  onPress={() => router.push('/business/register')}
+                />
+              </>
+            ) : (
+              <>
+                <Button label={i18n.t('panelRegister')} icon={Store} onPress={() => router.push('/business/register')} />
+                <Button
+                  label={i18n.t('panelSignIn')}
+                  icon={LogIn}
+                  variant="secondary"
+                  onPress={() => router.push('/auth/sign-in')}
+                />
+              </>
+            )}
           </Reveal>
 
           <Reveal index={4}>

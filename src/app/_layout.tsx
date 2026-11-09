@@ -116,6 +116,17 @@ function App() {
   }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
 
   const offWeb = isSite && !isWebAllowed(pathname);
+  // Remember that this browser has signed in to the salon panel (kept after sign-out), so the
+  // website and the panel's front door offer "Sign in to the panel" instead of sign-up.
+  const salonDevice = useSession((s) => !!(s.session?.business || s.session?.staff));
+  useEffect(() => {
+    if (!isSite || !salonDevice) return;
+    try {
+      globalThis.localStorage?.setItem('yazilnow-salon-device', '1');
+    } catch {
+      // Storage blocked: the sign-up button stays.
+    }
+  }, [salonDevice]);
   useEffect(() => {
     if (offWeb) globalThis.location?.replace(SITE_URL);
   }, [offWeb]);
