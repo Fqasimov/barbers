@@ -75,6 +75,10 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errWaitlistLimit';
     case 'has_bookings':
       return 'errHasBookings';
+    case 'master_limit':
+      return 'errMasterLimit';
+    case 'too_many_masters':
+      return 'errTooManyMasters';
     default:
       return 'errUnknown';
   }

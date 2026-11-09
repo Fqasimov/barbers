@@ -83,11 +83,17 @@ function writeFlag(v: '0' | '1') {
 
 /**
  * In a browser only the salon side runs: the panel, sign-up / sign-in, the dashboard and its tools,
- * the staff cabinet, account deletion, and QR reviews (scanned in the salon). The client app is
+ * the staff cabinet, account deletion, QR reviews (scanned in the salon) and Fərdi personal pages. The client app is
  * for phones; any other page sends the visitor to the website.
  */
 const isWebAllowed = (p: string) =>
-  isPanelPath(p) || p.startsWith('/auth') || p.startsWith('/r/') || p.startsWith('/review/') || p.startsWith('/account');
+  isPanelPath(p) ||
+  p.startsWith('/auth') ||
+  p.startsWith('/r/') ||
+  p.startsWith('/review/') ||
+  p.startsWith('/account') ||
+  // A Fərdi master's personal page (<name>.yazilnow.az → /app/u/<name>).
+  p.startsWith('/u/');
 
 function App() {
   const { c, scheme } = useTheme();
@@ -189,7 +195,7 @@ function App() {
               <Stack.Screen name="business/index" />
               <Stack.Screen name="account/delete" />
               <Stack.Screen name="panel" />
-            <Stack.Screen name="staff" />
+              <Stack.Screen name="staff" />
             </Stack>
             <Toaster />
           </WideContext.Provider>

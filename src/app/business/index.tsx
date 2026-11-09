@@ -102,7 +102,11 @@ export default function BusinessDashboard() {
   const locations = business.locations ?? [];
   const lockedTo = (f: Feature) =>
     planById(
-      ['click_report', 'qr_reviews', 'stats', 'staff'].includes(f) ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro',
+      ['click_report', 'qr_reviews', 'stats', 'staff'].includes(f)
+        ? 'sade'
+        : f === 'whatsapp_addon' || f === 'personal_page'
+          ? 'ferdi'
+          : 'pro',
     ).name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>

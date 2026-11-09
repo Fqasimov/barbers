@@ -215,12 +215,23 @@ class CatalogueController extends Controller
             'price' => (int) $p['month'],
             'price_year' => (int) $p['year'],
             'features' => array_values(config("usta.plan_features.{$id}", [])),
+            'masters' => config("usta.master_limit.{$id}"),
         ] + ($id === 'pro' ? ['branches' => [
             'included' => (int) config('usta.branches.included'),
             'extra_price' => (int) config('usta.branches.extra_month'),
         ]] : []))->values();
 
         return response()->json($plans)->header('Cache-Control', 'public, max-age=300');
+    }
+
+    /** A personal page address (orxanosmanov.yazilnow.az) → the salon behind it. */
+    public function page(string $slug): JsonResponse
+    {
+        $salon = Business::query()->listable()->where('slug', mb_strtolower($slug))->first(['id', 'slug', 'name'])
+            ?? throw ApiException::notFound('No page with this address.');
+
+        return response()->json(['salon_id' => $salon->id, 'slug' => $salon->slug, 'name' => $salon->name])
+            ->header('Cache-Control', 'public, max-age=60');
     }
 
     /** What people tap on a salon page; the salon sees the monthly totals. */

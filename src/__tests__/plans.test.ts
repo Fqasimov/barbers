@@ -1,4 +1,13 @@
-import { GRACE_DAYS, hasFeature, plans, proPrice, settle, TRIAL_DAYS, YEAR_MONTHS_PAID } from '@/auth/plans';
+import {
+  masterLimit,
+  GRACE_DAYS,
+  hasFeature,
+  plans,
+  proPrice,
+  settle,
+  TRIAL_DAYS,
+  YEAR_MONTHS_PAID,
+} from '@/auth/plans';
 import type { Business, Subscription } from '@/auth/types';
 
 const DAY = 86_400_000;
@@ -12,9 +21,10 @@ const trial = (over: Partial<Subscription> = {}): Subscription => ({
 });
 
 describe('plans', () => {
-  it('offers Sadə, Start and Pro, Pro recommended, a year for ten months', () => {
+  it('offers Sadə, Fərdi, Start and Pro, Pro recommended, a year for ten months', () => {
     expect(plans.map((p) => [p.id, p.price, p.priceYear])).toEqual([
       ['sade', 10, 100],
+      ['ferdi', 10, 100],
       ['start', 29, 290],
       ['pro', 49, 490],
     ]);
@@ -32,6 +42,13 @@ describe('plans', () => {
     expect(hasFeature(on('sade'), 'qr_reviews')).toBe(true);
     expect(hasFeature(on('start'), 'booking')).toBe(true);
     expect(hasFeature(on('start'), 'deposits')).toBe(false);
+    // Fərdi: everything in Start for one person, plus a personal page.
+    for (const f of ['booking', 'whatsapp_addon', 'personal_page'] as const)
+      expect(hasFeature(on('ferdi'), f)).toBe(true);
+    expect(hasFeature(on('ferdi'), 'branches')).toBe(false);
+    expect(masterLimit(on('ferdi'))).toBe(1);
+    expect(masterLimit(on('start'))).toBeNull();
+    expect(hasFeature(on('sade'), 'personal_page')).toBe(false);
     expect(hasFeature(on('pro'), 'branches')).toBe(true);
     expect(hasFeature({ subscription: null } as Business, 'listing')).toBe(false);
     expect([1, 3, 4, 6].map((n) => proPrice(n))).toEqual([49, 49, 64, 94]);

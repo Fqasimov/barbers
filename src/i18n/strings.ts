@@ -1231,6 +1231,39 @@ export const strings = {
     'В этом филиале есть будущие записи. Сначала отмените их.',
     'This location has upcoming bookings. Cancel them first.',
   ),
+  errMasterLimit: L(
+    'Fərdi plan bir nəfər üçündür. Daha çox usta üçün Start-a keçin.',
+    'Тариф Fərdi — для одного мастера. Чтобы добавить ещё, перейдите на Start.',
+    'Fərdi is for one person. Move to Start to add more masters.',
+  ),
+  errTooManyMasters: L(
+    'Fərdi plan bir nəfər üçündür. Əvvəlcə digər ustaları və filialları silin və ya Start seçin.',
+    'Тариф Fərdi — для одного мастера. Сначала удалите остальных мастеров и филиалы или выберите Start.',
+    'Fərdi is for one person. Remove the other masters and branches first, or choose Start.',
+  ),
+  errSlug: L(
+    '3–30 simvol: kiçik latın hərfləri, rəqəmlər və tire',
+    '3–30 символов: строчные латинские буквы, цифры и дефис',
+    '3–30 characters: lowercase latin letters, digits and hyphens',
+  ),
+  pageLabel: L('Şəxsi səhifə ünvanı', 'Адрес личной страницы', 'Personal page address'),
+  pageHint: L(
+    'Müştərilər sizi bu ünvanla tapır: {url}',
+    'Клиенты найдут вас по адресу: {url}',
+    'Clients find you at: {url}',
+  ),
+  pageCopied: L('Səhifə linki kopyalandı', 'Ссылка на страницу скопирована', 'Page link copied'),
+  mstLimitNote: L(
+    'Fərdi planda bir usta olur: siz. Komanda üçün Start-a keçin.',
+    'В тарифе Fərdi один мастер — вы. Для команды перейдите на Start.',
+    'Fərdi has one master: you. Move to Start for a team.',
+  ),
+  planFerdiNote: L(
+    'Bir usta, bir məkan. Komanda böyüsə, Start-a keçin.',
+    'Один мастер, одна точка. Для команды — Start.',
+    'One master, one location. Move to Start when you grow a team.',
+  ),
+  pageNotFound: L('Bu ünvanda səhifə yoxdur', 'Страницы с таким адресом нет', 'No page at this address'),
   pendingPayment: L('Ödəniş gözlənilir', 'Ждёт оплаты', 'Awaiting payment'),
 
   planLocked: L('{plan} planında', 'В тарифе {plan}', 'On {plan}'),

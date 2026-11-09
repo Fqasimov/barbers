@@ -9,6 +9,12 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Personal pages: orxanosmanov.yazilnow.az → the page in the app. Needs a wildcard DNS
+  # record (*.yazilnow.az), a wildcard domain pointing at public_html and a wildcard certificate.
+  RewriteCond %{HTTP_HOST} ^([a-z0-9-]+)\.yazilnow\.az(:[0-9]+)?$ [NC]
+  RewriteCond %1 !^(www|app|api|mail|webmail|cpanel|webdisk|ftp|cpcalendars|cpcontacts|autodiscover)$ [NC]
+  RewriteRule ^ https://yazilnow.az/app/u/%1 [L,R=302]
+
   # HTTPS and the bare domain.
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !=https
@@ -30,7 +36,7 @@ ErrorDocument 404 /404.html
   RewriteRule ^ - [R=404,L]
 
   # QR codes, the wall QR, shared salon links and the salon panel open the app.
-  RewriteRule ^(r|s|salon)/([A-Za-z0-9_-]+)/?$ /app/$1/$2 [L,R=302,QSA]
+  RewriteRule ^(r|s|salon|u)/([A-Za-z0-9_-]+)/?$ /app/$1/$2 [L,R=302,QSA]
   RewriteRule ^panel/?$ /app/panel [L,R=302,QSA]
 </IfModule>
 

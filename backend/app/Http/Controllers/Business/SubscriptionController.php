@@ -6,6 +6,8 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BusinessResource;
 use App\Http\Resources\SubscriptionResource;
+use App\Models\Business;
+use App\Models\Master;
 use App\Models\Subscription;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +40,7 @@ class SubscriptionController extends Controller
         ]);
         $this->ownerOnly($request);
         $business = $this->account($request);
+        $this->fitsPlan($business, $data['plan']);
 
         DB::transaction(function () use ($business, $data) {
             $sub = Subscription::query()->where('business_id', $business->id)->lockForUpdate()->first();
@@ -62,6 +65,19 @@ class SubscriptionController extends Controller
         return response()->json((new BusinessResource($this->business($request)->fresh()))->resolve($request));
     }
 
+    /** Fərdi is one master at one location: refuse it while the salon has more. */
+    private function fitsPlan(Business $business, string $plan): void
+    {
+        $limit = config("usta.master_limit.{$plan}");
+        if ($limit === null) {
+            return;
+        }
+        $masters = Master::query()->whereIn('business_id', $business->locations()->pluck('id'))->count();
+        if ($masters > (int) $limit || $business->branches()->exists()) {
+            throw new ApiException(422, 'too_many_masters', 'Fərdi is for one person. Remove the other masters and branches first, or choose Start.');
+        }
+    }
+
     /** `period`: month (default) or year; a year costs ten months and adds twelve. */
     public function checkout(Request $request, PaymentService $payments): JsonResponse
     {
@@ -71,6 +87,7 @@ class SubscriptionController extends Controller
         ]);
 
         $this->ownerOnly($request);
+        $this->fitsPlan($this->account($request), $data['plan']);
 
         return response()->json($payments->checkout($this->account($request), $data['plan'], $data['period'] ?? 'month'));
     }

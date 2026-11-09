@@ -83,13 +83,16 @@ class CatalogueTest extends TestCase
     public function test_plans(): void
     {
         $plans = $this->getJson('/api/plans')->assertOk()->json();
-        $this->assertSame(['sade', 'start', 'pro'], array_column($plans, 'id'));
-        $this->assertSame([10, 29, 49], array_column($plans, 'price'));
-        $this->assertSame([100, 290, 490], array_column($plans, 'price_year'));
+        $this->assertSame(['sade', 'ferdi', 'start', 'pro'], array_column($plans, 'id'));
+        $this->assertSame([10, 10, 29, 49], array_column($plans, 'price'));
+        $this->assertSame([100, 100, 290, 490], array_column($plans, 'price_year'));
         $this->assertNotContains('booking', $plans[0]['features']);
         $this->assertContains('booking', $plans[1]['features']);
-        $this->assertContains('deposits', $plans[2]['features']);
-        $this->assertSame(['included' => 3, 'extra_price' => 15], $plans[2]['branches']);
+        $this->assertSame(1, $plans[1]['masters']);
+        $this->assertContains('booking', $plans[2]['features']);
+        $this->assertNull($plans[2]['masters']);
+        $this->assertContains('deposits', $plans[3]['features']);
+        $this->assertSame(['included' => 3, 'extra_price' => 15], $plans[3]['branches']);
     }
 
     public function test_busy_lists_upcoming_bookings_without_client_details(): void

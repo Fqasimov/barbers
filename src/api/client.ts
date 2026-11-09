@@ -52,6 +52,8 @@ const KNOWN: AuthErrorCode[] = [
   'already_checked_in',
   'not_checked_in',
   'master_taken',
+  'master_limit',
+  'too_many_masters',
 ];
 
 /** The salon location /business calls act on (Pro branches); null = the main salon. */
