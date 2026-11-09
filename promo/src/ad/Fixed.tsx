@@ -1,5 +1,15 @@
 import React from "react";
-import { AbsoluteFill, Audio, Freeze, Img, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  Freeze,
+  Img,
+  interpolate,
+  OffthreadVideo,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
 
 import iconTrack from "../../public/ugc/ad20-icon-track.json";
 import { Clip, TRIAL_DEMO_CODE } from "../Clip";
@@ -23,9 +33,14 @@ const H = 1920;
 const CUT = 209; // footage up to the tap on the app icon (its own "app opening" follows)
 const ZOOM = 12; // the app opens out of the icon, like iOS
 export const FIXED_AD_FRAMES = 600;
+/** The end: the app zooms back out into the phone in the barber's hand, on the barber video's first frame. */
+const OUT = 24;
+const OUT_AT = FIXED_AD_FRAMES - OUT;
+const HAND_PHONE = { x: 776, y: 1290, scale: 0.31 };
 
 /** Where the footage's home-screen icon is, per frame (template-tracked), as [x, y, size]. */
-const ICON: Record<string, [number, number, number]> = iconTrack as unknown as Record<string, [number, number, number]>;
+const ICON: Record<string, [number, number, number]> =
+  iconTrack as unknown as Record<string, [number, number, number]>;
 
 /** Pieces of the "trial" take, laid end to end inside the phone. */
 const PIECES = (() => {
@@ -78,11 +93,29 @@ const AppPhone: React.FC = () => {
             transform: `rotateY(${turnY}deg) rotateX(${turnX}deg)`,
           }}
         />
-        <div style={{ position: "absolute", inset: 0, transform: `rotateY(${turnY}deg) rotateX(${turnX}deg)` }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            transform: `rotateY(${turnY}deg) rotateX(${turnX}deg)`,
+          }}
+        >
           <Phone width={PHONE_W}>
             {PIECES.map((p, i) => (
-              <Sequence key={i} from={p.at} durationInFrames={i === PIECES.length - 1 ? undefined : p.length} layout="none">
-                <Clip name="trial" from={p.from} playbackRate={p.rate} hide={[TRIAL_DEMO_CODE]} />
+              <Sequence
+                key={i}
+                from={p.at}
+                durationInFrames={
+                  i === PIECES.length - 1 ? undefined : p.length
+                }
+                layout="none"
+              >
+                <Clip
+                  name="trial"
+                  from={p.from}
+                  playbackRate={p.rate}
+                  hide={[TRIAL_DEMO_CODE]}
+                />
               </Sequence>
             ))}
           </Phone>
@@ -120,29 +153,59 @@ const RealIcon: React.FC = () => {
 
 export const FixedAd: React.FC = () => {
   const frame = useCurrentFrame();
-  const open = interpolate(frame, [CUT, CUT + ZOOM], [0, 1], { ...clamp, easing: ease.ios });
+  const open = interpolate(frame, [CUT, CUT + ZOOM], [0, 1], {
+    ...clamp,
+    easing: ease.ios,
+  });
   const [ix, iy, isz] = ICON["208"];
   const cx = ix + isz / 2;
   const cy = iy + isz / 2;
   const sc = interpolate(open, [0, 1], [isz / W, 1]);
+  const zoomOut = interpolate(frame, [OUT_AT, FIXED_AD_FRAMES - 1], [0, 1], {
+    ...clamp,
+    easing: ease.inOut,
+  });
   return (
     <AbsoluteFill style={{ background: "black" }}>
       <Audio src={staticFile("ugc/ad20.mp4")} />
       <Sequence durationInFrames={CUT + ZOOM} layout="none">
-        <OffthreadVideo src={staticFile("ugc/ad20.mp4")} muted style={{ width: W, height: H, objectFit: "cover" }} />
+        <OffthreadVideo
+          src={staticFile("ugc/ad20.mp4")}
+          muted
+          style={{ width: W, height: H, objectFit: "cover" }}
+        />
         <RealIcon />
+      </Sequence>
+      {/* Hand-off to the barber video: its first frame waits behind the app. */}
+      <Sequence from={OUT_AT} layout="none">
+        <Freeze frame={0}>
+          <OffthreadVideo
+            src={staticFile("ugc/barber.mp4")}
+            muted
+            style={{ width: W, height: H, objectFit: "cover" }}
+          />
+        </Freeze>
       </Sequence>
       <Sequence from={CUT} layout="none">
         <AbsoluteFill
           style={{
-            transformOrigin: "0 0",
-            transform: `translate(${(1 - open) * (cx - (W * sc) / 2)}px, ${(1 - open) * (cy - (H * sc) / 2)}px) scale(${sc})`,
-            borderRadius: (1 - open) * 220,
+            transform: `translate(${zoomOut * (HAND_PHONE.x - W / 2)}px, ${zoomOut * (HAND_PHONE.y - H / 2)}px) scale(${1 - zoomOut * (1 - HAND_PHONE.scale)})`,
+            opacity: interpolate(zoomOut, [0.7, 1], [1, 0], clamp),
+            borderRadius: zoomOut * 120,
             overflow: "hidden",
-            opacity: interpolate(open, [0, 0.25], [0.6, 1], clamp),
           }}
         >
-          <AppPhone />
+          <AbsoluteFill
+            style={{
+              transformOrigin: "0 0",
+              transform: `translate(${(1 - open) * (cx - (W * sc) / 2)}px, ${(1 - open) * (cy - (H * sc) / 2)}px) scale(${sc})`,
+              borderRadius: (1 - open) * 220,
+              overflow: "hidden",
+              opacity: interpolate(open, [0, 0.25], [0.6, 1], clamp),
+            }}
+          >
+            <AppPhone />
+          </AbsoluteFill>
         </AbsoluteFill>
       </Sequence>
     </AbsoluteFill>
@@ -165,7 +228,17 @@ const FullScreenApp: React.FC<{ from: number }> = ({ from }) => {
   const s = W / PT.w;
   return (
     <AbsoluteFill style={{ background: color.linen, overflow: "hidden" }}>
-      <div style={{ position: "absolute", left: 0, top: (H - PT.h * s) / 2, width: PT.w, height: PT.h, transform: `scale(${s})`, transformOrigin: "0 0" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: (H - PT.h * s) / 2,
+          width: PT.w,
+          height: PT.h,
+          transform: `scale(${s})`,
+          transformOrigin: "0 0",
+        }}
+      >
         <Clip name="trial" from={from} />
       </div>
     </AbsoluteFill>
@@ -178,13 +251,25 @@ export const FixedBarber: React.FC = () => {
   const at = B_CUT - B_XF;
   const local = frame - at;
   const appIn = interpolate(frame, [at, B_CUT], [0, 1], clamp);
-  const logo = interpolate(local, [SNIP, SNIP + LOGO_XF], [0, 1], { ...clamp, easing: ease.out });
-  const tag = interpolate(local, [SNIP + LOGO_XF, SNIP + LOGO_XF + 22], [0, 1], { ...clamp, easing: ease.out });
+  const logo = interpolate(local, [SNIP, SNIP + LOGO_XF], [0, 1], {
+    ...clamp,
+    easing: ease.out,
+  });
+  const tag = interpolate(
+    local,
+    [SNIP + LOGO_XF, SNIP + LOGO_XF + 22],
+    [0, 1],
+    { ...clamp, easing: ease.out },
+  );
   return (
     <AbsoluteFill style={{ background: "black" }}>
       <Audio src={staticFile("ugc/barber.mp4")} />
       <Sequence durationInFrames={B_CUT} layout="none">
-        <OffthreadVideo src={staticFile("ugc/barber.mp4")} muted style={{ width: W, height: H, objectFit: "cover" }} />
+        <OffthreadVideo
+          src={staticFile("ugc/barber.mp4")}
+          muted
+          style={{ width: W, height: H, objectFit: "cover" }}
+        />
       </Sequence>
       <Sequence from={at} layout="none">
         <AbsoluteFill style={{ opacity: appIn }}>
@@ -211,8 +296,28 @@ export const FixedBarber: React.FC = () => {
           transform: `translateY(${(1 - tag) * 24}px)`,
         }}
       >
-        <div style={{ fontFamily: font, fontWeight: 500, fontSize: 52, color: color.ink, letterSpacing: -0.5 }}>Save your time with us</div>
-        <div style={{ fontFamily: font, fontWeight: 600, fontSize: 40, color: color.nar, marginTop: 18 }}>yazilnow.az</div>
+        <div
+          style={{
+            fontFamily: font,
+            fontWeight: 500,
+            fontSize: 52,
+            color: color.ink,
+            letterSpacing: -0.5,
+          }}
+        >
+          Save your time with us
+        </div>
+        <div
+          style={{
+            fontFamily: font,
+            fontWeight: 600,
+            fontSize: 40,
+            color: color.nar,
+            marginTop: 18,
+          }}
+        >
+          yazilnow.az
+        </div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
