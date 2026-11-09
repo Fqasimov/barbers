@@ -47,6 +47,7 @@ Route::middleware('throttle:public')->group(function () {
     Route::get('slots', [CatalogueController::class, 'slots']);
     Route::get('busy', [CatalogueController::class, 'busy']);
     Route::get('plans', [CatalogueController::class, 'plans']);
+    Route::get('pages/{slug}', [CatalogueController::class, 'page'])->where('slug', '[A-Za-z0-9-]{1,30}');
     Route::post('salons/{id}/click', [CatalogueController::class, 'click'])->middleware('throttle:60,1');
     Route::get('reviews/qr/{code}', [QrReviewController::class, 'show']);
     Route::get('stats', StatsController::class);

@@ -46,6 +46,8 @@ class SalonResource extends JsonResource
             // app: book here. link: Sadə, "Book" opens booking_url (or WhatsApp/phone when unset).
             'booking' => $this->resource->takesBookings() ? 'app' : 'link',
             'booking_url' => $this->booking_url,
+            'slug' => $this->slug,
+            'page_url' => $this->resource->pageUrl(),
             // Pro: deposits for no-show protection and the waitlist.
             'deposits' => $this->resource->hasFeature('deposits'),
             'waitlist' => $this->resource->hasFeature('waitlist'),

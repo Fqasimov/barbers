@@ -22,6 +22,9 @@ class BusinessController extends Controller
     public function update(Request $request): JsonResponse
     {
         $this->normalize($request);
+        if (is_string($request->input('slug'))) {
+            $request->merge(['slug' => mb_strtolower(trim($request->input('slug')))]);
+        }
         $data = $request->validate([
             'salon_name' => ['sometimes', 'required', 'string', 'min:2', 'max:120'],
             'about' => ['sometimes', 'nullable', new LocText(2000)],
@@ -42,7 +45,13 @@ class BusinessController extends Controller
             'hours.close' => ['required_with:hours', ...V::clock()],
             'closed_days' => ['sometimes', 'present', 'array', 'max:7'],
             'closed_days.*' => ['integer', 'distinct', 'between:0,6'],
+            // Personal page: <slug>.yazilnow.az. Lowercase latin letters, digits and single hyphens.
+            'slug' => ['sometimes', 'nullable', 'string', 'min:3', 'max:30', 'regex:/^[a-z0-9]+(-[a-z0-9]+)*$/',
+                Rule::notIn(config('usta.reserved_slugs')), Rule::unique('businesses', 'slug')->ignore($this->business($request)->id)],
         ]);
+        if (! empty($data['slug'])) {
+            $this->business($request)->requireFeature('personal_page');
+        }
         if (isset($data['hours']) && $data['hours']['close'] <= $data['hours']['open']) {
             throw ValidationException::withMessages(['hours.close' => ['Closing time must be after opening time.']]);
         }
@@ -55,6 +64,7 @@ class BusinessController extends Controller
                 'about' => $map['about'] = Loc::from($value),
                 'whatsapp' => $map['whatsapp'] = $value ? ltrim($value, '+') : '',
                 'booking_url' => $map['booking_url'] = $value ? trim($value) : null,
+                'slug' => $map['slug'] = $value ?: null,
                 'coords' => [$map['latitude'], $map['longitude']] = $value ? [(float) $value['latitude'], (float) $value['longitude']] : [null, null],
                 'categories' => $map['categories'] = array_values($value),
                 'hours' => [$map['hours_open'], $map['hours_close']] = [$value['open'], $value['close']],

@@ -63,6 +63,11 @@ return [
             'month' => (int) env('PLAN_PRICE_SADE', 10),
             'year' => (int) env('PLAN_PRICE_SADE_YEAR', 10 * (int) env('PLAN_PRICE_SADE', 10)),
         ],
+        // One person (a solo master, or one master at a salon): everything in Start, one master, a personal page.
+        'ferdi' => [
+            'month' => (int) env('PLAN_PRICE_FERDI', 10),
+            'year' => (int) env('PLAN_PRICE_FERDI_YEAR', 10 * (int) env('PLAN_PRICE_FERDI', 10)),
+        ],
         'start' => [
             'month' => (int) env('PLAN_PRICE_START', 29),
             'year' => (int) env('PLAN_PRICE_START_YEAR', 10 * (int) env('PLAN_PRICE_START', 29)),
@@ -76,10 +81,20 @@ return [
     // What each plan unlocks. A Pro trial unlocks Pro.
     'plan_features' => [
         'sade' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report'],
-        'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon'],
+        'ferdi' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page'],
+        'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page'],
         'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
-            'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+            'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     ],
+
+    // Plans with a cap on masters (Fərdi is one person).
+    'master_limit' => ['ferdi' => 1],
+
+    // Personal pages: <slug>.<page_domain> (needs a wildcard DNS record and certificate) and <web_url>/u/<slug>.
+    'page_domain' => env('PAGE_DOMAIN', 'yazilnow.az'),
+    'reserved_slugs' => ['www', 'app', 'api', 'admin', 'mail', 'smtp', 'panel', 'help', 'support', 'privacy', 'terms',
+        'billing', 'static', 'assets', 'cdn', 'blog', 'status', 'dev', 'test', 'staging', 'webmail', 'cpanel', 'ftp',
+        'ns1', 'ns2', 'yazilnow', 'usta', 'salon', 'salons', 'r', 's', 'u'],
 
     // Pro: locations (the main salon + branches) in the price, then each extra one per month.
     'branches' => [

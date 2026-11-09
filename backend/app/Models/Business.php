@@ -117,7 +117,21 @@ class Business extends Model
         return $plan !== null && in_array($feature, config("usta.plan_features.{$plan}", []), true);
     }
 
-    /** In-app booking (Start and Pro); Sadə sends clients to its own link. */
+    /** How many masters the plan allows (Fərdi: one person), or null for no limit. */
+    public function masterLimit(): ?int
+    {
+        $limit = config('usta.master_limit.'.$this->planId());
+
+        return $limit === null ? null : (int) $limit;
+    }
+
+    /** The personal page, if the salon has picked an address: https://<slug>.yazilnow.az */
+    public function pageUrl(): ?string
+    {
+        return $this->slug ? 'https://'.$this->slug.'.'.config('usta.page_domain') : null;
+    }
+
+    /** In-app booking (Fərdi, Start and Pro); Sadə sends clients to its own link. */
     public function takesBookings(): bool
     {
         return $this->hasFeature('booking');

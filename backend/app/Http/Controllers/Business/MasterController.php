@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Business;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
 use App\Models\Booking;
@@ -23,6 +24,10 @@ class MasterController extends Controller
     {
         $data = $this->validated($request, creating: true);
         $business = $this->business($request);
+        $limit = $business->masterLimit();
+        if ($limit !== null && Master::query()->where('business_id', $business->id)->count() >= $limit) {
+            throw new ApiException(402, 'master_limit', 'Fərdi is for one person. Move to Start to add more masters.');
+        }
 
         $master = DB::transaction(function () use ($data, $business) {
             $master = new Master;
