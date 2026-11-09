@@ -43,6 +43,8 @@ class SalonResource extends JsonResource
             'distribution' => RatingService::distribution($this->resource),
             'hours' => ['open' => $this->hours_open, 'close' => $this->hours_close],
             'closed_days' => array_values(array_map('intval', $this->closed_days ?? [])),
+            // Per weekday, index 0 = Sunday: {open, close} or null when closed.
+            'hours_week' => $this->resource->weekHours(),
             // app: book here. link: Sadə, "Book" opens booking_url (or WhatsApp/phone when unset).
             'booking' => $this->resource->takesBookings() ? 'app' : 'link',
             'booking_url' => $this->booking_url,
@@ -51,6 +53,7 @@ class SalonResource extends JsonResource
             'waitlist' => $this->resource->hasFeature('waitlist'),
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
+            'logo_url' => $this->resource->logoUrl(),
             'women_only' => $this->audience === 'women',
             'audience' => $this->audience,
             'amenities' => array_map(fn ($a) => Loc::fill($a), $this->amenities ?? []),

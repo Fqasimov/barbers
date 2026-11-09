@@ -48,7 +48,7 @@ export type Plan = {
   recommended?: boolean;
 };
 
-const base: FeatureId[] = ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report'];
+const base: FeatureId[] = ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'stats', 'staff'];
 const startUnlocks: FeatureId[] = [...base, 'booking', 'whatsapp_addon'];
 
 export const plans: Plan[] = [
@@ -69,6 +69,12 @@ export const plans: Plan[] = [
         '"Book" button to your own page (DIKIDI, WhatsApp, phone)',
       ),
       L('Aylıq klik hesabatı', 'Ежемесячный отчёт по кликам', 'Monthly click report'),
+      L('Statistika: gəlir, müştərilər, kanallar', 'Статистика: доход, клиенты, каналы', 'Statistics: earnings, clients, channels'),
+      L(
+        'Ustalar üçün kabinet: gəliş-gediş qeydi',
+        'Кабинет мастера: отметка прихода и ухода',
+        'Staff cabinet: check-in and check-out',
+      ),
     ],
   },
   {
@@ -97,7 +103,7 @@ export const plans: Plan[] = [
     priceYear: 49 * YEAR_MONTHS_PAID,
     recommended: true,
     blurb: L('Böyüyən salonlar üçün', 'Для растущих салонов', 'For growing salons'),
-    unlocks: [...startUnlocks, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+    unlocks: [...startUnlocks, 'branches', 'managers', 'deposits', 'waitlist', 'priority_support'],
     features: [
       L('Start planındakı hər şey', 'Всё из тарифа Start', 'Everything in Start'),
       L(
@@ -108,7 +114,7 @@ export const plans: Plan[] = [
       L('Filiallar üzrə ümumi hesabat', 'Сводные отчёты по филиалам', 'Combined reports across branches'),
       L('Filial menecerləri', 'Роли менеджеров филиалов', 'Branch manager roles'),
       L('Gəlməmə qorunması və depozit', 'Защита от неявок и депозиты', 'No-show protection and deposits'),
-      L('Gözləmə siyahısı və statistika', 'Лист ожидания и статистика', 'Waitlist and statistics'),
+      L('Gözləmə siyahısı', 'Лист ожидания', 'Waitlist'),
       L('Prioritet dəstək və telefon xətti', 'Приоритетная поддержка и телефон', 'Priority support and a phone line'),
     ],
   },

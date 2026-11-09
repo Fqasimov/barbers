@@ -26,6 +26,7 @@ export default function Panel() {
   const insets = useSafeAreaInsets();
   const session = useSession((s) => s.session);
   if (session?.business) return <Redirect href="/business" />;
+  if (session?.staff) return <Redirect href="/staff" />;
   const points = [i18n.t('panelPoint1'), i18n.t('panelPoint2'), i18n.t('panelPoint3')];
   return (
     <View style={[styles.wrap, { backgroundColor: c.bg }]}>

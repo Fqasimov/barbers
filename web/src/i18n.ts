@@ -216,6 +216,8 @@ export const dict = {
   reviewsLoading: { az: 'Rəylər yüklənir…', ru: 'Загружаем отзывы…', en: 'Loading reviews…' },
   listTitle: { az: 'Bütün məkanlar', ru: 'Все места', en: 'All places' },
   close: { az: 'Bağla', ru: 'Закрыть', en: 'Close' },
+  mapWhatsApp: { az: 'WhatsApp-da yaz', ru: 'Написать в WhatsApp', en: 'Message on WhatsApp' },
+  mapBook: { az: 'Bron et', ru: 'Записаться', en: 'Book' },
 
   // Join (registration)
   joinKicker: { az: 'Salonlar üçün', ru: 'Для салонов', en: 'For salons' },

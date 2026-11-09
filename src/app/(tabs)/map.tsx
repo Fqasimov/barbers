@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ChevronRight, LocateFixed, SearchX } from 'lucide-react-native';
+import { CalendarPlus, ChevronRight, LocateFixed, MessageCircle, SearchX } from 'lucide-react-native';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -23,11 +23,13 @@ import { useOrigin } from '@/hooks/useOrigin';
 import { useI18n } from '@/i18n';
 import { useLocalReviews } from '@/hooks/useSalon';
 import { useVisibleSalons } from '@/hooks/useVisibleSalons';
+import { booksInApp, bookExternally, messageSalon } from '@/lib/actions';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
 
 const GAP = 10;
-const CARD_H = 108;
+// The salon row, then WhatsApp and Book underneath.
+const CARD_H = 158;
 
 export default function MapScreen() {
   const { c } = useTheme();
@@ -213,43 +215,68 @@ const MapCard = memo(function MapCard({
   const i18n = useI18n();
   const { salon, live, distance } = item;
   const open = openState(salon);
+  const book = () =>
+    booksInApp(salon) ? router.push({ pathname: '/book/[id]', params: { id: salon.id } }) : bookExternally(salon);
   return (
-    <PressableScale
-      onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
-      scaleTo={0.98}
-      accessibilityLabel={`${best ? `${i18n.t('bestPick')}. ` : ''}${salon.name}, ${i18n.distance(distance)}, ${i18n.fromPrice(fromPrice(salon))}`}
+    <View
       style={[
         styles.card,
         { width, backgroundColor: c.surface, borderColor: active ? c.ink : 'transparent' },
         shadow(c, 2),
       ]}
     >
-      <SalonPhoto salon={salon} width={84} height={84} radius={radius.md} />
-      <View style={{ flex: 1, gap: 2 }}>
-        {best ? (
-          <Text variant="micro" tone="accent">
-            {i18n.t('bestPick')}
+      <PressableScale
+        onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
+        scaleTo={0.98}
+        accessibilityLabel={`${best ? `${i18n.t('bestPick')}. ` : ''}${salon.name}, ${i18n.distance(distance)}, ${i18n.fromPrice(fromPrice(salon))}`}
+        style={styles.cardMain}
+      >
+        <SalonPhoto salon={salon} width={72} height={72} radius={radius.md} />
+        <View style={{ flex: 1, gap: 2 }}>
+          {best ? (
+            <Text variant="micro" tone="accent">
+              {i18n.t('bestPick')}
+            </Text>
+          ) : (
+            <Text variant="caption" tone="muted" numberOfLines={1}>
+              {i18n.tx(salon.kind)} · {salon.district}
+            </Text>
+          )}
+          <Text variant="headline" numberOfLines={1}>
+            {salon.name}
           </Text>
-        ) : (
-          <Text variant="caption" tone="muted" numberOfLines={1}>
-            {i18n.tx(salon.kind)} · {salon.district}
-          </Text>
-        )}
-        <Text variant="headline" numberOfLines={1}>
-          {salon.name}
-        </Text>
-        <View style={styles.meta}>
-          <RatingInline rating={live.rating} size="sm" />
-          <Text variant="caption" tone="soft">
-            · {i18n.distance(distance)} · {i18n.fromPrice(fromPrice(salon))}
+          <View style={styles.meta}>
+            <RatingInline rating={live.rating} size="sm" />
+            <Text variant="caption" tone="soft">
+              · {i18n.distance(distance)} · {i18n.fromPrice(fromPrice(salon))}
+            </Text>
+          </View>
+          <Text variant="caption" style={{ color: open.open ? c.success : c.inkMuted }}>
+            {i18n.t(open.kind, { time: open.time ?? '' })}
           </Text>
         </View>
-        <Text variant="caption" style={{ color: open.open ? c.success : c.inkMuted }}>
-          {i18n.t(open.kind, { time: open.time ?? '' })}
-        </Text>
+        <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
+      </PressableScale>
+      <View style={styles.actions}>
+        {salon.whatsapp ? (
+          <Button
+            label={i18n.t('mapWhatsApp')}
+            icon={MessageCircle}
+            variant="secondary"
+            size="sm"
+            onPress={() => messageSalon(salon)}
+            style={{ flex: 1 }}
+          />
+        ) : null}
+        <Button
+          label={i18n.t('mapBook')}
+          icon={CalendarPlus}
+          size="sm"
+          onPress={book}
+          style={{ flex: 1 }}
+        />
       </View>
-      <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
-    </PressableScale>
+    </View>
   );
 });
 
@@ -269,13 +296,13 @@ const styles = StyleSheet.create({
   rail: { position: 'absolute', left: 0, right: 0, height: CARD_H + 16 },
   card: {
     height: CARD_H,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
     padding: 12,
+    gap: 10,
     borderRadius: radius.lg,
     borderWidth: 1.5,
   },
+  cardMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  actions: { flexDirection: 'row', gap: 8 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   empty: { height: CARD_H, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: radius.lg },
 });

@@ -96,6 +96,11 @@ export type Venue = {
   reviewCount: number;
   tone: string;
   photo: string | null;
+  /** Digits only, international; empty when the salon has none. */
+  whatsapp?: string;
+  /** app: book in yazılnow. link: the salon's own page (bookingUrl), else WhatsApp. */
+  booking?: 'app' | 'link';
+  bookingUrl?: string | null;
 };
 
 export type VenueReview = { author: string; rating: number; text: string; date: string; serviceName: Loc | null };
@@ -130,6 +135,9 @@ type ApiSalon = {
   review_count: number;
   tone: string;
   photos: string[];
+  whatsapp?: string;
+  booking?: 'app' | 'link';
+  booking_url?: string | null;
 };
 
 /** Every listed venue: from the API when it's set, sample data in demo mode, otherwise none. */
@@ -148,6 +156,9 @@ export async function loadVenues(): Promise<Venue[]> {
       reviewCount: s.review_count,
       tone: s.tone,
       photo: s.photos?.[0] ?? null,
+      whatsapp: s.whatsapp ?? '',
+      booking: s.booking ?? 'app',
+      bookingUrl: s.booking_url ?? null,
     }));
   }
   if (!isDemo) return [];

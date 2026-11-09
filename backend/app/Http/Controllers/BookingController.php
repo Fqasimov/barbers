@@ -33,6 +33,9 @@ class BookingController extends Controller
             'start' => ['required', 'date'],
             'note' => ['nullable', 'string', 'max:500'],
         ]);
+        // Where the client booked from (the app sends X-Platform): ios | android | web.
+        $platform = strtolower((string) $request->header('X-Platform'));
+        $data['channel'] = in_array($platform, ['ios', 'android', 'web'], true) ? $platform : null;
         $booking = $this->bookings->create($request->user(), $data);
         $booking->review_exists = false;
 

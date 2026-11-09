@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Business\AddonController;
+use App\Http\Controllers\Business\AttendanceController;
 use App\Http\Controllers\Business\BranchController;
 use App\Http\Controllers\Business\BusinessBookingController;
 use App\Http\Controllers\Business\BusinessController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\QrReviewController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +77,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('me/waitlist/{id}', [WaitlistController::class, 'destroy']);
     Route::post('reviews/{id}/report', [ReviewController::class, 'report'])->middleware('throttle:bookings');
 
+    // A master's own cabinet (team members invited as staff).
+    Route::get('staff/me', [StaffController::class, 'show']);
+    Route::get('staff/stats', [StaffController::class, 'stats']);
+    Route::post('staff/check-in', [StaffController::class, 'checkIn'])->middleware('throttle:bookings');
+    Route::post('staff/check-out', [StaffController::class, 'checkOut'])->middleware('throttle:bookings');
+
     Route::middleware('business')->prefix('business')->group(function () {
         Route::get('/', [BusinessController::class, 'show']);
         Route::patch('/', [BusinessController::class, 'update']);
@@ -82,6 +90,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('masters', [MasterController::class, 'store']);
         Route::patch('masters/{id}', [MasterController::class, 'update']);
         Route::delete('masters/{id}', [MasterController::class, 'destroy']);
+        Route::post('masters/{id}/photo', [MasterController::class, 'photo']);
+        Route::delete('masters/{id}/photo', [MasterController::class, 'deletePhoto']);
+        Route::post('logo', [BusinessController::class, 'logo']);
+        Route::delete('logo', [BusinessController::class, 'deleteLogo']);
+        Route::get('attendance', [AttendanceController::class, 'index']);
 
         Route::post('services', [ServiceController::class, 'store']);
         Route::patch('services/{id}', [ServiceController::class, 'update']);

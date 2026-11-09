@@ -49,7 +49,7 @@ export default function RootLayout() {
 }
 
 const PANEL_FLAG = 'yazilnow-panel-flow';
-const isPanelPath = (p: string) => p === '/panel' || p.startsWith('/business');
+const isPanelPath = (p: string) => p === '/panel' || p.startsWith('/business') || p === '/staff';
 const isAuthPath = (p: string) => p.startsWith('/auth');
 
 /**
@@ -161,6 +161,7 @@ function App() {
               <Stack.Screen name="business/index" />
               <Stack.Screen name="account/delete" />
               <Stack.Screen name="panel" />
+            <Stack.Screen name="staff" />
             </Stack>
             <Toaster />
           </WideContext.Provider>

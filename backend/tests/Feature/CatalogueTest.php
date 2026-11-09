@@ -54,7 +54,7 @@ class CatalogueTest extends TestCase
         $this->assertSame(2, $s['price_level']);
         $this->assertSame([0, 0, 0, 0, 0], $s['distribution']);
         $this->assertSame(['id', 'key', 'name', 'description', 'category', 'duration_min', 'price', 'deposit'], array_keys($s['services'][0]));
-        $this->assertSame(['id', 'name', 'role', 'years', 'rating', 'review_count', 'service_ids', 'work_days', 'shift', 'tone', 'languages', 'photo_url'], array_keys($s['masters'][0]));
+        $this->assertSame(['id', 'name', 'role', 'years', 'rating', 'review_count', 'service_ids', 'work_days', 'shift', 'schedule', 'tone', 'languages', 'photo_url'], array_keys($s['masters'][0]));
         $this->assertSame([$s['services'][0]['id']], $s['masters'][0]['service_ids']);
     }
 

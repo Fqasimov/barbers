@@ -1,38 +1,31 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 import { businessApi } from '@/api/business';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { DayPicker, isClock, TimeField, useOwner } from '@/components/business/kit';
+import { useOwner } from '@/components/business/kit';
+import { checkWeek, WeekEditor, type WeekErrors, type WeekSpans } from '@/components/business/WeekEditor';
+import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
-import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
-import type { StringKey } from '@/i18n/strings';
-import { toMinutes } from '@/lib/time';
+import { salonWeek } from '@/lib/week';
 
-/** When the salon is open. Masters' shifts are offered only inside these hours. */
+/** When the salon is open, day by day. Masters' shifts are offered only inside these hours. */
 export default function Hours() {
   const i18n = useI18n();
   const { business, busy, run } = useOwner();
-  const [open, setOpen] = useState(business?.hours?.open ?? '10:00');
-  const [close, setClose] = useState(business?.hours?.close ?? '20:00');
-  const [closed, setClosed] = useState<number[]>(business?.closedDays ?? []);
-  const [errors, setErrors] = useState<{ open?: StringKey; close?: StringKey }>({});
+  const [week, setWeek] = useState<WeekSpans>(() =>
+    salonWeek(business ?? {}).map((d) => (d ? { from: d.open, to: d.close } : null)),
+  );
+  const [errors, setErrors] = useState<WeekErrors>({});
 
   const save = async () => {
-    const e = {
-      open: isClock(open) ? undefined : ('errClock' as const),
-      close: !isClock(close)
-        ? ('errClock' as const)
-        : isClock(open) && toMinutes(close) <= toMinutes(open)
-          ? ('errCloseAfterOpen' as const)
-          : undefined,
-    };
+    const e = checkWeek(week);
     setErrors(e);
-    if (e.open || e.close) return;
+    if (Object.keys(e).length) return;
+    if (week.every((d) => d === null)) return toast(i18n.t('errPickDays'), 'info');
     const ok = await run(
-      (token) => businessApi.update(token, { hours: { open, close }, closedDays: closed }),
+      (token) => businessApi.update(token, { hoursWeek: week.map((d) => (d ? { open: d.from, close: d.to } : null)) }),
       i18n.t('savedToast'),
     );
     if (ok) router.back();
@@ -41,37 +34,19 @@ export default function Hours() {
   return (
     <AuthLayout
       title={i18n.t('hoursTitle')}
-      subtitle={i18n.t('hoursSub')}
+      subtitle={i18n.t('hoursWeekSub')}
       footer={<Button label={i18n.t('save')} onPress={save} loading={busy} />}
     >
-      <View style={styles.pair}>
-        <View style={{ flex: 1 }}>
-          <TimeField
-            label={i18n.t('fOpens')}
-            value={open}
-            onChange={setOpen}
-            error={errors.open ? i18n.t(errors.open) : null}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <TimeField
-            label={i18n.t('fCloses')}
-            value={close}
-            onChange={setClose}
-            error={errors.close ? i18n.t(errors.close) : null}
-          />
-        </View>
-      </View>
-      <View style={{ gap: 8 }}>
-        <Text variant="captionStrong" tone="soft">
-          {i18n.t('fClosedDays')}
-        </Text>
-        <DayPicker value={closed} onChange={setClosed} />
-      </View>
+      <WeekEditor
+        value={week}
+        onChange={setWeek}
+        errors={errors}
+        fromLabel={i18n.t('fOpens')}
+        toLabel={i18n.t('fCloses')}
+        onLabel={i18n.t('dayOpen')}
+        offLabel={i18n.t('dayClosed')}
+        fallback={{ from: business?.hours?.open ?? '10:00', to: business?.hours?.close ?? '20:00' }}
+      />
     </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  pair: { flexDirection: 'row', gap: 12 },
-});

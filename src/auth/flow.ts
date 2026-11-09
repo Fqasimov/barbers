@@ -63,6 +63,12 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errCodeUsed';
     case 'own_salon':
       return 'errOwnSalon';
+    case 'already_checked_in':
+      return 'errAlreadyCheckedIn';
+    case 'not_checked_in':
+      return 'errNotCheckedIn';
+    case 'master_taken':
+      return 'errMasterTaken';
     case 'review_limit':
       return 'errReviewLimit';
     case 'waitlist_limit':
@@ -122,7 +128,8 @@ export function useFinishSignIn() {
         return;
       }
       toast(i18n.t('welcomeUser', { name: firstName || session.user.email }));
-      exit(session.user.role === 'business' ? '/business' : undefined);
+      // Salon owners go to their panel; a master the owner invited goes to their own cabinet.
+      exit(session.user.role === 'business' ? '/business' : session.staff && !session.business ? '/staff' : undefined);
     },
     [exit, i18n, setSession],
   );

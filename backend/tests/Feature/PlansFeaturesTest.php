@@ -86,8 +86,9 @@ class PlansFeaturesTest extends TestCase
             ->assertJsonPath('totals.book', 2)->assertJsonPath('totals.phone', 1)
             ->assertJsonPath('by_day.0.date', '2026-10-12');
 
-        // Pro-only tools say which plan is needed.
-        $this->getJson('/api/business/stats', $this->auth($salon->owner))->assertStatus(402)->assertJsonPath('error', 'plan_required');
+        // Statistics are on every plan; Pro-only tools say which plan is needed.
+        $this->getJson('/api/business/stats', $this->auth($salon->owner))->assertOk();
+        $this->getJson('/api/business/waitlist', $this->auth($salon->owner))->assertStatus(402)->assertJsonPath('error', 'plan_required');
     }
 
     public function test_owner_sets_the_booking_link(): void
@@ -355,8 +356,9 @@ class PlansFeaturesTest extends TestCase
         $all = $this->getJson('/api/business/stats?scope=all', $h)->assertOk()->json();
         $this->assertSame([$salon->id, $branch], array_column($all['by_location'], 'id'));
 
+        // Every plan has statistics now.
         $this->onPlan($salon, 'start');
-        $this->getJson('/api/business/stats', $h)->assertStatus(402);
+        $this->getJson('/api/business/stats', $h)->assertOk();
     }
 
     // --- WhatsApp and support ----------------------------------------------

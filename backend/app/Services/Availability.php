@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Free start times, computed the same way as the app (src/data/availability.ts):
- *  - window = master shift ∩ salon hours; none on closed days or days off
+ *  - window = master shift ∩ salon hours of that weekday; none on closed days or days off
  *  - candidates every 30 min from the window start; start + duration ≤ end
  *  - no overlap with the master's `upcoming` bookings
  *  - same-day starts at least 30 min from now; bookable 7 days ahead incl. today
@@ -23,13 +23,13 @@ class Availability
     public function window(Business $salon, Master $master, CarbonImmutable $date): ?array
     {
         $dow = $date->dayOfWeek; // 0 = Sunday
-        $closed = array_map('intval', $salon->closed_days ?? []);
-        $works = array_map('intval', $master->work_days ?? []);
-        if (in_array($dow, $closed, true) || ! in_array($dow, $works, true)) {
+        $hours = $salon->dayHours($dow);
+        $shift = $master->dayShift($dow);
+        if (! $hours || ! $shift) {
             return null;
         }
-        $start = max(Baku::minutes($master->shift_start), Baku::minutes($salon->hours_open));
-        $end = min(Baku::minutes($master->shift_end), Baku::minutes($salon->hours_close));
+        $start = max(Baku::minutes($shift[0]), Baku::minutes($hours[0]));
+        $end = min(Baku::minutes($shift[1]), Baku::minutes($hours[1]));
 
         return $end > $start ? [$start, $end] : null;
     }

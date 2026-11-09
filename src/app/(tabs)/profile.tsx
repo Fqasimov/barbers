@@ -1,5 +1,16 @@
 import { router } from 'expo-router';
-import { ChevronRight, FileText, Heart, LogOut, Mail, PencilLine, ShieldCheck, Store, UserPlus } from 'lucide-react-native';
+import {
+  ChevronRight,
+  ClipboardCheck,
+  FileText,
+  Heart,
+  LogOut,
+  Mail,
+  PencilLine,
+  ShieldCheck,
+  Store,
+  UserPlus,
+} from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -395,6 +406,15 @@ function AccountCard() {
         />
         {u.role === 'business' || session.business ? (
           <Button label={i18n.t('dashTitle')} icon={Store} size="sm" onPress={() => router.push('/business')} />
+        ) : null}
+        {session.staff ? (
+          <Button
+            label={i18n.t('staffCabinet')}
+            icon={ClipboardCheck}
+            size="sm"
+            variant={session.business ? 'secondary' : 'primary'}
+            onPress={() => router.push('/staff')}
+          />
         ) : null}
       </View>
     </View>

@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
-import { LocateFixed, MapPinCheck } from 'lucide-react-native';
+import { LocateFixed, MapPinCheck, Store } from 'lucide-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Choice } from '@/components/auth/Choice';
 import { FormField } from '@/components/auth/FormField';
 import { locFrom, useOwner } from '@/components/business/kit';
+import { PhotoField } from '@/components/business/PhotoField';
 import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
@@ -93,10 +94,15 @@ export default function SalonDetails() {
 
   const err = (k: keyof Errors) => (errors[k] ? i18n.t(errors[k]!) : null);
   return (
-    <AuthLayout
-      title={i18n.t('detailsTitle')}
-      footer={<Button label={i18n.t('save')} onPress={save} loading={busy} />}
-    >
+    <AuthLayout title={i18n.t('detailsTitle')} footer={<Button label={i18n.t('save')} onPress={save} loading={busy} />}>
+      <PhotoField
+        label={i18n.t('fLogo')}
+        hint={i18n.t('logoHint')}
+        url={business?.logoUrl}
+        placeholderIcon={Store}
+        onPick={(uri) => run((token) => businessApi.uploadLogo(token, uri), i18n.t('savedToast'))}
+        onRemove={() => run((token) => businessApi.deleteLogo(token))}
+      />
       <FormField
         label={i18n.t('fSalonName')}
         placeholder={i18n.t('phSalonName')}
@@ -208,5 +214,12 @@ export default function SalonDetails() {
 
 const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  locate: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth },
+  locate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
 });

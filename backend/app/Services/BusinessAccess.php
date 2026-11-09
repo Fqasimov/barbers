@@ -28,7 +28,9 @@ class BusinessAccess
                 $out->push(['business' => $b, 'role' => 'owner', 'member' => null]);
             }
         }
-        $members = BusinessMember::query()->where('user_id', $user->id)->whereNotNull('accepted_at')->with('business')->get();
+        // Staff have their own cabinet (StaffController), not the salon panel.
+        $members = BusinessMember::query()->where('user_id', $user->id)->whereNotNull('accepted_at')
+            ->where('role', '!=', BusinessMember::STAFF)->with('business')->get();
         foreach ($members as $m) {
             if (! $m->business || ! $m->business->hasFeature('managers')) {
                 continue;
@@ -41,6 +43,17 @@ class BusinessAccess
         }
 
         return $out;
+    }
+
+    /** The staff seat this user holds (the newest), with its master and salon; null if none. */
+    public function staffSeat(User $user): ?BusinessMember
+    {
+        $this->claimInvites($user);
+
+        return BusinessMember::query()->where('user_id', $user->id)->whereNotNull('accepted_at')
+            ->where('role', BusinessMember::STAFF)->whereNotNull('master_id')
+            ->with(['master.business', 'business'])->latest('id')->get()
+            ->first(fn (BusinessMember $m) => $m->master && $m->master->business && $m->business?->hasFeature('staff'));
     }
 
     /** The location to act on: the one asked for (X-Branch), else the first. */

@@ -119,6 +119,7 @@ class BookingService
             $booking->forceFill([
                 'business_id' => $salon->id,
                 'user_id' => $user->id,
+                'channel' => $data['channel'] ?? null,
                 'master_id' => $master->id,
                 'services' => $ordered->map(fn ($s) => [
                     'id' => $s->id,

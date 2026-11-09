@@ -3,6 +3,7 @@ import {
   BarChart3,
   BellRing,
   Building2,
+  ClipboardCheck,
   ListTodo,
   LifeBuoy,
   MessageCircle,
@@ -21,6 +22,7 @@ import {
   Store,
   Users,
 } from 'lucide-react-native';
+import { Image } from 'expo-image';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +46,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useStore } from '@/store/useStore';
 import { gutter, isSite, radius, shadow } from '@/theme/tokens';
 import { useWide } from '@/theme/wide';
+import { salonDay } from '@/lib/week';
 
 const DAY = 86_400_000;
 
@@ -97,7 +100,9 @@ export default function BusinessDashboard() {
   ];
   const locations = business.locations ?? [];
   const lockedTo = (f: Feature) =>
-    planById(f === 'click_report' || f === 'qr_reviews' ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro').name;
+    planById(
+      ['click_report', 'qr_reviews', 'stats', 'staff'].includes(f) ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro',
+    ).name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
     can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
@@ -120,6 +125,7 @@ export default function BusinessDashboard() {
     }
   };
   const sub = business.subscription;
+  const todayHours = salonDay(business, new Date().getDay());
   const plan = sub ? planById(sub.plan) : null;
   const ends = sub ? new Date(sub.trialEndsAt) : null;
   const daysLeft = ends ? Math.max(0, Math.ceil((ends.getTime() - now) / DAY)) : 0;
@@ -144,11 +150,21 @@ export default function BusinessDashboard() {
       <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 16 }}>
         <View style={wide ? styles.cols : { gap: 16 }}>
           <View style={wide ? styles.colLeft : { gap: 16 }}>
-            <View>
-              <Text variant="largeTitle">{business.salonName}</Text>
-              <Text variant="subhead" tone="soft" style={{ marginTop: 4 }}>
-                {business.categories.map((id) => i18n.tx(categoryById[id].label)).join(' · ')} · {business.district}
-              </Text>
+            <View style={styles.titleRow}>
+              {business.logoUrl ? (
+                <Image
+                  source={{ uri: business.logoUrl }}
+                  style={[styles.logo, { borderColor: c.line, backgroundColor: c.sunken }]}
+                  contentFit="cover"
+                  accessibilityIgnoresInvertColors
+                />
+              ) : null}
+              <View style={{ flex: 1 }}>
+                <Text variant="largeTitle">{business.salonName}</Text>
+                <Text variant="subhead" tone="soft" style={{ marginTop: 4 }}>
+                  {business.categories.map((id) => i18n.tx(categoryById[id].label)).join(' · ')} · {business.district}
+                </Text>
+              </View>
             </View>
 
             {locations.length > 1 ? (
@@ -193,9 +209,16 @@ export default function BusinessDashboard() {
             <View style={[styles.card, { backgroundColor: c.primary }]}>
               {sub && plan ? (
                 <>
-                  <Text variant="captionStrong" style={{ color: c.onPrimary, opacity: 0.7 }}>
-                    {plan.name}
-                  </Text>
+                  <View style={styles.planRow} accessibilityRole="summary">
+                    <Text variant="overline" style={{ color: c.onPrimary, opacity: 0.7 }}>
+                      {i18n.t('yourPlan')}
+                    </Text>
+                    <View style={[styles.planPill, { borderColor: 'rgba(255,255,255,0.35)' }]}>
+                      <Text variant="captionStrong" style={{ color: c.onPrimary }}>
+                        {plan.name} · {i18n.t(sub.billingPeriod === 'year' ? 'billYearly' : 'billMonthly')}
+                      </Text>
+                    </View>
+                  </View>
                   {sub.status === 'trialing' ? (
                     <>
                       <Text variant="title" style={{ color: c.onPrimary }}>
@@ -344,9 +367,29 @@ export default function BusinessDashboard() {
               <MenuRow
                 icon={Clock}
                 title={i18n.t('hoursTitle')}
-                detail={business.hours ? `${business.hours.open}–${business.hours.close}` : undefined}
+                detail={
+                  todayHours
+                    ? i18n.t('todayHours', { from: todayHours.open, to: todayHours.close })
+                    : i18n.t('hoursClosedToday')
+                }
                 onPress={() => router.push('/business/hours')}
               />
+              {masters.length ? (
+                <MenuRow
+                  icon={ClipboardCheck}
+                  title={i18n.t('attTitle')}
+                  detail={lockDetail('staff')}
+                  onPress={tool('staff', '/business/attendance')}
+                />
+              ) : null}
+              {owner ? (
+                <MenuRow
+                  icon={UserCog}
+                  title={i18n.t('teamTitle')}
+                  detail={lockDetail('staff')}
+                  onPress={tool('staff', '/business/team')}
+                />
+              ) : null}
               <MenuRow
                 icon={Camera}
                 title={i18n.t('photosTitle')}
@@ -400,12 +443,6 @@ export default function BusinessDashboard() {
                         onPress={tool('branches', '/business/branches')}
                       />
                       <MenuRow
-                        icon={UserCog}
-                        title={i18n.t('teamTitle')}
-                        detail={lockDetail('managers')}
-                        onPress={tool('managers', '/business/team')}
-                      />
-                      <MenuRow
                         icon={MessageCircle}
                         title={i18n.t('waTitle')}
                         detail={
@@ -456,6 +493,10 @@ export default function BusinessDashboard() {
 
 const styles = StyleSheet.create({
   cols: { flexDirection: 'row', alignItems: 'flex-start', gap: 64 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  logo: { width: 64, height: 64, borderRadius: isSite ? radius.sm : radius.lg, borderWidth: 1 },
+  planRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  planPill: { borderWidth: 1, borderRadius: isSite ? radius.sm : 999, paddingHorizontal: 10, paddingVertical: 4 },
   colLeft: { flex: 1, gap: 16 },
   colRight: { flex: 1, gap: 16 },
   card: { borderRadius: radius.lg, padding: 18, gap: 8 },

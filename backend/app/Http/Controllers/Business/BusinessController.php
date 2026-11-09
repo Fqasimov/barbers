@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BusinessResource;
 use App\Rules\LocText;
 use App\Rules\V;
+use App\Services\Photos\PhotoProcessor;
 use App\Support\Loc;
+use App\Support\PhotoUpload;
+use App\Support\PublicFile;
+use App\Support\Week;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -42,6 +46,7 @@ class BusinessController extends Controller
             'hours.close' => ['required_with:hours', ...V::clock()],
             'closed_days' => ['sometimes', 'present', 'array', 'max:7'],
             'closed_days.*' => ['integer', 'distinct', 'between:0,6'],
+            ...Week::rules('hours_week', 'open', 'close'),
         ]);
         if (isset($data['hours']) && $data['hours']['close'] <= $data['hours']['open']) {
             throw ValidationException::withMessages(['hours.close' => ['Closing time must be after opening time.']]);
@@ -59,10 +64,46 @@ class BusinessController extends Controller
                 'categories' => $map['categories'] = array_values($value),
                 'hours' => [$map['hours_open'], $map['hours_close']] = [$value['open'], $value['close']],
                 'closed_days' => $map['closed_days'] = array_values(array_map('intval', $value)),
+                'hours_week' => null,
                 default => $map[$field] = is_string($value) ? trim($value) : $value,
             };
         }
+        if (array_key_exists('hours_week', $data)) {
+            if ($data['hours_week'] === null) {
+                $map['hours_week'] = null;
+            } else {
+                $week = Week::normalize($data['hours_week'], 'hours_week', 'open', 'close');
+                [$off, $open, $close] = Week::summary($week, 'open', 'close');
+                // Keep the single pair in step for app versions that only read it.
+                $map += ['hours_week' => $week, 'closed_days' => $off, 'hours_open' => $open ?? $b->hours_open, 'hours_close' => $close ?? $b->hours_close];
+            }
+        } elseif (isset($map['hours_open']) || isset($map['closed_days'])) {
+            // An older app set one pair for the week: that replaces the per-day hours.
+            $map['hours_week'] = null;
+        }
         $b->forceFill($map)->save();
+
+        return response()->json((new BusinessResource($b->fresh()))->resolve($request));
+    }
+
+    /** The salon's logo: square-ish mark shown on the map, the salon page and the panel. */
+    public function logo(Request $request, PhotoProcessor $processor): JsonResponse
+    {
+        $b = $this->business($request);
+        $path = PhotoUpload::store($request, $processor, "salons/{$b->id}/logo", 600);
+        $old = $b->logo_path;
+        $b->forceFill(['logo_path' => $path])->save();
+        PublicFile::delete($old);
+
+        return response()->json((new BusinessResource($b->fresh()))->resolve($request));
+    }
+
+    public function deleteLogo(Request $request): JsonResponse
+    {
+        $b = $this->business($request);
+        $old = $b->logo_path;
+        $b->forceFill(['logo_path' => null])->save();
+        PublicFile::delete($old);
 
         return response()->json((new BusinessResource($b->fresh()))->resolve($request));
     }

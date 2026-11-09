@@ -75,10 +75,10 @@ return [
 
     // What each plan unlocks. A Pro trial unlocks Pro.
     'plan_features' => [
-        'sade' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report'],
-        'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon'],
+        'sade' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'stats', 'staff'],
+        'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'stats', 'staff'],
         'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
-            'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+            'branches', 'managers', 'deposits', 'waitlist', 'stats', 'staff', 'priority_support'],
     ],
 
     // Pro: locations (the main salon + branches) in the price, then each extra one per month.

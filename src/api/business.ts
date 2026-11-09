@@ -43,6 +43,8 @@ export type MasterInput = {
   serviceIds: string[];
   workDays: number[];
   shift: { start: string; end: string };
+  /** Per weekday (0 = Sunday); when sent, the server derives workDays and shift from it. */
+  schedule?: ({ start: string; end: string } | null)[] | null;
   languages: Language[];
 };
 
@@ -77,7 +79,9 @@ export type TeamMember = {
   email: string;
   name: string | null;
   branchId: string | null;
-  role: 'manager';
+  /** manager: runs the salon panel (Pro). staff: one master's own cabinet (every plan). */
+  role: 'manager' | 'staff';
+  masterId?: string | null;
   accepted: boolean;
   createdAt: string;
 };
@@ -97,6 +101,9 @@ export type Stats = {
     depositsKept: number;
     fromApp: number;
     bySalon: number;
+    /** Client bookings made on the website / in the phone app. Older servers omit these. */
+    fromWeb?: number;
+    fromPhone?: number;
     clients: number;
     newClients: number;
     waitlist: number;
@@ -105,6 +112,28 @@ export type Stats = {
   byMaster: Row[];
   byService: Row[];
   byLocation: Row[];
+  /** How clients booked: phone app, website, app (older bookings), or added by the salon. */
+  byChannel?: { id: 'phone' | 'web' | 'app' | 'salon'; bookings: number; revenue: number }[];
+};
+
+/** One clocked shift: check-in and (once they leave) check-out, against the planned shift. */
+export type AttendanceRow = {
+  id: string;
+  masterId: string;
+  masterName: string | null;
+  day: string;
+  checkInAt: string;
+  checkOutAt: string | null;
+  minutes: number | null;
+  shift: { start: string; end: string } | null;
+  lateMinutes: number;
+};
+
+export type Attendance = {
+  from: string;
+  to: string;
+  byMaster: { masterId: string; name: string; days: number; minutes: number; late: number; checkedIn: boolean }[];
+  rows: AttendanceRow[];
 };
 
 export type ClickKind = 'view' | 'book' | 'phone' | 'whatsapp' | 'directions';
@@ -149,6 +178,7 @@ export type BusinessPatch = Partial<
     | 'audience'
     | 'hours'
     | 'closedDays'
+    | 'hoursWeek'
     | 'bookingUrl'
   >
 >;
@@ -168,6 +198,12 @@ export interface BusinessApi {
   /** `uri` is a local JPEG already resized on the device. */
   uploadPhoto(token: string, uri: string): Promise<Photo>;
   deletePhoto(token: string, id: string): Promise<void>;
+  /** The salon's logo; returns the updated business. */
+  uploadLogo(token: string, uri: string): Promise<Business>;
+  deleteLogo(token: string): Promise<Business>;
+  uploadMasterPhoto(token: string, masterId: string, uri: string): Promise<Master>;
+  deleteMasterPhoto(token: string, masterId: string): Promise<Master>;
+  attendance(token: string, q?: { from?: string; to?: string; masterId?: string }): Promise<Attendance>;
   bookings(token: string, range: { from: string; to: string }): Promise<BusinessBooking[]>;
   cancelBooking(token: string, id: string, reason?: string): Promise<BusinessBooking>;
   completeBooking(token: string, id: string): Promise<BusinessBooking>;
@@ -186,7 +222,10 @@ export interface BusinessApi {
   ): Promise<Branches['data'][number]>;
   deleteBranch(token: string, id: string): Promise<void>;
   team(token: string): Promise<TeamMember[]>;
-  invite(token: string, input: { email: string; branchId?: string | null }): Promise<TeamMember>;
+  invite(
+    token: string,
+    input: { email: string; branchId?: string | null; role?: 'manager' | 'staff'; masterId?: string | null },
+  ): Promise<TeamMember>;
   removeMember(token: string, id: string): Promise<void>;
   stats(token: string, q: { from?: string; to?: string; scope?: 'location' | 'all' }): Promise<Stats>;
   clicks(token: string, month?: string): Promise<Clicks>;
@@ -198,6 +237,19 @@ export interface BusinessApi {
 
 const enc = encodeURIComponent;
 
+/** A multipart body with one `photo` file, from a local URI (native) or a blob:/data: URI (web). */
+async function photoForm(uri: string): Promise<FormData> {
+  const form = new FormData();
+  if (Platform.OS === 'web') {
+    // Browsers need the file itself; the picker gives a blob: or data: URI.
+    form.append('photo', await (await fetch(uri)).blob(), 'photo.jpg');
+  } else {
+    // React Native's FormData takes a file descriptor object for uploads.
+    form.append('photo', { uri, name: 'photo.jpg', type: 'image/jpeg' } as unknown as Blob);
+  }
+  return form;
+}
+
 const httpBusinessApi: BusinessApi = {
   get: (token) => request('GET', '/business', { token }),
   update: (token, patch) => request('PATCH', '/business', { token, body: patch }),
@@ -207,18 +259,14 @@ const httpBusinessApi: BusinessApi = {
   addService: (token, input) => request('POST', '/business/services', { token, body: input }),
   updateService: (token, id, input) => request('PATCH', `/business/services/${enc(id)}`, { token, body: input }),
   deleteService: (token, id) => request('DELETE', `/business/services/${enc(id)}`, { token }),
-  uploadPhoto: async (token, uri) => {
-    const form = new FormData();
-    if (Platform.OS === 'web') {
-      // Browsers need the file itself; the picker gives a blob: or data: URI.
-      form.append('photo', await (await fetch(uri)).blob(), 'photo.jpg');
-    } else {
-      // React Native's FormData takes a file descriptor object for uploads.
-      form.append('photo', { uri, name: 'photo.jpg', type: 'image/jpeg' } as unknown as Blob);
-    }
-    return request('POST', '/business/photos', { token, body: form });
-  },
+  uploadPhoto: async (token, uri) => request('POST', '/business/photos', { token, body: await photoForm(uri) }),
   deletePhoto: (token, id) => request('DELETE', `/business/photos/${enc(id)}`, { token }),
+  uploadLogo: async (token, uri) => request('POST', '/business/logo', { token, body: await photoForm(uri) }),
+  deleteLogo: (token) => request('DELETE', '/business/logo', { token }),
+  uploadMasterPhoto: async (token, id, uri) =>
+    request('POST', `/business/masters/${enc(id)}/photo`, { token, body: await photoForm(uri) }),
+  deleteMasterPhoto: (token, id) => request('DELETE', `/business/masters/${enc(id)}/photo`, { token }),
+  attendance: (token, q) => request('GET', '/business/attendance', { token, query: q }),
   bookings: (token, range) => request('GET', '/business/bookings', { token, query: range }),
   cancelBooking: (token, id, reason) =>
     request('POST', `/business/bookings/${enc(id)}/cancel`, { token, body: reason ? { reason } : {} }),
@@ -358,6 +406,47 @@ const demoBusinessApi: BusinessApi = {
     withBusiness(token, (b) => {
       b.photos = b.photos.filter((x) => x.id !== id);
     }),
+  uploadLogo: (token, uri) =>
+    withBusiness(token, (b) => {
+      b.logoUrl = uri;
+      return { ...b };
+    }),
+  deleteLogo: (token) =>
+    withBusiness(token, (b) => {
+      b.logoUrl = null;
+      return { ...b };
+    }),
+  uploadMasterPhoto: (token, id, uri) =>
+    withBusiness(token, (b) => {
+      const m = b.masters.find((x) => x.id === id);
+      if (!m) throw new AuthError('not_found');
+      m.photoUrl = uri;
+      return m;
+    }),
+  deleteMasterPhoto: (token, id) =>
+    withBusiness(token, (b) => {
+      const m = b.masters.find((x) => x.id === id);
+      if (!m) throw new AuthError('not_found');
+      m.photoUrl = null;
+      return m;
+    }),
+  attendance: (token) =>
+    withBusiness(token, (b) => {
+      const to = dayKey(new Date());
+      return {
+        from: dayKey(addDays(new Date(), -6)),
+        to,
+        byMaster: b.masters.map((m) => ({
+          masterId: m.id,
+          name: m.name,
+          days: 0,
+          minutes: 0,
+          late: 0,
+          checkedIn: false,
+        })),
+        rows: [],
+      };
+    }),
   // The demo has no customers booking into owner-made salons; the calendar
   // holds what the owner adds by hand.
   bookings: (token, range) =>
@@ -399,24 +488,22 @@ const demoBusinessApi: BusinessApi = {
       const end = new Date(input.end).getTime();
       const masters = input.masterId ? b.masters.filter((m) => m.id === input.masterId) : b.masters;
       if (masters.some((m) => overlapping(b, m.id, start, end))) throw new AuthError('overlaps_bookings');
-      const rows = masters.map(
-        (m): BusinessBooking => ({
-          id: rid('t'),
-          salonId: b.salonId ?? b.id,
-          masterId: m.id,
-          serviceIds: [],
-          start: input.start,
-          end: input.end,
-          durationMin: Math.round((end - start) / 60_000),
-          total: 0,
-          note: input.note ?? undefined,
-          status: 'upcoming',
-          createdAt: new Date().toISOString(),
-          kind: 'block',
-          source: 'salon',
-          client: { name: '', phone: '' },
-        }),
-      );
+      const rows = masters.map((m): BusinessBooking => ({
+        id: rid('t'),
+        salonId: b.salonId ?? b.id,
+        masterId: m.id,
+        serviceIds: [],
+        start: input.start,
+        end: input.end,
+        durationMin: Math.round((end - start) / 60_000),
+        total: 0,
+        note: input.note ?? undefined,
+        status: 'upcoming',
+        createdAt: new Date().toISOString(),
+        kind: 'block',
+        source: 'salon',
+        client: { name: '', phone: '' },
+      }));
       calendarOf(b).push(...rows);
       return rows;
     }),
@@ -473,13 +560,15 @@ const demoBusinessApi: BusinessApi = {
   team: (token) => withBusiness(token, (b) => demoExtra(b).team),
   invite: (token, input) =>
     withBusiness(token, (b) => {
-      if (!hasFeature(b, 'managers')) throw new AuthError('plan_required');
+      const role = input.role ?? 'manager';
+      if (!hasFeature(b, role === 'staff' ? 'staff' : 'managers')) throw new AuthError('plan_required');
       const row: TeamMember = {
         id: rid('tm'),
         email: input.email.trim().toLowerCase(),
         name: null,
         branchId: input.branchId ?? null,
-        role: 'manager',
+        role,
+        masterId: role === 'staff' ? (input.masterId ?? null) : null,
         accepted: false,
         createdAt: new Date().toISOString(),
       };

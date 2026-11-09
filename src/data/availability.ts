@@ -4,6 +4,7 @@ import { addDays, atMinutes, dayKey, minutesOfDay, sameDay, startOfDay, toMinute
 
 import { busyFor } from './catalogue';
 import type { Booking, Master, Salon } from './types';
+import { masterDay, salonDay } from '@/lib/week';
 
 export const SLOT_STEP = 30;
 /** Earliest bookable start, measured from now, for same-day appointments. */
@@ -24,9 +25,11 @@ const overlaps = (a: Interval, b: Interval) => a.start < b.end && b.start < a.en
 /** The hours a master can actually take clients on a given weekday. */
 export function workingWindow(salon: Salon, master: Master, date: Date): Interval | null {
   const dow = weekday(date);
-  if (salon.closedDays.includes(dow) || !master.workDays.includes(dow)) return null;
-  const start = Math.max(toMinutes(master.shift.start), toMinutes(salon.hours.open));
-  const end = Math.min(toMinutes(master.shift.end), toMinutes(salon.hours.close));
+  const hours = salonDay(salon, dow);
+  const shift = masterDay(master, dow);
+  if (!hours || !shift) return null;
+  const start = Math.max(toMinutes(shift.start), toMinutes(hours.open));
+  const end = Math.min(toMinutes(shift.end), toMinutes(hours.close));
   return end > start ? { start, end } : null;
 }
 

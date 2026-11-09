@@ -62,7 +62,18 @@ export default function Plans() {
       mode={current ? 'back' : 'close'}
       footer={
         <>
-          <Button label={current ? i18n.t('changePlan') : i18n.t('startTrial')} onPress={start} loading={busy} />
+          <Button
+            label={
+              !current
+                ? i18n.t('startTrial')
+                : plan === current && period === (sub?.billingPeriod ?? 'month')
+                  ? i18n.t('planIsCurrent')
+                  : i18n.t('changePlanTo', { plan: plans.find((x) => x.id === plan)?.name ?? '' })
+            }
+            onPress={start}
+            loading={busy}
+            disabled={!!current && plan === current && period === (sub?.billingPeriod ?? 'month')}
+          />
           {!current ? (
             <>
               <Text variant="caption" tone="soft" align="center">
@@ -90,6 +101,7 @@ export default function Plans() {
       <View style={{ gap: 12 }} accessibilityRole="radiogroup">
         {plans.map((p) => {
           const on = p.id === plan;
+          const isCurrent = p.id === current;
           return (
             <PressableScale
               key={p.id}
@@ -98,7 +110,7 @@ export default function Plans() {
               scaleTo={0.985}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              accessibilityLabel={canBuyInApp ? `${p.name}, ${i18n.price(prices[p.id][period])}${per}` : p.name}
+              accessibilityLabel={`${canBuyInApp ? `${p.name}, ${i18n.price(prices[p.id][period])}${per}` : p.name}${isCurrent ? `, ${i18n.t('planCurrent')}` : ''}`}
               style={[
                 styles.card,
                 { backgroundColor: c.surface, borderColor: on ? c.ink : c.line, borderWidth: on ? 2 : 1 },
@@ -109,7 +121,14 @@ export default function Plans() {
                 <View style={{ flex: 1, gap: 2 }}>
                   <View style={styles.nameRow}>
                     <Text variant="title">{p.name}</Text>
-                    {p.recommended ? (
+                    {isCurrent ? (
+                      <View style={[styles.badge, { backgroundColor: c.ink }]}>
+                        <Text variant="micro" style={{ color: c.bg }}>
+                          {i18n.t('planCurrent')}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {p.recommended && !isCurrent ? (
                       <View style={[styles.badge, { backgroundColor: c.accentSoft }]}>
                         <Text variant="micro" tone="accent">
                           {i18n.t('recommended')}

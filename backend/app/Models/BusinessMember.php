@@ -14,6 +14,9 @@ class BusinessMember extends Model
 {
     public const MANAGER = 'manager';
 
+    /** A master with their own cabinet: checks in and out, sees their schedule, bookings and numbers. */
+    public const STAFF = 'staff';
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -24,6 +27,11 @@ class BusinessMember extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function master(): BelongsTo
+    {
+        return $this->belongsTo(Master::class);
     }
 
     public function user(): BelongsTo

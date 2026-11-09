@@ -41,6 +41,7 @@ export type Feature =
   | 'deposits'
   | 'waitlist'
   | 'stats'
+  | 'staff'
   | 'priority_support';
 
 /** One salon location the signed-in person may run. */
@@ -95,6 +96,9 @@ export type Business = {
   hours?: Hours;
   /** 0 = Sunday … 6 = Saturday. */
   closedDays?: number[];
+  /** Per weekday (0 = Sunday): opening hours, or null when closed. */
+  hoursWeek?: (Hours | null)[] | null;
+  logoUrl?: string | null;
   masters?: Master[];
   services?: Service[];
   photos?: Photo[];
@@ -111,7 +115,10 @@ export type Business = {
   whatsappPack?: { left: number; until: string | null };
 };
 
-export type Session = { token: string; user: User; business: Business | null };
+/** A master's own cabinet: the owner invited this person as staff. */
+export type StaffSeat = { salonId: string; salonName: string; masterId: string; masterName: string };
+
+export type Session = { token: string; user: User; business: Business | null; staff?: StaffSeat | null };
 
 export type OtpPurpose = 'register' | 'reset';
 
@@ -186,6 +193,9 @@ export type AuthErrorCode =
   | 'review_limit'
   | 'waitlist_limit'
   | 'has_bookings'
+  | 'already_checked_in'
+  | 'not_checked_in'
+  | 'master_taken'
   | 'validation'
   | 'network'
   | 'unknown';

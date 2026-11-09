@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Exceptions\ApiException;
 use App\Models\Concerns\HasStringId;
 use App\Support\CatalogueCache;
+use App\Support\PublicFile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,7 @@ class Business extends Model
             'tagline' => 'array',
             'about' => 'array',
             'closed_days' => 'array',
+            'hours_week' => 'array',
             'amenities' => 'array',
             'base_distribution' => 'array',
             'review_stars' => 'array',
@@ -87,6 +89,42 @@ class Business extends Model
     public function members(): HasMany
     {
         return $this->hasMany(BusinessMember::class);
+    }
+
+    /**
+     * Opening hours on a weekday (0 = Sunday) as [open, close] "HH:MM", or null when closed.
+     * Per-day hours (hours_week) win; otherwise the one pair for every open day.
+     *
+     * @return array{0:string,1:string}|null
+     */
+    public function dayHours(int $dow): ?array
+    {
+        $week = $this->hours_week;
+        if (is_array($week) && count($week) === 7) {
+            $d = $week[$dow] ?? null;
+
+            return is_array($d) && isset($d['open'], $d['close']) ? [$d['open'], $d['close']] : null;
+        }
+        if (in_array($dow, array_map('intval', $this->closed_days ?? []), true)) {
+            return null;
+        }
+
+        return [$this->hours_open, $this->hours_close];
+    }
+
+    /** The full week as the API sends it: 7 entries, {open, close} or null. */
+    public function weekHours(): array
+    {
+        return array_map(function ($dow) {
+            $h = $this->dayHours($dow);
+
+            return $h ? ['open' => $h[0], 'close' => $h[1]] : null;
+        }, range(0, 6));
+    }
+
+    public function logoUrl(): ?string
+    {
+        return PublicFile::url($this->logo_path);
     }
 
     /** Who pays: the main salon for a branch, else the salon itself. */

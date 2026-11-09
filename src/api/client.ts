@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { AuthError, type AuthErrorCode, type OtpChallenge } from '@/auth/types';
 
 /**
@@ -47,6 +49,9 @@ const KNOWN: AuthErrorCode[] = [
   'review_limit',
   'waitlist_limit',
   'has_bookings',
+  'already_checked_in',
+  'not_checked_in',
+  'master_taken',
 ];
 
 /** The salon location /business calls act on (Pro branches); null = the main salon. */
@@ -97,6 +102,8 @@ export async function request<T>(
         ...(form || !opts.body ? {} : { 'Content-Type': 'application/json' }),
         ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
         ...(branch && path.startsWith('/business') ? { 'X-Branch': branch } : {}),
+        // Where a booking came from (app on a phone vs the website), for the salon's statistics.
+        'X-Platform': Platform.OS,
       },
       body: !opts.body ? undefined : form ? (opts.body as FormData) : JSON.stringify(convert(opts.body, snake)),
     });

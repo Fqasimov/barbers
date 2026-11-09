@@ -8,7 +8,11 @@ use App\Models\Booking;
 use App\Models\Master;
 use App\Rules\LocText;
 use App\Rules\V;
+use App\Services\Photos\PhotoProcessor;
 use App\Support\Loc;
+use App\Support\PhotoUpload;
+use App\Support\PublicFile;
+use App\Support\Week;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -68,6 +72,30 @@ class MasterController extends Controller
         return response()->noContent();
     }
 
+    /** A master's portrait, shown on the salon page and in booking. */
+    public function photo(Request $request, PhotoProcessor $processor, string $id): JsonResponse
+    {
+        $master = $this->owned($request, Master::class, $id);
+        $path = PhotoUpload::store($request, $processor, "salons/{$master->business_id}/masters", 800);
+        $old = $master->photo_path;
+        $master->forceFill(['photo_path' => $path])->save();
+        if ($old && ! str_starts_with($old, 'http')) {
+            PublicFile::delete($old);
+        }
+
+        return response()->json((new MasterResource($master->fresh('services')))->resolve($request));
+    }
+
+    public function deletePhoto(Request $request, string $id): JsonResponse
+    {
+        $master = $this->owned($request, Master::class, $id);
+        $old = $master->photo_path;
+        $master->forceFill(['photo_path' => null])->save();
+        PublicFile::delete($old);
+
+        return response()->json((new MasterResource($master->fresh('services')))->resolve($request));
+    }
+
     private function validated(Request $request, bool $creating, ?Master $master = null): array
     {
         $req = $creating ? 'required' : 'sometimes';
@@ -78,9 +106,11 @@ class MasterController extends Controller
             'years' => ['sometimes', 'integer', 'min:0', 'max:80'],
             'service_ids' => ['sometimes', 'array'],
             'service_ids.*' => ['string', 'distinct', Rule::exists('services', 'id')->where('business_id', $businessId)],
-            'work_days' => [$req, 'array', 'max:7'],
+            // Either a per-day schedule, or the older work days + one shift.
+            'work_days' => [$creating ? 'required_without:schedule' : 'sometimes', 'array', 'max:7'],
             'work_days.*' => ['integer', 'distinct', 'between:0,6'],
-            'shift' => [$req, 'array'],
+            'shift' => [$creating ? 'required_without:schedule' : 'sometimes', 'array'],
+            ...Week::rules('schedule', 'start', 'end'),
             'shift.start' => ['required_with:shift', ...V::clock()],
             'shift.end' => ['required_with:shift', ...V::clock()],
             'languages' => ['sometimes', 'array', 'max:4'],
@@ -88,6 +118,9 @@ class MasterController extends Controller
         ]);
         if (isset($data['shift']) && $data['shift']['end'] <= $data['shift']['start']) {
             throw ValidationException::withMessages(['shift.end' => ['The shift must end after it starts.']]);
+        }
+        if (! empty($data['schedule'])) {
+            $data['schedule'] = Week::normalize($data['schedule'], 'schedule', 'start', 'end');
         }
 
         return $data;
@@ -111,6 +144,20 @@ class MasterController extends Controller
         if (isset($data['shift'])) {
             $out['shift_start'] = $data['shift']['start'];
             $out['shift_end'] = $data['shift']['end'];
+        }
+        if (array_key_exists('schedule', $data)) {
+            if ($data['schedule'] === null) {
+                $out['schedule'] = null;
+            } else {
+                [$off, $start, $end] = Week::summary($data['schedule'], 'start', 'end');
+                // Keep work days + one shift in step for app versions that only read those.
+                $out['schedule'] = $data['schedule'];
+                $out['work_days'] = array_values(array_diff(range(0, 6), $off));
+                $out['shift_start'] = $start ?? '10:00';
+                $out['shift_end'] = $end ?? '19:00';
+            }
+        } elseif (isset($out['work_days']) || isset($out['shift_start'])) {
+            $out['schedule'] = null;
         }
         if (isset($data['languages'])) {
             $out['languages'] = array_values($data['languages']);

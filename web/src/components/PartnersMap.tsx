@@ -113,8 +113,38 @@ function VenueCard({ venue, pinned, onClose }: { venue: Venue; pinned: boolean; 
           {venue.address ? ` · ${venue.address}` : ''}
         </span>
       </p>
+      <VenueActions venue={venue} />
       <Reviews id={venue.id} />
     </>
+  );
+}
+
+/** Text the salon on WhatsApp, or book: in yazılnow (the app in the browser), or on the salon's own page. */
+function VenueActions({ venue }: { venue: Venue }) {
+  const { t } = useI18n();
+  const wa = venue.whatsapp ? `https://wa.me/${venue.whatsapp.replace(/\D/g, '')}` : null;
+  const book =
+    venue.booking === 'link'
+      ? venue.bookingUrl || wa
+      : `${config.appUrl || '/app'}/salon/${encodeURIComponent(venue.id)}`;
+  if (!wa && !book) return null;
+  return (
+    <div className="mc-actions">
+      {wa ? (
+        <a className="btn btn-sm btn-outline" href={wa} target="_blank" rel="noopener noreferrer">
+          {t('mapWhatsApp')}
+        </a>
+      ) : null}
+      {book ? (
+        <a
+          className="btn btn-sm btn-ink"
+          href={book}
+          {...(venue.booking === 'link' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          {t('mapBook')}
+        </a>
+      ) : null}
+    </div>
   );
 }
 

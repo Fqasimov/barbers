@@ -25,6 +25,20 @@ class SessionService
             'token' => $token,
             'user' => (new UserResource($user))->resolve($request),
             'business' => $business ? (new BusinessResource($business))->forUser($user)->resolve($request) : null,
+            'staff' => self::staff($user),
         ];
+    }
+
+    /** The master's cabinet this user holds, if the owner invited them as staff. */
+    public static function staff(User $user): ?array
+    {
+        $seat = app(BusinessAccess::class)->staffSeat($user);
+
+        return $seat ? [
+            'salon_id' => $seat->master->business_id,
+            'salon_name' => $seat->master->business->name,
+            'master_id' => $seat->master_id,
+            'master_name' => $seat->master->name,
+        ] : null;
     }
 }

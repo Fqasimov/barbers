@@ -34,8 +34,11 @@ export type Master = {
   /** 0 = Sunday … 6 = Saturday. */
   workDays: number[];
   shift: { start: string; end: string };
+  /** Per weekday (0 = Sunday): the shift, or null on a day off. Wins over workDays + shift when sent. */
+  schedule?: ({ start: string; end: string } | null)[] | null;
   tone: ToneName;
   languages: Language[];
+  photoUrl?: string | null;
 };
 
 export type Salon = {
@@ -57,6 +60,9 @@ export type Salon = {
   distribution: [number, number, number, number, number];
   hours: { open: string; close: string };
   closedDays: number[];
+  /** Per weekday (0 = Sunday): opening hours, or null when closed. Wins over hours + closedDays when sent. */
+  hoursWeek?: ({ open: string; close: string } | null)[] | null;
+  logoUrl?: string | null;
   phone: string;
   /** WhatsApp number in international format, digits only. */
   whatsapp: string;

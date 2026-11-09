@@ -9,6 +9,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/i18n';
+import type { StringKey } from '@/i18n/strings';
 import type { Loc } from '@/i18n/types';
 import { addDays, dayKey, startOfDay } from '@/lib/time';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -16,7 +17,7 @@ import { gutter, radius } from '@/theme/tokens';
 
 type Range = 7 | 30 | 90;
 
-/** Pro: how the salon is doing, for this location or (owner) all of them. */
+/** How the salon is doing (every plan): for this location or (owner) all of them. */
 export default function StatsScreen() {
   const { c } = useTheme();
   const i18n = useI18n();
@@ -53,13 +54,22 @@ export default function StatsScreen() {
             onChange={setScope}
           />
         ) : null}
-        {data ? <Body data={data} name={name} /> : null}
+        {data ? <StatsBody data={data} name={name} /> : null}
       </ScrollView>
     </View>
   );
 }
 
-function Body({ data, name }: { data: Stats; name: (n: string | Loc) => string }) {
+/** The numbers, the per-day chart and the breakdowns. `mine`: a master's own view (no per-master table). */
+export function StatsBody({
+  data,
+  name,
+  mine = false,
+}: {
+  data: Stats;
+  name: (n: string | Loc) => string;
+  mine?: boolean;
+}) {
   const { c } = useTheme();
   const i18n = useI18n();
   const t = data.totals;
@@ -82,8 +92,8 @@ function Body({ data, name }: { data: Stats; name: (n: string | Loc) => string }
           value={String(t.clients)}
           detail={i18n.t('statsNewClients', { n: t.newClients })}
         />
-        <Stat label={i18n.t('statsDepositsKept')} value={i18n.price(t.depositsKept)} />
-        <Stat label={i18n.t('statsWaitlist')} value={String(t.waitlist)} />
+        {!mine ? <Stat label={i18n.t('statsDepositsKept')} value={i18n.price(t.depositsKept)} /> : null}
+        {!mine ? <Stat label={i18n.t('statsWaitlist')} value={String(t.waitlist)} /> : null}
       </View>
 
       <Text variant="headline">{i18n.t('statsPerDay')}</Text>
@@ -105,8 +115,55 @@ function Body({ data, name }: { data: Stats; name: (n: string | Loc) => string }
       {data.scope === 'all' && data.byLocation.length > 1 ? (
         <Breakdown title={i18n.t('statsByLocation')} rows={data.byLocation} name={name} />
       ) : null}
-      <Breakdown title={i18n.t('statsByMaster')} rows={data.byMaster} name={name} />
+      {data.byChannel?.length ? <Channels rows={data.byChannel} total={t.bookings} /> : null}
+      {!mine ? <Breakdown title={i18n.t('statsByMaster')} rows={data.byMaster} name={name} /> : null}
       <Breakdown title={i18n.t('statsByService')} rows={data.byService} name={name} />
+    </>
+  );
+}
+
+const CHANNEL: Record<NonNullable<Stats['byChannel']>[number]['id'], StringKey> = {
+  phone: 'chPhone',
+  web: 'chWeb',
+  app: 'chApp',
+  salon: 'chSalon',
+};
+
+/** How clients booked: the phone app, the website, or the salon entered it (a call, a walk-in). */
+function Channels({ rows, total }: { rows: NonNullable<Stats['byChannel']>; total: number }) {
+  const { c } = useTheme();
+  const i18n = useI18n();
+  return (
+    <>
+      <Text variant="headline">{i18n.t('statsByChannel')}</Text>
+      <Card>
+        {rows.map((r, i) => {
+          const share = total ? r.bookings / total : 0;
+          return (
+            <View
+              key={r.id}
+              style={[
+                styles.channel,
+                i < rows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
+              ]}
+              accessible
+              accessibilityLabel={`${i18n.t(CHANNEL[r.id])}: ${r.bookings}, ${Math.round(share * 100)}%`}
+            >
+              <View style={styles.channelHead}>
+                <Text variant="bodyStrong" style={{ flex: 1 }}>
+                  {i18n.t(CHANNEL[r.id])}
+                </Text>
+                <Text variant="caption" tone="soft">
+                  {r.bookings} · {Math.round(share * 100)}% · {i18n.price(r.revenue)}
+                </Text>
+              </View>
+              <View style={[styles.track, { backgroundColor: c.sunken }]}>
+                <View style={{ width: `${Math.round(share * 100)}%`, height: '100%', backgroundColor: c.accent }} />
+              </View>
+            </View>
+          );
+        })}
+      </Card>
     </>
   );
 }
@@ -161,4 +218,7 @@ const styles = StyleSheet.create({
   },
   barSlot: { flex: 1, height: '100%', justifyContent: 'flex-end' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
+  channel: { paddingVertical: 12, gap: 8 },
+  channelHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  track: { height: 6, borderRadius: 3, overflow: 'hidden' },
 });

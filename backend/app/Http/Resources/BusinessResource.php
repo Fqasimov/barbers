@@ -62,9 +62,12 @@ class BusinessResource extends JsonResource
             'about' => Loc::orNull($this->about),
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
+            'logo_url' => $this->resource->logoUrl(),
             'booking_url' => $this->booking_url,
             'hours' => ['open' => $this->hours_open, 'close' => $this->hours_close],
             'closed_days' => array_values(array_map('intval', $this->closed_days ?? [])),
+            // Per weekday, index 0 = Sunday: {open, close} or null when closed.
+            'hours_week' => $this->resource->weekHours(),
             'status' => $this->status,
             'subscription' => $sub ? (new SubscriptionResource($sub))->resolve($request) : null,
             'features' => $plan ? array_values(config("usta.plan_features.{$plan}", [])) : [],

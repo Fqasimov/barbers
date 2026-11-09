@@ -1363,6 +1363,18 @@ a.store:active {
   font-size: 14px;
   margin: 6px 0 0;
 }
+.mc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.mc-actions .btn {
+  flex: 1 1 0;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
 .mc-reviews {
   margin-top: 12px;
   border-top: 1px solid var(--line);
