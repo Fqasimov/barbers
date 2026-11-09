@@ -23,9 +23,28 @@ type Props = {
   border?: boolean;
 };
 
+/**
+ * Where "back" goes when there is no history (a refresh, a shared link, the dashboard itself).
+ * The salon panel stays in the panel: a tool → the dashboard; the dashboard, sign-up, plans, the staff
+ * cabinet and sign-in reached from the panel → the panel's front door. Everything else → the client home.
+ */
+function fallback(): '/business' | '/panel' | '/' {
+  const path = (globalThis.location?.pathname ?? '').replace(/^\/app(?=\/|$)/, '') || '/';
+  const fromPanel = (() => {
+    try {
+      return globalThis.sessionStorage?.getItem('yazilnow-panel-flow') === '1';
+    } catch {
+      return false;
+    }
+  })();
+  if (/^\/business\/(?!register|plans)./.test(path)) return '/business';
+  if (path.startsWith('/business') || path === '/staff' || (path.startsWith('/auth') && fromPanel)) return '/panel';
+  return '/';
+}
+
 export function goBack() {
   if (router.canGoBack()) router.back();
-  else router.replace('/');
+  else router.replace(fallback());
 }
 
 export function ScreenHeader({ title, mode = 'back', right, inset = true, border }: Props) {
