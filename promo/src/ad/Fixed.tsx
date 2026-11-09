@@ -33,10 +33,9 @@ const H = 1920;
 const CUT = 209; // footage up to the tap on the app icon (its own "app opening" follows)
 const ZOOM = 12; // the app opens out of the icon, like iOS
 export const FIXED_AD_FRAMES = 600;
-/** The end: the app zooms back out into the phone in the barber's hand, on the barber video's first frame. */
-const OUT = 24;
+/** The end: the app pulls back slightly and fades into the barber video's first frame. */
+const OUT = 30;
 const OUT_AT = FIXED_AD_FRAMES - OUT;
-const HAND_PHONE = { x: 776, y: 1290, scale: 0.31 };
 
 /** Where the footage's home-screen icon is, per frame (template-tracked), as [x, y, size]. */
 const ICON: Record<string, [number, number, number]> =
@@ -189,9 +188,8 @@ export const FixedAd: React.FC = () => {
       <Sequence from={CUT} layout="none">
         <AbsoluteFill
           style={{
-            transform: `translate(${zoomOut * (HAND_PHONE.x - W / 2)}px, ${zoomOut * (HAND_PHONE.y - H / 2)}px) scale(${1 - zoomOut * (1 - HAND_PHONE.scale)})`,
-            opacity: interpolate(zoomOut, [0.7, 1], [1, 0], clamp),
-            borderRadius: zoomOut * 120,
+            transform: `scale(${1 - zoomOut * 0.08})`,
+            opacity: 1 - zoomOut,
             overflow: "hidden",
           }}
         >
@@ -322,3 +320,16 @@ export const FixedBarber: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/** 06 then 07 as one video, each with its own sound. */
+export const FIXED_FULL_FRAMES = FIXED_AD_FRAMES + FIXED_BARBER_FRAMES;
+export const FixedFull: React.FC = () => (
+  <AbsoluteFill style={{ background: "black" }}>
+    <Sequence durationInFrames={FIXED_AD_FRAMES}>
+      <FixedAd />
+    </Sequence>
+    <Sequence from={FIXED_AD_FRAMES}>
+      <FixedBarber />
+    </Sequence>
+  </AbsoluteFill>
+);
