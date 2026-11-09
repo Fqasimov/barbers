@@ -1,6 +1,7 @@
 import React from "react";
 import { Composition, Folder } from "remotion";
 
+import { FixedAd, FixedBarber, FIXED_AD_FRAMES, FIXED_BARBER_FRAMES } from "./ad/Fixed";
 import { SalonAd, SALON_AD_FRAMES } from "./ad/SalonAd";
 import { SignupPhone, SIGNUP_PHONE_FRAMES } from "./ad/SignupPhone";
 import { TrialPhone, TRIAL_PHONE_FRAMES } from "./ad/TrialPhone";
@@ -19,6 +20,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="TrialPhone" component={TrialPhone} durationInFrames={TRIAL_PHONE_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="TrialShort" component={TrialShort} durationInFrames={TRIAL_SHORT_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="TrialShortWide" component={TrialShortWide} durationInFrames={TRIAL_SHORT_WIDE_FRAMES} fps={30} width={1920} height={1080} />
+      <Composition id="FixedAd" component={FixedAd} durationInFrames={FIXED_AD_FRAMES} fps={30} width={1080} height={1920} />
+      <Composition id="FixedBarber" component={FixedBarber} durationInFrames={FIXED_BARBER_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="TrialShortVertical" component={TrialShortVertical} durationInFrames={TRIAL_SHORT_VERTICAL_FRAMES} fps={30} width={1080} height={1920} />
       <Folder name="Scenes">
         <Composition id="Opener" component={Opener} durationInFrames={96} fps={30} width={1080} height={1920} />
