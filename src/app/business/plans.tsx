@@ -142,11 +142,13 @@ export default function Plans() {
                   </View>
                 ))}
               </View>
-              {p.id === 'sade' || (p.id === 'pro' && canBuyInApp) ? (
+              {p.id === 'sade' || p.id === 'ferdi' || (p.id === 'pro' && canBuyInApp) ? (
                 <Text variant="caption" tone="soft">
                   {p.id === 'sade'
                     ? i18n.t('planSadeNote')
-                    : i18n.t('planBranchNote', { price: i18n.price(BRANCH_PRICE) })}
+                    : p.id === 'ferdi'
+                      ? i18n.t('planFerdiNote')
+                      : i18n.t('planBranchNote', { price: i18n.price(BRANCH_PRICE) })}
                 </Text>
               ) : null}
               <Text variant="captionStrong" tone="success">

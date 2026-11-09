@@ -5,7 +5,7 @@ export type Lang = (typeof LANGS)[number];
 export type Loc = Record<Lang, string>;
 export type Feature = Loc & { soon?: boolean };
 export type Plan = {
-  id: 'sade' | 'start' | 'pro';
+  id: 'sade' | 'ferdi' | 'start' | 'pro';
   name: string;
   price: number;
   recommended?: boolean;
@@ -506,6 +506,18 @@ export const plans: Plan[] = [
         en: '"Book" button to your own page (DIKIDI, WhatsApp, phone)',
       },
       { az: 'Aylıq klik hesabatı', ru: 'Ежемесячный отчёт по кликам', en: 'Monthly click report' },
+    ],
+  },
+  {
+    id: 'ferdi',
+    name: 'Fərdi',
+    price: 10,
+    blurb: { az: 'Tək işləyən usta üçün', ru: 'Для мастера, работающего один', en: 'For one master working solo' },
+    features: [
+      { az: 'Start planındakı hər şey, bir nəfər üçün', ru: 'Всё из тарифа Start для одного человека', en: 'Everything in Start, for one person' },
+      { az: 'Şəxsi səhifə: adınız.yazilnow.az', ru: 'Личная страница: имя.yazilnow.az', en: 'A personal page: yourname.yazilnow.az' },
+      { az: 'Onlayn bron, təqvim və xatırlatmalar', ru: 'Онлайн-запись, календарь и напоминания', en: 'Online booking, calendar and reminders' },
+      { az: 'Salonda işləyirsinizsə də, öz səhifəniz olur', ru: 'Подходит и мастеру внутри салона', en: 'Also for a master working inside a salon' },
     ],
   },
   {

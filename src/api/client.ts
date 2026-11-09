@@ -47,6 +47,8 @@ const KNOWN: AuthErrorCode[] = [
   'review_limit',
   'waitlist_limit',
   'has_bookings',
+  'master_limit',
+  'too_many_masters',
 ];
 
 /** The salon location /business calls act on (Pro branches); null = the main salon. */

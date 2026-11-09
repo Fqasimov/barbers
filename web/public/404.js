@@ -3,7 +3,7 @@
 // 404 page for unknown paths, this does the same in the browser.
 (function () {
   var app = ((window.USTA_CONFIG || {}).appUrl || '').replace(/\/+$/, '');
-  if (app && /^\/(r|s|salon)\/[A-Za-z0-9_-]+\/?$|^\/panel\/?$/.test(location.pathname)) {
+  if (app && /^\/(r|s|salon|u)\/[A-Za-z0-9_-]+\/?$|^\/panel\/?$/.test(location.pathname)) {
     location.replace(app + location.pathname.replace(/\/$/, '') + location.search);
   }
 })();

@@ -10,6 +10,9 @@ export type Page<T> = { data: T[]; nextPage: number | null };
 
 /** Public catalogue: venues, their booked time and reviews. docs/api.md → "Catalogue". */
 export const catalogueApi = {
+  /** A personal page address → its salon (https://<slug>.yazilnow.az). */
+  page: (slug: string) =>
+    request<{ salonId: string; slug: string; name: string }>('GET', `/pages/${encodeURIComponent(slug)}`),
   salons: (fresh = false) => request<Salon[]>('GET', '/salons', { fresh }),
   busy: (args: { from: string; days: number; salonIds?: string[] }) =>
     request<BusyRange[]>('GET', '/busy', { query: args }),
@@ -32,7 +35,13 @@ export const catalogueApi = {
   },
 };
 
-export type QrInfo = { salonId: string; salonName: string | null; masterId: string | null; masterName: string | null; usable: boolean };
+export type QrInfo = {
+  salonId: string;
+  salonName: string | null;
+  masterId: string | null;
+  masterName: string | null;
+  usable: boolean;
+};
 export type QrReviewInput = { rating: number; masterRating?: number | null; text?: string; tags?: string[] };
 
 /** One-time QR reviews: the master shows a code after the visit. */

@@ -150,6 +150,7 @@ export type BusinessPatch = Partial<
     | 'hours'
     | 'closedDays'
     | 'bookingUrl'
+    | 'slug'
   >
 >;
 

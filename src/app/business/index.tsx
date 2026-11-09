@@ -94,7 +94,14 @@ export default function BusinessDashboard() {
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
   const locations = business.locations ?? [];
-  const lockedTo = (f: Feature) => planById(f === 'click_report' || f === 'qr_reviews' ? 'sade' : f === 'whatsapp_addon' ? 'start' : 'pro').name;
+  const lockedTo = (f: Feature) =>
+    planById(
+      f === 'click_report' || f === 'qr_reviews'
+        ? 'sade'
+        : f === 'whatsapp_addon' || f === 'personal_page'
+          ? 'ferdi'
+          : 'pro',
+    ).name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
     can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
@@ -132,7 +139,8 @@ export default function BusinessDashboard() {
     ? new Date(sub.graceEndsAt ?? new Date(sub.currentPeriodEnd ?? sub.trialEndsAt).getTime() + GRACE_DAYS * DAY)
     : null;
   // On iOS there is no buy button; otherwise it shows whenever a payment is needed or due soon.
-  const showPay = owner && canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
+  const showPay =
+    owner && canBuyInApp && !!sub && (sub.status === 'past_due' || sub.status === 'expired' || endingSoon);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -160,10 +168,7 @@ export default function BusinessDashboard() {
                     haptic="selection"
                     accessibilityRole="button"
                     accessibilityState={{ selected: on }}
-                    style={[
-                      styles.loc,
-                      { backgroundColor: on ? c.ink : c.surface, borderColor: on ? c.ink : c.line },
-                    ]}
+                    style={[styles.loc, { backgroundColor: on ? c.ink : c.surface, borderColor: on ? c.ink : c.line }]}
                   >
                     <Text variant="captionStrong" style={{ color: on ? c.bg : c.ink }}>
                       {l.name}
@@ -398,7 +403,12 @@ export default function BusinessDashboard() {
                   />
                 </>
               ) : null}
-              <MenuRow icon={LifeBuoy} title={i18n.t('supportTitle')} onPress={() => router.push('/business/support')} last />
+              <MenuRow
+                icon={LifeBuoy}
+                title={i18n.t('supportTitle')}
+                onPress={() => router.push('/business/support')}
+                last
+              />
             </Card>
           </>
         ) : null}

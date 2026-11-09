@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { businessApi } from '@/api/business';
+import { hasFeature } from '@/auth/plans';
 import type { Audience } from '@/auth/types';
 import { useSession } from '@/auth/useSession';
 import { checkPhone, checkRequired, formatPhone, phoneDigits, toE164 } from '@/auth/validation';
@@ -24,7 +25,7 @@ import type { StringKey } from '@/i18n/strings';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type Errors = Partial<
-  Record<'salonName' | 'district' | 'address' | 'phone' | 'whatsapp' | 'categories' | 'bookingUrl', StringKey>
+  Record<'salonName' | 'district' | 'address' | 'phone' | 'whatsapp' | 'categories' | 'bookingUrl' | 'slug', StringKey>
 >;
 
 /** The public details clients see on the salon's page. */
@@ -42,6 +43,8 @@ export default function SalonDetails() {
   const [whatsapp, setWhatsapp] = useState(business?.whatsapp ? formatPhone(business.whatsapp) : '');
   const [about, setAbout] = useState(business?.about ? i18n.tx(business.about) : '');
   const [bookingUrl, setBookingUrl] = useState(business?.bookingUrl ?? '');
+  const page = hasFeature(business, 'personal_page');
+  const [slug, setSlug] = useState(business?.slug ?? '');
   const [coords, setCoords] = useState<Coords | null>(business?.coords ?? null);
   const [locating, setLocating] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -69,6 +72,10 @@ export default function SalonDetails() {
       whatsapp: whatsapp ? (checkPhone(whatsapp) ?? undefined) : undefined,
       categories: cats.length ? undefined : 'errCategories',
       bookingUrl: bookingUrl.trim() && !/^https?:\/\/\S+\.\S+/i.test(bookingUrl.trim()) ? 'errUrl' : undefined,
+      slug:
+        (slug && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) || (slug && (slug.length < 3 || slug.length > 30))
+          ? 'errSlug'
+          : undefined,
     };
     setErrors(e);
     if (Object.values(e).some(Boolean)) return;
@@ -85,6 +92,7 @@ export default function SalonDetails() {
           about: about.trim() ? locFrom(about, business?.about) : null,
           coords,
           bookingUrl: bookingUrl.trim() || null,
+          ...(page ? { slug: slug || null } : {}),
         }),
       i18n.t('savedToast'),
     );
@@ -93,10 +101,7 @@ export default function SalonDetails() {
 
   const err = (k: keyof Errors) => (errors[k] ? i18n.t(errors[k]!) : null);
   return (
-    <AuthLayout
-      title={i18n.t('detailsTitle')}
-      footer={<Button label={i18n.t('save')} onPress={save} loading={busy} />}
-    >
+    <AuthLayout title={i18n.t('detailsTitle')} footer={<Button label={i18n.t('save')} onPress={save} loading={busy} />}>
       <FormField
         label={i18n.t('fSalonName')}
         placeholder={i18n.t('phSalonName')}
@@ -182,6 +187,25 @@ export default function SalonDetails() {
         keyboardType="phone-pad"
         error={err('whatsapp')}
       />
+      {page ? (
+        <FormField
+          label={i18n.t('pageLabel')}
+          hint={i18n.t('pageHint', { url: `${slug || 'orxanosmanov'}.yazilnow.az` })}
+          placeholder="orxanosmanov"
+          value={slug}
+          onChangeText={(v) =>
+            setSlug(
+              v
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '')
+                .slice(0, 30),
+            )
+          }
+          autoCapitalize="none"
+          autoCorrect={false}
+          error={err('slug')}
+        />
+      ) : null}
       <FormField
         label={i18n.t('bookingUrlLabel')}
         hint={i18n.t('bookingUrlHint')}
@@ -208,5 +232,12 @@ export default function SalonDetails() {
 
 const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  locate: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth },
+  locate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
 });

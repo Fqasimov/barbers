@@ -3,6 +3,7 @@ import { Plus, Users } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { masterLimit } from '@/auth/plans';
 import { Card, useOwner } from '@/components/business/kit';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -20,6 +21,8 @@ export default function Masters() {
   const insets = useSafeAreaInsets();
   const { business } = useOwner();
   const masters = business?.masters ?? [];
+  const limit = masterLimit(business);
+  const full = limit !== null && masters.length >= limit;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -35,7 +38,10 @@ export default function Masters() {
                 scaleTo={0.99}
                 accessibilityRole="button"
                 accessibilityLabel={m.name}
-                style={[styles.row, i < masters.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }]}
+                style={[
+                  styles.row,
+                  i < masters.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line },
+                ]}
               >
                 <Avatar name={m.name} tone={m.tone} size={40} />
                 <View style={{ flex: 1, gap: 2 }}>
@@ -50,7 +56,18 @@ export default function Masters() {
         ) : (
           <EmptyState icon={Users} title={i18n.t('mstEmptyTitle')} body={i18n.t('mstEmptyBody')} />
         )}
-        <Button label={i18n.t('mstAdd')} icon={Plus} variant="secondary" onPress={() => router.push('/business/master')} />
+        {full ? (
+          <Text variant="caption" tone="soft">
+            {i18n.t('mstLimitNote')}
+          </Text>
+        ) : (
+          <Button
+            label={i18n.t('mstAdd')}
+            icon={Plus}
+            variant="secondary"
+            onPress={() => router.push('/business/master')}
+          />
+        )}
       </ScrollView>
     </View>
   );

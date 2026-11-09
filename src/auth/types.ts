@@ -24,7 +24,7 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'sade' | 'start' | 'pro';
+export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro';
 
 /** What a plan unlocks (server: config usta.plan_features). */
 export type Feature =
@@ -36,6 +36,7 @@ export type Feature =
   | 'click_report'
   | 'booking'
   | 'whatsapp_addon'
+  | 'personal_page'
   | 'branches'
   | 'managers'
   | 'deposits'
@@ -107,6 +108,9 @@ export type Business = {
   locations?: Location[];
   /** Sadə and up: where "Book" sends clients (DIKIDI, a website, wa.me…). */
   bookingUrl?: string | null;
+  /** Fərdi, Start and Pro: the personal page address, <slug>.yazilnow.az. */
+  slug?: string | null;
+  pageUrl?: string | null;
   /** WhatsApp add-on: messages left and until when. */
   whatsappPack?: { left: number; until: string | null };
 };
@@ -163,6 +167,8 @@ export type SocialProfile = {
 };
 
 export type AuthErrorCode =
+  | 'master_limit'
+  | 'too_many_masters'
   | 'invalid_credentials'
   | 'email_taken'
   | 'not_verified'

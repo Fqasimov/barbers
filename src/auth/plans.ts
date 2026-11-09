@@ -46,10 +46,13 @@ export type Plan = {
   /** What the plan unlocks; the server's list wins when it sends one. */
   unlocks: FeatureId[];
   recommended?: boolean;
+  /** Most masters the plan allows (Fərdi: one person). */
+  masters?: number;
 };
 
 const base: FeatureId[] = ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report'];
 const startUnlocks: FeatureId[] = [...base, 'booking', 'whatsapp_addon'];
+const withPage: FeatureId[] = [...startUnlocks, 'personal_page'];
 
 export const plans: Plan[] = [
   {
@@ -72,16 +75,51 @@ export const plans: Plan[] = [
     ],
   },
   {
+    id: 'ferdi',
+    name: 'Fərdi',
+    price: 10,
+    priceYear: 10 * YEAR_MONTHS_PAID,
+    blurb: L('Tək işləyən usta üçün', 'Для мастера, работающего один', 'For one master working solo'),
+    unlocks: [...startUnlocks, 'personal_page'],
+    masters: 1,
+    features: [
+      L(
+        'Start planındakı hər şey, bir nəfər üçün',
+        'Всё из тарифа Start для одного человека',
+        'Everything in Start, for one person',
+      ),
+      L(
+        'Şəxsi səhifə: adınız.yazilnow.az',
+        'Личная страница: имя.yazilnow.az',
+        'A personal page: yourname.yazilnow.az',
+      ),
+      L(
+        'Onlayn bron, təqvim və xatırlatmalar',
+        'Онлайн-запись, календарь и напоминания',
+        'Online booking, calendar and reminders',
+      ),
+      L(
+        'Salonda işləyirsinizsə də, öz səhifəniz olur',
+        'Подходит и мастеру внутри салона',
+        'Also for a master working inside a salon',
+      ),
+    ],
+  },
+  {
     id: 'start',
     name: 'Start',
     price: 29,
     priceYear: 29 * YEAR_MONTHS_PAID,
     blurb: L('Tək salon üçün', 'Для одного салона', 'For a single salon'),
-    unlocks: startUnlocks,
+    unlocks: withPage,
     features: [
       L('Sadə planındakı hər şey', 'Всё из тарифа Sadə', 'Everything in Sadə'),
       L('Onlayn bron və təqvim', 'Онлайн-запись и календарь', 'Online booking and calendar'),
-      L('Limitsiz usta, əlavə ödəniş yoxdur', 'Мастера без ограничений и доплат', 'Unlimited masters, no per-seat fees'),
+      L(
+        'Limitsiz usta, əlavə ödəniş yoxdur',
+        'Мастера без ограничений и доплат',
+        'Unlimited masters, no per-seat fees',
+      ),
       L('Müştərilərə xatırlatmalar', 'Напоминания клиентам', 'Reminders for clients'),
       L(
         'WhatsApp təsdiqləri: əlavə paket, 10 ₼ / 300 mesaj',
@@ -97,7 +135,7 @@ export const plans: Plan[] = [
     priceYear: 49 * YEAR_MONTHS_PAID,
     recommended: true,
     blurb: L('Böyüyən salonlar üçün', 'Для растущих салонов', 'For growing salons'),
-    unlocks: [...startUnlocks, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+    unlocks: [...withPage, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     features: [
       L('Start planındakı hər şey', 'Всё из тарифа Start', 'Everything in Start'),
       L(
@@ -115,7 +153,11 @@ export const plans: Plan[] = [
 ];
 
 /** Unknown ids (a retired plan cached on the device) read as Pro, as the server migrated them. */
-export const planById = (id: PlanId | string) => plans.find((p) => p.id === id) ?? plans[2];
+export const planById = (id: PlanId | string) => plans.find((p) => p.id === id) ?? plans.find((p) => p.id === 'pro')!;
+
+/** How many masters the salon's plan allows, or null for no limit. */
+export const masterLimit = (business: Business | null | undefined): number | null =>
+  business?.subscription ? (planById(business.subscription.plan).masters ?? null) : null;
 
 /** Does the salon's plan include this? The server's list, else the bundled plan. */
 export function hasFeature(business: Business | null | undefined, feature: FeatureId): boolean {

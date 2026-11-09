@@ -64,6 +64,8 @@ export type Salon = {
   /** app: booked here. link: a Sadə salon, "Book" opens its own page (bookingUrl) or WhatsApp/phone. */
   booking?: 'app' | 'link';
   bookingUrl?: string | null;
+  /** The personal page, e.g. https://orxanosmanov.yazilnow.az. */
+  pageUrl?: string | null;
   /** Pro: takes deposits (no-show protection). */
   deposits?: boolean;
   /** Pro: clients can ask to hear when a time opens. */
