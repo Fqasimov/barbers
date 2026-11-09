@@ -21,6 +21,7 @@ import { useAppSync } from '@/lib/sync';
 import { useStore } from '@/store/useStore';
 import { siteFonts } from '@/theme/siteFonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+import { SITE_URL } from '@/lib/links';
 import { isSite } from '@/theme/tokens';
 import { panelInset, WIDE_MIN, WideContext } from '@/theme/wide';
 
@@ -80,6 +81,14 @@ function writeFlag(v: '0' | '1') {
   }
 }
 
+/**
+ * In a browser only the salon side runs: the panel, sign-up / sign-in, the dashboard and its tools,
+ * the staff cabinet, account deletion, and QR reviews (scanned in the salon). The client app is
+ * for phones; any other page sends the visitor to the website.
+ */
+const isWebAllowed = (p: string) =>
+  isPanelPath(p) || p.startsWith('/auth') || p.startsWith('/r/') || p.startsWith('/review/') || p.startsWith('/account');
+
 function App() {
   const { c, scheme } = useTheme();
   const reduced = useReducedMotion();
@@ -103,8 +112,13 @@ function App() {
   const { width } = useWindowDimensions();
   const desktop = wide && width >= WIDE_MIN;
   useEffect(() => {
-    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
+    if (!isSite && splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
   }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
+
+  const offWeb = isSite && !isWebAllowed(pathname);
+  useEffect(() => {
+    if (offWeb) globalThis.location?.replace(SITE_URL);
+  }, [offWeb]);
 
   const navTheme = useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -113,6 +127,9 @@ function App() {
       colors: { ...base.colors, background: c.bg, card: c.bg, text: c.ink, border: c.line, primary: c.accent },
     };
   }, [scheme, c]);
+
+  // On its way to the website: show nothing of the client app.
+  if (offWeb) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
 
   return (
     <NavThemeProvider value={navTheme}>

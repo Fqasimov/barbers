@@ -119,14 +119,22 @@ function VenueCard({ venue, pinned, onClose }: { venue: Venue; pinned: boolean; 
   );
 }
 
-/** Text the salon on WhatsApp, or book: in yazılnow (the app in the browser), or on the salon's own page. */
+/** The store for this phone, else the other one, else the "get the app" section of this page. */
+function appStoreLink(): string {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/i.test(ua);
+  const first = ios ? config.appStoreUrl : config.playStoreUrl;
+  return first || config.appStoreUrl || config.playStoreUrl || '#get';
+}
+
+/**
+ * Text the salon on WhatsApp, or book. Booking is in the phone app (the browser has no client app):
+ * the store link, or the salon's own booking page for salons that take bookings elsewhere.
+ */
 function VenueActions({ venue }: { venue: Venue }) {
   const { t } = useI18n();
   const wa = venue.whatsapp ? `https://wa.me/${venue.whatsapp.replace(/\D/g, '')}` : null;
-  const book =
-    venue.booking === 'link'
-      ? venue.bookingUrl || wa
-      : `${config.appUrl || '/app'}/salon/${encodeURIComponent(venue.id)}`;
+  const book = venue.booking === 'link' ? venue.bookingUrl || wa : appStoreLink();
   if (!wa && !book) return null;
   return (
     <div className="mc-actions">
@@ -139,7 +147,7 @@ function VenueActions({ venue }: { venue: Venue }) {
         <a
           className="btn btn-sm btn-ink"
           href={book}
-          {...(venue.booking === 'link' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          {...(book.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           {t('mapBook')}
         </a>

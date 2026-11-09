@@ -122,7 +122,7 @@ export function Faq() {
 export function Download() {
   const { t } = useI18n();
   return (
-    <section className="get" aria-labelledby="getTitle">
+    <section className="get" id="get" aria-labelledby="getTitle">
       <div className="wrap get-inner">
         <img className="get-mark reveal" src={asset('tools/mark.webp')} alt="" width={720} height={720} />
         <div className="reveal">
