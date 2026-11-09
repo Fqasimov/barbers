@@ -31,10 +31,17 @@ export const tapAt = (name: TakeName, n: number) => takes[name].events.filter((e
  * One recording, trimmed, with iOS-style "show touches" circles where the finger
  * landed. `playbackRate` > 1 speeds it up; touch circles follow the recording's own clock.
  */
-export const Clip: React.FC<{ name: TakeName; from?: number; playbackRate?: number }> = ({
+/** A screen area painted over for a span of the take (e.g. the dev-only demo code box). */
+export type Hide = { from: number; to: number; x: number; y: number; w: number; h: number; color: string };
+
+/** The demo-mode box with the e-mail code on the "trial" take's verify screen (never shown in production). */
+export const TRIAL_DEMO_CODE: Hide = { from: 968, to: 1017, x: 12, y: 296, w: 366, h: 134, color: "rgb(243, 239, 232)" };
+
+export const Clip: React.FC<{ name: TakeName; from?: number; playbackRate?: number; hide?: Hide[] }> = ({
   name,
   from = 0,
   playbackRate = 1,
+  hide = [],
 }) => {
   const frame = Math.floor(useCurrentFrame() * playbackRate) + from;
   const { events } = takes[name];
@@ -52,6 +59,24 @@ export const Clip: React.FC<{ name: TakeName; from?: number; playbackRate?: numb
         muted
         style={{ width: PT.w, height: PT.h, display: "block" }}
       />
+      {hide
+        .filter((m) => frame >= m.from && frame <= m.to)
+        .map((m, i) => (
+          <div
+            key={`h${i}`}
+            style={{
+              position: "absolute",
+              left: m.x,
+              top: m.y,
+              width: m.w,
+              height: m.h,
+              background: m.color,
+              // Feathered, so video colour shifts don't draw an edge.
+              boxShadow: `0 0 10px 6px ${m.color}`,
+              borderRadius: 8,
+            }}
+          />
+        ))}
       {taps.map((t, i) => {
         const age = frame - t.frame;
         if (age < 0 || age > 18) return null;

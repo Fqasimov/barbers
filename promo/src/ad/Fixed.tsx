@@ -1,7 +1,8 @@
 import React from "react";
-import { AbsoluteFill, Audio, Freeze, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Freeze, Img, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
 
-import { Clip } from "../Clip";
+import iconTrack from "../../public/ugc/ad20-icon-track.json";
+import { Clip, TRIAL_DEMO_CODE } from "../Clip";
 import { Phone, phoneSize, PT } from "../Phone";
 import { Backdrop, Grain } from "../Promo";
 import { clamp, color, ease, font } from "../theme";
@@ -16,19 +17,21 @@ const W = 1080;
 const H = 1920;
 
 // ---------------------------------------------------------------------------
-// 20 s ad: footage up to the phone, then the real app (launch → sign-up → Pro trial)
+// 20 s ad: footage up to the tap on the app (with the real icon), then the real app
 // ---------------------------------------------------------------------------
 
-const CUT = 144; // footage until just before its (made-up) home screen
-const XF = 14;
-const PHONE_AT = CUT - XF;
+const CUT = 209; // footage up to the tap on the app icon (its own "app opening" follows)
+const ZOOM = 12; // the app opens out of the icon, like iOS
 export const FIXED_AD_FRAMES = 600;
+
+/** Where the footage's home-screen icon is, per frame (template-tracked), as [x, y, size]. */
+const ICON: Record<string, [number, number, number]> = iconTrack as unknown as Record<string, [number, number, number]>;
 
 /** Pieces of the "trial" take, laid end to end inside the phone. */
 const PIECES = (() => {
   const raw = [
-    { from: 0, to: 140, rate: 1.25 }, // the yazılnow launch animation
-    { from: 545, to: 1080, rate: 2.8 }, // salon sign-up: owner, salon, email code
+    { from: 0, to: 140, rate: 1.4 }, // the yazılnow launch animation
+    { from: 545, to: 1080, rate: 3.2 }, // salon sign-up: owner, salon, email code
     { from: 1080, to: 1345, rate: 1 }, // plans: Pro 49 ₼ → free trial → dashboard
   ];
   let at = 0;
@@ -79,7 +82,7 @@ const AppPhone: React.FC = () => {
           <Phone width={PHONE_W}>
             {PIECES.map((p, i) => (
               <Sequence key={i} from={p.at} durationInFrames={i === PIECES.length - 1 ? undefined : p.length} layout="none">
-                <Clip name="trial" from={p.from} playbackRate={p.rate} />
+                <Clip name="trial" from={p.from} playbackRate={p.rate} hide={[TRIAL_DEMO_CODE]} />
               </Sequence>
             ))}
           </Phone>
@@ -90,17 +93,55 @@ const AppPhone: React.FC = () => {
   );
 };
 
+/** The real app icon over the footage's made-up one, following it; dimmed while pressed. */
+const RealIcon: React.FC = () => {
+  const frame = useCurrentFrame();
+  const box = ICON[String(frame)];
+  if (!box) return null;
+  const [x, y, size] = box;
+  const pressed = 1;
+  // The footage is soft and slightly green; match it.
+  const soft = frame < 168 ? 2.2 : 0.8;
+  return (
+    <Img
+      src={staticFile("ugc/app-icon.png")}
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: size,
+        height: size,
+        borderRadius: size * 0.225,
+        filter: `blur(${soft}px) brightness(${0.93 * pressed}) saturate(0.85) sepia(0.12) hue-rotate(18deg)`,
+      }}
+    />
+  );
+};
+
 export const FixedAd: React.FC = () => {
   const frame = useCurrentFrame();
-  const phoneIn = interpolate(frame, [PHONE_AT, CUT], [0, 1], { ...clamp, easing: ease.out });
+  const open = interpolate(frame, [CUT, CUT + ZOOM], [0, 1], { ...clamp, easing: ease.ios });
+  const [ix, iy, isz] = ICON["208"];
+  const cx = ix + isz / 2;
+  const cy = iy + isz / 2;
+  const sc = interpolate(open, [0, 1], [isz / W, 1]);
   return (
     <AbsoluteFill style={{ background: "black" }}>
       <Audio src={staticFile("ugc/ad20.mp4")} />
-      <Sequence durationInFrames={CUT} layout="none">
+      <Sequence durationInFrames={CUT + ZOOM} layout="none">
         <OffthreadVideo src={staticFile("ugc/ad20.mp4")} muted style={{ width: W, height: H, objectFit: "cover" }} />
+        <RealIcon />
       </Sequence>
-      <Sequence from={PHONE_AT} layout="none">
-        <AbsoluteFill style={{ opacity: phoneIn, transform: `scale(${1.04 - 0.04 * phoneIn})` }}>
+      <Sequence from={CUT} layout="none">
+        <AbsoluteFill
+          style={{
+            transformOrigin: "0 0",
+            transform: `translate(${(1 - open) * (cx - (W * sc) / 2)}px, ${(1 - open) * (cy - (H * sc) / 2)}px) scale(${sc})`,
+            borderRadius: (1 - open) * 220,
+            overflow: "hidden",
+            opacity: interpolate(open, [0, 0.25], [0.6, 1], clamp),
+          }}
+        >
           <AppPhone />
         </AbsoluteFill>
       </Sequence>
@@ -109,32 +150,36 @@ export const FixedAd: React.FC = () => {
 };
 
 // ---------------------------------------------------------------------------
-// 10 s barber video: footage, then the real launch animation full screen
+// 10 s barber video: footage, then the real scissors cut and the logo
 // ---------------------------------------------------------------------------
 
 const B_CUT = 165; // footage until its (made-up) logo card
 const B_XF = 12;
-const LAUNCH = 152; // the app's launch animation, up to the finished logo
-const TAG_HOLD = 45;
-export const FIXED_BARBER_FRAMES = B_CUT - B_XF + LAUNCH + TAG_HOLD;
+const SNIP = 27; // the launch animation's scissors cut, up to the scissors at rest
+const LOGO_AT = 130; // the finished logo in the launch animation
+const LOGO_XF = 10;
+export const FIXED_BARBER_FRAMES = 300;
 
-/** The app screen scaled to cover the frame: the launch animation is centred, so a crop keeps it whole. */
-const FullScreenApp: React.FC = () => {
+/** A frame of the app screen scaled to cover the picture (the launch animation is centred). */
+const FullScreenApp: React.FC<{ from: number }> = ({ from }) => {
   const s = W / PT.w;
   return (
     <AbsoluteFill style={{ background: color.linen, overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: (H - PT.h * s) / 2, width: PT.w, height: PT.h, transform: `scale(${s})`, transformOrigin: "0 0" }}>
-        <Clip name="trial" from={0} />
+        <Clip name="trial" from={from} />
       </div>
     </AbsoluteFill>
   );
 };
 
+/** Only the scissors cut, then the logo: the tools in between are left out. */
 export const FixedBarber: React.FC = () => {
   const frame = useCurrentFrame();
   const at = B_CUT - B_XF;
+  const local = frame - at;
   const appIn = interpolate(frame, [at, B_CUT], [0, 1], clamp);
-  const tag = interpolate(frame, [at + LAUNCH - 20, at + LAUNCH + 6], [0, 1], { ...clamp, easing: ease.out });
+  const logo = interpolate(local, [SNIP, SNIP + LOGO_XF], [0, 1], { ...clamp, easing: ease.out });
+  const tag = interpolate(local, [SNIP + LOGO_XF, SNIP + LOGO_XF + 22], [0, 1], { ...clamp, easing: ease.out });
   return (
     <AbsoluteFill style={{ background: "black" }}>
       <Audio src={staticFile("ugc/barber.mp4")} />
@@ -143,14 +188,18 @@ export const FixedBarber: React.FC = () => {
       </Sequence>
       <Sequence from={at} layout="none">
         <AbsoluteFill style={{ opacity: appIn }}>
-          {/* Hold the finished logo once the animation is done. */}
-          {frame - at < LAUNCH ? (
-            <FullScreenApp />
+          {local < SNIP ? (
+            <FullScreenApp from={0} />
           ) : (
-            <Freeze frame={LAUNCH - 1}>
-              <FullScreenApp />
+            <Freeze frame={SNIP}>
+              <FullScreenApp from={0} />
             </Freeze>
           )}
+          <AbsoluteFill style={{ opacity: logo }}>
+            <Freeze frame={0}>
+              <FullScreenApp from={LOGO_AT} />
+            </Freeze>
+          </AbsoluteFill>
         </AbsoluteFill>
       </Sequence>
       <AbsoluteFill
