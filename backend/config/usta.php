@@ -151,6 +151,8 @@ return [
 
     // Where QR codes and shared links point.
     'web_url' => env('WEB_URL', 'https://yazilnow.az'),
+    // The app in a browser; client emails link to its bookings page.
+    'app_web_url' => env('APP_WEB_URL', rtrim((string) env('WEB_URL', 'https://yazilnow.az'), '/').'/app'),
 
     'billing_periods' => ['month', 'year'],
 
