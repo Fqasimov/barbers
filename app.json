@@ -50,7 +50,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Usta uses your location to show barbers and salons near you.",
+          "locationWhenInUsePermission": "yazılnow uses your location to show barbers and salons near you.",
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false,
           "locationAlwaysAndWhenInUsePermission": false,
@@ -78,8 +78,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Usta uses your photos so you can add pictures of your salon.",
-          "cameraPermission": "Usta uses the camera so you can take pictures of your salon.",
+          "photosPermission": "yazılnow uses your photos so you can add pictures of your salon.",
+          "cameraPermission": "yazılnow uses the camera so you can take pictures of your salon.",
           "microphonePermission": false
         }
       ]

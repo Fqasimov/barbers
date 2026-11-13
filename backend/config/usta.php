@@ -92,6 +92,12 @@ return [
 
     // Personal pages: <slug>.<page_domain> (needs a wildcard DNS record and certificate) and <web_url>/u/<slug>.
     'page_domain' => env('PAGE_DOMAIN', 'yazilnow.az'),
+    // Off until the hosting has a wildcard DNS record, domain and certificate (docs/ferdi-plan.md).
+    'page_subdomains' => (bool) env('PAGE_SUBDOMAINS', false),
+    // Addresses that already have their own subdomain in cPanel (the plan allows a few), comma-separated:
+    // PAGE_SUBDOMAIN_SLUGS=orxanosmanov,elvinbarber. Those pages show as <slug>.yazilnow.az.
+    'page_subdomain_slugs' => array_values(array_filter(array_map(
+        fn ($s) => strtolower(trim($s)), explode(',', (string) env('PAGE_SUBDOMAIN_SLUGS', ''))))),
     'reserved_slugs' => ['www', 'app', 'api', 'admin', 'mail', 'smtp', 'panel', 'help', 'support', 'privacy', 'terms',
         'billing', 'static', 'assets', 'cdn', 'blog', 'status', 'dev', 'test', 'staging', 'webmail', 'cpanel', 'ftp',
         'ns1', 'ns2', 'yazilnow', 'usta', 'salon', 'salons', 'r', 's', 'u'],
@@ -151,6 +157,8 @@ return [
 
     // Where QR codes and shared links point.
     'web_url' => env('WEB_URL', 'https://yazilnow.az'),
+    // The app in a browser; client emails link to its bookings page.
+    'app_web_url' => env('APP_WEB_URL', rtrim((string) env('WEB_URL', 'https://yazilnow.az'), '/').'/app'),
 
     'billing_periods' => ['month', 'year'],
 

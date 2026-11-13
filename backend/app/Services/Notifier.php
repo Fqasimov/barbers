@@ -58,6 +58,7 @@ class Notifier
         $when = $this->when($b);
         $services = $this->services($b);
         dispatch(new SendPush($owner->id, 'Yeni bron · Новая запись', "{$client} · {$services} · {$when}", ['type' => 'booking_created', 'booking_id' => $b->id, 'url' => self::OWNER_URL]));
+        $this->toClient($b, 'confirmed');
         Mail::to($owner->email)->queue(new BookingMail($b, 'created', [
             "Müştəri / Клиент / Client: {$client}".($b->user?->phone ? " ({$b->user->phone})" : ''),
             "Xidmətlər / Услуги / Services: {$services}",
@@ -75,6 +76,16 @@ class Notifier
         }
         $client = $b->user?->fullName() ?? 'Deleted user';
         dispatch(new SendPush($owner->id, 'Bron ləğv edildi · Запись отменена', "{$client} · {$this->when($b)}", ['type' => 'booking_cancelled', 'booking_id' => $b->id, 'url' => self::OWNER_URL]));
+        // Salons using the web panel have no push: the time is free again, tell them by email too.
+        Mail::to($owner->email)->queue(new BookingMail($b, 'cancelled_by_customer', [
+            "AZ: {$client} bronu ləğv etdi. Vaxt yenidən boşdur.",
+            "RU: {$client} отменил(а) запись. Время снова свободно.",
+            "EN: {$client} cancelled. The time is free again.",
+            '',
+            "Vaxt / Время / Time: {$this->when($b)}",
+            "Xidmətlər / Услуги / Services: {$this->services($b)}",
+            'Usta / Мастер / Master: '.($b->master?->name ?? '—'),
+        ]));
     }
 
     public function bookingCancelledBySalon(Booking $b): void
@@ -104,6 +115,43 @@ class Notifier
         $salon = $b->business?->name ?? 'yazılnow';
         $title = $which === '24h' ? 'Sabah · Завтра · Tomorrow' : '2 saat · 2 часа · 2 hours';
         dispatch(new SendPush($b->user_id, $title, "{$salon} · {$this->when($b)}", ['type' => 'booking_reminder', 'booking_id' => $b->id, 'url' => self::CUSTOMER_URL]));
+        // Clients booking in a browser have no push: email is their reminder.
+        $this->toClient($b, $which === '24h' ? 'reminder_24h' : 'reminder_2h');
+    }
+
+    /** The client's email: what, where, when, with whom, and how to cancel. */
+    private function toClient(Booking $b, string $kind): void
+    {
+        $user = $b->user;
+        if (! $user?->email) {
+            return;
+        }
+        $salon = $b->business;
+        $name = $salon?->name ?? 'yazılnow';
+        $when = $this->when($b);
+        $head = match ($kind) {
+            'confirmed' => ['AZ: Bronunuz təsdiqləndi.', 'RU: Ваша запись подтверждена.', 'EN: Your booking is confirmed.'],
+            'reminder_24h' => ['AZ: Sabah sizi gözləyirlər.', 'RU: Вас ждут завтра.', 'EN: See you tomorrow.'],
+            default => ['AZ: 2 saat sonra sizi gözləyirlər.', 'RU: Вас ждут через 2 часа.', "EN: You're expected in 2 hours."],
+        };
+        $hours = (int) config('usta.bookings.cancel_until_hours');
+        $address = trim(implode(', ', array_filter([$salon?->address, $salon?->district])));
+        $lines = array_merge($head, [
+            '',
+            "Salon / Салон: {$name}",
+            $address !== '' ? "Ünvan / Адрес / Address: {$address}" : null,
+            "Vaxt / Время / Time: {$when}",
+            'Usta / Мастер / Master: '.($b->master?->name ?? '—'),
+            "Xidmətlər / Услуги / Services: {$this->services($b)}",
+            "Məbləğ / Сумма / Total: {$b->total} AZN",
+            $salon?->phone ? "Telefon / Телефон / Phone: {$salon->phone}" : null,
+            '',
+            $kind === 'reminder_2h'
+                ? 'AZ: Gələ bilmirsinizsə, salona zəng edin. RU: Если не успеваете, позвоните в салон. EN: If you can\'t make it, call the salon.'
+                : "AZ: {$hours} saat əvvələdək pulsuz ləğv edə bilərsiniz. RU: Бесплатная отмена — до {$hours} ч. EN: Free cancellation up to {$hours} hours before.",
+            'Bronlarım / Мои записи / My bookings: '.rtrim((string) config('usta.app_web_url'), '/').'/bookings',
+        ]);
+        Mail::to($user->email)->queue(new BookingMail($b, $kind, array_values(array_filter($lines, fn ($l) => $l !== null))));
     }
 
     /**

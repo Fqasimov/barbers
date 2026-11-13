@@ -40,7 +40,8 @@ export function SocialButtons() {
   return (
     <View style={styles.stack}>
       {apple ? <AppleButton /> : null}
-      {googleReady ? <GoogleButtonLive /> : <GoogleButtonUnconfigured />}
+      {/* Store builds never show a Google button that can't sign in (App Review rejects dead buttons). */}
+      {googleReady ? <GoogleButtonLive /> : __DEV__ ? <GoogleButtonUnconfigured /> : null}
     </View>
   );
 }

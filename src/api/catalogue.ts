@@ -12,7 +12,13 @@ export type Page<T> = { data: T[]; nextPage: number | null };
 export const catalogueApi = {
   /** A personal page address → its salon (https://<slug>.yazilnow.az). */
   page: (slug: string) =>
-    request<{ salonId: string; slug: string; name: string }>('GET', `/pages/${encodeURIComponent(slug)}`),
+    request<{
+      salonId: string;
+      slug: string | null;
+      name: string;
+      /** Pro with more than one open location: the client picks one first. */
+      branches: { id: string; name: string; district: string | null; address: string | null }[];
+    }>('GET', `/pages/${encodeURIComponent(slug)}`),
   salons: (fresh = false) => request<Salon[]>('GET', '/salons', { fresh }),
   busy: (args: { from: string; days: number; salonIds?: string[] }) =>
     request<BusyRange[]>('GET', '/busy', { query: args }),

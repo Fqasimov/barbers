@@ -163,10 +163,39 @@ class Business extends Model
         return $limit === null ? null : (int) $limit;
     }
 
-    /** The personal page, if the salon has picked an address: https://<slug>.yazilnow.az */
+    /**
+     * The personal page, if the salon has picked an address: <web_url>/u/<slug>, or
+     * https://<slug>.yazilnow.az for addresses that have a subdomain in cPanel
+     * (PAGE_SUBDOMAIN_SLUGS), or for every address once the hosting has wildcard subdomains
+     * (PAGE_SUBDOMAINS=true).
+     */
     public function pageUrl(): ?string
     {
-        return $this->slug ? 'https://'.$this->slug.'.'.config('usta.page_domain') : null;
+        $slug = $this->account()->slug;
+        if (! $slug) {
+            return null;
+        }
+
+        $subdomain = config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true);
+
+        return $subdomain
+            ? 'https://'.$slug.'.'.config('usta.page_domain')
+            : rtrim((string) config('usta.web_url'), '/').'/u/'.$slug;
+    }
+
+    /**
+     * The salon's own booking link, for an Instagram bio or a message to clients. Every plan
+     * that takes bookings has one (Fərdi, Start, Pro; not Sadə): the personal page if an
+     * address is picked, otherwise <web_url>/u/<id>. It opens the salon with its masters,
+     * hours and free times, and on Pro lets the client pick a branch first.
+     */
+    public function shareUrl(): ?string
+    {
+        if (! $this->hasFeature('personal_page')) {
+            return null;
+        }
+
+        return $this->pageUrl() ?? rtrim((string) config('usta.web_url'), '/').'/u/'.$this->account()->id;
     }
 
     /** In-app booking (Fərdi, Start and Pro); Sadə sends clients to its own link. */

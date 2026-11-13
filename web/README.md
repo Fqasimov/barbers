@@ -42,7 +42,7 @@ The site has no inline scripts, so it runs under the strict Content-Security-Pol
 ## Notes
 
 - **Remotion licence.** Remotion is free for individuals and companies with up to 3 employees. Larger companies need a company licence (remotion.pro). The promo already uses it.
-- **Map tiles.** The site uses CARTO's free basemaps, which require attribution and are meant for light traffic. For real traffic, switch to a keyed provider (MapTiler or Mapbox) in `config.js` → `tiles`.
+- **Map tiles.** The site uses OpenStreetMap's own tiles: free, no key, attribution required, meant for light traffic. (CARTO's basemaps, used before, now need an API key and show "API KEY REQUIRED" without one.) For heavy traffic switch to a keyed provider (MapTiler, Mapbox, Stadia) in `config.js` → `tiles`.
 - **The opening** plays once per browser tab session. It never plays with reduced motion, can be skipped (button or Escape), and a timer guarantees it never stays on screen. The composition is in `src/remotion/Intro.tsx`.
 - **The hero's phone** plays the promo's recordings of the real app. They're H.264 MP4, with a VP9 WebM fallback for browsers without H.264, and play only while visible.
 - **Texts** live in `src/i18n.ts` (AZ, RU, EN). A native speaker should read the AZ and RU copy before launch.

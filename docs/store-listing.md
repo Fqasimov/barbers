@@ -10,11 +10,11 @@ Ready to paste into App Store Connect and Google Play Console. Every text is wit
 
 | | AZ | RU | EN |
 | --- | --- | --- | --- |
-| **App name** (App Store ≤ 30, Play ≤ 30) | Usta: Bərbər və Salon | Usta: Барбер и Салон | Usta: Barber & Salon Booking |
+| **App name** (App Store ≤ 30, Play ≤ 30) | yazılnow: Bərbər və Salon | yazılnow: Барбер и Салон | yazılnow: Barber & Salon |
 | **Subtitle** (App Store ≤ 30) | Bakıda növbə, bir toxunuşla | Запись в Баку в одно касание | Book Baku's best, in a tap |
 | **Short description** (Play ≤ 80) | Bərbər, saç, dırnaq və spa. Boş vaxtı gör, ustanı seç, dərhal yazıl. | Барбер, стрижки, ногти, спа. Свободное время, выбор мастера, запись сразу. | Barbers, hair, nails and spa. See free times, pick your master, book instantly. |
 
-If "Usta" is already taken in a store, use the fallback **"Usta Tap"** (it matches ustatap.az).
+If a store refuses "yazılnow" with the dotless ı, use **"Yazilnow"**; the icon name on the phone stays yazılnow.
 
 ## Promotional text (App Store ≤ 170)
 
@@ -27,16 +27,16 @@ If "Usta" is already taken in a store, use the fallback **"Usta Tap"** (it match
 ### AZ
 
 ```
-Usta — Bakının bərbər, gözəllik salonu və spa məkanlarına zəngsiz yazılış.
+yazılnow — Bakının bərbər, gözəllik salonu və spa məkanlarına zəngsiz yazılış.
 
 Boş vaxtı canlı görün
-Hər salonun və hər ustanın boş saatları real vaxtda görünür. "Bu gün 18:00-dan sonra skin fade" kimi axtarın — Usta ən yaxın boş vaxtları göstərir.
+Hər salonun və hər ustanın boş saatları real vaxtda görünür. "Bu gün 18:00-dan sonra skin fade" kimi axtarın — yazılnow ən yaxın boş vaxtları göstərir.
 
 Ustanı özünüz seçin
 Ustaların təcrübəsini, danışdığı dilləri və rəylərini görün. Sevdiyiniz ustanı izləyin — onun növbəti boş vaxtı profilinizdə olsun.
 
 Yalnız real rəylər
-Rəyi yalnız həmin salonda növbəsi olmuş müştəri yaza bilər. Hər rəy təsdiqlənmiş ziyarətə bağlıdır.
+Rəyi yalnız salonda olmuş müştəri yazır: tətbiqdəki növbədən sonra və ya ustanın göstərdiyi birdəfəlik QR kodla.
 
 Rahat idarə
 • 24 saat və 2 saat əvvəl xatırlatma
@@ -47,25 +47,25 @@ Rahat idarə
 • Azərbaycan, rus və ingilis dillərində
 
 Kart lazım deyil
-Ödənişi salonda edirsiniz. Usta müştəri üçün pulsuzdur.
+Ödənişi salonda edirsiniz. yazılnow müştəri üçün pulsuzdur.
 
 Salon sahibisiniz?
-Salonunuzu Usta-ya əlavə edin: onlayn növbə, təqvim, telefonla yazılışlar, istirahət vaxtı və rəylərə cavab. Usta sayına görə əlavə ödəniş yoxdur. 30 gün pulsuz.
+Salonunuzu yazılnow-a əlavə edin: onlayn növbə, təqvim, telefonla yazılışlar, istirahət vaxtı və rəylərə cavab. Usta sayına görə əlavə ödəniş yoxdur. 30 gün pulsuz.
 ```
 
 ### RU
 
 ```
-Usta — запись без звонков в барбершопы, салоны красоты и спа Баку.
+yazılnow — запись без звонков в барбершопы, салоны красоты и спа Баку.
 
 Свободное время онлайн
-Свободные часы каждого салона и мастера видны в реальном времени. Ищите «skin fade сегодня после 18:00» — Usta покажет ближайшие окна.
+Свободные часы каждого салона и мастера видны в реальном времени. Ищите «skin fade сегодня после 18:00» — yazılnow покажет ближайшие окна.
 
 Выбирайте мастера сами
 Опыт, языки и отзывы каждого мастера. Подпишитесь на любимого мастера — его ближайшее окно будет в вашем профиле.
 
 Только настоящие отзывы
-Отзыв может оставить только клиент, у которого была запись в этом салоне. Каждый отзыв привязан к подтверждённому визиту.
+Отзыв оставляет только тот, кто был в салоне: после записи в приложении или по одноразовому QR-коду мастера.
 
 Удобно управлять
 • Напоминания за 24 часа и за 2 часа
@@ -76,25 +76,25 @@ Usta — запись без звонков в барбершопы, салон�
 • На азербайджанском, русском и английском
 
 Карта не нужна
-Оплата в салоне. Для клиентов Usta бесплатна.
+Оплата в салоне. Для клиентов yazılnow бесплатна.
 
 У вас салон?
-Добавьте салон в Usta: онлайн-запись, календарь, запись по телефону, нерабочее время и ответы на отзывы. Без доплат за мастеров. 30 дней бесплатно.
+Добавьте салон в yazılnow: онлайн-запись, календарь, запись по телефону, нерабочее время и ответы на отзывы. Без доплат за мастеров. 30 дней бесплатно.
 ```
 
 ### EN
 
 ```
-Usta — book Baku's barbers, beauty salons and spas without a phone call.
+yazılnow — book Baku's barbers, beauty salons and spas without a phone call.
 
 See free times live
-Every salon's and every master's free hours, in real time. Search "skin fade today after 6 pm" and Usta shows the nearest openings.
+Every salon's and every master's free hours, in real time. Search "skin fade today after 6 pm" and yazılnow shows the nearest openings.
 
 Choose your master
 See each master's experience, languages and reviews. Follow your favourite and their next free slot shows on your profile.
 
 Only real reviews
-Only clients who had a booking at that salon can review it. Every review is tied to a confirmed visit.
+Only people who were actually there can review: after a booking in the app, or with a one-time QR code the master shows at the chair.
 
 Easy to manage
 • Reminders 24 hours and 2 hours before
@@ -105,10 +105,10 @@ Easy to manage
 • In Azerbaijani, Russian and English
 
 No card needed
-You pay at the salon. Usta is free for clients.
+You pay at the salon. yazılnow is free for clients.
 
 Own a salon?
-Put your salon on Usta: online booking, a calendar, phone bookings, time off and replies to reviews. No fee per master. Every plan starts with a 30-day free trial: no card at sign-up, cancel any time.
+Put your salon on yazılnow: online booking, a calendar, phone bookings, time off and replies to reviews. No fee per master. Every plan starts with a 30-day free trial: no card at sign-up, cancel any time.
 ```
 
 ## Keywords (App Store ≤ 100, comma-separated, no spaces)
