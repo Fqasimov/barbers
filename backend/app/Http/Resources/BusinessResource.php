@@ -64,9 +64,9 @@ class BusinessResource extends JsonResource
             'whatsapp' => $this->whatsapp,
             'logo_url' => $this->resource->logoUrl(),
             'booking_url' => $this->booking_url,
+            'share_url' => $this->resource->shareUrl(),
             'slug' => $this->slug,
             'page_url' => $this->resource->pageUrl(),
-            'share_url' => $this->resource->shareUrl(),
             'hours' => ['open' => $this->hours_open, 'close' => $this->hours_close],
             'closed_days' => array_values(array_map('intval', $this->closed_days ?? [])),
             // Per weekday, index 0 = Sunday: {open, close} or null when closed.

@@ -79,7 +79,7 @@ class FerdiPlanTest extends TestCase
         $this->patchJson('/api/business', ['slug' => 'OrxanOsmanov'], $h)->assertOk()
             ->assertJsonPath('slug', 'orxanosmanov')
             ->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov')
-            ->assertJsonPath('share_url', 'https://yazilnow.az/u/orxanosmanov');
+            ->assertJsonPath('share_url', 'https://link.yazilnow.az/orxanosmanov');
 
         $this->getJson('/api/pages/orxanosmanov')->assertOk()->assertJsonPath('salon_id', $salon->id);
         $this->getJson("/api/salons/{$salon->id}")->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov');
@@ -111,18 +111,24 @@ class FerdiPlanTest extends TestCase
 
     public function test_every_booking_plan_has_a_link_to_share(): void
     {
-        // No address picked yet: the link uses the salon's id and still opens the page.
+        // No address picked yet: one is made from the salon's name, and the link is link.yazilnow.az/<it>.
         $salon = $this->solo();
         $h = $this->auth($salon->owner);
+        $slug = \Illuminate\Support\Str::slug($salon->name);
         $this->getJson('/api/business', $h)->assertOk()
-            ->assertJsonPath('page_url', null)
-            ->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+            ->assertJsonPath('slug', $slug)
+            ->assertJsonPath('share_url', "https://link.yazilnow.az/{$slug}");
+        $this->getJson("/api/pages/{$slug}")->assertOk()->assertJsonPath('salon_id', $salon->id);
+        // A second salon with the same name gets -2.
+        $twin = $this->solo();
+        $twin->forceFill(['name' => $salon->name])->save();
+        $this->getJson('/api/business', $this->auth($twin->owner))->assertJsonPath('share_url', "https://link.yazilnow.az/{$slug}-2");
         $this->getJson("/api/pages/{$salon->id}")->assertOk()
             ->assertJsonPath('salon_id', $salon->id)->assertJsonPath('branches', []);
 
         foreach (['start', 'pro'] as $plan) {
             Subscription::query()->where('business_id', $salon->id)->update(['plan' => $plan]);
-            $this->getJson('/api/business', $h)->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+            $this->getJson('/api/business', $h)->assertJsonPath('share_url', "https://link.yazilnow.az/{$slug}");
         }
 
         // Sadə (map listing only) has no booking link, and its id doesn't open as a page.
@@ -151,7 +157,7 @@ class FerdiPlanTest extends TestCase
             ->assertJsonPath('branches.1.id', $id)
             ->assertJsonPath('branches.1.district', 'Nərimanov');
         // The branch shows the main salon's link; its own id is not a link.
-        $this->getJson('/api/business', $b)->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+        $this->getJson('/api/business', $b)->assertJsonPath('share_url', 'https://link.yazilnow.az/'.\Illuminate\Support\Str::slug($salon->name));
         $this->getJson("/api/pages/{$id}")->assertNotFound();
     }
 }

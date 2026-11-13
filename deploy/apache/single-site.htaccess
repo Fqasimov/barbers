@@ -9,6 +9,13 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Booking links: link.yazilnow.az/<salon address> → the salon page in the app;
+  # link.yazilnow.az alone → the website.
+  RewriteCond %{HTTP_HOST} ^link\.yazilnow\.az(:[0-9]+)?$ [NC]
+  RewriteRule ^([A-Za-z0-9-]+)/?$ https://yazilnow.az/app/u/$1 [L,R=302]
+  RewriteCond %{HTTP_HOST} ^link\.yazilnow\.az(:[0-9]+)?$ [NC]
+  RewriteRule ^ https://yazilnow.az/ [L,R=302]
+
   # Personal pages: orxanosmanov.yazilnow.az → the page in the app. Needs a wildcard DNS
   # record (*.yazilnow.az), a wildcard domain pointing at public_html and a wildcard certificate.
   RewriteCond %{HTTP_HOST} ^([a-z0-9-]+)\.yazilnow\.az(:[0-9]+)?$ [NC]

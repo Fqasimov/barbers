@@ -195,7 +195,44 @@ class Business extends Model
             return null;
         }
 
-        return $this->pageUrl() ?? rtrim((string) config('usta.web_url'), '/').'/u/'.$this->account()->id;
+        $account = $this->account();
+        $slug = $account->slug ?: $account->assignSlugFromName();
+        $link = rtrim((string) config('usta.link_url'), '/');
+        // link.yazilnow.az/<address>, unless the address has its own subdomain.
+        $subdomain = $slug && (config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true));
+        if ($link !== '' && ! $subdomain) {
+            return $link.'/'.($slug ?: $account->id);
+        }
+
+        return $this->pageUrl() ?? rtrim((string) config('usta.web_url'), '/').'/u/'.$account->id;
+    }
+
+    /**
+     * Gives the salon an address made from its name ("Elvin Bərbər" → elvin-berber), adding
+     * -2, -3 … when it is taken or reserved. The owner can change it later. Null if the name
+     * has no letters to make one from.
+     */
+    public function assignSlugFromName(): ?string
+    {
+        $base = \Illuminate\Support\Str::limit(\Illuminate\Support\Str::slug((string) $this->name), 26, '');
+        $base = trim($base, '-');
+        if (strlen($base) < 3) {
+            return null;
+        }
+
+        $reserved = (array) config('usta.reserved_slugs');
+        for ($n = 1; $n < 100; $n++) {
+            $candidate = $n === 1 ? $base : $base.'-'.$n;
+            $taken = in_array($candidate, $reserved, true)
+                || self::query()->withTrashed()->where('slug', $candidate)->whereKeyNot($this->id)->exists();
+            if (! $taken) {
+                $this->forceFill(['slug' => $candidate])->saveQuietly();
+
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /** In-app booking (Fərdi, Start and Pro); Sadə sends clients to its own link. */
