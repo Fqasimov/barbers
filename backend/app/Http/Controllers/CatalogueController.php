@@ -231,6 +231,22 @@ class CatalogueController extends Controller
         // A picked address first, then the salon's own id (the link before an address is picked).
         $salon = Business::query()->listable()->where('slug', $key)->first()
             ?? Business::query()->listable()->whereNull('parent_id')->find($key);
+        if (! $salon) {
+            // A real salon that isn't open yet (waiting for approval, or nothing to book):
+            // its name and why, so the link doesn't look broken.
+            $pending = Business::query()->where('status', '!=', Business::SUSPENDED)
+                ->where(fn ($q) => $q->where('slug', $key)->orWhere(fn ($q) => $q->whereNull('parent_id')->whereKey($key)))
+                ->first();
+            if ($pending && $pending->hasFeature('personal_page')) {
+                return response()->json([
+                    'salon_id' => null,
+                    'slug' => $pending->slug,
+                    'name' => $pending->name,
+                    'branches' => [],
+                    'not_ready' => $pending->services()->exists() && $pending->masters()->exists() ? 'review' : 'no_services',
+                ])->header('Cache-Control', 'public, max-age=60');
+            }
+        }
         if (! $salon || ! $salon->hasFeature('personal_page')) {
             throw ApiException::notFound('No page with this address.');
         }

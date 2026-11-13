@@ -13,9 +13,12 @@ export const catalogueApi = {
   /** A personal page address → its salon (https://<slug>.yazilnow.az). */
   page: (slug: string) =>
     request<{
-      salonId: string;
+      /** Null while the salon isn't open yet (see notReady). */
+      salonId: string | null;
       slug: string | null;
       name: string;
+      /** Not bookable yet: no services/masters published, or waiting for approval. */
+      notReady?: 'no_services' | 'review';
       /** Pro with more than one open location: the client picks one first. */
       branches: { id: string; name: string; district: string | null; address: string | null }[];
     }>('GET', `/pages/${encodeURIComponent(slug)}`),

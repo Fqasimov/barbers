@@ -1282,6 +1282,18 @@ export const strings = {
     'Один мастер, одна точка. Для команды — Start.',
     'One master, one location. Move to Start when you grow a team.',
   ),
+  pageNoServices: L(
+    'Salon hələ xidmət dərc etməyib',
+    'Салон ещё не опубликовал услуги',
+    "This salon hasn't published any services yet",
+  ),
+  pageNoServicesBody: L(
+    'Tezliklə burada xidmətlər, ustalar və boş vaxtlar olacaq.',
+    'Скоро здесь появятся услуги, мастера и свободное время.',
+    'Services, masters and free times will appear here soon.',
+  ),
+  pageInReview: L('Salonun səhifəsi hazırlanır', 'Страница салона готовится', "This salon's page is being prepared"),
+  pageInReviewBody: L('Bir az sonra yenidən baxın.', 'Загляните чуть позже.', 'Check back a little later.'),
   pageNotFound: L('Bu ünvanda səhifə yoxdur', 'Страницы с таким адресом нет', 'No page at this address'),
   pendingPayment: L('Ödəniş gözlənilir', 'Ждёт оплаты', 'Awaiting payment'),
 

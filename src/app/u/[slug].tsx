@@ -1,5 +1,5 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { MapPin, UserRound } from 'lucide-react-native';
+import { Hourglass, MapPin, Scissors, UserRound } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,7 +53,20 @@ export default function PersonalPage() {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScreenHeader mode="close" title={branches.length > 1 ? page?.name : undefined} />
-      {id === null ? <EmptyState icon={UserRound} title={i18n.t('pageNotFound')} body={key} /> : null}
+      {id === null && page?.notReady ? (
+        <View style={{ flex: 1, justifyContent: 'center', paddingBottom: 80 }}>
+          <Text variant="largeTitle" style={{ textAlign: 'center', paddingHorizontal: gutter }}>
+            {page.name}
+          </Text>
+          <EmptyState
+            icon={page.notReady === 'review' ? Hourglass : Scissors}
+            title={i18n.t(page.notReady === 'review' ? 'pageInReview' : 'pageNoServices')}
+            body={i18n.t(page.notReady === 'review' ? 'pageInReviewBody' : 'pageNoServicesBody')}
+          />
+        </View>
+      ) : id === null ? (
+        <EmptyState icon={UserRound} title={i18n.t('pageNotFound')} body={key} />
+      ) : null}
       {branches.length > 1 ? (
         <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 12 }}>
           <Text variant="title">{i18n.t('pickBranch')}</Text>

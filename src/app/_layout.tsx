@@ -52,13 +52,15 @@ export default function RootLayout() {
 const PANEL_FLAG = 'yazilnow-panel-flow';
 const isPanelPath = (p: string) => p === '/panel' || p.startsWith('/business') || p === '/staff';
 const isAuthPath = (p: string) => p.startsWith('/auth');
+/** A salon's booking link and where it leads: in a browser these look like the website. */
+const isLinkPath = (p: string) => p.startsWith('/u/') || p.startsWith('/salon/') || p.startsWith('/book/');
 
 /**
  * Web only: true on the salon panel's screens (front door, sign-up, plans, dashboard) and on the sign-in /
  * verify screens reached from them. Client screens (home, salon pages, booking) keep the narrow column.
  */
 function usePanelWide(pathname: string): boolean {
-  const wide = isSite && (isPanelPath(pathname) || (isAuthPath(pathname) && readFlag()));
+  const wide = isSite && (isPanelPath(pathname) || isLinkPath(pathname) || (isAuthPath(pathname) && readFlag()));
   useEffect(() => {
     if (!isSite) return;
     if (isPanelPath(pathname)) writeFlag('1');
@@ -92,8 +94,8 @@ const isWebAllowed = (p: string) =>
   p.startsWith('/r/') ||
   p.startsWith('/review/') ||
   p.startsWith('/account') ||
-  // A Fərdi master's personal page (<name>.yazilnow.az → /app/u/<name>).
-  p.startsWith('/u/');
+  // Booking links (link.yazilnow.az/<name> → /app/u/<name>) and the salon page and booking they open.
+  isLinkPath(p);
 
 function App() {
   const { c, scheme } = useTheme();
