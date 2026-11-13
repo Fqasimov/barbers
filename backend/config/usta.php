@@ -92,6 +92,8 @@ return [
 
     // Personal pages: <slug>.<page_domain> (needs a wildcard DNS record and certificate) and <web_url>/u/<slug>.
     'page_domain' => env('PAGE_DOMAIN', 'yazilnow.az'),
+    // The web server's access log for the website (admin → Traffic). cPanel keeps it in ~/access-logs.
+    'traffic_log' => env('TRAFFIC_LOG', dirname(base_path()).'/access-logs/yazilnow.az-ssl_log'),
     // Booking links: <link_url>/<salon address>, e.g. https://link.yazilnow.az/elvin-barber.
     // Empty: <web_url>/u/<address>.
     'link_url' => env('LINK_URL', 'https://link.yazilnow.az'),

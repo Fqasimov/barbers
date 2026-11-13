@@ -12,6 +12,7 @@
 @php
   $nav = [
     ['admin.dashboard', 'Overview', null],
+    ['admin.traffic', 'Traffic', null],
     ['admin.salons', 'Salons', $navCounts['pending'] ?? 0],
     ['admin.reviews', 'Reviews', $navCounts['reports'] ?? 0],
     ['admin.users', 'Users', null],

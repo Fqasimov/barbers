@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SalonController;
+use App\Http\Controllers\Admin\TrafficController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminAuthenticate;
 use App\Http\Middleware\AdminSecurityHeaders;
@@ -32,6 +33,8 @@ Route::prefix('admin')->name('admin.')->middleware(AdminSecurityHeaders::class)-
         Route::get('users/{id}', [UserController::class, 'show'])->name('users.show');
         Route::post('users/{id}/sign-out', [UserController::class, 'signOut'])->name('users.signout');
         Route::post('users/{id}/delete', [UserController::class, 'destroy'])->name('users.delete');
+
+        Route::get('traffic', [TrafficController::class, 'index'])->name('traffic');
 
         Route::get('bookings', [BookingController::class, 'index'])->name('bookings');
 

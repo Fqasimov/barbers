@@ -13,3 +13,6 @@ Schedule::command('usta:trial-reminders')->hourly()->withoutOverlapping()->onOne
 
 // Deposit bookings unpaid after 15 minutes give their time back (and tell the waitlist).
 Schedule::command('usta:expire-holds')->everyMinute()->withoutOverlapping()->onOneServer();
+
+// Website visits and suspicious requests, from the web server's access log (admin → Traffic).
+Schedule::command('usta:ingest-traffic')->everyTenMinutes()->withoutOverlapping()->onOneServer();
