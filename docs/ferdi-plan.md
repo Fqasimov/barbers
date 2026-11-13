@@ -88,3 +88,28 @@ Fərdi, Start and Pro each have a **booking link** on the salon dashboard (Sadə
 **Plan texts:** new lines in `src/auth/plans.ts` and `web/src/i18n.ts`.
 
 The hosting needs no change: `/u/...` already forwards to `/app/u/...` (`deploy/apache/single-site.htaccess`, `web/public/404.js`).
+
+## Giving a barber name.yazilnow.az (up to 5 on the current plan)
+
+The Hostinq plan allows 5 subdomains, so the first 5 barbers can have a real `name.yazilnow.az` address. Everyone else uses `yazilnow.az/u/name`, which works the same.
+
+For each barber:
+1. **Address in the app.** The barber picks the address in Salon details → "Şəxsi səhifə ünvanı", for example `orxanosmanov`.
+2. **cPanel → Domains → Create a new domain.**
+   - **Domain:** `orxanosmanov.yazilnow.az`
+   - **Document root:** `public_html`, the same folder as the website. If cPanel offers "Share document root with yazilnow.az", tick it. If it fills in `public_html/orxanosmanov`, change it to `public_html`.
+3. **cPanel → SSL/TLS Status → Run AutoSSL.** The new subdomain gets its own certificate within a few minutes. No wildcard is needed for single subdomains.
+4. **Server `.env`:** add the address to `PAGE_SUBDOMAIN_SLUGS` (comma-separated), then run `php artisan config:clear`:
+   ```
+   PAGE_SUBDOMAIN_SLUGS=orxanosmanov,elvinbarber
+   ```
+   The barber's dashboard and salon page then show `orxanosmanov.yazilnow.az` as their link.
+5. **Check:** open `https://orxanosmanov.yazilnow.az`. It should land on the barber's page. The rule in `public_html/.htaccess` (`deploy/apache/single-site.htaccess`) sends it to `/app/u/orxanosmanov`.
+
+If cPanel insists on a separate folder for the subdomain, put this `.htaccess` in that folder instead:
+```
+RewriteEngine On
+RewriteRule ^ https://yazilnow.az/app/u/orxanosmanov [L,R=302]
+```
+
+Don't use these names for barbers: www, app, api, mail, webmail, cpanel, webdisk, ftp. The address field already refuses them.

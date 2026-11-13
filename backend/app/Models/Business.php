@@ -127,7 +127,9 @@ class Business extends Model
 
     /**
      * The personal page, if the salon has picked an address: <web_url>/u/<slug>, or
-     * https://<slug>.yazilnow.az once the hosting has wildcard subdomains (PAGE_SUBDOMAINS=true).
+     * https://<slug>.yazilnow.az for addresses that have a subdomain in cPanel
+     * (PAGE_SUBDOMAIN_SLUGS), or for every address once the hosting has wildcard subdomains
+     * (PAGE_SUBDOMAINS=true).
      */
     public function pageUrl(): ?string
     {
@@ -136,7 +138,9 @@ class Business extends Model
             return null;
         }
 
-        return config('usta.page_subdomains')
+        $subdomain = config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true);
+
+        return $subdomain
             ? 'https://'.$slug.'.'.config('usta.page_domain')
             : rtrim((string) config('usta.web_url'), '/').'/u/'.$slug;
     }

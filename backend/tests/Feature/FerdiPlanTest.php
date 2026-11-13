@@ -84,8 +84,15 @@ class FerdiPlanTest extends TestCase
         $this->getJson('/api/pages/orxanosmanov')->assertOk()->assertJsonPath('salon_id', $salon->id);
         $this->getJson("/api/salons/{$salon->id}")->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov');
 
+        // A subdomain made for this address in cPanel.
+        config(['usta.page_subdomain_slugs' => ['someoneelse']]);
+        $this->getJson('/api/business', $h)->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov');
+        config(['usta.page_subdomain_slugs' => ['orxanosmanov']]);
+        $this->getJson('/api/business', $h)->assertJsonPath('page_url', 'https://orxanosmanov.yazilnow.az')
+            ->assertJsonPath('share_url', 'https://orxanosmanov.yazilnow.az');
+
         // Once the hosting has wildcard subdomains.
-        config(['usta.page_subdomains' => true]);
+        config(['usta.page_subdomain_slugs' => [], 'usta.page_subdomains' => true]);
         $this->getJson('/api/business', $h)->assertJsonPath('page_url', 'https://orxanosmanov.yazilnow.az');
         $this->getJson('/api/pages/nobody')->assertNotFound();
 
