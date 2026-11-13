@@ -1,23 +1,21 @@
-/* Usta admin panel. Same palette and type as the app (src/theme/tokens.ts). */
+/* yazılnow admin. Same palette and type as the website (web/src/styles.css). */
+@font-face { font-family: 'Cormorant Garamond'; src: url(fonts/CormorantGaramond_500Medium.ttf); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url(fonts/CormorantGaramond_600SemiBold.ttf); font-weight: 600; font-display: swap; }
 @font-face { font-family: Onest; src: url(fonts/Onest_400Regular.ttf); font-weight: 400; font-display: swap; }
 @font-face { font-family: Onest; src: url(fonts/Onest_500Medium.ttf); font-weight: 500; font-display: swap; }
 @font-face { font-family: Onest; src: url(fonts/Onest_600SemiBold.ttf); font-weight: 600; font-display: swap; }
 @font-face { font-family: Onest; src: url(fonts/Onest_700Bold.ttf); font-weight: 700; font-display: swap; }
 
 :root {
-  --bg: #f3efe8; --surface: #fff; --sunken: #eae5dc; --ink: #141210; --soft: #5b554c; --muted: #6a6359;
-  --line: #e3ddd3; --line-strong: #d2cbbf; --accent: #b4233c; --accent-soft: #f6e3e3;
-  --success: #276f44; --success-soft: #e1eee4; --warn: #8a5a00; --warn-soft: #f6ecd6;
-  --info: #2c4f7c; --info-soft: #e2e9f3; --shadow: 0 1px 2px rgba(42, 32, 21, .06), 0 4px 16px rgba(42, 32, 21, .05);
-  --radius: 14px; --side: 232px;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f0e0d; --surface: #1a1816; --sunken: #25221f; --ink: #f4f0ea; --soft: #b3ab9f; --muted: #958d82;
-    --line: #2b2724; --line-strong: #3a3531; --accent: #f2697b; --accent-soft: #3a1d22;
-    --success: #6fc394; --success-soft: #17271f; --warn: #e3b25c; --warn-soft: #2e2414;
-    --info: #8fb2e3; --info-soft: #18222f; --shadow: none;
-  }
+  --bg: #f2eadd; --surface: #fbf7f0; --sunken: #e8decb; --field: #fffdf9; --ink: #141210; --soft: #4e4840; --muted: #7a7064;
+  --line: rgba(20, 18, 16, .13); --line-strong: rgba(20, 18, 16, .3); --accent: #6b1a2a; --accent-deep: #511320; --accent-soft: #ecdcd6;
+  --success: #3c6a48; --success-soft: #dfe7dc; --warn: #7a5413; --warn-soft: #efe2c6;
+  --info: #3b4f66; --info-soft: #dde2e6; --shadow: 0 1px 2px rgba(30, 22, 14, .06), 0 12px 32px -12px rgba(30, 22, 14, .22);
+  --band: #121010; --band-ink: #efe6d8; --band-soft: #a39a8e; --band-line: rgba(239, 230, 216, .14);
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --ease: cubic-bezier(.23, 1, .32, 1);
+  --radius: 4px; --side: 240px;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -173,3 +171,71 @@ details.danger[open] > summary { margin-bottom: 10px; }
 .stack.tight { gap: 10px; }
 .bullets { margin: 0; padding-left: 18px; }
 .flash-top { margin: 16px 0 0; }
+
+/* ---------------------------------------------------------------------------
+   Website look: serif headings, square corners, uppercase buttons, a dark band
+   for the side menu, burgundy for accents.
+   --------------------------------------------------------------------------- */
+h1 { font: 500 clamp(30px, 3.2vw, 40px)/1.05 var(--serif); letter-spacing: -.01em; }
+h2 { font: 600 22px/1.15 var(--serif); letter-spacing: 0; }
+.head p { color: var(--soft); }
+::selection { background: var(--accent); color: var(--band-ink); }
+
+.side { background: var(--band); color: var(--band-ink); border-right: 0; padding: 26px 16px; }
+.brand { font: 600 26px/1 var(--serif); letter-spacing: 0; color: var(--band-ink); padding: 2px 10px 22px; }
+.brand small { font: 600 10.5px/1 Onest, system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--band-soft); }
+.nav a { border-radius: 2px; color: var(--band-soft); font-size: 13.5px; transition: background .18s var(--ease), color .18s var(--ease); }
+.nav a:hover { background: rgba(239, 230, 216, .07); color: var(--band-ink); }
+.nav a[aria-current="page"] { background: var(--band-ink); color: var(--band); }
+.nav .count { background: var(--accent); color: var(--band-ink); border-radius: 2px; }
+.side-foot { border-top-color: var(--band-line); color: var(--band-soft); }
+.side-foot strong { color: var(--band-ink); }
+.side-foot .btn { background: transparent; border-color: var(--band-line); color: var(--band-ink); }
+.side-foot .btn:hover { border-color: var(--band-ink); }
+
+.card { border-radius: var(--radius); box-shadow: none; }
+.card > .card-head { padding: 16px 20px; }
+.card-head h2 { font-size: 20px; }
+.stat .k { font-size: 10.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.stat .v { font: 500 38px/1.1 var(--serif); letter-spacing: 0; margin-top: 6px; }
+a.stat { transition: border-color .18s var(--ease); }
+a.stat:hover { border-color: var(--ink); }
+th { font-size: 10.5px; letter-spacing: .16em; background: transparent; }
+tbody tr:hover td { background: rgba(232, 222, 203, .45); }
+
+.badge { border-radius: 2px; font-size: 11px; letter-spacing: .04em; }
+.tabs { border-radius: 2px; background: transparent; padding: 0; gap: 0; border-bottom: 1px solid var(--line); }
+.tabs a { border-radius: 0; padding: 9px 14px; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs a:hover { color: var(--ink); }
+.tabs a[aria-current="page"] { background: transparent; box-shadow: none; border-bottom-color: var(--accent); color: var(--ink); }
+
+input, select, textarea { background: var(--field); border-radius: 2px; min-height: 44px; padding: 10px 13px; transition: border-color .18s var(--ease); }
+input:hover, select:hover, textarea:hover { border-color: var(--ink); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+input::placeholder { color: var(--muted); }
+label.field { font-size: 10.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--soft); gap: 8px; }
+
+.btn { border-radius: 2px; min-height: 42px; padding: 10px 20px; font: 600 11.5px/1 Onest, system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; background: transparent; transition: background .18s var(--ease), color .18s var(--ease), border-color .18s var(--ease), transform .12s var(--ease); }
+.btn:active { transform: scale(.97); }
+.btn:hover { border-color: var(--ink); background: var(--ink); color: var(--band-ink); }
+.btn-ink { background: var(--ink); color: var(--band-ink); }
+.btn-ink:hover { opacity: 1; background: var(--accent); border-color: var(--accent); }
+.btn-danger { background: var(--accent); border-color: var(--accent); color: var(--band-ink); }
+.btn-danger:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+.btn-danger-ghost { color: var(--accent); }
+.btn-danger-ghost:hover { background: var(--accent); border-color: var(--accent); color: var(--band-ink); }
+.btn-sm { min-height: 34px; padding: 8px 13px; font-size: 10.5px; }
+
+.flash { border-radius: 2px; border-left: 3px solid currentColor; }
+.quote { border-left-color: var(--accent); border-radius: 0; background: var(--surface); }
+.photos img, .avatar { border-radius: 2px; }
+:focus-visible { outline-color: var(--accent); }
+
+/* Sign-in: a paper card on the cream page, like the website's sign-up form. */
+.login { background: var(--bg); }
+.login .card { width: min(440px, 100%); padding: 40px 36px; background: var(--surface); box-shadow: var(--shadow); }
+.login .kicker { font-size: 10.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.login h1 { font-size: 42px; margin-bottom: 10px; }
+.login form { gap: 18px; margin-top: 28px; }
+.login .btn { min-height: 52px; margin-top: 4px; }
+@media (max-width: 860px) { .side { padding: 12px; } .brand { padding: 4px 8px; font-size: 22px; } }
