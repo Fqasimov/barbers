@@ -1,3 +1,4 @@
+import type { ComponentRef } from 'react';
 import { forwardRef, useState } from 'react';
 import { Platform, StyleSheet, TextInput, type TextInputProps } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -9,7 +10,7 @@ import { cssEase, duration, fieldBg, fonts, isSite, radius } from '@/theme/token
  * Text input with a visible, on-brand focus state (the border darkens) instead
  * of the browser's default outline on web.
  */
-export const Field = forwardRef<TextInput, TextInputProps & { multilineHeight?: number }>(function Field(
+export const Field = forwardRef<ComponentRef<typeof TextInput>, TextInputProps & { multilineHeight?: number }>(function Field(
   { style, multilineHeight = 120, onFocus, onBlur, multiline, ...rest },
   ref,
 ) {

@@ -36,6 +36,7 @@ async function ensureChannel() {
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(CHANNEL, {
     name: 'Bookings',
+    // eslint-disable-next-line import/namespace -- re-exported from NotificationChannelManager.types
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 200, 120, 200],
     lightColor: '#B4233C',

@@ -28,7 +28,7 @@ const meta: Record<string, { label: StringKey; icon: LucideIcon }> = {
 };
 
 /** A plain, platform-like tab bar. Tabs are peers, so switching is instant. */
-export function TabBar({ state, navigation }: BottomTabBarProps) {
+export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const { c, scheme } = useTheme();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -66,10 +66,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             accessibilityLabel={t(m.label)}
             style={styles.tab}
             onPress={() => {
-              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) {
                 haptic('selection');
-                navigation.navigate(route.name);
+                navigateToTab(route.key);
               }
             }}
           >

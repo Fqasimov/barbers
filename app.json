@@ -92,6 +92,13 @@
       "az": "./locales/az.json",
       "ru": "./locales/ru.json",
       "en": "./locales/en.json"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c91ac01e-f114-45d3-9d3d-5376bd6a40ea"
+      }
+    },
+    "owner": "fgasimov_07"
   }
 }

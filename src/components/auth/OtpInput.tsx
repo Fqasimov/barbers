@@ -1,3 +1,4 @@
+import type { ComponentRef } from 'react';
 import { useRef } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -26,7 +27,7 @@ export function OtpInput({
   autoFocus?: boolean;
 }) {
   const { c } = useTheme();
-  const ref = useRef<TextInput>(null);
+  const ref = useRef<ComponentRef<typeof TextInput>>(null);
   const digits = value.split('');
   return (
     <Pressable onPress={() => ref.current?.focus()} accessible={false}>

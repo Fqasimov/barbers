@@ -1,3 +1,4 @@
+import type { ComponentRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
@@ -22,7 +23,7 @@ export default function SignIn() {
   const i18n = useI18n();
   const { reason } = useLocalSearchParams<{ reason?: StringKey }>();
   const finish = useFinishSignIn();
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: StringKey | null; password?: StringKey | null; form?: StringKey }>({});

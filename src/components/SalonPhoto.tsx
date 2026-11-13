@@ -48,7 +48,7 @@ export const SalonPhoto = memo(function SalonPhoto({
       importantForAccessibility="no-hide-descendants"
     >
       {photo ? (
-        <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
+        <Image source={photo as never} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
       ) : (
         <>
           <LinearGradient

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ComponentRef, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -31,7 +31,7 @@ export function AuthLayout({
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const scroller = useRef<ScrollView>(null);
+  const scroller = useRef<ComponentRef<typeof ScrollView>>(null);
   const wide = useWide();
   // A new step of a multi-step form starts at its title, not where the last one was scrolled to.
   useEffect(() => {

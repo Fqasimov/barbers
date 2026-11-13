@@ -1,5 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react-native';
-import { forwardRef, useState, type ReactNode } from 'react';
+import { forwardRef, useState, type ComponentRef, type ReactNode } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
@@ -26,7 +26,7 @@ type Props = Omit<TextInputProps, 'placeholder'> & {
 };
 
 /** A labelled input with hint and error text, used by every account form. */
-export const FormField = forwardRef<TextInput, Props>(function FormField(
+export const FormField = forwardRef<ComponentRef<typeof TextInput>, Props>(function FormField(
   { label, placeholder, hint, error, prefix, secure, right, onFocus, onBlur, style, ...rest },
   ref,
 ) {
