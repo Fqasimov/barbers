@@ -30,7 +30,7 @@ export function IntroOverlay() {
   const { t } = useI18n();
   const [active, setActive] = useState(() => document.documentElement.classList.contains('intro-on'));
   const [ready, setReady] = useState(false);
-  const [size, setSize] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
+  const [size, setSize] = useState(() => ({ w: Math.max(1, window.innerWidth), h: Math.max(1, window.innerHeight) }));
   const player = useRef<PlayerRef>(null);
 
   const finish = useCallback(() => {
@@ -49,7 +49,7 @@ export function IntroOverlay() {
     let alive = true;
     void assetsReady().then(() => alive && setReady(true));
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && finish();
-    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    const onResize = () => setSize({ w: Math.max(1, window.innerWidth), h: Math.max(1, window.innerHeight) });
     window.addEventListener('keydown', onKey);
     window.addEventListener('resize', onResize);
     return () => {
