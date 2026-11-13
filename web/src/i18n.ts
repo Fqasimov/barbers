@@ -515,7 +515,7 @@ export const plans: Plan[] = [
     blurb: { az: 'Tək işləyən usta üçün', ru: 'Для мастера, работающего один', en: 'For one master working solo' },
     features: [
       { az: 'Start planındakı hər şey, bir nəfər üçün', ru: 'Всё из тарифа Start для одного человека', en: 'Everything in Start, for one person' },
-      { az: 'Şəxsi səhifə: adınız.yazilnow.az', ru: 'Личная страница: имя.yazilnow.az', en: 'A personal page: yourname.yazilnow.az' },
+      { az: 'Instagram bio üçün bron linki: yazilnow.az/u/adınız', ru: 'Ссылка для записи в био Instagram: yazilnow.az/u/имя', en: 'A booking link for your Instagram bio: yazilnow.az/u/yourname' },
       { az: 'Onlayn bron, təqvim və xatırlatmalar', ru: 'Онлайн-запись, календарь и напоминания', en: 'Online booking, calendar and reminders' },
       { az: 'Salonda işləyirsinizsə də, öz səhifəniz olur', ru: 'Подходит и мастеру внутри салона', en: 'Also for a master working inside a salon' },
     ],
@@ -528,6 +528,7 @@ export const plans: Plan[] = [
     features: [
       { az: 'Sadə planındakı hər şey', ru: 'Всё из тарифа Sadə', en: 'Everything in Sadə' },
       { az: 'Onlayn bron və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
+      { az: 'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar', ru: 'Ссылка для записи в био Instagram: мастера, часы, свободное время', en: 'A booking link for your Instagram bio: masters, hours, free times' },
       { az: 'Limitsiz usta, əlavə ödəniş yoxdur', ru: 'Мастера без ограничений и доплат', en: 'Unlimited masters, no per-seat fees' },
       { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
       {
@@ -550,6 +551,7 @@ export const plans: Plan[] = [
         ru: '3 филиала включены (+15 ₼ за каждый следующий)',
         en: 'Up to 3 branches included (+15 ₼ per extra branch)',
       },
+      { az: 'Bir bron linki: müştəri əvvəlcə filialı seçir', ru: 'Одна ссылка для записи: клиент сначала выбирает филиал', en: 'One booking link: clients pick a branch first' },
       { az: 'Filiallar üzrə ümumi hesabat', ru: 'Сводные отчёты по филиалам', en: 'Combined reports across branches' },
       { az: 'Filial menecerləri', ru: 'Роли менеджеров филиалов', en: 'Branch manager roles' },
       { az: 'Gəlməmə qorunması və depozit', ru: 'Защита от неявок и депозиты', en: 'No-show protection and deposits' },

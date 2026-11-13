@@ -227,11 +227,28 @@ class CatalogueController extends Controller
     /** A personal page address (orxanosmanov.yazilnow.az) → the salon behind it. */
     public function page(string $slug): JsonResponse
     {
-        $salon = Business::query()->listable()->where('slug', mb_strtolower($slug))->first(['id', 'slug', 'name'])
-            ?? throw ApiException::notFound('No page with this address.');
+        $key = mb_strtolower($slug);
+        // A picked address first, then the salon's own id (the link before an address is picked).
+        $salon = Business::query()->listable()->where('slug', $key)->first()
+            ?? Business::query()->listable()->whereNull('parent_id')->find($key);
+        if (! $salon || ! $salon->hasFeature('personal_page')) {
+            throw ApiException::notFound('No page with this address.');
+        }
 
-        return response()->json(['salon_id' => $salon->id, 'slug' => $salon->slug, 'name' => $salon->name])
-            ->header('Cache-Control', 'public, max-age=60');
+        // Pro: every open location, so the client picks a branch first.
+        $branches = $salon->hasFeature('branches')
+            ? Business::query()->listable()->whereIn('id', $salon->locations()->pluck('id'))
+                ->orderByRaw('parent_id is not null')->orderBy('created_at')->get()
+                ->map(fn (Business $b) => ['id' => $b->id, 'name' => $b->name, 'district' => $b->district, 'address' => $b->address])
+                ->values()->all()
+            : [];
+
+        return response()->json([
+            'salon_id' => $salon->id,
+            'slug' => $salon->slug,
+            'name' => $salon->name,
+            'branches' => count($branches) > 1 ? $branches : [],
+        ])->header('Cache-Control', 'public, max-age=60');
     }
 
     /** What people tap on a salon page; the salon sees the monthly totals. */

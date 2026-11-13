@@ -78,10 +78,15 @@ class FerdiPlanTest extends TestCase
         $this->patchJson('/api/business', ['slug' => 'admin'], $h)->assertStatus(422);
         $this->patchJson('/api/business', ['slug' => 'OrxanOsmanov'], $h)->assertOk()
             ->assertJsonPath('slug', 'orxanosmanov')
-            ->assertJsonPath('page_url', 'https://orxanosmanov.yazilnow.az');
+            ->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov')
+            ->assertJsonPath('share_url', 'https://yazilnow.az/u/orxanosmanov');
 
         $this->getJson('/api/pages/orxanosmanov')->assertOk()->assertJsonPath('salon_id', $salon->id);
-        $this->getJson("/api/salons/{$salon->id}")->assertJsonPath('page_url', 'https://orxanosmanov.yazilnow.az');
+        $this->getJson("/api/salons/{$salon->id}")->assertJsonPath('page_url', 'https://yazilnow.az/u/orxanosmanov');
+
+        // Once the hosting has wildcard subdomains.
+        config(['usta.page_subdomains' => true]);
+        $this->getJson('/api/business', $h)->assertJsonPath('page_url', 'https://orxanosmanov.yazilnow.az');
         $this->getJson('/api/pages/nobody')->assertNotFound();
 
         // Taken by someone else.
@@ -95,5 +100,51 @@ class FerdiPlanTest extends TestCase
         Subscription::query()->where('business_id', $salon->id)->update(['plan' => 'sade']);
         $this->patchJson('/api/business', ['slug' => 'mysalon'], $this->auth($salon->owner))
             ->assertStatus(402)->assertJsonPath('error', 'plan_required');
+    }
+
+    public function test_every_booking_plan_has_a_link_to_share(): void
+    {
+        // No address picked yet: the link uses the salon's id and still opens the page.
+        $salon = $this->solo();
+        $h = $this->auth($salon->owner);
+        $this->getJson('/api/business', $h)->assertOk()
+            ->assertJsonPath('page_url', null)
+            ->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+        $this->getJson("/api/pages/{$salon->id}")->assertOk()
+            ->assertJsonPath('salon_id', $salon->id)->assertJsonPath('branches', []);
+
+        foreach (['start', 'pro'] as $plan) {
+            Subscription::query()->where('business_id', $salon->id)->update(['plan' => $plan]);
+            $this->getJson('/api/business', $h)->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+        }
+
+        // Sadə (map listing only) has no booking link, and its id doesn't open as a page.
+        Subscription::query()->where('business_id', $salon->id)->update(['plan' => 'sade']);
+        $this->getJson('/api/business', $h)->assertJsonPath('share_url', null);
+        $this->getJson("/api/pages/{$salon->id}")->assertNotFound();
+    }
+
+    public function test_pro_link_lists_the_branches_to_pick_from(): void
+    {
+        $salon = $this->makeSalon();
+        Subscription::query()->where('business_id', $salon->id)->update(['plan' => 'pro']);
+        $h = $this->auth($salon->owner);
+        $id = $this->postJson('/api/business/branches', ['salon_name' => 'Gənclik', 'address' => 'A 1', 'district' => 'Nərimanov'], $h)->json('id');
+
+        // A branch without services or masters isn't open yet: nothing to pick.
+        $this->getJson("/api/pages/{$salon->id}")->assertOk()->assertJsonPath('branches', []);
+
+        $b = $h + ['X-Branch' => $id];
+        $svc = $this->postJson('/api/business/services', ['name' => ['az' => 'Kəsim'], 'category' => 'barber', 'duration_min' => 30, 'price' => 20], $b)->json('id');
+        $this->postJson('/api/business/masters', ['name' => 'Elvin', 'role' => ['az' => 'Bərbər'], 'service_ids' => [$svc], 'work_days' => [1, 2], 'shift' => ['start' => '10:00', 'end' => '18:00']], $b)->assertCreated();
+
+        $this->getJson("/api/pages/{$salon->id}")->assertOk()
+            ->assertJsonCount(2, 'branches')
+            ->assertJsonPath('branches.0.id', $salon->id)
+            ->assertJsonPath('branches.1.id', $id)
+            ->assertJsonPath('branches.1.district', 'Nərimanov');
+        // The branch shows the main salon's link; its own id is not a link.
+        $this->getJson('/api/business', $b)->assertJsonPath('share_url', "https://yazilnow.az/u/{$salon->id}");
+        $this->getJson("/api/pages/{$id}")->assertNotFound();
     }
 }

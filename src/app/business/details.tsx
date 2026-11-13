@@ -190,7 +190,7 @@ export default function SalonDetails() {
       {page ? (
         <FormField
           label={i18n.t('pageLabel')}
-          hint={i18n.t('pageHint', { url: `${slug || 'orxanosmanov'}.yazilnow.az` })}
+          hint={i18n.t('pageHint', { url: `yazilnow.az/u/${slug || 'orxanosmanov'}` })}
           placeholder="orxanosmanov"
           value={slug}
           onChangeText={(v) =>

@@ -111,6 +111,11 @@ export type Business = {
   /** Fərdi, Start and Pro: the personal page address, <slug>.yazilnow.az. */
   slug?: string | null;
   pageUrl?: string | null;
+  /**
+   * Fərdi, Start and Pro: the link for an Instagram bio or a message to clients. The
+   * personal page, or <site>/u/<salon id> until an address is picked. Not on Sadə.
+   */
+  shareUrl?: string | null;
   /** WhatsApp add-on: messages left and until when. */
   whatsappPack?: { left: number; until: string | null };
 };

@@ -30,6 +30,7 @@ import { setBranch } from '@/api/client';
 import type { Feature } from '@/auth/types';
 import { authErrorKey } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
+import { BookingLinkCard } from '@/components/business/BookingLinkCard';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { toast } from '@/components/Toaster';
@@ -272,6 +273,8 @@ export default function BusinessDashboard() {
             {business.status === 'live' ? i18n.t('statusLive') : i18n.t('statusReview')}
           </Text>
         </View>
+
+        <BookingLinkCard business={business} onPickAddress={() => router.push('/business/details')} />
 
         {!ready ? (
           <>

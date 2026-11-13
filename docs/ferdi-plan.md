@@ -4,7 +4,7 @@
 - **Price:** 10 ₼ a month, or 100 ₼ a year, with the same 30-day free trial.
 - **Features:** everything in Start: in-app booking, calendar, reminders, QR reviews, gallery, click report and the WhatsApp add-on.
 - **One master:** exactly one master and one location.
-- **A personal page** at `<name>.yazilnow.az`, for example `orxanosmanov.yazilnow.az`.
+- **A personal page** at `yazilnow.az/u/<name>` (later `<name>.yazilnow.az`), for example `yazilnow.az/u/orxanosmanov`.
 
 Sadə (10 ₼) stays as it is, so there are four plans: **Sadə 10 · Fərdi 10 · Start 29 · Pro 49**. Start and Pro also get a personal page; Sadə doesn't.
 
@@ -67,3 +67,24 @@ Subdomain pages need three things that the current Hostinq plan doesn't allow (i
 3. **A wildcard SSL certificate** for `*.yazilnow.az`. AutoSSL doesn't issue wildcards on most shared plans. Let's Encrypt can, through a DNS check.
 
 Ask Hostinq whether your plan can enable all three. If not, a plan or VPS that allows wildcard subdomains is needed. The `.htaccess` rule is already in place and tested: once these three exist, `orxanosmanov.yazilnow.az` opens the page with no code change.
+
+## Booking link for every plan that takes bookings
+
+Fərdi, Start and Pro each have a **booking link** on the salon dashboard (Sadə doesn't). Salons copy it into their Instagram bio or send it to clients:
+- **The link:** `https://yazilnow.az/u/<address>` if they picked a personal page address, otherwise `https://yazilnow.az/u/<salon id>`. A Pro branch shows the main salon's link.
+- **What it opens:** the salon's page in a browser (`/app`), with services, masters, opening hours, free times and booking. On Pro with more than one open location, the client picks a branch first.
+- **Later:** the same link opens in the app once it is in the stores.
+
+**Server:**
+- `Business::shareUrl()` builds the link, and `BusinessResource` sends it as `share_url`.
+- `GET /api/pages/{address-or-id}` returns `branches` for Pro.
+- `pageUrl()` now gives `yazilnow.az/u/<address>`. Set `PAGE_SUBDOMAINS=true` in `.env` only after the wildcard subdomain setup below works.
+
+**App:**
+- `src/components/business/BookingLinkCard.tsx`: Copy (website) or Share (phone), and Open.
+- `src/lib/bookingLink.ts`
+- `src/app/u/[slug].tsx`: the branch picker.
+
+**Plan texts:** new lines in `src/auth/plans.ts` and `web/src/i18n.ts`.
+
+The hosting needs no change: `/u/...` already forwards to `/app/u/...` (`deploy/apache/single-site.htaccess`, `web/public/404.js`).

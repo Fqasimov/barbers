@@ -92,6 +92,8 @@ return [
 
     // Personal pages: <slug>.<page_domain> (needs a wildcard DNS record and certificate) and <web_url>/u/<slug>.
     'page_domain' => env('PAGE_DOMAIN', 'yazilnow.az'),
+    // Off until the hosting has a wildcard DNS record, domain and certificate (docs/ferdi-plan.md).
+    'page_subdomains' => (bool) env('PAGE_SUBDOMAINS', false),
     'reserved_slugs' => ['www', 'app', 'api', 'admin', 'mail', 'smtp', 'panel', 'help', 'support', 'privacy', 'terms',
         'billing', 'static', 'assets', 'cdn', 'blog', 'status', 'dev', 'test', 'staging', 'webmail', 'cpanel', 'ftp',
         'ns1', 'ns2', 'yazilnow', 'usta', 'salon', 'salons', 'r', 's', 'u'],

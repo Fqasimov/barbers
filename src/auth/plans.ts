@@ -89,9 +89,9 @@ export const plans: Plan[] = [
         'Everything in Start, for one person',
       ),
       L(
-        'Şəxsi səhifə: adınız.yazilnow.az',
-        'Личная страница: имя.yazilnow.az',
-        'A personal page: yourname.yazilnow.az',
+        'Instagram bio üçün bron linki: yazilnow.az/u/adınız',
+        'Ссылка для записи в био Instagram: yazilnow.az/u/имя',
+        'A booking link for your Instagram bio: yazilnow.az/u/yourname',
       ),
       L(
         'Onlayn bron, təqvim və xatırlatmalar',
@@ -115,6 +115,11 @@ export const plans: Plan[] = [
     features: [
       L('Sadə planındakı hər şey', 'Всё из тарифа Sadə', 'Everything in Sadə'),
       L('Onlayn bron və təqvim', 'Онлайн-запись и календарь', 'Online booking and calendar'),
+      L(
+        'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar',
+        'Ссылка для записи в био Instagram: мастера, часы, свободное время',
+        'A booking link for your Instagram bio: masters, hours, free times',
+      ),
       L(
         'Limitsiz usta, əlavə ödəniş yoxdur',
         'Мастера без ограничений и доплат',
@@ -142,6 +147,11 @@ export const plans: Plan[] = [
         '3 filial daxildir (hər əlavə filial +15 ₼)',
         '3 филиала включены (+15 ₼ за каждый следующий)',
         'Up to 3 branches included (+15 ₼ per extra branch)',
+      ),
+      L(
+        'Bir bron linki: müştəri əvvəlcə filialı seçir',
+        'Одна ссылка для записи: клиент сначала выбирает филиал',
+        'One booking link: clients pick a branch first',
       ),
       L('Filiallar üzrə ümumi hesabat', 'Сводные отчёты по филиалам', 'Combined reports across branches'),
       L('Filial menecerləri', 'Роли менеджеров филиалов', 'Branch manager roles'),

@@ -1106,6 +1106,25 @@ export const strings = {
     'Clients find you at: {url}',
   ),
   pageCopied: L('Səhifə linki kopyalandı', 'Ссылка на страницу скопирована', 'Page link copied'),
+  linkTitle: L('Bron linkiniz', 'Ваша ссылка для записи', 'Your booking link'),
+  linkBody: L(
+    'Instagram bio-ya qoyun və ya müştərilərə göndərin: ustaları, iş saatlarını və boş vaxtları görüb dərhal yazılırlar.',
+    'Добавьте в био Instagram или отправьте клиентам: они увидят мастеров, часы работы и свободное время и сразу запишутся.',
+    'Put it in your Instagram bio or send it to clients: they see your masters, hours and free times, and book straight away.',
+  ),
+  linkBodyPro: L(
+    'Instagram bio-ya qoyun və ya müştərilərə göndərin: filialı seçir, ustaları, iş saatlarını və boş vaxtları görüb dərhal yazılırlar.',
+    'Добавьте в био Instagram или отправьте клиентам: они выберут филиал, увидят мастеров, часы работы и свободное время и сразу запишутся.',
+    'Put it in your Instagram bio or send it to clients: they pick a branch, see your masters, hours and free times, and book straight away.',
+  ),
+  linkCopy: L('Kopyala', 'Копировать', 'Copy'),
+  linkOpen: L('Aç', 'Открыть', 'Open'),
+  linkPickAddress: L(
+    'Daha qısa ünvan istəyirsiniz? Salon məlumatlarında şəxsi səhifə ünvanı seçin.',
+    'Хотите адрес короче? Выберите адрес личной страницы в данных салона.',
+    'Want a shorter link? Pick a personal page address in your salon details.',
+  ),
+  pickBranch: L('Filialı seçin', 'Выберите филиал', 'Pick a branch'),
   mstLimitNote: L(
     'Fərdi planda bir usta olur: siz. Komanda üçün Start-a keçin.',
     'В тарифе Fərdi один мастер — вы. Для команды перейдите на Start.',

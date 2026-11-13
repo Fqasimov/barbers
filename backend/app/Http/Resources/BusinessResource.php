@@ -65,6 +65,7 @@ class BusinessResource extends JsonResource
             'booking_url' => $this->booking_url,
             'slug' => $this->slug,
             'page_url' => $this->resource->pageUrl(),
+            'share_url' => $this->resource->shareUrl(),
             'hours' => ['open' => $this->hours_open, 'close' => $this->hours_close],
             'closed_days' => array_values(array_map('intval', $this->closed_days ?? [])),
             'status' => $this->status,
