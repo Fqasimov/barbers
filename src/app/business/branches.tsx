@@ -16,7 +16,7 @@ import { useI18n } from '@/i18n';
 import { canBuyInApp } from '@/lib/billing';
 import { useTheme } from '@/theme/ThemeProvider';
 import { gutter, radius, shadow } from '@/theme/tokens';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 const confirm = (title: string, body: string, ok: string) =>
   Platform.OS === 'web'
@@ -35,7 +35,8 @@ export default function Branches() {
   const insets = useSafeAreaInsets();
   const { run, busy, refresh } = useOwner();
   const { data, reload } = useOwnerData((t) => businessApi.branches(t));
-  const [adding, setAdding] = useState(false);
+  const { add: addParam } = useLocalSearchParams<{ add?: string }>();
+  const [adding, setAdding] = useState(addParam === '1');
   const [name, setName] = useState('');
   const [district, setDistrict] = useState('');
   const [address, setAddress] = useState('');

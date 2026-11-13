@@ -20,6 +20,7 @@ import {
   Scissors,
   Store,
   Users,
+  Plus,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -154,6 +155,15 @@ export default function BusinessDashboard() {
           </Text>
         </View>
 
+        {owner && can('branches') && locations.length <= 1 ? (
+          <Button
+            label={i18n.t('branchAdd')}
+            icon={Plus}
+            variant="secondary"
+            size="sm"
+            onPress={() => router.push('/business/branches?add=1')}
+          />
+        ) : null}
         {locations.length > 1 ? (
           <View style={{ gap: 6 }}>
             <Text variant="captionStrong" tone="soft">
@@ -181,6 +191,17 @@ export default function BusinessDashboard() {
                   </PressableScale>
                 );
               })}
+              {owner && can('branches') ? (
+                <PressableScale
+                  onPress={() => router.push('/business/branches?add=1')}
+                  accessibilityRole="button"
+                  accessibilityLabel={i18n.t('branchAdd')}
+                  style={[styles.loc, styles.locAdd, { borderColor: c.line }]}
+                >
+                  <Plus size={16} color={c.ink} strokeWidth={2} />
+                  <Text variant="captionStrong">{i18n.t('branchAdd')}</Text>
+                </PressableScale>
+              ) : null}
             </ScrollView>
           </View>
         ) : null}
@@ -458,4 +479,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   loc: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md, borderWidth: 1, gap: 2, minWidth: 120 },
+  locAdd: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderStyle: 'dashed' },
 });
