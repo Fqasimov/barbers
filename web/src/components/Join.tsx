@@ -435,7 +435,7 @@ export function Join() {
             <a className="btn btn-ink btn-block" href={config.panelUrl}>
               {t('knownEnter')}
             </a>
-            <button type="button" className="link-arrow known-other" onClick={() => setShowForm(true)}>
+            <button type="button" className="btn btn-ghost btn-block known-other" onClick={() => setShowForm(true)}>
               {t('knownRegisterOther')}
             </button>
           </div>

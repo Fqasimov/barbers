@@ -2180,10 +2180,12 @@ a.store:active {
   margin: 0;
 }
 .known-other {
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  align-self: flex-start;
-  font: inherit;
+  margin-top: 10px;
+}
+@media (hover: hover) {
+  .known-other:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--band-ink);
+  }
 }
