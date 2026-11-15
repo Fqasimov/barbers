@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "yazılnow",
+    "name": "yazilnow",
     "slug": "yazilnow",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,8 @@
       "infoPlist": {
         "CADisableMinimumFrameDurationOnPhone": true,
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleAllowMixedLocalizations": true
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDisplayName": "yazılnow"
       },
       "usesAppleSignIn": true
     },
