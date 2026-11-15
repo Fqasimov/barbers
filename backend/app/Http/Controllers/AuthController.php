@@ -135,9 +135,19 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'max:254'],
             'password' => ['required', 'string', 'max:255'],
         ]);
+        // Wrong passwords per email per day, whatever the IP: slow guessing from many addresses stops.
+        $failKey = 'login-fail:'.sha1(mb_strtolower($data['email']));
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($failKey, (int) config('usta.login_daily_failures', 30))) {
+            throw new ApiException(429, 'too_many_attempts', 'Too many wrong passwords. Sign in with an email code or try again tomorrow.');
+        }
         $user = User::query()->where('email', $data['email'])->first();
         // Same work and the same answer for an unknown email and a wrong password.
         $ok = Hash::check($data['password'], $user?->password ?? self::dummyHash());
+        if (! $user || $user->password === null || ! $ok) {
+            \Illuminate\Support\Facades\RateLimiter::hit($failKey, 86400);
+        } else {
+            \Illuminate\Support\Facades\RateLimiter::clear($failKey);
+        }
         if (! $user || $user->password === null || ! $ok) {
             throw new ApiException(401, 'invalid_credentials', 'The email or password is incorrect.');
         }
@@ -236,6 +246,10 @@ class AuthController extends Controller
             throw new ApiException(422, 'email_taken', 'An account with this email already exists.', [
                 'errors' => ['email' => ['An account with this email already exists.']],
             ]);
+        }
+        // A sign-up still inside its code's lifetime belongs to whoever started it: don't wipe it.
+        if ($existing->created_at && $existing->created_at->gt(now()->subMinutes((int) config('usta.otp.ttl_minutes', 10)))) {
+            throw new ApiException(422, 'signup_pending', 'A sign-up for this email is waiting for its code. Try again in a few minutes.');
         }
         Business::withTrashed()->where('owner_id', $existing->id)->forceDelete();
         $existing->tokens()->delete();

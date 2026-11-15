@@ -33,7 +33,7 @@ class AdminTest extends TestCase
     private function signIn(?Admin $admin = null): Admin
     {
         $admin ??= $this->admin();
-        $this->actingAs($admin, 'admin')->withSession(['admin_seen' => now()->getTimestamp()]);
+        $this->actingAs($admin, 'admin')->withSession(['admin_seen' => now()->getTimestamp(), 'admin_key' => \App\Http\Middleware\AdminAuthenticate::credentialKey($admin)]);
 
         return $admin;
     }
@@ -97,7 +97,7 @@ class AdminTest extends TestCase
         $this->assertGuest('admin');
 
         $admin->forceFill(['disabled_at' => now()])->save();
-        $this->actingAs($admin->fresh(), 'admin')->withSession(['admin_seen' => now()->getTimestamp()])
+        $this->actingAs($admin->fresh(), 'admin')->withSession(['admin_seen' => now()->getTimestamp(), 'admin_key' => \App\Http\Middleware\AdminAuthenticate::credentialKey($admin)])
             ->get('/admin')->assertRedirect('/admin/login');
     }
 

@@ -69,7 +69,7 @@ class CatalogueController extends Controller
     public function availability(Request $request, string $id): JsonResponse
     {
         $data = $request->validate([
-            'service_ids' => ['required', 'array', 'min:1'],
+            'service_ids' => ['required', 'array', 'min:1', 'max:10'],
             'service_ids.*' => ['string', 'max:64'],
             'from' => ['sometimes', 'date_format:Y-m-d'],
             'days' => ['sometimes', 'integer', 'min:1', 'max:14'],
@@ -125,46 +125,65 @@ class CatalogueController extends Controller
             return response()->json([]);
         }
 
-        // The heaviest public query: cached briefly and dropped by any booking or catalogue change.
+        // The heaviest public query: computed once per service, day and minute (whatever time
+        // window is asked for), cached briefly and dropped by any booking or catalogue change.
         $key = 'catalogue:slots:'.CatalogueCache::version().':'.BusyCache::version().':'
-            .sha1(json_encode([$data['service_key'], $date->toDateString(), $fromMin, $toMin, Baku::now()->format('Y-m-d H:i')]));
+            .sha1(json_encode([$data['service_key'], $date->toDateString(), Baku::now()->format('Y-m-d H:i')]));
+        $options = Cache::remember($key, 30, fn () => $this->options($data['service_key'], $date));
 
-        return response()->json(Cache::remember($key, 30, fn () => $this->earliest($data['service_key'], $date, $fromMin, $toMin)));
+        return response()->json($this->earliest($options, $fromMin, $toMin));
     }
 
-    /** @return list<array{salon_id:string, master_id:string, service_id:string, start:int}> */
-    private function earliest(string $serviceKey, CarbonImmutable $date, int $fromMin, int $toMin): array
+    /**
+     * Every master's free starts for a service on a date, salon by salon (best-rated master first).
+     *
+     * @return list<array{salon_id:string, master_id:string, service_id:string, slots:list<int>}>
+     */
+    private function options(string $serviceKey, CarbonImmutable $date): array
     {
-        $data = ['service_key' => $serviceKey];
         $salons = Business::query()->bookable()->with(['services', 'masters.services', 'parent.subscription', 'subscription'])
-            ->whereHas('services', fn ($q) => $q->where('key', $data['service_key']))->get();
+            ->whereHas('services', fn ($q) => $q->where('key', $serviceKey))->get();
         $masterIds = $salons->flatMap(fn ($s) => $s->masters->pluck('id'))->all();
         $busy = $this->availability->busy($masterIds, $date, $date->addDay());
         $now = Baku::now();
 
         $out = [];
         foreach ($salons as $salon) {
-            $best = null;
-            foreach ($salon->services->where('key', $data['service_key']) as $service) {
+            foreach ($salon->services->where('key', $serviceKey) as $service) {
                 $masters = $this->availability->eligible($salon, [$service->id])
                     ->sortByDesc(fn (Master $m) => RatingService::score($m));
                 foreach ($masters as $master) {
                     $day = $this->availability->day($salon, $master, $date, (int) $service->duration_min, $busy[$master->id] ?? [], $now);
-                    foreach ($day['slots'] as $t) {
-                        if ($t < $fromMin || $t > $toMin) {
-                            continue;
-                        }
-                        if ($best === null || $t < $best['start']) {
-                            $best = ['salon_id' => $salon->id, 'master_id' => $master->id, 'service_id' => $service->id, 'start' => $t];
-                        }
-                        break;
+                    if ($day['slots']) {
+                        $out[] = ['salon_id' => $salon->id, 'master_id' => $master->id, 'service_id' => $service->id, 'slots' => array_values($day['slots'])];
                     }
                 }
             }
-            if ($best) {
-                $out[] = $best;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Each salon's earliest start inside the window.
+     *
+     * @return list<array{salon_id:string, master_id:string, service_id:string, start:int}>
+     */
+    private function earliest(array $options, int $fromMin, int $toMin): array
+    {
+        $best = [];
+        foreach ($options as $o) {
+            foreach ($o['slots'] as $t) {
+                if ($t < $fromMin || $t > $toMin) {
+                    continue;
+                }
+                if (! isset($best[$o['salon_id']]) || $t < $best[$o['salon_id']]['start']) {
+                    $best[$o['salon_id']] = ['salon_id' => $o['salon_id'], 'master_id' => $o['master_id'], 'service_id' => $o['service_id'], 'start' => $t];
+                }
+                break;
             }
         }
+        $out = array_values($best);
         usort($out, fn ($a, $b) => [$a['start'], $a['salon_id']] <=> [$b['start'], $b['salon_id']]);
 
         return $out;

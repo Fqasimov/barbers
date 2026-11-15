@@ -44,7 +44,7 @@ class TrafficTest extends TestCase
 
         $admin = new Admin;
         $admin->forceFill(['name' => 'A', 'email' => 'a@example.com', 'password' => 'Secret-pass-123', 'totp_secret' => 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'])->save();
-        $this->actingAs($admin, 'admin')->withSession(['admin_seen' => now()->getTimestamp()])
+        $this->actingAs($admin, 'admin')->withSession(['admin_seen' => now()->getTimestamp(), 'admin_key' => \App\Http\Middleware\AdminAuthenticate::credentialKey($admin)])
             ->get('/admin/traffic')->assertOk()->assertSee('6.6.6.6')->assertSee('/wp-login.php')->assertSee('instagram.com');
         @unlink($file);
     }

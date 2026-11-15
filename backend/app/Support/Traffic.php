@@ -24,6 +24,9 @@ class Traffic
     /** @var array<string, array<string, mixed>> */
     private array $ips = [];
 
+    /** @var array<string, array<string, bool>> */
+    private array $agentsPerIp = [];
+
     public function line(string $line): void
     {
         if (! preg_match(self::LINE, $line, $m)) {
@@ -47,11 +50,18 @@ class Traffic
             $d['bots']++;
         } elseif ($page) {
             $d['views']++;
-            $d['visitors'][sha1($ip.'|'.$agent.'|'.$day)] = true;
+            // One address with many browsers is a few people behind one network, not thousands:
+            // after 5 different browsers it counts as one more visitor at most.
+            $seen = &$this->agentsPerIp[$day.'|'.$ip];
+            $seen ??= [];
+            $id = count($seen) < 5 || isset($seen[$agent]) ? $agent : '*';
+            $seen[$id] = true;
+            $d['visitors'][sha1($ip.'|'.$id.'|'.$day)] = true;
             $key = $this->pageKey($path);
             $d['pages'][$key] = ($d['pages'][$key] ?? 0) + 1;
             $host = parse_url($ref, PHP_URL_HOST);
-            if (is_string($host) && $host !== '' && ! str_ends_with($host, 'yazilnow.az')) {
+            if (is_string($host) && $host !== '' && ! str_ends_with($host, 'yazilnow.az')
+                && preg_match('/^[a-z0-9.-]{1,100}$/i', $host) && (isset($d['refs'][$host]) || count($d['refs']) < 200)) {
                 $host = preg_replace('/^(www|m|l|lm)\./', '', strtolower($host));
                 $d['refs'][$host] = ($d['refs'][$host] ?? 0) + 1;
             }
@@ -85,13 +95,18 @@ class Traffic
         return ! str_contains($last, '.') || str_ends_with($last, '.html');
     }
 
-    /** /app/salon/01abc… → /app/salon/*, so the list shows kinds of pages. */
+    /**
+     * Known pages only: /app/salon/01abc… → /app/salon/*; anything else counts as "other", so
+     * made-up addresses can't fill the table.
+     */
     private function pageKey(string $path): string
     {
         $path = preg_replace('#/index\.html$#', '/', $path);
-        $path = preg_replace('#^/app/(salon|book|u|r|review|s)/[^/]+#', '/app/$1/*', $path);
+        $path = preg_replace('#^/app/(salon|book|u|r|review|s)/[^/]+.*$#', '/app/$1/*', $path);
+        $path = rtrim($path, '/') ?: '/';
+        $known = '#^/($|help|privacy|terms|billing|delete-account|app($|/(\*|panel|business(/[a-z-]+)?|staff|auth(/[a-z-]+)?|account(/[a-z-]+)?|(salon|book|u|r|review|s)/\*)$))#';
 
-        return mb_substr(rtrim($path, '/') ?: '/', 0, 190);
+        return preg_match($known, $path) ? $path : 'other';
     }
 
     public function save(): void
@@ -139,5 +154,6 @@ class Traffic
         });
         $this->days = [];
         $this->ips = [];
+        $this->agentsPerIp = [];
     }
 }

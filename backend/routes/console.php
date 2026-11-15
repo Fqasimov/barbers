@@ -16,3 +16,7 @@ Schedule::command('usta:expire-holds')->everyMinute()->withoutOverlapping()->onO
 
 // Website visits and suspicious requests, from the web server's access log (admin → Traffic).
 Schedule::command('usta:ingest-traffic')->everyTenMinutes()->withoutOverlapping()->onOneServer();
+
+// The database cache only drops an expired entry when the same key is read again: clear them hourly.
+Schedule::call(fn () => \Illuminate\Support\Facades\DB::table(config('cache.stores.database.table', 'cache'))
+    ->where('expiration', '<', now()->getTimestamp())->delete())->hourly()->name('cache-prune')->withoutOverlapping()->onOneServer();

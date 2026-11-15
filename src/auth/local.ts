@@ -57,7 +57,7 @@ const DEMO_USER: StoredUser = {
   id: 'u_demo_faiq',
   firstName: 'Faiq',
   lastName: 'Farid',
-  email: 'faiq.farid0604@gmail.com',
+  email: 'demo@yazilnow.az',
   phone: '',
   birthDate: '',
   gender: null,
@@ -65,8 +65,8 @@ const DEMO_USER: StoredUser = {
   provider: 'password',
   emailVerified: true,
   createdAt: '2026-10-06T00:00:00.000Z',
-  salt: '0765bf57806863e7917aeca05b9afce8',
-  hash: 'f9f393a8799d01bbf514dd214c0d77907a3e313fdd30771e1b1d2d5f91087047',
+  salt: '85211b4d6254eb3fa6aa4c004b63483f',
+  hash: '5203a210e79c78881c70452588ace8d69137420ce05c5265cfcc199dca775aaf',
 };
 
 /** The demo account's barbershop: live, on a Pro trial, with services and masters, so every tool can be tried. */

@@ -400,6 +400,10 @@ class BookingService
             if (! $reviewable) {
                 throw new ApiException(422, 'not_reviewable', 'This visit can’t be reviewed.');
             }
+            // A salon's own owner and team can't rate it (same rule as QR reviews).
+            if (Business::withTrashed()->find($booking->business_id)?->isTeam($user)) {
+                throw new ApiException(422, 'own_salon', 'You can’t review your own salon.');
+            }
 
             $masterId = $data['master_id'] ?? $booking->master_id;
             $master = Master::query()->where('business_id', $booking->business_id)->find($masterId);

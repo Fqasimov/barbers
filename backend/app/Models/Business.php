@@ -324,6 +324,18 @@ class Business extends Model
         $this->forceFill(['status' => self::SUSPENDED, 'suspended_at' => now(), 'suspended_reason' => $reason])->save();
     }
 
+    /** The account's owner or anyone on its team (managers, staff): they can't review or report it. */
+    public function isTeam(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+        $account = $this->account();
+
+        return $account->owner_id === $user->id
+            || BusinessMember::query()->where('business_id', $account->id)->where('user_id', $user->id)->exists();
+    }
+
     public function isListable(): bool
     {
         return static::query()->listable()->whereKey($this->getKey())->exists();

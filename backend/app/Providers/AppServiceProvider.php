@@ -56,7 +56,9 @@ class AppServiceProvider extends ServiceProvider
         // login, register, forgot, verify, resend: per IP and per email.
         RateLimiter::for('auth', fn (Request $r) => [
             Limit::perMinute(30)->by('auth-ip:'.$r->ip()),
-            Limit::perMinute(10)->by('auth-email:'.sha1($email($r))),
+            // Requests without an email (Google/Apple sign-in, reset) are limited per IP only;
+            // otherwise they'd all share one bucket and anyone could block everyone's sign-in.
+            $email($r) === '' ? Limit::none() : Limit::perMinute(10)->by('auth-email:'.sha1($email($r))),
         ]);
 
         RateLimiter::for('bookings', fn (Request $r) => [

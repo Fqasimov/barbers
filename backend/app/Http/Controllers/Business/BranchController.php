@@ -16,6 +16,8 @@ class BranchController extends Controller
 {
     public function index(Request $request, PaymentService $payments): JsonResponse
     {
+        // Every location and the Pro price: the owner's view, not a branch manager's.
+        $this->ownerOnly($request);
         $account = $this->account($request);
 
         return response()->json([

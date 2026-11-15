@@ -43,6 +43,7 @@ class BusinessBookingController extends Controller
     /** A phone call or walk-in. */
     public function store(Request $request): JsonResponse
     {
+        $this->business($request)->requireFeature('booking');
         $data = $request->validate([
             'master_id' => ['required', 'string', 'max:64'],
             'service_ids' => ['required', 'array', 'min:1', 'max:10'],
@@ -60,6 +61,7 @@ class BusinessBookingController extends Controller
     /** Time off for one master (master_id) or the whole salon (no master_id). */
     public function block(Request $request): JsonResponse
     {
+        $this->business($request)->requireFeature('booking');
         $data = $request->validate([
             'master_id' => ['nullable', 'string', 'max:64'],
             'start' => ['required', 'date'],

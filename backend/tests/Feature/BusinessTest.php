@@ -208,5 +208,11 @@ class BusinessTest extends TestCase
             ->assertJsonPath('subscription.trial_ends_at', $first->json('subscription.trial_ends_at'));
         $this->getJson('/api/business/subscription', $h)->assertOk()->assertJsonPath('plan', 'pro');
         $this->postJson('/api/business/subscription/trial', ['plan' => 'gold'], $h)->assertStatus(422);
+
+        // A paid plan can't be switched to Pro here for free.
+        $salon->subscription->forceFill(['status' => 'active', 'plan' => 'sade', 'current_period_end' => now()->addMonth()])->save();
+        $this->postJson('/api/business/subscription/trial', ['plan' => 'pro'], $h)->assertStatus(409)
+            ->assertJsonPath('error', 'plan_change_needs_payment');
+        $this->assertSame('sade', $salon->subscription->fresh()->plan);
     }
 }

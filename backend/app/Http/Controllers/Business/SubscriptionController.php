@@ -46,6 +46,13 @@ class SubscriptionController extends Controller
             $sub = Subscription::query()->where('business_id', $business->id)->lockForUpdate()->first();
             $period = $data['period'] ?? $sub?->billing_period ?? 'month';
             if ($sub) {
+                // Only a running free trial changes plan here. A paid or lapsed plan changes
+                // through checkout, so a Sadə payment can't be turned into Pro for free.
+                // (A lapsed plan may still pick its next plan: it stays expired until paid.)
+                if (in_array($sub->status, [Subscription::ACTIVE, Subscription::PAST_DUE], true)
+                    || ($sub->status === Subscription::TRIALING && $sub->current_period_end !== null)) {
+                    throw new \App\Exceptions\ApiException(409, 'plan_change_needs_payment', 'Change a paid plan through checkout.');
+                }
                 // A paid period's billing changes with the next payment, not here.
                 $sub->forceFill(['plan' => $data['plan']] + ($sub->current_period_end ? [] : ['billing_period' => $period]))->save();
 

@@ -72,11 +72,11 @@ describe('demo backend', () => {
   // The demo password is never committed: run with USTA_DEMO_PASSWORD=… to check it.
   const demoPassword = process.env.USTA_DEMO_PASSWORD;
   (demoPassword ? it : it.skip)('signs in the seeded demo account with its password only', async () => {
-    const session = await localApi.login('Faiq.Farid0604@gmail.com', demoPassword!);
-    expect(session.user.email).toBe('faiq.farid0604@gmail.com');
+    const session = await localApi.login('Demo@yazilnow.az', demoPassword!);
+    expect(session.user.email).toBe('demo@yazilnow.az');
     expect(session.user.emailVerified).toBe(true);
     expect(session.token).toHaveLength(48);
-    await expect(localApi.login('faiq.farid0604@gmail.com', 'wrong1')).rejects.toMatchObject({
+    await expect(localApi.login('demo@yazilnow.az', 'wrong1')).rejects.toMatchObject({
       code: 'invalid_credentials',
     });
     await expect(localApi.login('nobody@gmail.com', demoPassword!)).rejects.toMatchObject({

@@ -163,6 +163,9 @@ class PlansFeaturesTest extends TestCase
         $this->getJson('/api/business/team', $h)->assertForbidden();
         $this->getJson('/api/business/stats?scope=all', $h)->assertForbidden();
         $this->getJson('/api/business/stats', $h)->assertOk();
+        // How clients reach the salon and the list of every location stay with the owner.
+        $this->patchJson('/api/business', ['phone' => '+994501112233'], $h)->assertForbidden();
+        $this->getJson('/api/business/branches', $h)->assertForbidden();
 
         // Signing in later picks up a waiting invite.
         $late = User::factory()->create(['email' => 'new@example.com']);

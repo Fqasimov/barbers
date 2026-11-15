@@ -30,6 +30,11 @@ class ReviewController extends Controller
         $user = $request->user();
         $review = Review::query()->visible()->find($id) ?? throw ApiException::notFound('Review not found.');
 
+        // The salon's own team can't report its reviews away; it can ask support instead.
+        if (Business::withTrashed()->find($review->business_id)?->isTeam($user)) {
+            throw new ApiException(422, 'own_salon', 'Reviews of your own salon are reported to support.');
+        }
+
         DB::transaction(function () use ($review, $user, $data) {
             $report = ReviewReport::query()->firstOrNew(['review_id' => $review->id, 'user_id' => $user->id]);
             $fresh = ! $report->exists;
@@ -39,7 +44,11 @@ class ReviewController extends Controller
             }
             $review = Review::query()->whereKey($review->id)->lockForUpdate()->first();
             $count = $review->report_count + 1;
-            $hide = $count >= config('usta.reviews.auto_hide_reports');
+            // Only established accounts (a week old) count toward hiding a review on their own, so a
+            // batch of fresh accounts can't make one disappear; every report still reaches the admin.
+            $settled = ReviewReport::query()->where('review_id', $review->id)
+                ->whereHas('user', fn ($q) => $q->where('created_at', '<=', now()->subDays(7)))->count();
+            $hide = $settled >= config('usta.reviews.auto_hide_reports');
             $review->forceFill(['report_count' => $count] + ($hide ? ['hidden_at' => now()] : []))->save();
             if ($hide) {
                 $this->refresh($review);

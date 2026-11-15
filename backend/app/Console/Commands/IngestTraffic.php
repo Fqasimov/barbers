@@ -49,7 +49,11 @@ class IngestTraffic extends Command
         $traffic->save();
         file_put_contents($state, json_encode(['inode' => $inode, 'offset' => $offset]));
 
-        DB::table('traffic_visitors')->where('day', '<', now('Asia/Baku')->subDays(60)->toDateString())->delete();
+        $cutoff = now('Asia/Baku')->subDays(60)->toDateString();
+        DB::table('traffic_visitors')->where('day', '<', $cutoff)->delete();
+        DB::table('traffic_counts')->where('day', '<', $cutoff)->delete();
+        // Ordinary addresses that stopped being suspicious long ago aren't kept forever.
+        DB::table('traffic_ips')->where('last_seen', '<', now()->subDays(90))->delete();
         $this->info("Read {$n} lines.");
 
         return self::SUCCESS;

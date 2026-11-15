@@ -20,4 +20,9 @@ class ReviewReport extends Model
     {
         return $this->belongsTo(Review::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

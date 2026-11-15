@@ -25,6 +25,11 @@ class BusinessController extends Controller
 
     public function update(Request $request): JsonResponse
     {
+        // Managers run the calendar, hours and the team's day; how clients reach the salon
+        // (name, phone, WhatsApp, links, page address) is the owner's.
+        if ($request->hasAny(['salon_name', 'name', 'phone', 'whatsapp', 'booking_url', 'slug', 'instagram'])) {
+            $this->ownerOnly($request);
+        }
         $this->normalize($request);
         if (is_string($request->input('slug'))) {
             $request->merge(['slug' => mb_strtolower(trim($request->input('slug')))]);
@@ -99,6 +104,7 @@ class BusinessController extends Controller
     /** The salon's logo: square-ish mark shown on the map, the salon page and the panel. */
     public function logo(Request $request, PhotoProcessor $processor): JsonResponse
     {
+        $this->ownerOnly($request);
         $b = $this->business($request);
         $path = PhotoUpload::store($request, $processor, "salons/{$b->id}/logo", 600);
         $old = $b->logo_path;
@@ -110,6 +116,7 @@ class BusinessController extends Controller
 
     public function deleteLogo(Request $request): JsonResponse
     {
+        $this->ownerOnly($request);
         $b = $this->business($request);
         $old = $b->logo_path;
         $b->forceFill(['logo_path' => null])->save();

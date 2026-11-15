@@ -20,6 +20,7 @@ class PhotoController extends Controller
 
     public function store(Request $request, PhotoProcessor $processor): JsonResponse
     {
+        $this->business($request)->requireFeature('gallery');
         $request->validate([
             'photo' => ['required', 'file', 'max:8192', 'mimetypes:image/jpeg,image/png,image/heic,image/heif', 'extensions:jpg,jpeg,png,heic,heif'],
         ]);

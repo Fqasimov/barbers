@@ -104,9 +104,10 @@ class OtpService
             throw new ApiException(422, 'too_many_attempts', 'Too many wrong codes. Request a new one.');
         }
         if (! hash_equals($otp->code_hash, $this->hash($email, $purpose, $code))) {
-            $otp->increment('attempts');
+            // One statement: parallel guesses can't slip past the per-code limit.
+            $counted = OneTimeCode::query()->whereKey($otp->getKey())->where('attempts', '<', $max)->increment('attempts');
             RateLimiter::hit($failKey, 86400);
-            if ($otp->attempts >= $max) {
+            if (! $counted || $otp->fresh()?->attempts >= $max) {
                 throw new ApiException(422, 'too_many_attempts', 'Too many wrong codes. Request a new one.');
             }
             throw new ApiException(422, 'otp_invalid', 'That code is not right.');

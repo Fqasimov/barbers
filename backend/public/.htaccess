@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # Single-domain hosting: this folder is reached as public_html/server. Only the site's own rewrites
+    # (api, admin, photos) may come in; typing /server/… in a browser gets a 404.
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteCond %{REQUEST_URI} ^/+server(/|$) [NC]
+    RewriteRule ^ - [R=404,L]
+
     # HTTPS only (Apache / cPanel; nginx does this in deploy/nginx). Not for local http://localhost.
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https

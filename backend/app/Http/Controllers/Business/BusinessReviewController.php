@@ -29,6 +29,7 @@ class BusinessReviewController extends Controller
     /** Sets, changes or (with an empty reply) removes the salon's answer. */
     public function reply(Request $request, string $id): JsonResponse
     {
+        $this->business($request)->requireFeature('replies');
         $data = $request->validate(['reply' => ['present', 'nullable', 'string', 'max:1000']]);
         /** @var Review $review */
         $review = $this->owned($request, Review::class, $id);

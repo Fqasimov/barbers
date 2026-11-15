@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         $admin = Admin::query()->where('email', $email)->first();
         $code = preg_replace('/\D/', '', $data['code']);
-        $passwordOk = Hash::check($data['password'], $admin?->password ?? '$2y$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinv');
+        $passwordOk = Hash::check($data['password'], $admin?->password ?? self::dummyHash());
         $step = $admin && $passwordOk && ! $admin->disabled_at ? Totp::verify($admin->totp_secret, $code, $admin->totp_last_step, now()->getTimestamp()) : null;
 
         if ($step === null) {
@@ -60,15 +60,30 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => 'The email, password or code is wrong.']);
         }
 
+        // Claim the code's time step in one statement, so two sign-ins can't share one code.
+        $claimed = Admin::query()->whereKey($admin->id)
+            ->where(fn ($q) => $q->whereNull('totp_last_step')->orWhere('totp_last_step', '<', $step))
+            ->update(['totp_last_step' => $step, 'last_login_at' => now()]);
+        if ($claimed !== 1) {
+            throw ValidationException::withMessages(['email' => 'The email, password or code is wrong.']);
+        }
         RateLimiter::clear($key);
         RateLimiter::clear($accountKey);
-        $admin->forceFill(['totp_last_step' => $step, 'last_login_at' => now()])->save();
         Auth::guard('admin')->login($admin);
         $request->session()->regenerate();
         $request->session()->put('admin_seen', now()->getTimestamp());
+        $request->session()->put('admin_key', \App\Http\Middleware\AdminAuthenticate::credentialKey($admin->fresh()));
         AdminAction::record($request, 'login', $admin, "{$admin->name} signed in");
 
         return redirect()->intended(route('admin.dashboard'));
+    }
+
+    /** A real bcrypt hash, so an unknown email does the same work and gets the same answer. */
+    private static function dummyHash(): string
+    {
+        static $hash;
+
+        return $hash ??= Hash::make(\Illuminate\Support\Str::random(32));
     }
 
     public function logout(Request $request): RedirectResponse

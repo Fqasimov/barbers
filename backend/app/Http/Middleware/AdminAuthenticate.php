@@ -18,7 +18,10 @@ class AdminAuthenticate
         $admin = $guard->user();
         $seen = (int) $request->session()->get('admin_seen', 0);
 
-        if (! $admin || $admin->disabled_at || ($seen && $seen < now()->subMinutes(self::IDLE_MINUTES)->getTimestamp())) {
+        // A new password or authenticator ends every session started with the old ones.
+        $stale = $admin && ! hash_equals(self::credentialKey($admin), (string) $request->session()->get('admin_key', ''));
+
+        if (! $admin || $stale || $admin->disabled_at || ($seen && $seen < now()->subMinutes(self::IDLE_MINUTES)->getTimestamp())) {
             $expired = (bool) $admin;
             $guard->logout();
             $request->session()->invalidate();
@@ -29,5 +32,11 @@ class AdminAuthenticate
         $request->session()->put('admin_seen', now()->getTimestamp());
 
         return $next($request);
+    }
+
+    /** Changes whenever the admin's password or authenticator is reset. */
+    public static function credentialKey(\App\Models\Admin $admin): string
+    {
+        return hash_hmac('sha256', $admin->getKey().'|'.$admin->password.'|'.$admin->totp_secret, (string) config('app.key'));
     }
 }

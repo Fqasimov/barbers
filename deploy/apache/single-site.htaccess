@@ -39,7 +39,7 @@ ErrorDocument 404 /404.html
   RewriteRule ^(?:api|admin|billing|up)(?:/.*)?$ server/index.php [L]
   # Nobody browses the link itself (only checks what the browser asked for, not the rewrite above).
   RewriteCond %{ENV:REDIRECT_STATUS} ^$
-  RewriteCond %{THE_REQUEST} \s/server(?:[/?\s])
+  RewriteCond %{REQUEST_URI} ^/+server(/|$) [NC]
   RewriteRule ^ - [R=404,L]
 
   # QR codes, the wall QR, shared salon links and the salon panel open the app.

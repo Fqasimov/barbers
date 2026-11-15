@@ -54,7 +54,8 @@ class SocialTokenVerifier
             return $attempt(false);
         } catch (\UnexpectedValueException $e) {
             // A key rotation: the token's kid isn't in our cached set yet.
-            if (str_contains($e->getMessage(), '"kid"')) {
+            // At most one refetch a minute per provider, so made-up kids can't keep us fetching.
+            if (str_contains($e->getMessage(), '"kid"') && Cache::add("jwks-refetch:{$provider}", 1, 60)) {
                 try {
                     return $attempt(true);
                 } catch (Throwable) {

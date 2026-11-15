@@ -25,7 +25,7 @@ class ReviewModerationTest extends TestCase
 
     private function report(?User $by = null, string $reason = 'offensive')
     {
-        $by ??= User::factory()->create();
+        $by ??= User::factory()->create(['created_at' => now()->subDays(30)]);
         $this->app['auth']->forgetGuards();
 
         return $this->postJson("/api/reviews/{$this->review->id}/report", ['reason' => $reason], ['Authorization' => 'Bearer '.$this->tokenFor($by)]);
@@ -33,7 +33,7 @@ class ReviewModerationTest extends TestCase
 
     public function test_three_reports_hide_a_review_until_checked(): void
     {
-        $first = User::factory()->create();
+        $first = User::factory()->create(['created_at' => now()->subDays(30)]);
         $this->report($first)->assertOk();
         $this->report($first)->assertOk(); // the same person twice counts once
         $this->report()->assertOk();
@@ -52,6 +52,18 @@ class ReviewModerationTest extends TestCase
 
         $this->artisan('usta:reviews', ['--hide' => $this->review->id])->assertSuccessful();
         $this->getJson('/api/salons/'.$this->salon->id.'/reviews')->assertJsonCount(0, 'data');
+    }
+
+    public function test_new_accounts_and_the_salon_team_cant_hide_a_review(): void
+    {
+        // Brand-new accounts are recorded for the admin but don't hide the review on their own.
+        foreach (range(1, 3) as $i) {
+            $this->report(User::factory()->create())->assertOk();
+        }
+        $this->getJson('/api/salons/'.$this->salon->id.'/reviews')->assertJsonCount(1, 'data');
+
+        // The salon's owner can't report its own reviews.
+        $this->report($this->salon->owner)->assertStatus(422)->assertJsonPath('error', 'own_salon');
     }
 
     public function test_report_needs_an_account_and_a_reason(): void
