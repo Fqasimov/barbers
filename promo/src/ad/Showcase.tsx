@@ -22,16 +22,15 @@ const OWNER_DEMO_CODE: Hide = { from: 400, to: 480, x: 12, y: 150, w: 366, h: 15
 
 type Shot = { take: TakeName; from: number; to: number; rate: number; kicker: string; title: string; hide?: Hide[] };
 const SHOTS: Shot[] = [
-  { take: "trial", from: 0, to: 140, rate: 3.1, kicker: "Tezliklə", title: "yazılnow necə işləyir?" },
-  { take: "home2", from: 0, to: 180, rate: 2.2, kicker: "Müştərilər üçün", title: "Bakının salonları bir tətbiqdə" },
-  { take: "find2", from: 0, to: 123, rate: 1.7, kicker: "Müştərilər üçün", title: "Boş vaxtı tapın: xidmət, gün, saat" },
-  { take: "map2", from: 0, to: 81, rate: 1.6, kicker: "Müştərilər üçün", title: "Yaxınlıqdakı salonlar xəritədə" },
-  { take: "salon2", from: 0, to: 78, rate: 1.3, kicker: "Müştərilər üçün", title: "Ustalar, qiymətlər, rəylər" },
-  { take: "book2", from: 0, to: 186, rate: 1.8, kicker: "Müştərilər üçün", title: "Xidmət → usta → vaxt → təsdiq" },
-  { take: "owner", from: 24, to: 470, rate: 7, kicker: "Salonlar üçün", title: "Salonunuzu qeydiyyatdan keçirin", hide: [OWNER_DEMO_CODE] },
-  { take: "owner", from: 470, to: 625, rate: 2.4, kicker: "Salonlar üçün", title: "Plan seçin: 10, 29 və ya 49 ₼ · 30 gün pulsuz" },
-  { take: "owner", from: 780, to: 965, rate: 3, kicker: "Salonlar üçün", title: "Ustalarınızı əlavə edin" },
-  { take: "owner", from: 990, to: 1118, rate: 2, kicker: "Salonlar üçün", title: "Növbələr, təqvim, rəylər: hamısı bir paneldə" },
+  { take: "trial", from: 0, to: 140, rate: 2.8, kicker: "Tezliklə", title: "yazılnow necə işləyir?" },
+  { take: "home2", from: 0, to: 150, rate: 1.7, kicker: "Müştərilər üçün", title: "Bakının salonları bir tətbiqdə" },
+  { take: "find2", from: 0, to: 123, rate: 1.4, kicker: "Müştərilər üçün", title: "Boş vaxtı tapın: xidmət, gün, saat" },
+  { take: "salon2", from: 0, to: 78, rate: 1, kicker: "Müştərilər üçün", title: "Ustalar, qiymətlər, rəylər" },
+  { take: "book2", from: 0, to: 186, rate: 1.5, kicker: "Müştərilər üçün", title: "Xidmət → usta → vaxt → təsdiq" },
+  { take: "owner", from: 24, to: 470, rate: 6, kicker: "Salonlar üçün", title: "Salonunuzu qeydiyyatdan keçirin", hide: [OWNER_DEMO_CODE] },
+  { take: "owner", from: 470, to: 625, rate: 1.8, kicker: "Salonlar üçün", title: "Plan seçin: 10, 29 və ya 49 ₼ · 30 gün pulsuz" },
+  { take: "owner", from: 780, to: 965, rate: 2.5, kicker: "Salonlar üçün", title: "Ustalarınızı əlavə edin" },
+  { take: "owner", from: 990, to: 1118, rate: 1.8, kicker: "Salonlar üçün", title: "Növbələr, təqvim, rəylər: hamısı bir paneldə" },
 ];
 const len = (s: Shot) => Math.ceil((s.to - s.from) / s.rate);
 const STARTS = SHOTS.reduce<number[]>((acc, s, i) => [...acc, i === 0 ? 0 : acc[i - 1] + len(SHOTS[i - 1]) - XF], []);
