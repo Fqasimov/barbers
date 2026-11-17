@@ -59,6 +59,7 @@ class Business extends Model
             'whatsapp_used' => 'integer',
             'whatsapp_until' => 'datetime',
             'voice_until' => 'datetime',
+            'voice_minutes' => 'integer',
         ];
     }
 
@@ -173,6 +174,37 @@ class Business extends Model
         $until = $this->account()->voice_until;
 
         return $until !== null && $until->isFuture() && $this->takesBookings();
+    }
+
+    /**
+     * The voice assistant's minutes in a month (Baku time): the pack, minutes used, extra minutes
+     * past the pack and what they cost, and whether the cap (1.5 × the pack) is reached.
+     *
+     * @return array{month:string, pack:int, used:int, extra:int, owed:float, cap:int, capped:bool}
+     */
+    public function voiceUsage(?\Carbon\CarbonImmutable $month = null): array
+    {
+        $account = $this->account();
+        $from = ($month ?? \App\Support\Baku::now())->setTimezone(\App\Support\Baku::tz())->startOfMonth();
+        $seconds = (int) VoiceCall::query()
+            ->whereIn('business_id', $account->locations()->pluck('id'))
+            ->where('started_at', '>=', $from->utc())
+            ->where('started_at', '<', $from->addMonth()->utc())
+            ->sum('seconds');
+        $pack = (int) $account->voice_minutes;
+        $used = (int) ceil($seconds / 60);
+        $extra = max(0, $used - $pack);
+        $cap = (int) floor($pack * (float) config('usta.voice.cap'));
+
+        return [
+            'month' => $from->format('Y-m'),
+            'pack' => $pack,
+            'used' => $used,
+            'extra' => $extra,
+            'owed' => round($extra * (float) config('usta.voice.extra_price'), 2),
+            'cap' => $cap,
+            'capped' => $used >= $cap,
+        ];
     }
 
     /** Throws 402 plan_required unless the plan includes the feature. */

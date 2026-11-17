@@ -72,6 +72,14 @@ class BusinessResource extends JsonResource
             'subscription' => $sub ? (new SubscriptionResource($sub))->resolve($request) : null,
             'features' => $plan ? array_values(config("usta.plan_features.{$plan}", [])) : [],
             'locations' => $locations,
+            // Voice assistant: this month's minutes, extra minutes and what they cost.
+            'voice' => $account->voice_minutes && $account->voice_until
+                ? $account->voiceUsage() + [
+                    'until' => Iso::ts($account->voice_until),
+                    'active' => $account->voice_until->isFuture(),
+                    'extra_price' => (float) config('usta.voice.extra_price'),
+                ]
+                : null,
             'whatsapp_pack' => [
                 'left' => $packLive ? max(0, (int) $account->whatsapp_quota - (int) $account->whatsapp_used) : 0,
                 'until' => $packLive ? Iso::ts($account->whatsapp_until) : null,

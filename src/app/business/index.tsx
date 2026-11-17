@@ -32,6 +32,7 @@ import { authErrorKey } from '@/auth/flow';
 import { useSession } from '@/auth/useSession';
 import { BookingLinkCard } from '@/components/business/BookingLinkCard';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
+import { VoiceCard } from '@/components/business/VoiceCard';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
@@ -275,6 +276,7 @@ export default function BusinessDashboard() {
         </View>
 
         <BookingLinkCard business={business} onPickAddress={() => router.push('/business/details')} />
+        <VoiceCard business={business} />
 
         {!ready ? (
           <>

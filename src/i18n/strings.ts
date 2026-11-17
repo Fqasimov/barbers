@@ -1124,6 +1124,23 @@ export const strings = {
     'Хотите адрес короче? Выберите адрес личной страницы в данных салона.',
     'Want a shorter link? Pick a personal page address in your salon details.',
   ),
+  voiceTitle: L('Səsli köməkçi', 'Голосовой помощник', 'Voice assistant'),
+  voiceUsed: L('Bu ay: {used} / {pack} dəqiqə', 'В этом месяце: {used} / {pack} мин', 'This month: {used} / {pack} min'),
+  voiceExtra: L(
+    'Paketdən artıq {extra} dəqiqə: ay sonunda {owed} ₼ ({price} ₼/dəq)',
+    'Сверх пакета {extra} мин: {owed} ₼ в конце месяца ({price} ₼/мин)',
+    '{extra} min over the pack: {owed} ₼ at the month’s end ({price} ₼/min)',
+  ),
+  voiceCapped: L(
+    'Bu ayın limiti doldu ({cap} dəq). Köməkçi növbəti aya qədər bron etmir, zənglər sizə qalır.',
+    'Лимит месяца исчерпан ({cap} мин). До следующего месяца помощник не записывает, звонки остаются вам.',
+    'This month’s limit is reached ({cap} min). Until next month the assistant doesn’t book; calls stay with you.',
+  ),
+  voiceLimitNote: L(
+    'Paketdən sonra {cap} dəqiqəyə qədər davam edir, artıq dəqiqələr ay sonunda hesablanır.',
+    'После пакета работает до {cap} мин, лишние минуты считаются в конце месяца.',
+    'After the pack it keeps going up to {cap} min; extra minutes are billed at the month’s end.',
+  ),
   pickBranch: L('Filialı seçin', 'Выберите филиал', 'Pick a branch'),
   mstLimitNote: L(
     'Fərdi planda bir usta olur: siz. Komanda üçün Start-a keçin.',

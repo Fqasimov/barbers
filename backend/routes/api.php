@@ -40,6 +40,7 @@ Route::middleware('throttle:auth')->group(function () {
 });
 
 // Voice assistant add-on: server tools for the salon's ElevenLabs agent (X-Voice-Secret).
+Route::post('voice/calls', [VoiceController::class, 'call'])->middleware('throttle:public');
 Route::middleware('throttle:public')->prefix('voice/{salon}')->group(function () {
     Route::post('info', [VoiceController::class, 'info']);
     Route::post('check', [VoiceController::class, 'check']);

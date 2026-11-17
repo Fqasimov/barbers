@@ -12,17 +12,46 @@ The booking lands in the barber's calendar like any other, marked "Səsli kömə
 
 ## 1. Server
 
-1. **Merge and migrate.** Merge this branch, then run `php artisan migrate --force`. This adds `businesses.voice_until`.
+1. **Merge and migrate.** Merge this branch, then run `php artisan migrate --force`. This adds the voice columns on `businesses` and the `voice_calls` table.
 2. **Set the secret.** In `~/yazilnow-api/.env`, set a long random secret (for example from `openssl rand -hex 32`), then run `php artisan config:clear`:
    ```
    VOICE_TOOL_SECRET=<long random string>
    ```
-3. **Turn it on for a barbershop.** It can't be bought in the app until payments are live:
+3. **Turn it on for a barbershop** once it has paid for a pack:
    ```bash
-   php artisan usta:voice <salon id> --days=30     # on for 30 days
-   php artisan usta:voice <salon id> --off         # off
+   php artisan usta:voice <salon id> --minutes=100 --agent=<ElevenLabs agent id> --days=30
+   php artisan usta:voice <salon id> --off
    ```
-   The command prints the barbershop's three tool addresses.
+   `--minutes` takes 100, 250 or 500, and the command prints the barbershop's tool addresses.
+
+## Packs, extra minutes and the cap
+
+| Pack | Price a month | Stops at (the 1.5× cap) |
+| --- | --- | --- |
+| 100 min | 39 ₼ | 150 min |
+| 250 min | 89 ₼ | 375 min |
+| 500 min | 169 ₼ | 750 min |
+
+- **Counting.** Each barbershop's minutes are counted from ElevenLabs' report after every call; all its branches share one count.
+- **Extra minutes.** Past the pack, the assistant keeps going. Each extra minute costs **0.35 ₼**, billed at the month's end.
+- **The cap.** At 1.5× the pack, the assistant stops booking: it tells the caller the barber will call back.
+- **New month.** The count starts from zero on the 1st (Baku time).
+- **Dashboard.** The barbershop sees this month's minutes, any extra minutes and what they cost.
+
+Prices are in `config/usta.php` → `voice.packs`. The extra-minute price is `VOICE_EXTRA_PRICE` in `.env`.
+
+**The month's bill:**
+```bash
+php artisan usta:voice-report                  # this month
+php artisan usta:voice-report --month=2026-11
+```
+It lists each barbershop's pack, minutes used, extra minutes, extra ₼ and total to charge.
+
+**Post-call webhook.** This is what counts the minutes. In ElevenLabs → Agents settings → Webhooks (post-call), set the URL to:
+```
+https://yazilnow.az/api/voice/calls?secret=<VOICE_TOOL_SECRET>
+```
+The salon is found by its agent id, so give each barbershop its own agent and register it with `--agent`. Also set a monthly **spending limit** on your ElevenLabs account.
 
 ## 2. The agent in ElevenLabs (one per barbershop)
 
@@ -64,6 +93,9 @@ Agents → **Create agent**:
 1. **Connect a number.** In ElevenLabs → Phone numbers, connect a number through Twilio or a SIP trunk from a local operator. Ask Azercell, Bakcell or Nar about SIP.
 2. **Forward missed calls.** The barbershop keeps its own number and turns on **call forwarding when unanswered** to the agent's number.
 
-## 4. Price
+## 4. Costs
 
-Set the add-on's monthly price once the ElevenLabs minutes and the phone line costs are known (`VOICE_PRICE` in `.env`, for later in-app sales). Calls cost per minute, so a busy barbershop must not cost more than it pays.
+- **ElevenLabs:** pay as you go, about $0.083 a minute (voice $0.08 + Gemini 2.5 Flash $0.0029).
+- **SIP line:** about 0.02 ₼ a minute plus about 2 ₼ a month per number (ask the operator).
+
+At those rates each pack keeps about 50% profit, and extra minutes at 0.35 ₼ keep about 54%.

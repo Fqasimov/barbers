@@ -6,6 +6,7 @@ use App\Exceptions\ApiException;
 use App\Models\Business;
 use App\Models\Master;
 use App\Models\Service;
+use App\Models\VoiceCall;
 use App\Services\Availability;
 use App\Services\BookingService;
 use App\Support\Baku;
@@ -34,6 +35,8 @@ class VoiceController extends Controller
             'hours' => ['open' => $b->hours_open, 'close' => $b->hours_close],
             'closed_days' => array_values($b->closed_days ?? []),
             'today' => Baku::today()->toDateString(),
+            // Over the month's cap: the agent takes a message instead of booking.
+            'limit_reached' => $b->voiceUsage()['capped'],
             'services' => $b->services->map(fn (Service $s) => [
                 'id' => $s->id,
                 'name' => $this->name($s->name),
@@ -48,6 +51,9 @@ class VoiceController extends Controller
     public function check(Request $request, string $salon): JsonResponse
     {
         $b = $this->salon($request, $salon);
+        if ($b->voiceUsage()['capped']) {
+            return $this->limitReached();
+        }
         $data = $this->ask($request);
         [$service, $masters, $date, $minute] = $this->resolve($b, $data);
         if ($service instanceof JsonResponse) {
@@ -84,6 +90,9 @@ class VoiceController extends Controller
     public function book(Request $request, string $salon): JsonResponse
     {
         $b = $this->salon($request, $salon);
+        if ($b->voiceUsage()['capped']) {
+            return $this->limitReached();
+        }
         $data = $this->ask($request, [
             'client_name' => ['required', 'string', 'max:80'],
             'caller_phone' => ['nullable', 'string', 'max:20'],
@@ -126,14 +135,59 @@ class VoiceController extends Controller
         ], 201);
     }
 
+    /**
+     * ElevenLabs' post-call webhook: one finished call and its length, counted against the
+     * salon's monthly minutes. The salon is found by its agent id. Sent twice? Counted once.
+     */
+    public function call(Request $request): JsonResponse
+    {
+        $this->secret($request);
+        $data = (array) $request->input('data', $request->all());
+        $agent = (string) ($data['agent_id'] ?? '');
+        $conversation = (string) ($data['conversation_id'] ?? '');
+        $meta = (array) ($data['metadata'] ?? []);
+        $seconds = (int) round((float) ($meta['call_duration_secs'] ?? $data['call_duration_secs'] ?? 0));
+        $started = (int) ($meta['start_time_unix_secs'] ?? 0);
+        if ($agent === '' || $conversation === '') {
+            return response()->json(['ok' => false, 'reason' => 'missing agent_id or conversation_id'], 422);
+        }
+        $b = Business::query()->where('voice_agent_id', $agent)->first();
+        if (! $b) {
+            return response()->json(['ok' => false, 'reason' => 'unknown agent'], 404);
+        }
+        VoiceCall::query()->firstOrCreate(['conversation_id' => $conversation], [
+            'business_id' => $b->id,
+            'started_at' => $started > 0 ? CarbonImmutable::createFromTimestamp($started) : now(),
+            'seconds' => max(0, $seconds),
+        ]);
+
+        return response()->json(['ok' => true, 'usage' => $b->voiceUsage()]);
+    }
+
     // ------------------------------------------------------------------
+
+    private function limitReached(): JsonResponse
+    {
+        return response()->json([
+            'available' => false,
+            'booked' => false,
+            'limit_reached' => true,
+            'say' => 'Təəssüf, hazırda telefonla bron qəbul edə bilmirəm. Adınızı və nömrənizi qeyd edirəm, usta sizə geri zəng edəcək.',
+        ]);
+    }
+
+    private function secret(Request $request): void
+    {
+        $secret = (string) config('usta.voice.secret');
+        $given = (string) ($request->header('X-Voice-Secret') ?? $request->query('secret', ''));
+        if ($secret === '' || ! hash_equals($secret, $given)) {
+            throw ApiException::forbidden('Not allowed.');
+        }
+    }
 
     private function salon(Request $request, string $id): Business
     {
-        $secret = (string) config('usta.voice.secret');
-        if ($secret === '' || ! hash_equals($secret, (string) $request->header('X-Voice-Secret'))) {
-            throw ApiException::forbidden('Not allowed.');
-        }
+        $this->secret($request);
         $b = Business::query()->listable()->with(['services', 'masters.services'])->find($id);
         if (! $b || ! $b->hasVoiceAssistant()) {
             throw ApiException::notFound('No voice assistant for this salon.');

@@ -116,6 +116,19 @@ export type Business = {
    * personal page, or <site>/u/<salon id> until an address is picked. Not on Sadə.
    */
   shareUrl?: string | null;
+  /** Voice assistant add-on: this month's minutes (pack, used, extra past the pack, cap). */
+  voice?: {
+    month: string;
+    pack: number;
+    used: number;
+    extra: number;
+    owed: number;
+    cap: number;
+    capped: boolean;
+    until: string | null;
+    active: boolean;
+    extraPrice: number;
+  } | null;
   /** WhatsApp add-on: messages left and until when. */
   whatsappPack?: { left: number; until: string | null };
 };

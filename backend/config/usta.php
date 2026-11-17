@@ -155,14 +155,18 @@ return [
         'hours' => env('SUPPORT_HOURS', '09:00–21:00'),
     ],
 
-    // Where QR codes and shared links point.
     // Voice assistant add-on: an ElevenLabs agent answers the salon's missed calls and books.
-    // The agent's server tools send this secret in the X-Voice-Secret header.
+    // Its server tools and the post-call webhook send this secret (X-Voice-Secret header or ?secret=).
     'voice' => [
         'secret' => env('VOICE_TOOL_SECRET'),
-        'price' => env('VOICE_PRICE'),   // ₼ a month: set once ElevenLabs and call costs are known
+        // Monthly packs (minutes => ₼). Minutes past the pack cost extra_price each, billed at the
+        // month's end, up to cap × the pack; then the assistant stops booking until the next month.
+        'packs' => [100 => 39, 250 => 89, 500 => 169],
+        'extra_price' => (float) env('VOICE_EXTRA_PRICE', 0.35),
+        'cap' => 1.5,
     ],
 
+    // Where QR codes and shared links point.
     'web_url' => env('WEB_URL', 'https://yazilnow.az'),
     // The app in a browser; client emails link to its bookings page.
     'app_web_url' => env('APP_WEB_URL', rtrim((string) env('WEB_URL', 'https://yazilnow.az'), '/').'/app'),
