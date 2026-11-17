@@ -42,7 +42,11 @@ const { clip, chromium } = require('./harness');
     await a.hold(300);
     await a.tap('Davam et');
     await a.hold(600);
-    await a.tap('Ç. 7 okt');
+    // The first upcoming day with free times (the recording date changes).
+    const day = await a.p.evaluate(() =>
+      [...document.querySelectorAll('[aria-label]')].map((e) => e.getAttribute('aria-label'))
+        .find((l) => /, \d+ boş vaxt$/.test(l)));
+    await a.tap(day, { exact: true });
     await a.hold(500);
     await a.tap('15:30');
     await a.hold(400);

@@ -1,5 +1,6 @@
 import React from "react";
 import { Composition, Folder } from "remotion";
+import { Showcase, SHOWCASE_FRAMES } from "./ad/Showcase";
 
 import { FixedAd, FixedBarber, FixedFull, FIXED_AD_FRAMES, FIXED_BARBER_FRAMES, FIXED_FULL_FRAMES } from "./ad/Fixed";
 import { SalonAd, SALON_AD_FRAMES } from "./ad/SalonAd";
@@ -14,6 +15,7 @@ import "./theme";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="Showcase" component={Showcase} durationInFrames={SHOWCASE_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="Promo" component={Promo} durationInFrames={PROMO_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="SalonAd" component={SalonAd} durationInFrames={SALON_AD_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="SignupPhone" component={SignupPhone} durationInFrames={SIGNUP_PHONE_FRAMES} fps={30} width={1080} height={1920} />

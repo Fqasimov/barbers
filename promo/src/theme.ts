@@ -31,6 +31,7 @@ const faces: [string, string][] = [
   ["Onest_500Medium.ttf", "500"],
   ["Onest_600SemiBold.ttf", "600"],
   ["Onest_700Bold.ttf", "700"],
+  ["Onest_800ExtraBold.ttf", "800"],
 ];
 
 export const fontsReady = Promise.all(
