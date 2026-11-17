@@ -52,7 +52,8 @@ const Person: React.FC<{ f: number }> = ({ f }) => {
 
   // Right arm: raise (scene 3), scroll in the air, snap (scene 4), rest on the laptop (scene 5).
   const raise3 = r(f, S.solution + 30, S.solution + 50) * (1 - r(f, S.solution + 230, S.solution + 250));
-  const scroll = f > S.solution + 70 && f < S.solution + 200 ? Math.sin((f - S.solution) / 6) * 0.25 : 0;
+  const scrollEnv = r(f, S.solution + 60, S.solution + 80) * (1 - r(f, S.solution + 185, S.solution + 205));
+  const scroll = Math.sin((f - S.solution) / 9) * 0.22 * scrollEnv;
   const point4 = r(f, S.why + 4, S.why + 20) * (1 - r(f, S.why + 110, S.why + 122));
   const snap4 = r(f, S.why + 118, S.why + 130) * (1 - r(f, S.why + 160, S.why + 180));
   const hook = r(f, 60, 80) * (1 - r(f, 100, 120)); // closes the laptop lid
@@ -63,15 +64,19 @@ const Person: React.FC<{ f: number }> = ({ f }) => {
   const rArmZ = -0.12 - point4 * 1.2;
   const rFore = -(raise3 * 1.1 + snap4 * 1.0 + seatedArm * 0.6 + rest5 * 0.4) + scroll;
   const lArmX = -(seatedArm * 0.9) - Math.max(0, Math.sin((f - S.problem - 80) / 14)) * 0.5 * r(f, S.problem + 80, S.problem + 100) * (1 - r(f, S.solution - 20, S.solution));
-  const nod = Math.sin(f / 9) * 0.04 * stand;
-  const lookDown = f > 20 && f < 50 ? 0.25 : 0;
+  const nod = Math.sin(f / 13) * 0.035 * stand;
+  const breathe = Math.sin(f / 22) * 0.012;
+  const sway = Math.sin(f / 31) * 0.035 * stand;
+  const walking = Math.max(r(f, S.problem + 26, S.problem + 36) * (1 - r(f, S.problem + 60, S.problem + 72)), r(f, S.close, S.close + 8) * (1 - r(f, S.close + 32, S.close + 42)));
+  const stride = Math.sin(f / 4) * 0.45 * walking;
+  const lookDown = 0.25 * r(f, 10, 24) * (1 - r(f, 44, 62));
   const legBend = 1 - stand;
 
   return (
     <group position={[x, 0, z]} rotation={[0, rotY, 0]}>
-      <group position={[0, hipY, 0]}>
+      <group position={[0, hipY + breathe * 0.5 + Math.abs(stride) * 0.03, 0]} rotation={[0, 0, sway * 0.4]}>
         {/* torso */}
-        <mesh position={[0, 0.32, 0]} castShadow>
+        <mesh position={[0, 0.32, 0]} scale={[1 + breathe, 1, 1 + breathe]} castShadow>
           <capsuleGeometry args={[0.17, 0.36, 6, 16]} />
           <meshStandardMaterial color={dark} roughness={0.8} />
         </mesh>
@@ -104,7 +109,7 @@ const Person: React.FC<{ f: number }> = ({ f }) => {
             </group>
           </Limb>
         </group>
-        <group position={[-0.22, 0.56, 0]} rotation={[lArmX, 0, 0.12]}>
+        <group position={[-0.22, 0.56, 0]} rotation={[lArmX + stride * 0.6, 0, 0.12]}>
           <Limb len={0.3} rad={0.05} col={dark}>
             <group rotation={[-(seatedArm * 0.6), 0, 0]}>
               <Limb len={0.28} rad={0.045} col={skin} />
@@ -113,7 +118,7 @@ const Person: React.FC<{ f: number }> = ({ f }) => {
         </group>
         {/* legs */}
         {[0.09, -0.09].map((lx) => (
-          <group key={lx} position={[lx, 0, 0]} rotation={[-legBend * 1.5, 0, 0]}>
+          <group key={lx} position={[lx, 0, 0]} rotation={[-legBend * 1.5 + (lx > 0 ? stride : -stride), 0, 0]}>
             <Limb len={0.45} rad={0.06} col="#3A3631">
               <group rotation={[legBend * 1.5, 0, 0]}>
                 <Limb len={0.46} rad={0.055} col="#3A3631" />
