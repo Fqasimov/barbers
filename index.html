@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>yazılnow · Kapital Bank test payments</title>
+<style>
+  :root { --bg:#F3EFE8; --card:#fff; --ink:#141210; --soft:#6A6359; --line:rgba(20,18,16,.12); --brand:#B4233C; --ok:#2E7D4F; --warn:#B7791F; --bad:#B4233C; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141210; --card:#1E1B18; --ink:#F3EFE8; --soft:#A39B91; --line:rgba(243,239,232,.14); } }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:24px; margin:0 } h2 { font-size:17px; margin:0 0 12px }
+  .tag { display:inline-block; background:var(--warn); color:#fff; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:700; margin-left:8px; vertical-align:middle }
+  .sub { color:var(--soft); margin:6px 0 20px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px }
+  label { display:block; font-size:13px; color:var(--soft); margin:10px 0 4px }
+  input, select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); font:inherit }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px } @media (max-width:560px){ .row{ grid-template-columns:1fr } }
+  button { font:inherit; font-weight:600; border:0; border-radius:10px; padding:10px 16px; cursor:pointer; background:var(--ink); color:var(--bg) }
+  button.brand { background:var(--brand); color:#fff } button.ghost { background:transparent; color:var(--ink); border:1px solid var(--line) }
+  button.sm { padding:6px 10px; font-size:13px } button:disabled { opacity:.5; cursor:default }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px }
+  table { width:100%; border-collapse:collapse; font-size:14px } th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top }
+  th { color:var(--soft); font-weight:600; font-size:12px }
+  .st { font-weight:700 } .st.ok { color:var(--ok) } .st.bad { color:var(--bad) } .st.wait { color:var(--warn) }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; overflow:auto; font-size:12px; max-height:340px; white-space:pre-wrap; word-break:break-word }
+  .cards td { font-family:ui-monospace,monospace } .note { font-size:13px; color:var(--soft) }
+  .banner { border-radius:12px; padding:14px 16px; margin-bottom:16px; font-weight:600 }
+  .banner.ok { background:rgba(46,125,79,.12); color:var(--ok) } .banner.bad { background:rgba(180,35,60,.12); color:var(--bad) } .banner.wait { background:rgba(183,121,31,.14); color:var(--warn) }
+</style>
+</head>
+<body>
+<main>
+  <h1>yazılnow · Kapital Bank payments <span class="tag">TEST ENVIRONMENT</span></h1>
+  <p class="sub">Test terminal <code>TerminalSys/kapital</code> on <code>txpgtst.kapitalbank.az</code>. No real money moves. Use the test cards below.</p>
+
+  <div id="banner"></div>
+
+  <section class="card">
+    <h2>1. New payment</h2>
+    <div class="row">
+      <div><label for="amount">Amount (AZN)</label><input id="amount" type="number" min="0.01" step="0.01" value="1.00"></div>
+      <div><label for="type">Type</label>
+        <select id="type">
+          <option value="Order_SMS">Purchase (Order_SMS): one step</option>
+          <option value="Order_DMS">Pre-authorisation (Order_DMS): hold, then clearing</option>
+        </select></div>
+    </div>
+    <div class="row">
+      <div><label for="desc">Description</label><input id="desc" value="yazılnow Start plan, 1 month (test)"></div>
+      <div><label for="lang">Payment page language</label>
+        <select id="lang"><option value="az">Azərbaycan</option><option value="ru">Русский</option><option value="en">English</option></select></div>
+    </div>
+    <div class="actions"><button class="brand" id="pay">Pay with Kapital Bank →</button></div>
+    <p class="note">Opens the bank's payment page. After paying, the bank sends you back here and the result is checked with the bank (Get Order Details), not taken from the return link.</p>
+  </section>
+
+  <section class="card">
+    <h2>Test cards</h2>
+    <table class="cards"><tr><th>Card number</th><th>Expiry</th><th>CVV</th></tr>
+      <tr><td>4169 7413 3015 1778</td><td>11/26</td><td>119</td></tr>
+      <tr><td>5239 1517 4718 3468</td><td>11/24</td><td>292</td></tr></table>
+    <p class="note">The second card's expiry (11/24) is in the past, as given in the bank's document; expect it to be declined, which is also a useful test.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Orders</h2>
+    <div style="overflow:auto"><table id="orders"><thead><tr><th>Order</th><th>Type</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="empty">No test orders yet.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Log for the Birbank report</h2>
+    <p class="note">Every request and response to the bank, newest first. Card numbers never pass through this page (they are typed on the bank's page).</p>
+    <div class="actions"><button class="ghost sm" id="copy">Copy report</button><button class="ghost sm" id="clear">Clear everything</button></div>
+    <pre id="log"></pre>
+  </section>
+</main>
+<script>
+// TEST ONLY. These are the public test credentials from Kapital Bank's documentation.
+// The real (production) credentials must never be put in a web page: production calls go
+// through the yazılnow server.
+const API = 'https://txpgtst.kapitalbank.az/api';
+const AUTH = 'Basic ' + btoa('TerminalSys/kapital:kapital123');
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+let orders = store.get('kb_orders', []);
+let log = store.get('kb_log', []);
+
+function save() { store.set('kb_orders', orders); store.set('kb_log', log.slice(0, 200)); }
+function addLog(entry) { log.unshift({ time: new Date().toISOString(), ...entry }); save(); renderLog(); }
+function renderLog() { $('log').textContent = log.map((l) => `[${l.time}] ${l.step}\n${l.method} ${l.url}\n` + (l.request ? `→ ${JSON.stringify(l.request)}\n` : '') + `← ${l.status} ${JSON.stringify(l.response)}\n`).join('\n') || '—'; }
+
+async function call(step, method, path, body) {
+  const url = API + path;
+  let status = 0, data;
+  try {
+    const r = await fetch(url, { method, headers: { Authorization: AUTH, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    status = r.status;
+    const text = await r.text();
+    try { data = JSON.parse(text); } catch { data = text; }
+  } catch (e) { data = { networkError: String(e) }; }
+  addLog({ step, method, url, request: body, status, response: data });
+  return { status, data };
+}
+
+const OK = ['FullyPaid', 'Authorized'];
+const BAD = ['Declined', 'Rejected', 'Refused', 'Expired', 'Cancelled'];
+const cls = (s) => OK.includes(s) ? 'ok' : BAD.includes(s) ? 'bad' : 'wait';
+
+function render() {
+  const tb = document.querySelector('#orders tbody');
+  tb.innerHTML = '';
+  $('empty').style.display = orders.length ? 'none' : '';
+  for (const o of orders) {
+    const tr = document.createElement('tr');
+    const btn = (label, fn, on = true) => `<button class="ghost sm" data-act="${fn}" data-id="${o.id}" ${on ? '' : 'disabled'}>${label}</button>`;
+    tr.innerHTML = `<td>#${o.id}<div class="note">${new Date(o.created).toLocaleString()}</div></td>
+      <td>${o.type === 'Order_DMS' ? 'Pre-auth' : 'Purchase'}</td><td>${Number(o.amount).toFixed(2)} ₼</td>
+      <td><span class="st ${cls(o.status)}">${o.status || '—'}</span></td>
+      <td><div class="actions" style="margin:0">
+        ${btn('Check status', 'check')}
+        ${btn('Pay again', 'open', o.status === 'Preparing')}
+        ${btn('Clearing', 'clear', o.type === 'Order_DMS' && o.status === 'Authorized')}
+        ${btn('Refund', 'refund', o.status === 'FullyPaid')}
+        ${btn('Reverse', 'reverse', ['FullyPaid', 'Authorized'].includes(o.status))}
+      </div></td>`;
+    tb.appendChild(tr);
+  }
+}
+
+async function check(id) {
+  const { data } = await call('Get Order Details', 'GET', `/order/${id}?tranDetailLevel=2&tokenDetailLevel=2&orderDetailLevel=2`);
+  const o = orders.find((x) => String(x.id) === String(id));
+  if (o && data?.order?.status) { o.status = data.order.status; save(); render(); }
+  return data?.order?.status;
+}
+
+function openHpp(o) { location.href = `${o.hppUrl}?id=${o.id}&password=${o.password}`; }
+
+$('pay').onclick = async () => {
+  const amount = Number($('amount').value);
+  if (!(amount > 0)) return alert('Enter an amount above 0.');
+  $('pay').disabled = true;
+  const type = $('type').value;
+  const back = location.origin + location.pathname;
+  const { data } = await call('Create Order', 'POST', '/order', { order: {
+    typeRid: type, amount: amount.toFixed(2), currency: 'AZN', language: $('lang').value,
+    title: 'yazilnow', description: $('desc').value || 'yazilnow test', hppRedirectUrl: back,
+  } });
+  $('pay').disabled = false;
+  const o = data?.order;
+  if (!o?.id) return alert('The bank did not create the order. See the log below.');
+  orders.unshift({ id: o.id, password: o.password, hppUrl: o.hppUrl, type, amount, status: o.status, created: Date.now() });
+  save(); render();
+  openHpp(orders[0]);
+};
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const o = orders.find((x) => String(x.id) === b.dataset.id);
+  b.disabled = true;
+  if (b.dataset.act === 'check') await check(o.id);
+  if (b.dataset.act === 'open') openHpp(o);
+  if (b.dataset.act === 'clear') { await call('Clearing (pre-auth step 2)', 'POST', `/order/${o.id}/exec-tran`, { tran: { phase: 'Clearing', amount: Number(o.amount).toFixed(2) } }); await check(o.id); }
+  if (b.dataset.act === 'refund') {
+    const amt = prompt('Refund amount (AZN):', Number(o.amount).toFixed(2));
+    if (amt) { await call('Refund', 'POST', `/order/${o.id}/exec-tran`, { tran: { phase: 'Single', amount: Number(amt).toFixed(2), type: 'Refund' } }); await check(o.id); }
+  }
+  if (b.dataset.act === 'reverse' && confirm('Full reversal (cancel within the day)?')) {
+    const phase = o.type === 'Order_DMS' && o.status === 'Authorized' ? 'Auth' : 'Single';
+    await call('Reversal (full)', 'POST', `/order/${o.id}/exec-tran`, { tran: { phase, voidKind: 'Full' } });
+    await check(o.id);
+  }
+  b.disabled = false;
+});
+
+$('copy').onclick = async () => {
+  const head = `yazılnow × Kapital Bank e-commerce, TEST environment report\nGenerated: ${new Date().toISOString()}\nOrders:\n` +
+    orders.map((o) => `  #${o.id}  ${o.type}  ${Number(o.amount).toFixed(2)} AZN  ${o.status}`).join('\n') + '\n\nLog:\n';
+  try { await navigator.clipboard.writeText(head + $('log').textContent); alert('Report copied.'); }
+  catch { alert('Copy failed: select the log text and copy it by hand.'); }
+};
+$('clear').onclick = () => { if (confirm('Delete all test orders and the log from this browser?')) { orders = []; log = []; save(); render(); renderLog(); } };
+
+// Back from the bank: ?ID=…&STATUS=… (STATUS can be temporary; we always ask the bank).
+(async () => {
+  render(); renderLog();
+  const q = new URLSearchParams(location.search);
+  const id = q.get('ID') || q.get('id');
+  if (!id) return;
+  addLog({ step: 'Return from payment page', method: 'GET', url: location.href, status: '', response: Object.fromEntries(q) });
+  history.replaceState(null, '', location.pathname);
+  const status = await check(id);
+  const kind = cls(status);
+  $('banner').innerHTML = `<div class="banner ${kind}">Order #${id}: ${status || 'unknown'} ${kind === 'ok' ? '✓ payment confirmed by the bank' : kind === 'bad' ? '✗ not paid' : '… not finished yet'}</div>`;
+})();
+</script>
+</body>
+</html>
