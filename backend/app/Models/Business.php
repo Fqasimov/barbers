@@ -58,6 +58,7 @@ class Business extends Model
             'whatsapp_quota' => 'integer',
             'whatsapp_used' => 'integer',
             'whatsapp_until' => 'datetime',
+            'voice_until' => 'datetime',
         ];
     }
 
@@ -164,6 +165,14 @@ class Business extends Model
     public function takesBookings(): bool
     {
         return $this->hasFeature('booking');
+    }
+
+    /** The voice assistant add-on is paid up (set on the main salon; branches share it). */
+    public function hasVoiceAssistant(): bool
+    {
+        $until = $this->account()->voice_until;
+
+        return $until !== null && $until->isFuture() && $this->takesBookings();
     }
 
     /** Throws 402 plan_required unless the plan includes the feature. */

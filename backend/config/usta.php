@@ -156,6 +156,13 @@ return [
     ],
 
     // Where QR codes and shared links point.
+    // Voice assistant add-on: an ElevenLabs agent answers the salon's missed calls and books.
+    // The agent's server tools send this secret in the X-Voice-Secret header.
+    'voice' => [
+        'secret' => env('VOICE_TOOL_SECRET'),
+        'price' => env('VOICE_PRICE'),   // ₼ a month: set once ElevenLabs and call costs are known
+    ],
+
     'web_url' => env('WEB_URL', 'https://yazilnow.az'),
     // The app in a browser; client emails link to its bookings page.
     'app_web_url' => env('APP_WEB_URL', rtrim((string) env('WEB_URL', 'https://yazilnow.az'), '/').'/app'),

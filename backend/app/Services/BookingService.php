@@ -181,7 +181,7 @@ class BookingService
      * book outside the app's 30-minute grid and 7-day window, but never over
      * another booking or time off.
      *
-     * @param  array{master_id:string, service_ids:list<string>, start:string, client_name:string, client_phone?:?string, note?:?string}  $data
+     * @param  array{master_id:string, service_ids:list<string>, start:string, client_name:string, client_phone?:?string, note?:?string, source?:string}  $data
      */
     public function createBySalon(Business $salon, array $data): Booking
     {
@@ -204,7 +204,7 @@ class BookingService
         $booking = $this->insert($master, $start, $end, [
             'business_id' => $salon->id,
             'kind' => Booking::VISIT,
-            'source' => 'salon',
+            'source' => $data['source'] ?? 'salon',
             'client_name' => trim($data['client_name']),
             'client_phone' => isset($data['client_phone']) ? (preg_replace('/\D+/', '', $data['client_phone']) ?: null) : null,
             'services' => $ordered->map(fn ($s) => [
