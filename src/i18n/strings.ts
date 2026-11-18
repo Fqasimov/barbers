@@ -965,6 +965,18 @@ export const strings = {
 
   // Salon calendar: bookings by hand and time off
   bkAdd: L('Növbə yaz', 'Записать', 'Add booking'),
+  calTitle: L('Təqvim', 'Календарь', 'Calendar'),
+  calToday: L('Bu gün', 'Сегодня', 'Today'),
+  calPrev: L('Əvvəlki həftə', 'Предыдущая неделя', 'Previous week'),
+  calNext: L('Növbəti həftə', 'Следующая неделя', 'Next week'),
+  calCollapse: L('Kiçilt', 'Свернуть', 'Show less'),
+  calExpand: L('Bütün saatları göstər', 'Показать все часы', 'Show all hours'),
+  calOpen: L('Tam təqvim', 'Весь календарь', 'Full calendar'),
+  calNoBooking: L(
+    'Sadə planında onlayn yazılış yoxdur: müştərilər sizinlə öz linkiniz və ya zənglə əlaqə saxlayır.',
+    'В тарифе Sadə нет онлайн-записи: клиенты связываются с вами по вашей ссылке или звонком.',
+    'Sadə has no online booking: clients reach you through your own link or a call.',
+  ),
   bkTimeOff: L('İstirahət vaxtı', 'Нерабочее время', 'Time off'),
   bkAllMasters: L('Bütün ustalar', 'Все мастера', 'All masters'),
   bkUntil: L('{date} tarixinədək', 'до {date}', 'until {date}'),
