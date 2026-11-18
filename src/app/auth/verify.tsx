@@ -69,7 +69,8 @@ export default function Verify() {
           icon={MailCheck}
           title={i18n.t('errOtpExpired')}
           body={i18n.t('forgotSub')}
-          action={{ label: i18n.t('back'), onPress: () => router.back() }}
+          // The code is kept in memory only: after a reload there is nothing to go back to.
+          action={{ label: i18n.t('back'), onPress: () => router.replace('/auth/forgot') }}
         />
       </View>
     );
@@ -131,7 +132,11 @@ export default function Verify() {
             {wait > 0 ? i18n.t('resendIn', { s: wait }) : i18n.t('resend')}
           </Text>
         </PressableScale>
-        <PressableScale onPress={() => router.back()} accessibilityRole="button" style={styles.link}>
+        <PressableScale
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/auth'))}
+          accessibilityRole="button"
+          style={styles.link}
+        >
           <Text variant="captionStrong" tone="soft">
             {i18n.t('changeEmail')}
           </Text>
