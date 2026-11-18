@@ -27,7 +27,7 @@ class TestSalonsTest extends TestCase
             $this->assertTrue((bool) $salon->is_test);
             $this->assertSame(Business::LIVE, $salon->status);
             $plans[] = $salon->planId();
-            $this->assertNull($user->password);
+            $this->assertNotNull($user->password);
         }
         $this->assertSame(['sade', 'ferdi', 'start', 'pro'], $plans);
         // Customers never see them, even the Sadə one that needs no services.

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  * The team's test salons, one per plan, so every plan can be tried in the panel:
  * <name>+test1@… = Sadə, +test2 = Fərdi, +test3 = Start, +test4 = Pro. They are live with a
  * paid period that doesn't end, marked is_test so customers never see them, and their owners
- * have no password: set one with "Forgot password" (the code goes to the base inbox).
+ * have a random password: set your own with "Forgot password" (the code goes to the base inbox).
  * Running it again leaves existing ones alone and resets their plans.
  */
 class TestSalons extends Command
@@ -44,6 +44,9 @@ class TestSalons extends Command
                     'role' => 'business',
                     'provider' => 'password',
                     'email_verified_at' => $user->email_verified_at ?? now(),
+                    // A random one nobody knows, so "Forgot password" sends a code (it stays silent
+                    // for accounts without a password); an existing password is kept.
+                    'password' => $user->password ?? \Illuminate\Support\Str::random(48),
                 ])->save();
 
                 $business = Business::query()->where('owner_id', $user->id)->whereNull('parent_id')->first() ?? new Business;
