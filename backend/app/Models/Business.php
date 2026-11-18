@@ -176,9 +176,7 @@ class Business extends Model
             return null;
         }
 
-        $subdomain = config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true);
-
-        return $subdomain
+        return $this->usesSubdomain($slug)
             ? 'https://'.$slug.'.'.config('usta.page_domain')
             : rtrim((string) config('usta.web_url'), '/').'/u/'.$slug;
     }
@@ -198,13 +196,75 @@ class Business extends Model
         $account = $this->account();
         $slug = $account->slug ?: $account->assignSlugFromName();
         $link = rtrim((string) config('usta.link_url'), '/');
-        // link.yazilnow.az/<address>, unless the address has its own subdomain.
-        $subdomain = $slug && (config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true));
+        // Fərdi (one person): <address>.yazilnow.az once wildcard subdomains are on.
+        // Start and Pro: link.yazilnow.az/<address>.
+        $subdomain = $slug && $this->usesSubdomain($slug);
         if ($link !== '' && ! $subdomain) {
             return $link.'/'.($slug ?: $account->id);
         }
 
         return $this->pageUrl() ?? rtrim((string) config('usta.web_url'), '/').'/u/'.$account->id;
+    }
+
+    /** A personal subdomain is Fərdi's: on when wildcard subdomains are (or this address has its own). */
+    private function usesSubdomain(string $slug): bool
+    {
+        return $this->planId() === 'ferdi'
+            && (config('usta.page_subdomains') || in_array($slug, (array) config('usta.page_subdomain_slugs'), true));
+    }
+
+    /** Lowercase latin letters, digits and single hyphens, 3–30 long: it is also a subdomain. */
+    public const SLUG_PATTERN = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
+
+    /** Why an address can't be used, or null when it is free: invalid | reserved | taken. */
+    public static function slugProblem(string $slug, ?string $ignoreId = null): ?string
+    {
+        if (strlen($slug) < 3 || strlen($slug) > 30 || ! preg_match(self::SLUG_PATTERN, $slug)) {
+            return 'invalid';
+        }
+        if (in_array($slug, (array) config('usta.reserved_slugs'), true)) {
+            return 'reserved';
+        }
+        $taken = self::query()->withTrashed()->where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))->exists();
+
+        return $taken ? 'taken' : null;
+    }
+
+    /**
+     * Fərdi is one person, so the owner is the salon's only master: created on demand, doing
+     * every service, working the salon's hours. The panel has no "add master" there.
+     */
+    public function ensureSoloMaster(): void
+    {
+        if ($this->planId() !== 'ferdi') {
+            return;
+        }
+        $master = $this->masters()->first();
+        if (! $master) {
+            $owner = $this->account()->owner;
+            $name = trim(($owner?->first_name ?? '').' '.($owner?->last_name ?? '')) ?: $this->name;
+            $master = new Master;
+            $master->forceFill([
+                'business_id' => $this->id,
+                'name' => mb_substr($name, 0, 80),
+                'role' => ['az' => 'Usta', 'ru' => 'Мастер', 'en' => 'Master'],
+                'languages' => ['az'],
+                'position' => 1,
+                'work_days' => [],
+                'shift_start' => $this->hours_open ?? '09:00',
+                'shift_end' => $this->hours_close ?? '20:00',
+            ]);
+        }
+        $week = $this->weekHours();
+        $open = array_values(array_filter($week));
+        $master->forceFill([
+            'work_days' => array_keys(array_filter($week)),
+            'shift_start' => $open[0]['open'] ?? ($this->hours_open ?? '09:00'),
+            'shift_end' => $open[0]['close'] ?? ($this->hours_close ?? '20:00'),
+            'schedule' => array_map(fn ($h) => $h ? ['start' => $h['open'], 'end' => $h['close']] : null, $week),
+        ])->save();
+        $master->services()->sync($this->services()->pluck('id')->all());
     }
 
     /**

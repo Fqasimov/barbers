@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { catalogueApi } from '@/api/catalogue';
+import { isLive } from '@/api/client';
 import { authApi, type Audience } from '@/auth';
 import { useChallenge } from '@/auth/challenge';
 import { authErrorKey } from '@/auth/flow';
@@ -25,6 +27,7 @@ import { categories } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { cleanSlugInput, isValidSlug, slugify } from '@/lib/slug';
 import type { StringKey } from '@/i18n/strings';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -45,10 +48,62 @@ export default function BusinessRegister() {
   const [catsError, setCatsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<StringKey | null>(null);
+  // The page address: made from the salon name until the owner edits it.
+  const [slug, setSlug] = useState('');
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [remote, setRemote] = useState<{ slug: string; state: 'free' | StringKey } | null>(null);
+  const [tried, setTried] = useState(false);
   const o = owner.values;
   const s = salon.values;
   const oe = (k: keyof typeof owner.errors) => (owner.errors[k] ? i18n.t(owner.errors[k]!) : null);
   const se = (k: keyof typeof salon.errors) => (salon.errors[k] ? i18n.t(salon.errors[k]!) : null);
+
+  const setSalonName = (v: string) => {
+    salon.set('salonName')(v);
+    if (!slugEdited) setSlug(slugify(v));
+  };
+
+  // Checked on this device first; free-or-taken comes from the server.
+  const local: 'idle' | 'free' | StringKey | null = !slug
+    ? 'idle'
+    : !isValidSlug(slug)
+      ? 'errSlugInvalid'
+      : !isLive
+        ? 'free'
+        : null;
+  useEffect(() => {
+    if (local !== null) return;
+    let gone = false;
+    const t = setTimeout(async () => {
+      try {
+        const r = await catalogueApi.pageAddress(slug);
+        if (gone) return;
+        const state = r.available
+          ? 'free'
+          : r.problem === 'taken'
+            ? 'errSlugTaken'
+            : r.problem === 'reserved'
+              ? 'errSlugReserved'
+              : 'errSlugInvalid';
+        setRemote({ slug, state });
+      } catch {
+        // Offline: the server checks it again on submit.
+      }
+    }, 400);
+    return () => {
+      gone = true;
+      clearTimeout(t);
+    };
+  }, [slug, local]);
+  const slugState = local ?? (remote?.slug === slug ? remote.state : 'checking');
+  // A half-typed address isn't an error until it is long enough or the form is sent.
+  const showInvalid = slugState !== 'errSlugInvalid' || tried || slug.length >= 3;
+  const slugError =
+    slugState.startsWith('err') && showInvalid
+      ? i18n.t(slugState as StringKey)
+      : !slug && tried
+        ? i18n.t('errSlugInvalid')
+        : null;
 
   const toggleCat = (id: CategoryId) => {
     const next = cats.includes(id) ? cats.filter((x) => x !== id) : [...cats, id];
@@ -64,7 +119,9 @@ export default function BusinessRegister() {
     setFormError(null);
     const ok = salon.check();
     setCatsError(!cats.length);
-    if (!ok || !cats.length) return;
+    setTried(true);
+    const slugOk = isValidSlug(slug) && (slugState === 'free' || slugState === 'checking');
+    if (!ok || !cats.length || !slugOk) return;
     setBusy(true);
     try {
       const challenge = await authApi.registerBusiness({
@@ -78,12 +135,15 @@ export default function BusinessRegister() {
         district: s.district.trim(),
         address: s.address.trim(),
         audience: s.audience as Audience,
+        slug,
       });
       useChallenge.getState().set(challenge);
       router.push('/auth/verify');
     } catch (e) {
       const key = authErrorKey(e);
-      if (key === 'errEmailTaken') {
+      if (key === 'errSlugTaken' || key === 'errSlugReserved' || key === 'errSlugInvalid') {
+        setRemote({ slug, state: key });
+      } else if (key === 'errEmailTaken') {
         owner.setErrors({ ...owner.errors, email: key });
         setStep(1);
       } else setFormError(key);
@@ -176,10 +236,35 @@ export default function BusinessRegister() {
             label={i18n.t('fSalonName')}
             placeholder={i18n.t('phSalonName')}
             value={s.salonName}
-            onChangeText={salon.set('salonName')}
+            onChangeText={setSalonName}
             error={se('salonName')}
             autoCapitalize="words"
           />
+          <View style={{ gap: 6 }}>
+            <FormField
+              label={i18n.t('fPageAddress')}
+              placeholder={i18n.t('phPageAddress')}
+              value={slug}
+              onChangeText={(v) => {
+                setSlugEdited(true);
+                setSlug(cleanSlugInput(v));
+              }}
+              error={slugError}
+              hint={i18n.t('pageAddressHint', {
+                sub: `${slug || '…'}.yazilnow.az`,
+                link: `link.yazilnow.az/${slug || '…'}`,
+              })}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="off"
+              maxLength={30}
+            />
+            {slugState === 'free' || slugState === 'checking' ? (
+              <Text variant="caption" tone={slugState === 'free' ? 'success' : 'muted'}>
+                {i18n.t(slugState === 'free' ? 'pageAddressFree' : 'pageAddressChecking')}
+              </Text>
+            ) : null}
+          </View>
           <View style={{ gap: 8 }}>
             <Text variant="captionStrong" tone="soft">
               {i18n.t('fCategories')}

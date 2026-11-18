@@ -61,9 +61,19 @@ class AuthController extends Controller
             'district' => ['required', 'string', 'max:120'],
             'address' => ['required', 'string', 'max:255'],
             'audience' => ['required', Rule::in(['all', 'women', 'men'])],
+            // The page address the owner picked (<slug>.yazilnow.az on Fərdi, link.yazilnow.az/<slug>
+            // otherwise). Optional for older app versions: then it is made from the salon name.
+            'slug' => ['sometimes', 'nullable', 'string', 'max:40'],
         ]);
+        $slug = isset($data['slug']) ? mb_strtolower(trim($data['slug'])) : '';
+        // The same person registering again (code not confirmed yet) may keep their address.
+        $pending = User::query()->where('email', $data['email'])->whereNull('email_verified_at')->value('id');
+        $mine = $pending ? Business::query()->where('owner_id', $pending)->value('id') : null;
+        if ($slug !== '' && ($problem = Business::slugProblem($slug, $mine))) {
+            throw new ApiException(422, 'slug_'.$problem, 'That page address can’t be used.');
+        }
 
-        DB::transaction(function () use ($data) {
+        DB::transaction(function () use ($data, $slug) {
             $this->replaceUnverified($data['email']);
             $user = new User;
             $user->fill(collect($data)->only(['first_name', 'last_name', 'phone', 'email'])->all());
@@ -84,7 +94,11 @@ class AuthController extends Controller
                 'phone' => $data['phone'],
                 'whatsapp' => ltrim($data['phone'], '+'),
                 'status' => Business::PENDING,
+                'slug' => $slug !== '' ? $slug : null,
             ])->save();
+            if ($slug === '') {
+                $business->assignSlugFromName();
+            }
         });
 
         return response()->json($this->otp->issue($data['email'], 'register', true), 202);

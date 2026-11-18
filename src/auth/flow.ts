@@ -55,6 +55,12 @@ export function authErrorKey(e: unknown): StringKey {
       return 'errSubscription';
     case 'plan_required':
       return 'errPlanRequired';
+    case 'slug_taken':
+      return 'errSlugTaken';
+    case 'slug_reserved':
+      return 'errSlugReserved';
+    case 'slug_invalid':
+      return 'errSlugInvalid';
     case 'booking_external':
       return 'errBookingExternal';
     case 'hold_expired':

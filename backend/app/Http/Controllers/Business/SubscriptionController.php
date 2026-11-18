@@ -68,6 +68,8 @@ class SubscriptionController extends Controller
                 'trial_ends_at' => $now->copy()->addDays(config('usta.trial_days')),
             ])->save();
         });
+        // Fərdi: the owner becomes the one master (and stays in step with services and hours).
+        $business->fresh()->ensureSoloMaster();
 
         return response()->json((new BusinessResource($this->business($request)->fresh()))->resolve($request));
     }

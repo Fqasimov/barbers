@@ -105,7 +105,8 @@ return [
         fn ($s) => strtolower(trim($s)), explode(',', (string) env('PAGE_SUBDOMAIN_SLUGS', ''))))),
     'reserved_slugs' => ['www', 'app', 'api', 'admin', 'mail', 'smtp', 'panel', 'help', 'support', 'privacy', 'terms',
         'billing', 'static', 'assets', 'cdn', 'blog', 'status', 'dev', 'test', 'staging', 'webmail', 'cpanel', 'ftp',
-        'ns1', 'ns2', 'yazilnow', 'usta', 'salon', 'salons', 'r', 's', 'u'],
+        'ns1', 'ns2', 'yazilnow', 'usta', 'salon', 'salons', 'r', 's', 'u', 'link', 'webdisk', 'autodiscover',
+        'cpcalendars', 'cpcontacts', 'm', 'pay', 'book', 'auth', 'login', 'register'],
 
     // Pro: locations (the main salon + branches) in the price, then each extra one per month.
     'branches' => [

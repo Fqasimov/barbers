@@ -22,6 +22,16 @@ export const catalogueApi = {
       /** Pro with more than one open location: the client picks one first. */
       branches: { id: string; name: string; district: string | null; address: string | null }[];
     }>('GET', `/pages/${encodeURIComponent(slug)}`),
+  /** Whether a page address is free (sign-up form). */
+  pageAddress: (slug: string) =>
+    request<{ slug: string; available: boolean; problem: 'invalid' | 'reserved' | 'taken' | null }>(
+      'GET',
+      '/page-address',
+      {
+        query: { slug },
+        fresh: true,
+      },
+    ),
   salons: (fresh = false) => request<Salon[]>('GET', '/salons', { fresh }),
   busy: (args: { from: string; days: number; salonIds?: string[] }) =>
     request<BusyRange[]>('GET', '/busy', { query: args }),

@@ -88,9 +88,11 @@ export default function BusinessDashboard() {
   const can = (f: Feature) => hasFeature(business, f);
   const owner = (business.role ?? 'owner') === 'owner';
   const takesBookings = !business.subscription || can('booking');
+  // Fərdi is one person: the owner is the only master, added automatically, so no masters section.
+  const solo = business.subscription?.plan === 'ferdi';
   const setup = [
     { done: services.length > 0, label: i18n.t('setupServices'), to: '/business/services' as const },
-    ...(takesBookings
+    ...(takesBookings && !solo
       ? [{ done: masters.length > 0, label: i18n.t('setupMasters'), to: '/business/masters' as const }]
       : []),
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
@@ -347,7 +349,7 @@ export default function BusinessDashboard() {
             detail={i18n.n(services.length, 'service')}
             onPress={() => router.push('/business/services')}
           />
-          {takesBookings ? (
+          {takesBookings && !solo ? (
             <MenuRow
               icon={Users}
               title={i18n.t('mstTitle')}

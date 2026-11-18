@@ -166,6 +166,8 @@ export type BusinessRegisterInput = {
   district: string;
   address: string;
   audience: Audience;
+  /** The page address: <slug>.yazilnow.az on Fərdi, link.yazilnow.az/<slug> on Start and Pro. */
+  slug?: string;
 };
 
 export type ProfilePatch = Partial<Pick<User, 'firstName' | 'lastName' | 'phone' | 'birthDate' | 'gender'>>;

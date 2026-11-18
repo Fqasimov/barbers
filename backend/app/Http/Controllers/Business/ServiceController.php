@@ -35,6 +35,7 @@ class ServiceController extends Controller
             'deposit_value' => (int) ($data['deposit']['value'] ?? 0),
             'position' => (int) Service::query()->where('business_id', $business->id)->max('position') + 1,
         ])->save();
+        $business->ensureSoloMaster();
 
         return response()->json((new ServiceResource($service))->resolve($request), 201);
     }
@@ -71,6 +72,7 @@ class ServiceController extends Controller
         $service = $this->owned($request, Service::class, $id);
         $service->masters()->detach();
         $service->delete();
+        $this->business($request)->ensureSoloMaster();
 
         return response()->noContent();
     }

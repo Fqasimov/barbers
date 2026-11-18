@@ -22,6 +22,7 @@
       <div class="card-body">
         <dl class="facts">
           <dt>Owner</dt><dd>@if ($salon->owner)<a href="{{ route('admin.users.show', $salon->owner->id) }}">{{ $salon->owner->first_name }} {{ $salon->owner->last_name }}</a> · {{ $salon->owner->email }} · {{ $salon->owner->phone ?: '—' }}@else<span class="muted">No owner (seeded catalogue)</span>@endif</dd>
+          <dt>Page address</dt><dd>@if ($salon->slug)<span class="mono">{{ $salon->slug }}</span> <span class="sub">{{ $salon->shareUrl() ?? 'link.yazilnow.az/'.$salon->slug }}</span>@else<span class="muted">—</span>@endif @if ($salon->is_test)<span class="sub">· test salon, hidden from customers</span>@endif</dd>
           <dt>Categories</dt><dd>{{ implode(', ', $salon->categories ?? []) ?: '—' }}</dd>
           <dt>Serves</dt><dd>{{ ['all' => 'Everyone', 'women' => 'Women only', 'men' => 'Men only'][$salon->audience] ?? $salon->audience }}</dd>
           <dt>Hours</dt><dd>{{ $salon->hours_open }}–{{ $salon->hours_close }}@if ($salon->closed_days), closed on day {{ implode(', ', $salon->closed_days) }}@endif</dd>

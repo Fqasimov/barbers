@@ -98,6 +98,8 @@ class BusinessController extends Controller
         }
         $b->forceFill($map)->save();
 
+        $b->fresh()->ensureSoloMaster(); // Fərdi: the one master works the salon’s hours.
+
         return response()->json((new BusinessResource($b->fresh()))->resolve($request));
     }
 
