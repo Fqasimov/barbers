@@ -51,3 +51,8 @@ deploy/out/
 /web/
 /deploy/
 /docs/
+/deck/
+/promo/
+/.git/
+/.expo/
+/ads/
