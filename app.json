@@ -22,7 +22,7 @@
     "android": {
       "package": "az.yazilnow.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F3EFE8",
+        "backgroundColor": "#F2EADD",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
