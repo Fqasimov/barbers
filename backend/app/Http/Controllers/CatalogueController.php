@@ -299,8 +299,8 @@ class CatalogueController extends Controller
     /** GET /page-address?slug=…: whether a page address is free, for the sign-up form. */
     public function pageAddress(Request $request): JsonResponse
     {
-        $slug = mb_strtolower(trim((string) $request->query('slug', '')));
-        $problem = Business::slugProblem(mb_substr($slug, 0, 40));
+        $slug = mb_substr(mb_strtolower(trim((string) $request->query('slug', ''))), 0, 40);
+        $problem = Business::slugProblem($slug);
 
         return response()->json(['slug' => $slug, 'available' => $problem === null, 'problem' => $problem]);
     }

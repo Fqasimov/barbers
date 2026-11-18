@@ -75,6 +75,11 @@ class AuthController extends Controller
 
         DB::transaction(function () use ($data, $slug) {
             $this->replaceUnverified($data['email']);
+            if ($slug !== '') {
+                // Free the address from an abandoned sign-up that still has it.
+                Business::withTrashed()->where('slug', $slug)->whereIn('owner_id', Business::staleSignups())
+                    ->update(['slug' => null]);
+            }
             $user = new User;
             $user->fill(collect($data)->only(['first_name', 'last_name', 'phone', 'email'])->all());
             $user->role = 'business';

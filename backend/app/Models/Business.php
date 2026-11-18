@@ -226,9 +226,19 @@ class Business extends Model
             return 'reserved';
         }
         $taken = self::query()->withTrashed()->where('slug', $slug)
-            ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))->exists();
+            ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))
+            // A sign-up whose code expired unconfirmed doesn't hold its address.
+            ->whereNot(fn ($q) => $q->whereIn('owner_id', self::staleSignups()))
+            ->exists();
 
         return $taken ? 'taken' : null;
+    }
+
+    /** Owners who never confirmed their email within the code's lifetime: abandoned sign-ups. */
+    public static function staleSignups(): \Illuminate\Database\Eloquent\Builder
+    {
+        return User::query()->select('id')->whereNull('email_verified_at')
+            ->where('created_at', '<', now()->subMinutes((int) config('usta.otp.ttl_minutes', 10)));
     }
 
     /**

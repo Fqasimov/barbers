@@ -36,6 +36,17 @@ class PageAddressTest extends TestCase
         $this->register(['slug' => 'elvin-barber'])->assertStatus(202);
     }
 
+    public function test_an_abandoned_sign_up_does_not_keep_its_address(): void
+    {
+        $this->register(['slug' => 'popular-name'])->assertStatus(202);
+        $this->getJson('/api/page-address?slug=popular-name')->assertJsonPath('available', false);
+
+        $this->travel(11)->minutes(); // the code expired, never confirmed
+        $this->getJson('/api/page-address?slug=popular-name')->assertJsonPath('available', true);
+        $this->register(['slug' => 'popular-name', 'email' => 'real@example.com'])->assertStatus(202);
+        $this->assertSame(1, Business::query()->where('slug', 'popular-name')->count());
+    }
+
     public function test_without_an_address_one_is_made_from_the_name(): void
     {
         $this->register()->assertStatus(202);

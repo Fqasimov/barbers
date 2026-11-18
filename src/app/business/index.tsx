@@ -270,7 +270,7 @@ export default function BusinessDashboard() {
               {showPay ? (
                 <Button
                   label={endingSoon ? i18n.t('addPayment') : i18n.t('payNow', { price })}
-                  variant="secondary"
+                  variant="onPrimary"
                   size="sm"
                   loading={paying}
                   onPress={pay}
@@ -279,7 +279,7 @@ export default function BusinessDashboard() {
               {owner ? (
                 <Button
                   label={i18n.t('changePlan')}
-                  variant={showPay ? 'ghostOnPrimary' : 'secondary'}
+                  variant={showPay ? 'ghostOnPrimary' : 'onPrimary'}
                   size="sm"
                   onPress={() => router.push('/business/plans')}
                 />
@@ -291,7 +291,7 @@ export default function BusinessDashboard() {
             <Text variant="title" style={{ color: c.onPrimary }}>
               {i18n.t('noPlan')}
             </Text>
-            <Button label={i18n.t('startTrial')} variant="secondary" onPress={() => router.push('/business/plans')} />
+            <Button label={i18n.t('startTrial')} variant="ghostOnPrimary" onPress={() => router.push('/business/plans')} />
           </>
         )}
       </View>
