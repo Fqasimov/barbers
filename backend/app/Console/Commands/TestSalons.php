@@ -64,7 +64,7 @@ class TestSalons extends Command
                     'status' => Subscription::ACTIVE,
                     'started_at' => now(),
                     'trial_ends_at' => null,
-                    'current_period_end' => now()->addYears(50),
+                    'current_period_end' => now()->addYears(10),
                 ]);
             });
             $this->line("test{$n}  {$plan}  {$address}");
