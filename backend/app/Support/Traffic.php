@@ -21,6 +21,16 @@ class Traffic
     /** @var array<string, array<string, mixed>> */
     private array $days = [];
 
+    /** @var array<string, true> The team's own addresses (traffic_ignored_ips): not counted. */
+    private array $ignore;
+
+    /** @param  list<string>|null  $ignore  Addresses to skip; null reads traffic_ignored_ips. */
+    public function __construct(?array $ignore = null)
+    {
+        $ignore ??= DB::table('traffic_ignored_ips')->pluck('ip')->all();
+        $this->ignore = array_fill_keys($ignore, true);
+    }
+
     /** @var array<string, array<string, mixed>> */
     private array $ips = [];
 
@@ -33,6 +43,9 @@ class Traffic
             return;
         }
         [, $ip, $when, $method, $uri, $status, $ref, $agent] = $m;
+        if (isset($this->ignore[$ip])) {
+            return;
+        }
         $at = CarbonImmutable::createFromFormat('d/M/Y:H:i:s O', $when);
         if (! $at) {
             return;

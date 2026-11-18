@@ -294,6 +294,7 @@ class Business extends Model
             ->whereRaw('COALESCE(current_period_end, trial_ends_at) > ?', [$cutoff]);
 
         return $q->where('status', self::LIVE)
+            ->where('is_test', false)
             ->where(fn (Builder $q) => $q
                 ->where(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', $running))
                 ->orWhere(fn (Builder $q) => $q->whereNotNull('parent_id')->whereHas('parent', fn (Builder $p) => $p
