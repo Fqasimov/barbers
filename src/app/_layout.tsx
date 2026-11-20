@@ -4,7 +4,7 @@ import { Onest_800ExtraBold } from '@expo-google-fonts/onest';
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -52,14 +52,19 @@ function App() {
   const finishSplash = useCallback(() => setSplashDone(true), []);
   useAppSync();
 
-  // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
+  // First launch: offer sign-in / sign-up once. Browsing stays open.
+  // It opens behind the splash, as soon as the stores are read, so the splash fades straight
+  // into it; opening it after the splash showed the home screen for a moment first.
   // Only on the home screen: a scanned QR, a shared salon link or the salon panel's front door
   // opens where it points, and asks for an account only when it needs one.
   const pathname = usePathname();
   const onHome = pathname === '/';
+  const asked = useRef(false);
   useEffect(() => {
-    if (splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
-  }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
+    if (asked.current || !hydrated || !sessionReady || signedIn || authPrompted || !onHome) return;
+    asked.current = true;
+    router.push('/auth');
+  }, [hydrated, sessionReady, signedIn, authPrompted, onHome]);
 
   const navTheme = useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
