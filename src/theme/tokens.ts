@@ -83,12 +83,16 @@ export const tones = {
 } as const;
 export type ToneName = keyof typeof tones;
 
-/** Onest covers ə/Ə, Cyrillic and the manat sign — one family for everything. */
+/**
+ * Geist for all text (covers ə/Ə and Cyrillic; the manat sign falls back to the system font),
+ * Geist Mono for small labels and numbers. Onest stays only in the yazılnow wordmark.
+ */
 export const fonts = {
-  regular: 'Onest_400Regular',
-  medium: 'Onest_500Medium',
-  semibold: 'Onest_600SemiBold',
-  bold: 'Onest_700Bold',
+  regular: 'Geist_400Regular',
+  medium: 'Geist_500Medium',
+  semibold: 'Geist_600SemiBold',
+  bold: 'Geist_700Bold',
+  mono: 'GeistMono_500Medium',
 };
 
 export const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32, huge: 48 };
