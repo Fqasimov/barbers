@@ -11,7 +11,7 @@ import Svg, { Path } from 'react-native-svg';
  * steel shears snip a burgundy thread and open into the check mark of the logo;
  * beside it the salon's tools play in turn (a hairdryer blows, a brush lacquers
  * a nail, a trimmer buzzes, a straight razor unfolds), then "yazılnow" is cut
- * into place and the stage lifts away to the app.
+ * into place and the stage fades away to the app.
  *
  * Driven by a 30 fps frame clock so it plays the same on every device. If the
  * app is not ready by the end it holds on the finished logo; reduced motion
@@ -30,7 +30,7 @@ const T = {
   razor: [100, 128],
   word: [124, 140],
   hold: 150,
-  lift: [150, 170],
+  lift: [150, 162],
 } as const;
 const CUT = 16;
 
@@ -220,7 +220,9 @@ export function BrandIntro({ ready, onDone }: { ready: boolean; onDone: () => vo
 
   return (
     <View
-      style={[StyleSheet.absoluteFill, { transform: [{ translateY: -lift * h * 1.02 }], zIndex: 100 }]}
+      // Fades out over whatever opens next (home or the welcome screen); a slide-up showed a hard
+      // moving edge across it.
+      style={[StyleSheet.absoluteFill, { opacity: 1 - lift, transform: [{ scale: 1 + lift * 0.04 }], zIndex: 100 }]}
       accessibilityLabel="yazılnow"
       accessibilityRole="progressbar"
       pointerEvents={lift > 0 ? 'none' : 'auto'}
