@@ -76,6 +76,24 @@ return [
             'month' => (int) env('PLAN_PRICE_PRO', 49),
             'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 49)),
         ],
+        // Couture brands: showroom visits and fittings, with everything in Pro.
+        'couture' => [
+            'month' => (int) env('PLAN_PRICE_COUTURE', 39),
+            'year' => (int) env('PLAN_PRICE_COUTURE_YEAR', 10 * (int) env('PLAN_PRICE_COUTURE', 39)),
+        ],
+    ],
+
+    // Markets: each has its own categories and plans. A business belongs to one market,
+    // set by its categories, and can only pick that market's plans.
+    'markets' => [
+        'beauty' => [
+            'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics'],
+            'plans' => ['sade', 'ferdi', 'start', 'pro'],
+        ],
+        'couture' => [
+            'categories' => ['couture'],
+            'plans' => ['couture'],
+        ],
     ],
 
     // What each plan unlocks. A Pro trial unlocks Pro.
@@ -84,6 +102,8 @@ return [
         'ferdi' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page'],
         'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page'],
         'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
+            'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+        'couture' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
             'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     ],
 
@@ -177,7 +197,7 @@ return [
 
     'tones' => ['oxblood', 'forest', 'navy', 'clay', 'olive', 'sand', 'slate', 'rose', 'ink', 'bone'],
 
-    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics'],
+    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics', 'couture'],
 
     'review_tags' => ['skilled', 'punctual', 'friendly', 'clean', 'value', 'relaxing'],
 

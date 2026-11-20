@@ -53,6 +53,8 @@ class BusinessResource extends JsonResource
             'role' => $role,
             'salon_name' => $this->name,
             'categories' => array_values($this->categories ?? []),
+            // beauty | couture: which plans and wording the app shows.
+            'market' => $this->resource->market(),
             'district' => $this->district,
             'address' => $this->address,
             'coords' => $this->latitude !== null && $this->longitude !== null

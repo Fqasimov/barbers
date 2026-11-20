@@ -22,7 +22,8 @@ class BranchController extends Controller
             'data' => $account->locations()->map(fn (Business $b) => $this->row($b))->values()->all(),
             'included' => (int) config('usta.branches.included'),
             'extra_price' => (int) config('usta.branches.extra_month'),
-            'price' => $account->subscription?->plan === 'pro' ? $payments->price($account, 'pro')['amount'] : null,
+            'price' => in_array($account->subscription?->plan, Business::plansWith('branches'), true)
+                ? $payments->price($account, $account->subscription->plan)['amount'] : null,
         ]);
     }
 

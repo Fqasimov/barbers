@@ -216,7 +216,8 @@ class CatalogueController extends Controller
             'price_year' => (int) $p['year'],
             'features' => array_values(config("usta.plan_features.{$id}", [])),
             'masters' => config("usta.master_limit.{$id}"),
-        ] + ($id === 'pro' ? ['branches' => [
+            'market' => collect(config('usta.markets'))->search(fn ($m) => in_array($id, $m['plans'], true)),
+        ] + (in_array('branches', config("usta.plan_features.{$id}", []), true) ? ['branches' => [
             'included' => (int) config('usta.branches.included'),
             'extra_price' => (int) config('usta.branches.extra_month'),
         ]] : []))->values();

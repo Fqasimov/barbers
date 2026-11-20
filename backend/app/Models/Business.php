@@ -168,6 +168,30 @@ class Business extends Model
         return $this->hasFeature('booking');
     }
 
+    /** Plans that unlock a feature (config usta.plan_features). */
+    public static function plansWith(string $feature): array
+    {
+        return array_keys(array_filter(config('usta.plan_features'), fn ($f) => in_array($feature, $f, true)));
+    }
+
+    /** The market a set of categories belongs to (beauty, couture), or null when they mix markets. */
+    public static function marketOf(array $categories): ?string
+    {
+        foreach (config('usta.markets') as $id => $m) {
+            if ($categories && ! array_diff($categories, $m['categories'])) {
+                return $id;
+            }
+        }
+
+        return null;
+    }
+
+    /** This business's market, from the main salon's categories (beauty when unknown). */
+    public function market(): string
+    {
+        return self::marketOf(array_values($this->account()->categories ?? [])) ?? 'beauty';
+    }
+
     /** The voice assistant add-on is paid up (set on the main salon; branches share it). */
     public function hasVoiceAssistant(): bool
     {
@@ -264,7 +288,7 @@ class Business extends Model
                 ->where(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', $running))
                 ->orWhere(fn (Builder $q) => $q->whereNotNull('parent_id')->whereHas('parent', fn (Builder $p) => $p
                     ->where('status', self::LIVE)
-                    ->whereHas('subscription', fn (Builder $s) => $running($s)->where('plan', 'pro')))))
+                    ->whereHas('subscription', fn (Builder $s) => $running($s)->whereIn('plan', self::plansWith('branches'))))))
             ->where(fn (Builder $q) => $q
                 ->where(fn (Builder $q) => $q->whereHas('services')->whereHas('masters'))
                 ->orWhere(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', fn (Builder $s) => $s->where('plan', 'sade'))));

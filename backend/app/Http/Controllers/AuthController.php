@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ApiException;
 use App\Models\Business;
+use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Rules\V;
 use App\Services\OtpService;
@@ -62,6 +63,9 @@ class AuthController extends Controller
             'address' => ['required', 'string', 'max:255'],
             'audience' => ['required', Rule::in(['all', 'women', 'men'])],
         ]);
+        if (Business::marketOf(array_values($data['categories'])) === null) {
+            throw ValidationException::withMessages(['categories' => ['A couture showroom and beauty services are separate kinds of business.']]);
+        }
 
         DB::transaction(function () use ($data) {
             $this->replaceUnverified($data['email']);
