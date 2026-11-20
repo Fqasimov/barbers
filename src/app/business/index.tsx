@@ -25,7 +25,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GRACE_DAYS, hasFeature, planById, REMIND_DAYS } from '@/auth/plans';
+import { GRACE_DAYS, hasFeature, marketOf, planById, REMIND_DAYS } from '@/auth/plans';
 import { setBranch } from '@/api/client';
 import type { Feature } from '@/auth/types';
 import { authErrorKey } from '@/auth/flow';
@@ -87,6 +87,7 @@ export default function BusinessDashboard() {
   const photos = business.photos ?? [];
   const can = (f: Feature) => hasFeature(business, f);
   const owner = (business.role ?? 'owner') === 'owner';
+  const couture = (business.market ?? marketOf(business.categories)) === 'couture';
   const takesBookings = !business.subscription || can('booking');
   const setup = [
     { done: services.length > 0, label: i18n.t('setupServices'), to: '/business/services' as const },
@@ -331,7 +332,7 @@ export default function BusinessDashboard() {
           {takesBookings ? (
             <MenuRow
               icon={Users}
-              title={i18n.t('mstTitle')}
+              title={i18n.t(couture ? 'mstTitleCouture' : 'mstTitle')}
               detail={i18n.n(masters.length, 'master')}
               onPress={() => router.push('/business/masters')}
             />

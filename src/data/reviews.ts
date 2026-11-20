@@ -46,6 +46,15 @@ type Snippet = { rating: number; text: string; tags: TagId[] };
 
 /** Written the way people in Baku actually write reviews: in Azerbaijani, Russian or English. */
 const byCategory: Record<CategoryId, Snippet[]> = {
+  couture: [
+    {
+      rating: 5,
+      text: 'Showroomda bütün kolleksiyanı rahat geyinib baxdım, stilist ölçüləri dərhal düzəltdi.',
+      tags: ['skilled', 'friendly'],
+    },
+    { rating: 5, text: 'Записалась на примерку онлайн, никакого ожидания. Платье подогнали за неделю.', tags: ['punctual'] },
+    { rating: 4, text: 'Beautiful pieces and a calm fitting room. Booking a slot beats walking in.', tags: ['clean', 'relaxing'] },
+  ],
   barber: [
     {
       rating: 5,

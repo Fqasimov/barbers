@@ -1,5 +1,7 @@
 import {
+  marketOf,
   masterLimit,
+  plansFor,
   GRACE_DAYS,
   hasFeature,
   plans,
@@ -27,6 +29,7 @@ describe('plans', () => {
       ['ferdi', 10, 100],
       ['start', 29, 290],
       ['pro', 49, 490],
+      ['couture', 39, 390],
     ]);
     expect(plans.find((p) => p.recommended)?.id).toBe('pro');
     expect(YEAR_MONTHS_PAID).toBe(10);
@@ -80,5 +83,16 @@ describe('settle', () => {
 
   it('never revives an expired plan', () => {
     expect(settle(trial({ status: 'expired' }), start).status).toBe('expired');
+  });
+
+  it('splits plans by market: salons see beauty plans, couture brands their own', () => {
+    expect(plansFor('beauty').map((p) => p.id)).toEqual(['sade', 'ferdi', 'start', 'pro']);
+    expect(plansFor('couture').map((p) => p.id)).toEqual(['couture']);
+    expect(marketOf(['couture'])).toBe('couture');
+    expect(marketOf(['barber', 'hair'])).toBe('beauty');
+    // Couture brands get the Pro dashboard.
+    const pro = plans.find((p) => p.id === 'pro')!;
+    const couture = plans.find((p) => p.id === 'couture')!;
+    expect([...couture.unlocks].sort()).toEqual([...pro.unlocks].sort());
   });
 });

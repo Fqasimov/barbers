@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { authApi, type PlanId } from '@/auth';
 import { authErrorKey, useExitAuthFlow } from '@/auth/flow';
-import { type BillingPeriod, BRANCH_PRICE, plans, TRIAL_DAYS } from '@/auth/plans';
+import { type BillingPeriod, BRANCH_PRICE, marketOf, plansFor, TRIAL_DAYS } from '@/auth/plans';
 import { useSession } from '@/auth/useSession';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { toast } from '@/components/Toaster';
@@ -31,7 +31,9 @@ export default function Plans() {
   const setBusiness = useSession((s) => s.setBusiness);
   const sub = session?.business?.subscription;
   const current = sub?.plan;
-  const [plan, setPlan] = useState<PlanId>(current ?? 'pro');
+  const market = session?.business?.market ?? marketOf(session?.business?.categories);
+  const plans = plansFor(market);
+  const [plan, setPlan] = useState<PlanId>(current ?? (market === 'couture' ? 'couture' : 'pro'));
   const [period, setPeriod] = useState<BillingPeriod>(sub?.billingPeriod ?? 'month');
   const per = i18n.t(period === 'year' ? 'perYear' : 'perMonth');
   const [busy, setBusy] = useState(false);

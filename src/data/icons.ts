@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { Brush, Eye, Gem, Leaf, Palette, Scissors, Sparkles } from 'lucide-react-native';
+import { Brush, Eye, Gem, Leaf, Palette, Scissors, Shirt, Sparkles } from 'lucide-react-native';
 
 import type { CategoryId } from './types';
 
@@ -11,4 +11,5 @@ export const categoryIcon: Record<CategoryId, LucideIcon> = {
   spa: Leaf,
   makeup: Palette,
   aesthetics: Sparkles,
+  couture: Shirt,
 };

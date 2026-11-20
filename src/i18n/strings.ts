@@ -827,6 +827,8 @@ export const strings = {
   mstTitle: L('Ustalar', 'Мастера', 'Masters'),
   mstAdd: L('Usta əlavə et', 'Добавить мастера', 'Add a master'),
   mstNew: L('Yeni usta', 'Новый мастер', 'New master'),
+  mstTitleCouture: L('Stilistlər', 'Стилисты', 'Stylists'),
+  mstAddCouture: L('Stilist əlavə et', 'Добавить стилиста', 'Add a stylist'),
   mstEdit: L('Ustanı dəyiş', 'Изменить мастера', 'Edit master'),
   mstEmptyTitle: L('Hələ usta yoxdur', 'Пока нет мастеров', 'No masters yet'),
   mstEmptyBody: L(
@@ -1140,6 +1142,14 @@ export const strings = {
     'Paketdən sonra {cap} dəqiqəyə qədər davam edir, artıq dəqiqələr ay sonunda hesablanır.',
     'После пакета работает до {cap} мин, лишние минуты считаются в конце месяца.',
     'After the pack it keeps going up to {cap} min; extra minutes are billed at the month’s end.',
+  ),
+  fBusinessKind: L('Biznesin növü', 'Тип бизнеса', 'Kind of business'),
+  kindBeauty: L('Salon / bərbərxana', 'Салон / барбершоп', 'Salon / barbershop'),
+  kindCouture: L('Couture brend', 'Кутюр-бренд', 'Couture brand'),
+  kindCoutureNote: L(
+    'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur. Plan: Couture, 39 ₼ / ay, ilk 30 gün pulsuz.',
+    'Клиенты онлайн записываются в ваш шоурум на примерку. Тариф: Couture, 39 ₼ / мес, первые 30 дней бесплатно.',
+    'Clients book online to visit your showroom and try pieces on. Plan: Couture, 39 ₼ a month, first 30 days free.',
   ),
   pickBranch: L('Filialı seçin', 'Выберите филиал', 'Pick a branch'),
   mstLimitNote: L(

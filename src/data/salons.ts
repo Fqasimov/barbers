@@ -20,6 +20,32 @@ type ServiceTemplate = {
 const L = (az: string, ru: string, en: string): Loc => ({ az, ru, en });
 
 const catalogue: Record<CategoryId, ServiceTemplate[]> = {
+  couture: [
+    {
+      key: 'showroom',
+      category: 'couture',
+      durationMin: 60,
+      base: 0,
+      name: L('Showroom ziyarəti', 'Визит в шоурум', 'Showroom visit'),
+      description: L(
+        'Kolleksiyanı stilistlə birlikdə görün və istədiyiniz modelləri geyinib baxın.',
+        'Посмотрите коллекцию со стилистом и примерьте понравившиеся модели.',
+        'See the collection with a stylist and try on the pieces you like.',
+      ),
+    },
+    {
+      key: 'fitting',
+      category: 'couture',
+      durationMin: 45,
+      base: 0,
+      name: L('Ölçü və uyğunlaşdırma', 'Примерка и подгонка', 'Fitting and alterations'),
+      description: L(
+        'Seçdiyiniz modelin ölçülərə görə uyğunlaşdırılması.',
+        'Подгонка выбранной модели по вашим меркам.',
+        'Your chosen piece fitted and adjusted to your measurements.',
+      ),
+    },
+  ],
   barber: [
     {
       key: 'cut',

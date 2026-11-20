@@ -44,6 +44,7 @@ const TODAY_KEYS: Record<CategoryId | 'all', string[]> = {
   spa: ['massage', 'hammam', 'facial'],
   makeup: ['evening'],
   aesthetics: ['cleanse', 'peel'],
+  couture: ['showroom', 'fitting'],
 };
 
 export default function DiscoverScreen() {

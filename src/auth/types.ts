@@ -24,7 +24,9 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro';
+export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro' | 'couture';
+/** beauty: salons and barbershops (the main market). couture: brand showrooms. */
+export type Market = 'beauty' | 'couture';
 
 /** What a plan unlocks (server: config usta.plan_features). */
 export type Feature =
@@ -80,6 +82,8 @@ export type Business = {
   ownerId: string;
   salonName: string;
   categories: CategoryId[];
+  /** Which plans and wording apply; the server's, else from the categories. */
+  market?: Market;
   district: string;
   address: string;
   audience: Audience;
