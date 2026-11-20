@@ -5,26 +5,28 @@ export type Lang = (typeof LANGS)[number];
 export type Loc = Record<Lang, string>;
 export type Feature = Loc & { soon?: boolean };
 export type Plan = {
-  id: 'sade' | 'ferdi' | 'start' | 'pro';
+  id: 'sade' | 'ferdi' | 'start' | 'pro' | 'couture';
+  /** beauty: salons and barbershops (the main market); couture: brand showrooms. */
+  market: 'beauty' | 'couture';
   name: string;
   price: number;
   recommended?: boolean;
   blurb: Loc;
   features: Feature[];
 };
-export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup' | 'aesthetics';
+export type CategoryId = 'barber' | 'hair' | 'nails' | 'brows' | 'spa' | 'makeup' | 'aesthetics' | 'couture';
 
 export const dict = {
   // Meta
   metaTitle: {
-    az: 'yazılnow: Bakının bərbər, salon və kosmetologiya yazılışı',
-    ru: 'yazılnow: запись в барбершопы, салоны и косметологии Баку',
-    en: 'yazılnow: book Baku’s barbers, salons and aesthetic clinics',
+    az: 'yazılnow: onlayn bron və qeyd — salon, bərbərxana, showroom | Bakı',
+    ru: 'yazılnow: онлайн-запись и бронирование — салоны, барбершопы, шоурумы | Баку',
+    en: 'yazılnow: online booking and appointments — salons, barbers, showrooms | Baku',
   },
   metaDesc: {
-    az: 'Bakının bərbərxana, gözəllik salonu və kosmetologiya mərkəzlərinin boş vaxtlarını canlı görün və zəngsiz yazılın. Salonlar üçün: usta sayına görə ödəniş yoxdur, 30 gün pulsuz.',
-    ru: 'Свободное время барбершопов, салонов красоты и косметологий Баку онлайн, запись без звонков. Для салонов: без доплат за мастеров, 30 дней бесплатно.',
-    en: 'See live free times at Baku’s barbershops, beauty salons and aesthetic clinics and book without a call. For salons: no per-master fees, 30 days free.',
+    az: 'Bakıda onlayn bron, qeyd və rezervasiya: bərbərxana, gözəllik salonu, kosmetologiya və couture showroomlarının boş vaxtlarını görün, zəngsiz yazılın. Bizneslər üçün onlayn qeyd sistemi, 30 gün pulsuz.',
+    ru: 'Онлайн-запись и бронирование в Баку: свободное время барбершопов, салонов, косметологий и шоурумов, запись без звонков. Система онлайн-записи для бизнеса, 30 дней бесплатно.',
+    en: 'Online booking and appointments in Baku: see free times at barbershops, beauty salons, aesthetic clinics and couture showrooms and book without a call. An online booking system for businesses, 30 days free.',
   },
 
   // Navigation
@@ -51,9 +53,9 @@ export const dict = {
 
   // Hero
   heroKicker: {
-    az: 'Bakı · bərbər, salon, kosmetologiya',
-    ru: 'Баку · барберы, салоны, косметология',
-    en: 'Baku · barbers, salons, aesthetics',
+    az: 'Bakı · onlayn bron: salonlar, bərbərxanalar, showroomlar',
+    ru: 'Баку · онлайн-запись: салоны, барбершопы, шоурумы',
+    en: 'Baku · online booking: salons, barbers, showrooms',
   },
   // The part after | is set in the accent colour on its own line.
   heroTitle: {
@@ -474,9 +476,41 @@ export const dict = {
     en: '© {year} yazılnow. All rights reserved.',
   },
   footVoen: { az: 'VÖEN', ru: 'ВОЕН', en: 'Tax ID (VÖEN)' },
+
+  // Pricing, by market
+  navPricing: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
+  pricingKicker: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
+  pricingTitle: {
+    az: 'Hər biznes üçün öz planı.',
+    ru: 'Свой тариф для каждого бизнеса.',
+    en: 'A plan for every kind of business.',
+  },
+  pricingSub: {
+    az: 'Müştərilər üçün həmişə pulsuz. Bizneslər üçün ilk 30 gün pulsuz, kart tələb olunmur, komissiya yoxdur.',
+    ru: 'Для клиентов всегда бесплатно. Для бизнеса первые 30 дней бесплатно, без карты и без комиссии.',
+    en: 'Always free for clients. For businesses the first 30 days are free, no card, no commission.',
+  },
+  marketBeauty: { az: 'Salonlar və bərbərxanalar', ru: 'Салоны и барбершопы', en: 'Salons and barbershops' },
+  marketBeautySub: {
+    az: 'Bərbər, saç, dırnaq, qaş, spa, makiyaj və kosmetologiya.',
+    ru: 'Барберы, волосы, ногти, брови, спа, макияж и косметология.',
+    en: 'Barbers, hair, nails, brows, spa, makeup and aesthetics.',
+  },
+  marketCouture: { az: 'Couture brendlər', ru: 'Кутюр-бренды', en: 'Couture brands' },
+  marketCoutureSub: {
+    az: 'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur: vaxt, stilist, ödəniş — hamısı bir paneldə.',
+    ru: 'Клиенты онлайн записываются в ваш шоурум на примерку: время, стилист, депозит — всё в одной панели.',
+    en: 'Clients book online to visit your showroom and try pieces on: time, stylist and deposit, all in one dashboard.',
+  },
+  perMonthShort: { az: '/ ay', ru: '/ мес', en: '/ month' },
+  pricingCta: { az: '30 gün pulsuz başla', ru: 'Начать 30 дней бесплатно', en: 'Start 30 days free' },
 } satisfies Record<string, Loc>;
 
 export type Key = keyof typeof dict;
+
+/** The market a set of categories belongs to: a couture showroom, or a beauty business. */
+export const marketOf = (cats: readonly CategoryId[]): Plan['market'] =>
+  cats.length && cats.every((c) => c === 'couture') ? 'couture' : 'beauty';
 
 // Business categories, the same ids as the app and the API.
 export const categories: { id: CategoryId; label: Loc }[] = [
@@ -487,12 +521,14 @@ export const categories: { id: CategoryId; label: Loc }[] = [
   { id: 'spa', label: { az: 'Spa', ru: 'Спа', en: 'Spa' } },
   { id: 'makeup', label: { az: 'Makiyaj', ru: 'Макияж', en: 'Makeup' } },
   { id: 'aesthetics', label: { az: 'Kosmetologiya', ru: 'Косметология', en: 'Aesthetics' } },
+  { id: 'couture', label: { az: 'Couture showroom', ru: 'Кутюр-шоурум', en: 'Couture showroom' } },
 ];
 
 // Plans, as in the app (src/auth/plans.ts). Prices come from GET /api/plans when the API is set.
 export const plans: Plan[] = [
   {
     id: 'sade',
+    market: 'beauty',
     name: 'Sadə',
     price: 10,
     blurb: { az: 'Xəritədə yer və rəylər', ru: 'Место на карте и отзывы', en: 'On the map, with reviews' },
@@ -510,6 +546,7 @@ export const plans: Plan[] = [
   },
   {
     id: 'ferdi',
+    market: 'beauty',
     name: 'Fərdi',
     price: 10,
     blurb: { az: 'Tək işləyən usta üçün', ru: 'Для мастера, работающего один', en: 'For one master working solo' },
@@ -522,6 +559,7 @@ export const plans: Plan[] = [
   },
   {
     id: 'start',
+    market: 'beauty',
     name: 'Start',
     price: 29,
     blurb: { az: 'Tək salon üçün', ru: 'Для одного салона', en: 'For a single salon' },
@@ -540,6 +578,7 @@ export const plans: Plan[] = [
   },
   {
     id: 'pro',
+    market: 'beauty',
     name: 'Pro',
     price: 49,
     recommended: true,
@@ -557,6 +596,20 @@ export const plans: Plan[] = [
       { az: 'Gəlməmə qorunması və depozit', ru: 'Защита от неявок и депозиты', en: 'No-show protection and deposits' },
       { az: 'Gözləmə siyahısı və statistika', ru: 'Лист ожидания и статистика', en: 'Waitlist and statistics' },
       { az: 'Prioritet dəstək və telefon xətti', ru: 'Приоритетная поддержка и телефон', en: 'Priority support and a phone line' },
+    ],
+  },
+  {
+    id: 'couture',
+    market: 'couture',
+    name: 'Couture',
+    price: 39,
+    blurb: { az: 'Brendlərin showroomları üçün', ru: 'Для шоурумов брендов', en: 'For brand showrooms' },
+    features: [
+      { az: 'Showroom ziyarəti və geyinib baxmaq üçün onlayn qeyd', ru: 'Онлайн-запись на визит в шоурум и примерку', en: 'Online appointments to visit the showroom and try pieces on' },
+      { az: 'Pro planındakı bütün idarəetmə paneli', ru: 'Вся панель управления Pro', en: 'The full Pro dashboard' },
+      { az: '3 showroom daxildir (hər əlavəsi +15 ₼)', ru: '3 шоурума включены (+15 ₼ за каждый следующий)', en: 'Up to 3 showrooms included (+15 ₼ per extra one)' },
+      { az: 'Stilistlər, menecerlər, depozit və statistika', ru: 'Стилисты, менеджеры, депозиты и статистика', en: 'Stylists, managers, deposits and statistics' },
+      { az: 'Instagram bio üçün qeyd linki', ru: 'Ссылка для записи в био Instagram', en: 'A booking link for your Instagram bio' },
     ],
   },
 ];

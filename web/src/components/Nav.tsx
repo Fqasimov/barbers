@@ -28,6 +28,7 @@ export function Nav() {
     ['#about', t('navAbout')],
     ['#why', t('navWhy')],
     ['#map', t('navMap')],
+    ['#pricing', t('navPricing')],
     ['#join', t('navJoin')],
   ] as const;
 

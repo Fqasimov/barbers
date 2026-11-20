@@ -1,3 +1,4 @@
+import { Pricing } from './components/Pricing';
 import { Hero } from './components/Hero';
 import { IntroOverlay } from './components/Intro';
 import { Join } from './components/Join';
@@ -24,6 +25,7 @@ export function App() {
         <Why />
         <Stats />
         <PartnersMap />
+        <Pricing />
         <Join />
         <Faq />
         <Download />

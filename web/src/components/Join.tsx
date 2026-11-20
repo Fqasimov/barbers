@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Rea
 
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
 import { config, isLive, page } from '../config';
-import { categories, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { categories, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
 
@@ -537,7 +537,12 @@ export function Join() {
                         onClick={() => {
                           setSalon((s) => ({
                             ...s,
-                            categories: on ? s.categories.filter((x) => x !== c.id) : [...s.categories, c.id],
+                            // A couture showroom and beauty services are separate kinds of business.
+                            categories: on
+                              ? s.categories.filter((x) => x !== c.id)
+                              : c.id === 'couture'
+                                ? ['couture']
+                                : [...s.categories.filter((x) => x !== 'couture'), c.id],
                           }));
                           setErrors((x) => ({ ...x, categories: undefined }));
                         }}
@@ -665,7 +670,7 @@ export function Join() {
               </h3>
               <p className="muted">{t('planSub')}</p>
               <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
-                {plans.map((p) => (
+                {plans.filter((p) => p.market === marketOf(salon.categories)).map((p) => (
                   <label className="plan" key={p.id}>
                     <input
                       type="radio"
