@@ -15,13 +15,14 @@ use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\SubscriptionController;
 use App\Http\Controllers\Business\TeamController;
 use App\Http\Controllers\CatalogueController;
+use App\Http\Controllers\DeployController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\QrReviewController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SocialAuthController;
-use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -131,3 +132,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('subscription/checkout', [SubscriptionController::class, 'checkout']);
     });
 });
+
+// The deploy workflow: migrations and cache clear after an upload. Off without DEPLOY_KEY.
+Route::post('/deploy/migrate', DeployController::class)->middleware('throttle:5,1');

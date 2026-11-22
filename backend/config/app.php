@@ -99,6 +99,9 @@ return [
 
     'key' => env('APP_KEY'),
 
+    // The GitHub deploy workflow's key for POST /api/deploy/migrate. Empty: that route is off.
+    'deploy_key' => env('DEPLOY_KEY', ''),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
