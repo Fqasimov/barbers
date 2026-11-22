@@ -1,11 +1,12 @@
 # Deploys yazilnow.az on every push to main (or by hand: Actions → Deploy → Run workflow).
-# Builds the website, the app and the server like deploy/package-cpanel.sh, uploads them over FTP
-# (only changed files), then asks the server to run its database migrations.
+# Builds the website, the app and the server like deploy/package-cpanel.sh, uploads the result as
+# one zip over FTPS (thousands of single files made the host drop the connection), then calls
+# public_html/yazilnow-deploy.php, which unpacks it and runs the database migrations.
 #
-# Repository secrets: FTP_HOST, FTP_USER, FTP_PASSWORD, and optionally DEPLOY_KEY (the same value
-# as DEPLOY_KEY in ~/yazilnow-api/.env). The FTP account's folder must be the home folder
+# Repository secrets: FTP_HOST, FTP_USER, FTP_PASSWORD and DEPLOY_KEY (the same value as
+# DEPLOY_KEY in ~/yazilnow-api/.env). The FTP account's folder must be the home folder
 # (/home/yazilmaf), so public_html/ and yazilnow-api/ sit at its top.
-# The server's .env, uploaded photos and logs are never touched.
+# The zip never holds the server's .env, uploaded photos or logs.
 name: Deploy
 
 on:
@@ -27,9 +28,10 @@ jobs:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
-          if [ -z "$FTP_HOST" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASSWORD" ]; then
-            echo "::error::Add FTP_HOST, FTP_USER and FTP_PASSWORD under Settings → Secrets and variables → Actions."
+          if [ -z "$FTP_HOST" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASSWORD" ] || [ -z "$DEPLOY_KEY" ]; then
+            echo "::error::Add FTP_HOST, FTP_USER, FTP_PASSWORD and DEPLOY_KEY under Settings → Secrets and variables → Actions."
             exit 1
           fi
 
@@ -54,49 +56,22 @@ jobs:
         run: |
           UPDATE=1 DOMAIN=yazilnow.az deploy/package-cpanel.sh
 
-      - name: Upload website and app
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: deploy/out/cpanel/public_html/
-          server-dir: public_html/
-          state-name: .ftp-deploy-sync-state.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            server
-            server/**
-            .well-known/**
-            cgi-bin/**
+      - name: Upload
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          up() {
+            curl --fail --silent --show-error --ssl-reqd --retry 5 --retry-delay 10 --retry-all-errors \
+              --user "$FTP_USER:$FTP_PASSWORD" -T "$1" "ftp://$FTP_HOST/$2"
+          }
+          up deploy/cpanel/yazilnow-deploy.php public_html/yazilnow-deploy.php
+          up deploy/out/yazilnow-cpanel.zip yazilnow-deploy.zip
 
-      - name: Upload server
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: deploy/out/cpanel/yazilnow-api/
-          server-dir: yazilnow-api/
-          state-name: .ftp-deploy-sync-state.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .env
-            storage/**
-            bootstrap/cache/**
-            public/storage
-            public/storage/**
-
-      - name: Database migrations
+      - name: Unpack and migrate on the server
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
-          if [ -z "$DEPLOY_KEY" ]; then
-            echo "::warning::No DEPLOY_KEY secret: files are up, but run 'php artisan migrate --force' on the server yourself."
-            exit 0
-          fi
-          curl -fsS -X POST -H "X-Deploy-Key: $DEPLOY_KEY" -H "Accept: application/json" https://yazilnow.az/api/deploy/migrate
+          curl --fail-with-body --silent --show-error --max-time 900 -X POST \
+            -H "X-Deploy-Key: $DEPLOY_KEY" https://yazilnow.az/yazilnow-deploy.php
