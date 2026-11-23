@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 
 import { useStore } from '@/store/useStore';
 
@@ -12,7 +12,10 @@ const ThemeContext = createContext<ThemeValue>({ c: palettes.light, scheme: 'lig
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
   const appearance = useStore((s) => s.appearance);
-  const scheme: Scheme = appearance === 'system' ? (system === 'dark' ? 'dark' : 'light') : appearance;
+  // In a browser (the salon panel on the website) "system" follows the website, which is always
+  // light; picking Dark in settings still works. Phones follow the system.
+  const followSystem = Platform.OS !== 'web' && system === 'dark';
+  const scheme: Scheme = appearance === 'system' ? (followSystem ? 'dark' : 'light') : appearance;
   const value = useMemo(() => ({ c: palettes[scheme], scheme }), [scheme]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

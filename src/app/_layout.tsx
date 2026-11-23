@@ -123,5 +123,5 @@ function App() {
 // In a browser (the salon panel on the website) the app is a centred column; on phones it fills the screen.
 const styles = StyleSheet.create({
   page: { flex: 1, alignItems: 'center' },
-  column: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 760 : undefined, overflow: 'hidden' },
+  column: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 960 : undefined, overflow: 'hidden' },
 });
