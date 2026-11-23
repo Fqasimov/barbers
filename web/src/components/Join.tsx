@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Rea
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
 import { config, isLive, page } from '../config';
 import { categories, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { PLAN_PICK_EVENT, type PlanPick } from './Pricing';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
 
@@ -183,7 +184,8 @@ export function Join() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [code, setCode] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [plan, setPlan] = useState<PlanId>('pro');
+  const [plan, setPlan] = useState<PlanId>('start');
+  const [pickedFlash, setPickedFlash] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [now, setNow] = useState(Date.now());
   const card = useRef<HTMLDivElement>(null);
@@ -192,6 +194,29 @@ export function Join() {
   useEffect(() => {
     void loadPlanPrices().then(setPrices);
   }, []);
+
+  // A plan picked in the pricing section: preselect it, and the kind of business it is for.
+  useEffect(() => {
+    const onPick = (e: Event) => {
+      const { plan: id, market } = (e as CustomEvent<PlanPick>).detail;
+      setPlan(id);
+      setSalon((s) => {
+        if (market === 'couture') return { ...s, categories: ['couture'] };
+        return s.categories.includes('couture') ? { ...s, categories: [] } : s;
+      });
+      setPickedFlash(true);
+      window.setTimeout(() => setPickedFlash(false), 1600);
+    };
+    window.addEventListener(PLAN_PICK_EVENT, onPick);
+    return () => window.removeEventListener(PLAN_PICK_EVENT, onPick);
+  }, []);
+
+  // The plan always belongs to the business's market (a showroom can't keep a salon plan).
+  const market = marketOf(salon.categories);
+  useEffect(() => {
+    if (plans.find((p) => p.id === plan)?.market === market) return;
+    setPlan((plans.find((p) => p.market === market && p.recommended) ?? plans.find((p) => p.market === market)!).id);
+  }, [market, plan]);
 
   // The resend countdown.
   const resendAt = challenge?.resend_at ? new Date(challenge.resend_at).getTime() : 0;
@@ -386,7 +411,7 @@ export function Join() {
   });
 
   return (
-    <section className="section join" id="join">
+    <section className={`section join${pickedFlash ? ' join-picked' : ''}`} id="join">
       <div className="wrap join-grid">
         <div className="join-copy">
           <p className="kicker reveal">{t('joinKicker')}</p>
@@ -670,7 +695,7 @@ export function Join() {
               </h3>
               <p className="muted">{t('planSub')}</p>
               <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
-                {plans.filter((p) => p.market === marketOf(salon.categories)).map((p) => (
+                {plans.filter((p) => p.market === market).map((p) => (
                   <label className="plan" key={p.id}>
                     <input
                       type="radio"

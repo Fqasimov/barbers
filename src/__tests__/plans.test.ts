@@ -23,15 +23,16 @@ const trial = (over: Partial<Subscription> = {}): Subscription => ({
 });
 
 describe('plans', () => {
-  it('offers Sadə, Fərdi, Start and Pro, Pro recommended, a year for ten months', () => {
+  it('offers the plans, Start and Couture recommended, a year for ten months', () => {
     expect(plans.map((p) => [p.id, p.price, p.priceYear])).toEqual([
       ['sade', 10, 100],
       ['ferdi', 10, 100],
       ['start', 29, 290],
       ['pro', 49, 490],
       ['couture', 39, 390],
+      ['couture_plus', 59, 590],
     ]);
-    expect(plans.find((p) => p.recommended)?.id).toBe('pro');
+    expect(plans.filter((p) => p.recommended).map((p) => p.id)).toEqual(['start', 'couture']);
     expect(YEAR_MONTHS_PAID).toBe(10);
   });
 
@@ -86,13 +87,16 @@ describe('settle', () => {
   });
 
   it('splits plans by market: salons see beauty plans, couture brands their own', () => {
-    expect(plansFor('beauty').map((p) => p.id)).toEqual(['sade', 'ferdi', 'start', 'pro']);
-    expect(plansFor('couture').map((p) => p.id)).toEqual(['couture']);
+    // Sadə is paused for new businesses.
+    expect(plansFor('beauty').map((p) => p.id)).toEqual(['ferdi', 'start', 'pro']);
+    expect(plansFor('couture').map((p) => p.id)).toEqual(['couture', 'couture_plus']);
     expect(marketOf(['couture'])).toBe('couture');
     expect(marketOf(['barber', 'hair'])).toBe('beauty');
-    // Couture brands get the Pro dashboard.
+    // Couture Plus is the Pro dashboard; Couture the same for one showroom.
     const pro = plans.find((p) => p.id === 'pro')!;
+    const plus = plans.find((p) => p.id === 'couture_plus')!;
     const couture = plans.find((p) => p.id === 'couture')!;
-    expect([...couture.unlocks].sort()).toEqual([...pro.unlocks].sort());
+    expect([...plus.unlocks].sort()).toEqual([...pro.unlocks].sort());
+    expect(couture.unlocks).not.toContain('branches');
   });
 });

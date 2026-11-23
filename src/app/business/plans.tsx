@@ -33,7 +33,7 @@ export default function Plans() {
   const current = sub?.plan;
   const market = session?.business?.market ?? marketOf(session?.business?.categories);
   const plans = plansFor(market);
-  const [plan, setPlan] = useState<PlanId>(current ?? (market === 'couture' ? 'couture' : 'pro'));
+  const [plan, setPlan] = useState<PlanId>(current ?? (market === 'couture' ? 'couture' : 'start'));
   const [period, setPeriod] = useState<BillingPeriod>(sub?.billingPeriod ?? 'month');
   const per = i18n.t(period === 'year' ? 'perYear' : 'perMonth');
   const [busy, setBusy] = useState(false);

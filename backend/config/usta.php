@@ -76,10 +76,15 @@ return [
             'month' => (int) env('PLAN_PRICE_PRO', 49),
             'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 49)),
         ],
-        // Couture brands: showroom visits and fittings, with everything in Pro.
+        // Couture brands: showroom visits and fittings, with everything in Pro. One showroom.
         'couture' => [
             'month' => (int) env('PLAN_PRICE_COUTURE', 39),
             'year' => (int) env('PLAN_PRICE_COUTURE_YEAR', 10 * (int) env('PLAN_PRICE_COUTURE', 39)),
+        ],
+        // Couture Plus: the same, with up to 3 showrooms (more at the branch price).
+        'couture_plus' => [
+            'month' => (int) env('PLAN_PRICE_COUTURE_PLUS', 59),
+            'year' => (int) env('PLAN_PRICE_COUTURE_PLUS_YEAR', 10 * (int) env('PLAN_PRICE_COUTURE_PLUS', 59)),
         ],
     ],
 
@@ -92,7 +97,7 @@ return [
         ],
         'couture' => [
             'categories' => ['couture'],
-            'plans' => ['couture'],
+            'plans' => ['couture', 'couture_plus'],
         ],
     ],
 
@@ -104,6 +109,8 @@ return [
         'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
             'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
         'couture' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
+            'personal_page', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+        'couture_plus' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
             'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     ],
 

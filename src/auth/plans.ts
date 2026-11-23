@@ -115,10 +115,11 @@ export const plans: Plan[] = [
     name: 'Start',
     price: 29,
     priceYear: 29 * YEAR_MONTHS_PAID,
+    recommended: true,
     blurb: L('Tək salon üçün', 'Для одного салона', 'For a single salon'),
     unlocks: withPage,
     features: [
-      L('Sadə planındakı hər şey', 'Всё из тарифа Sadə', 'Everything in Sadə'),
+      L('Xəritədə yer, QR rəylər və foto qalereya', 'Место на карте, отзывы по QR и фотогалерея', 'On the map, with QR reviews and a photo gallery'),
       L('Onlayn bron və təqvim', 'Онлайн-запись и календарь', 'Online booking and calendar'),
       L(
         'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar',
@@ -144,7 +145,6 @@ export const plans: Plan[] = [
     name: 'Pro',
     price: 49,
     priceYear: 49 * YEAR_MONTHS_PAID,
-    recommended: true,
     blurb: L('Böyüyən salonlar üçün', 'Для растущих салонов', 'For growing salons'),
     unlocks: [...withPage, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     features: [
@@ -172,24 +172,43 @@ export const plans: Plan[] = [
     name: 'Couture',
     price: 39,
     priceYear: 39 * YEAR_MONTHS_PAID,
-    blurb: L('Brendlərin showroomları üçün', 'Для шоурумов брендов', 'For brand showrooms'),
-    unlocks: [...withPage, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+    recommended: true,
+    blurb: L('Bir showroom üçün', 'Для одного шоурума', 'For one showroom'),
+    unlocks: [...withPage, 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
     features: [
       L(
         'Showroom ziyarəti və geyinib baxmaq üçün onlayn qeyd',
         'Онлайн-запись на визит в шоурум и примерку',
         'Online appointments to visit the showroom and try pieces on',
       ),
-      L('Pro planındakı bütün idarəetmə', 'Вся панель управления Pro', 'The full Pro dashboard'),
+      L('1 showroom', '1 шоурум', '1 showroom'),
+      L('Stilistlər və menecerlər', 'Стилисты и менеджеры', 'Stylists and managers'),
+      L('Depozit və gəlməmə qorunması', 'Депозит и защита от неявок', 'Deposits and no-show protection'),
+      L('Gözləmə siyahısı və statistika', 'Лист ожидания и статистика', 'Waitlist and statistics'),
+      L('Instagram bio üçün qeyd linki', 'Ссылка для записи в био Instagram', 'A booking link for your Instagram bio'),
+    ],
+  },
+  {
+    id: 'couture_plus',
+    market: 'couture',
+    name: 'Couture Plus',
+    price: 59,
+    priceYear: 59 * YEAR_MONTHS_PAID,
+    blurb: L('3 showroomadək', 'До 3 шоурумов', 'Up to 3 showrooms'),
+    unlocks: [...withPage, 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'priority_support'],
+    features: [
+      L('Couture planındakı hər şey', 'Всё из тарифа Couture', 'Everything in Couture'),
       L(
         '3 showroom daxildir (hər əlavəsi +15 ₼)',
         '3 шоурума включены (+15 ₼ за каждый следующий)',
         'Up to 3 showrooms included (+15 ₼ per extra one)',
       ),
-      L('Stilistlər və menecerlər', 'Стилисты и менеджеры', 'Stylists and managers'),
-      L('Depozit və gəlməmə qorunması', 'Депозит и защита от неявок', 'Deposits and no-show protection'),
-      L('Gözləmə siyahısı və statistika', 'Лист ожидания и статистика', 'Waitlist and statistics'),
-      L('Instagram bio üçün qeyd linki', 'Ссылка для записи в био Instagram', 'A booking link for your Instagram bio'),
+      L(
+        'Bir qeyd linki: müştəri əvvəlcə showroomu seçir',
+        'Одна ссылка для записи: клиент сначала выбирает шоурум',
+        'One booking link: clients pick a showroom first',
+      ),
+      L('Showroomlar üzrə ümumi hesabat', 'Сводные отчёты по шоурумам', 'Combined reports across showrooms'),
     ],
   },
 ];
@@ -233,4 +252,6 @@ export const marketOf = (categories: readonly string[] | undefined): Market =>
   categories?.length && categories.every((c) => c === 'couture') ? 'couture' : 'beauty';
 
 /** The plans a business may pick: its own market's. */
-export const plansFor = (market: Market) => plans.filter((p) => p.market === market);
+/** Plans not offered to new businesses for now (still valid for those already on them). */
+const PAUSED: PlanId[] = ['sade'];
+export const plansFor = (market: Market) => plans.filter((p) => p.market === market && !PAUSED.includes(p.id));

@@ -83,13 +83,15 @@ class CatalogueTest extends TestCase
     public function test_plans(): void
     {
         $plans = $this->getJson('/api/plans')->assertOk()->json();
-        $this->assertSame(['sade', 'ferdi', 'start', 'pro', 'couture'], array_column($plans, 'id'));
-        $this->assertSame([10, 10, 29, 49, 39], array_column($plans, 'price'));
-        $this->assertSame([100, 100, 290, 490, 390], array_column($plans, 'price_year'));
-        $this->assertSame(['beauty', 'beauty', 'beauty', 'beauty', 'couture'], array_column($plans, 'market'));
-        // Couture brands get everything in Pro.
-        $this->assertSame($plans[3]['features'], $plans[4]['features']);
-        $this->assertSame(['included' => 3, 'extra_price' => 15], $plans[4]['branches']);
+        $this->assertSame(['sade', 'ferdi', 'start', 'pro', 'couture', 'couture_plus'], array_column($plans, 'id'));
+        $this->assertSame([10, 10, 29, 49, 39, 59], array_column($plans, 'price'));
+        $this->assertSame([100, 100, 290, 490, 390, 590], array_column($plans, 'price_year'));
+        $this->assertSame(['beauty', 'beauty', 'beauty', 'beauty', 'couture', 'couture'], array_column($plans, 'market'));
+        // Couture Plus is everything in Pro; Couture the same for one showroom.
+        $this->assertSame($plans[3]['features'], $plans[5]['features']);
+        $this->assertSame(['included' => 3, 'extra_price' => 15], $plans[5]['branches']);
+        $this->assertNotContains('branches', $plans[4]['features']);
+        $this->assertArrayNotHasKey('branches', $plans[4]);
         $this->assertNotContains('booking', $plans[0]['features']);
         $this->assertContains('booking', $plans[1]['features']);
         $this->assertSame(1, $plans[1]['masters']);

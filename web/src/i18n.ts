@@ -5,7 +5,7 @@ export type Lang = (typeof LANGS)[number];
 export type Loc = Record<Lang, string>;
 export type Feature = Loc & { soon?: boolean };
 export type Plan = {
-  id: 'sade' | 'ferdi' | 'start' | 'pro' | 'couture';
+  id: 'sade' | 'ferdi' | 'start' | 'pro' | 'couture' | 'couture_plus';
   /** beauty: salons and barbershops (the main market); couture: brand showrooms. */
   market: 'beauty' | 'couture';
   name: string;
@@ -504,6 +504,8 @@ export const dict = {
   },
   perMonthShort: { az: '/ ay', ru: '/ мес', en: '/ month' },
   pricingCta: { az: '30 gün pulsuz başla', ru: 'Начать 30 дней бесплатно', en: 'Start 30 days free' },
+  pricingPicked: { az: 'Seçildi ✓', ru: 'Выбрано ✓', en: 'Selected ✓' },
+  pricingFor: { az: 'Plan kimin üçündür?', ru: 'Для какого бизнеса тариф?', en: 'Which business is it for?' },
 } satisfies Record<string, Loc>;
 
 export type Key = keyof typeof dict;
@@ -527,24 +529,6 @@ export const categories: { id: CategoryId; label: Loc }[] = [
 // Plans, as in the app (src/auth/plans.ts). Prices come from GET /api/plans when the API is set.
 export const plans: Plan[] = [
   {
-    id: 'sade',
-    market: 'beauty',
-    name: 'Sadə',
-    price: 10,
-    blurb: { az: 'Xəritədə yer və rəylər', ru: 'Место на карте и отзывы', en: 'On the map, with reviews' },
-    features: [
-      { az: 'Xəritədə və axtarışda yer', ru: 'Место на карте и в поиске', en: 'A place on the map and in search' },
-      { az: 'QR ilə rəylər və rəylərə cavab', ru: 'Отзывы по QR и ответы на них', en: 'QR reviews and replies' },
-      { az: 'Foto qalereya', ru: 'Фотогалерея', en: 'Photo gallery' },
-      {
-        az: '«Bron et» düyməsi öz səhifənizə (DIKIDI, WhatsApp, telefon)',
-        ru: 'Кнопка «Записаться» на вашу страницу (DIKIDI, WhatsApp, телефон)',
-        en: '"Book" button to your own page (DIKIDI, WhatsApp, phone)',
-      },
-      { az: 'Aylıq klik hesabatı', ru: 'Ежемесячный отчёт по кликам', en: 'Monthly click report' },
-    ],
-  },
-  {
     id: 'ferdi',
     market: 'beauty',
     name: 'Fərdi',
@@ -562,9 +546,10 @@ export const plans: Plan[] = [
     market: 'beauty',
     name: 'Start',
     price: 29,
+    recommended: true,
     blurb: { az: 'Tək salon üçün', ru: 'Для одного салона', en: 'For a single salon' },
     features: [
-      { az: 'Sadə planındakı hər şey', ru: 'Всё из тарифа Sadə', en: 'Everything in Sadə' },
+      { az: 'Xəritədə yer, QR rəylər və foto qalereya', ru: 'Место на карте, отзывы по QR и фотогалерея', en: 'On the map, with QR reviews and a photo gallery' },
       { az: 'Onlayn bron və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
       { az: 'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar', ru: 'Ссылка для записи в био Instagram: мастера, часы, свободное время', en: 'A booking link for your Instagram bio: masters, hours, free times' },
       { az: 'Limitsiz usta, əlavə ödəniş yoxdur', ru: 'Мастера без ограничений и доплат', en: 'Unlimited masters, no per-seat fees' },
@@ -581,7 +566,6 @@ export const plans: Plan[] = [
     market: 'beauty',
     name: 'Pro',
     price: 49,
-    recommended: true,
     blurb: { az: 'Böyüyən salonlar üçün', ru: 'Для растущих салонов', en: 'For growing salons' },
     features: [
       { az: 'Start planındakı hər şey', ru: 'Всё из тарифа Start', en: 'Everything in Start' },
@@ -603,13 +587,26 @@ export const plans: Plan[] = [
     market: 'couture',
     name: 'Couture',
     price: 39,
-    blurb: { az: 'Brendlərin showroomları üçün', ru: 'Для шоурумов брендов', en: 'For brand showrooms' },
+    recommended: true,
+    blurb: { az: 'Bir showroom üçün', ru: 'Для одного шоурума', en: 'For one showroom' },
     features: [
       { az: 'Showroom ziyarəti və geyinib baxmaq üçün onlayn qeyd', ru: 'Онлайн-запись на визит в шоурум и примерку', en: 'Online appointments to visit the showroom and try pieces on' },
-      { az: 'Pro planındakı bütün idarəetmə paneli', ru: 'Вся панель управления Pro', en: 'The full Pro dashboard' },
-      { az: '3 showroom daxildir (hər əlavəsi +15 ₼)', ru: '3 шоурума включены (+15 ₼ за каждый следующий)', en: 'Up to 3 showrooms included (+15 ₼ per extra one)' },
+      { az: '1 showroom', ru: '1 шоурум', en: '1 showroom' },
       { az: 'Stilistlər, menecerlər, depozit və statistika', ru: 'Стилисты, менеджеры, депозиты и статистика', en: 'Stylists, managers, deposits and statistics' },
       { az: 'Instagram bio üçün qeyd linki', ru: 'Ссылка для записи в био Instagram', en: 'A booking link for your Instagram bio' },
+    ],
+  },
+  {
+    id: 'couture_plus',
+    market: 'couture',
+    name: 'Couture Plus',
+    price: 59,
+    blurb: { az: '3 showroomadək', ru: 'До 3 шоурумов', en: 'Up to 3 showrooms' },
+    features: [
+      { az: 'Couture planındakı hər şey', ru: 'Всё из тарифа Couture', en: 'Everything in Couture' },
+      { az: '3 showroom daxildir (hər əlavəsi +15 ₼)', ru: '3 шоурума включены (+15 ₼ за каждый следующий)', en: 'Up to 3 showrooms included (+15 ₼ per extra one)' },
+      { az: 'Bir qeyd linki: müştəri əvvəlcə showroomu seçir', ru: 'Одна ссылка для записи: клиент сначала выбирает шоурум', en: 'One booking link: clients pick a showroom first' },
+      { az: 'Showroomlar üzrə ümumi hesabat', ru: 'Сводные отчёты по шоурумам', en: 'Combined reports across showrooms' },
     ],
   },
 ];

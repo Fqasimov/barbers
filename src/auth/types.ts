@@ -24,7 +24,7 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro' | 'couture';
+export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro' | 'couture' | 'couture_plus';
 /** beauty: salons and barbershops (the main market). couture: brand showrooms. */
 export type Market = 'beauty' | 'couture';
 

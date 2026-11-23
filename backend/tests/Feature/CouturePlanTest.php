@@ -49,14 +49,20 @@ class CouturePlanTest extends TestCase
             ->assertJsonPath('subscription.plan', 'couture');
 
         $features = $this->getJson('/api/business', $h)->json('features');
-        foreach (['booking', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'personal_page'] as $f) {
+        foreach (['booking', 'managers', 'deposits', 'waitlist', 'stats', 'personal_page'] as $f) {
             $this->assertContains($f, $features);
         }
+        // Couture is one showroom; more showrooms need Couture Plus.
+        $this->assertNotContains('branches', $features);
+        $branch = ['salon_name' => 'Atelier Nərmin · Port Baku', 'address' => 'Neftçilər pr. 1', 'district' => 'Səbail'];
+        $this->postJson('/api/business/branches', $branch, $h)->assertStatus(402);
 
+        $this->postJson('/api/business/subscription/trial', ['plan' => 'couture_plus'], $h)->assertOk()
+            ->assertJsonPath('subscription.plan', 'couture_plus');
+        $this->assertContains('branches', $this->getJson('/api/business', $h)->json('features'));
         // A second showroom is a branch, billed like Pro's (3 included).
-        $this->postJson('/api/business/branches', ['salon_name' => 'Atelier Nərmin · Port Baku', 'address' => 'Neftçilər pr. 1', 'district' => 'Səbail'], $h)
-            ->assertCreated();
-        $this->getJson('/api/business/branches', $h)->assertOk()->assertJsonPath('price', 39);
+        $this->postJson('/api/business/branches', $branch, $h)->assertCreated();
+        $this->getJson('/api/business/branches', $h)->assertOk()->assertJsonPath('price', 59);
     }
 
     public function test_salons_cannot_pick_the_couture_plan_or_mix_markets(): void
