@@ -112,7 +112,77 @@ function demoBarbershop(): Business {
   };
 }
 
-const empty = (): Db => ({ users: [DEMO_USER], businesses: [demoBarbershop()], otps: [], sessions: [], resets: [] });
+/**
+ * A couture brand's demo account, to show showroom owners their dashboard: a showroom on the
+ * Couture trial with showroom visits and fittings. Hash made with scripts/hash-demo-password.mjs.
+ */
+const DEMO_COUTURE_USER: StoredUser = {
+  id: 'u_demo_couture',
+  firstName: 'Nərmin',
+  lastName: 'Əliyeva',
+  email: 'showroom@yazilnow.az',
+  phone: '+994501234568',
+  birthDate: '',
+  gender: null,
+  role: 'business',
+  provider: 'password',
+  emailVerified: true,
+  createdAt: '2026-11-23T00:00:00.000Z',
+  salt: 'd5d25fd098b0bd2d128af163ac6245b7',
+  hash: 'c31b6e1ae66a72d2aba397db73a701629b6ceb6bc53a54c16b86295ee95c0322',
+};
+
+function demoShowroom(): Business {
+  const now = Date.now();
+  const L = (az: string, ru: string, en: string) => ({ az, ru, en });
+  const days = [1, 2, 3, 4, 5, 6];
+  return {
+    id: 'b_demo_couture',
+    ownerId: DEMO_COUTURE_USER.id,
+    salonId: 'b_demo_couture',
+    salonName: 'Atelier Nərmin',
+    categories: ['couture'],
+    district: 'Səbail',
+    address: 'Neftçilər pr. 9',
+    audience: 'women',
+    status: 'live',
+    createdAt: new Date(now).toISOString(),
+    coords: { latitude: 40.3656, longitude: 49.8352 },
+    phone: '+994501234568',
+    whatsapp: '994501234568',
+    hours: { open: '11:00', close: '20:00' },
+    closedDays: [0],
+    about: L(
+      'Axşam və gəlinlik geyimləri. Showroomda stilistlə görün, geyinib baxın.',
+      'Вечерние и свадебные платья. Примерка в шоуруме со стилистом.',
+      'Evening and bridal wear. Try the pieces on in the showroom with a stylist.',
+    ),
+    role: 'owner',
+    subscription: settle({
+      plan: 'couture',
+      status: 'trialing',
+      billingPeriod: 'month',
+      startedAt: new Date(now).toISOString(),
+      trialEndsAt: new Date(now + TRIAL_DAYS * 86_400_000).toISOString(),
+    }),
+    services: [
+      { id: 's_dc_visit', key: 'showroom', name: L('Showroom ziyarəti', 'Визит в шоурум', 'Showroom visit'), category: 'couture', durationMin: 60, price: 0, deposit: { type: 'none', value: 0 } },
+      { id: 's_dc_fit', key: 'fitting', name: L('Ölçü və uyğunlaşdırma', 'Примерка и подгонка', 'Fitting and alterations'), category: 'couture', durationMin: 45, price: 0, deposit: { type: 'none', value: 0 } },
+    ],
+    masters: [
+      { id: 'm_dc_1', name: 'Leyla Həsənova', role: L('Stilist', 'Стилист', 'Stylist'), years: 6, rating: 0, reviewCount: 0, serviceIds: ['s_dc_visit', 's_dc_fit'], workDays: days, shift: { start: '11:00', end: '20:00' }, tone: 'oxblood', languages: ['az', 'ru', 'en'] },
+    ],
+    photos: [],
+  };
+}
+
+const empty = (): Db => ({
+  users: [DEMO_USER, DEMO_COUTURE_USER],
+  businesses: [demoBarbershop(), demoShowroom()],
+  otps: [],
+  sessions: [],
+  resets: [],
+});
 
 let cache: Db | null = null;
 async function load(): Promise<Db> {
@@ -120,6 +190,8 @@ async function load(): Promise<Db> {
   const raw = await AsyncStorage.getItem(KEY);
   const db: Db = raw ? (JSON.parse(raw) as Db) : empty();
   if (!db.users.some((u) => u.id === DEMO_USER.id)) db.users.push(DEMO_USER);
+  if (!db.users.some((u) => u.id === DEMO_COUTURE_USER.id)) db.users.push(DEMO_COUTURE_USER);
+  if (!db.businesses.some((b) => b.ownerId === DEMO_COUTURE_USER.id)) db.businesses.push(demoShowroom());
   // Older demo stores: the account is now a salon owner with a barbershop.
   const me = db.users.find((u) => u.id === DEMO_USER.id)!;
   if (!db.businesses.some((b) => b.ownerId === me.id)) {
