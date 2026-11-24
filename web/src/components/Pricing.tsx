@@ -25,7 +25,10 @@ export function Pricing() {
     setPicked(p.id);
     window.dispatchEvent(new CustomEvent<PlanPick>(PLAN_PICK_EVENT, { detail: { plan: p.id, market: p.market } }));
     // Let the pressed state show before the page moves.
-    window.setTimeout(() => document.getElementById('join')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 220);
+    window.setTimeout(
+      () => document.getElementById('join')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      220,
+    );
   };
 
   return (
@@ -44,18 +47,28 @@ export function Pricing() {
               id={`market-tab-${x.id}`}
               aria-selected={market === x.id}
               aria-controls="market-panel"
+              aria-label={t(x.title)}
               className={market === x.id ? 'on' : undefined}
               onClick={() => {
                 setMarket(x.id);
                 setPicked(null);
               }}
             >
-              {t(x.title)}
+              <span className="long">{t(x.title)}</span>
+              <span className="short" aria-hidden="true">
+                {t(x.id === 'beauty' ? 'marketBeautyShort' : 'marketCoutureShort')}
+              </span>
             </button>
           ))}
         </div>
 
-        <div className={`market market-${market}`} id="market-panel" role="tabpanel" aria-labelledby={`market-tab-${market}`} key={market}>
+        <div
+          className={`market market-${market}`}
+          id="market-panel"
+          role="tabpanel"
+          aria-labelledby={`market-tab-${market}`}
+          key={market}
+        >
           <div className="market-head">
             <h3>{t(m.title)}</h3>
             <p>{t(m.sub)}</p>

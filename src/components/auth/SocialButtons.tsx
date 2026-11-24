@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -32,17 +33,26 @@ const googleReady = !!(Platform.OS === 'ios'
     ? GOOGLE.androidClientId
     : GOOGLE.webClientId);
 
-export function SocialButtons() {
+/**
+ * Sign in with Apple / Google. `divider` (an "or" line) shows only when there is at least one
+ * button, so the screen never shows an "or" with nothing beside it.
+ */
+export function SocialButtons({ divider, dividerFirst }: { divider?: ReactNode; dividerFirst?: boolean }) {
   const [apple, setApple] = useState(false);
   useEffect(() => {
     if (Platform.OS === 'ios') AppleAuthentication.isAvailableAsync().then(setApple, () => setApple(false));
   }, []);
+  if (!apple && !googleReady && !__DEV__) return null;
   return (
-    <View style={styles.stack}>
-      {apple ? <AppleButton /> : null}
-      {/* Store builds never show a Google button that can't sign in (App Review rejects dead buttons). */}
-      {googleReady ? <GoogleButtonLive /> : __DEV__ ? <GoogleButtonUnconfigured /> : null}
-    </View>
+    <>
+      {dividerFirst ? divider : null}
+      <View style={styles.stack}>
+        {apple ? <AppleButton /> : null}
+        {/* Store builds never show a Google button that can't sign in (App Review rejects dead buttons). */}
+        {googleReady ? <GoogleButtonLive /> : __DEV__ ? <GoogleButtonUnconfigured /> : null}
+      </View>
+      {dividerFirst ? null : divider}
+    </>
   );
 }
 

@@ -51,8 +51,15 @@ export function Stores() {
         </span>
       </span>
     );
+  // Until the store apps are out, the working way in is the app in the browser: lead with that.
+  const webApp = !config.appStoreUrl && !config.playStoreUrl;
   return (
     <div className="stores">
+      {webApp ? (
+        <a className="btn btn-ink store-web" href={config.appUrl || '/app'}>
+          {t('openWebApp')}
+        </a>
+      ) : null}
       {item(config.appStoreUrl, <Apple />, 'App Store')}
       {item(config.playStoreUrl, <Play />, 'Google Play')}
     </div>

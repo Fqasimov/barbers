@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Controllers\Business\AddonController;
 use App\Models\User;
 use App\Services\BusinessAccess;
 use App\Support\Iso;
@@ -83,6 +84,8 @@ class BusinessResource extends JsonResource
                 ]
                 : null,
             'whatsapp_pack' => [
+                // False while the server only logs messages (no WhatsApp account connected yet).
+                'available' => AddonController::whatsappLive(),
                 'left' => $packLive ? max(0, (int) $account->whatsapp_quota - (int) $account->whatsapp_used) : 0,
                 'until' => $packLive ? Iso::ts($account->whatsapp_until) : null,
             ],

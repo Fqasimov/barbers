@@ -289,8 +289,10 @@ class Business extends Model
                 ->orWhere(fn (Builder $q) => $q->whereNotNull('parent_id')->whereHas('parent', fn (Builder $p) => $p
                     ->where('status', self::LIVE)
                     ->whereHas('subscription', fn (Builder $s) => $running($s)->whereIn('plan', self::plansWith('branches'))))))
+            // Every listing shows at least one service with a price; booking ones also need someone to book.
+            ->whereHas('services')
             ->where(fn (Builder $q) => $q
-                ->where(fn (Builder $q) => $q->whereHas('services')->whereHas('masters'))
+                ->whereHas('masters')
                 ->orWhere(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', fn (Builder $s) => $s->where('plan', 'sade'))));
     }
 

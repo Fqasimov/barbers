@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ApiException;
+use App\Mail\NewBusinessMail;
 use App\Models\Business;
-use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Rules\V;
 use App\Services\OtpService;
@@ -14,8 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -109,6 +111,20 @@ class AuthController extends Controller
         if (! $user->isVerified()) {
             $user->email_verified_at = now();
             $user->save();
+            // A verified business sign-up now waits for review: tell the team.
+            $business = $user->business;
+            $to = (string) config('usta.alerts_email');
+            if ($business && $business->status === Business::PENDING && $to !== '') {
+                Mail::to($to)->queue(new NewBusinessMail(
+                    (string) $business->name,
+                    implode(', ', (array) $business->categories),
+                    (string) $business->district,
+                    trim("{$user->first_name} {$user->last_name}"),
+                    (string) $user->email,
+                    (string) $user->phone,
+                    rtrim((string) config('app.url'), '/').'/admin',
+                ));
+            }
         }
 
         return response()->json($this->sessions->open($user, $request));

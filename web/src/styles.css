@@ -2187,7 +2187,6 @@ a.store:active {
   margin-top: 14px;
 }
 
-
 /* ---------------------------------------------------------------------------
    2026 refresh: cleaner, quieter type
    --------------------------------------------------------------------------- */
@@ -2465,7 +2464,8 @@ a.store:active {
   animation: picked-ring 1.6s var(--ease);
 }
 @keyframes picked-ring {
-  0%, 60% {
+  0%,
+  60% {
     box-shadow: 0 0 0 3px var(--burgundy);
   }
   100% {
@@ -2480,5 +2480,83 @@ a.store:active {
   }
   .join-picked .form-card {
     animation: none;
+  }
+}
+
+/* The app in the browser, first in the store row while the store apps are coming. */
+.store-web {
+  background: var(--burgundy);
+  border-color: var(--burgundy);
+  color: #fff;
+  height: 58px;
+  border-radius: var(--r-card);
+  font-size: 15px;
+}
+@media (hover: hover) {
+  .store-web:hover {
+    background: var(--burgundy-deep);
+    border-color: var(--burgundy-deep);
+  }
+}
+@media (max-width: 520px) {
+  .store-web {
+    width: 100%;
+  }
+}
+
+/* Salon or couture brand: switches the sign-up's wording and its plans. */
+.join-kind {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin: 4px 0 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--r) + 4px);
+  background: var(--field);
+  max-width: 100%;
+}
+.join-kind button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--t-small) var(--ease),
+    color var(--t-small) var(--ease),
+    transform var(--t-press) var(--ease);
+}
+.join-kind button.on {
+  background: var(--ink);
+  color: var(--bg);
+}
+.join-kind button:active {
+  transform: scale(0.97);
+}
+.join-kind button:focus-visible {
+  outline: 2px solid var(--burgundy);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .join-kind button:not(.on):hover {
+    color: var(--ink);
+    background: var(--bg-deep);
+  }
+}
+
+.market-switch .short {
+  display: none;
+}
+@media (max-width: 520px) {
+  .market-switch .long {
+    display: none;
+  }
+  .market-switch .short {
+    display: inline;
   }
 }

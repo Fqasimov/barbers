@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Rea
 
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
 import { config, isLive, page } from '../config';
-import { categories, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { categories, dict, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
 import { PLAN_PICK_EVENT, type PlanPick } from './Pricing';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
@@ -213,6 +213,16 @@ export function Join() {
 
   // The plan always belongs to the business's market (a showroom can't keep a salon plan).
   const market = marketOf(salon.categories);
+  /** The couture wording of a key, when there is one and the business is a showroom. */
+  const ck = (k: Key): Key => {
+    const alt = `${k}Couture` as Key;
+    return market === 'couture' && alt in dict ? alt : k;
+  };
+  const setKind = (kind: 'beauty' | 'couture') =>
+    setSalon((s) => ({
+      ...s,
+      categories: kind === 'couture' ? ['couture'] : s.categories.filter((c) => c !== 'couture'),
+    }));
   useEffect(() => {
     if (plans.find((p) => p.id === plan)?.market === market) return;
     setPlan((plans.find((p) => p.market === market && p.recommended) ?? plans.find((p) => p.market === market)!).id);
@@ -414,30 +424,44 @@ export function Join() {
     <section className={`section join${pickedFlash ? ' join-picked' : ''}`} id="join">
       <div className="wrap join-grid">
         <div className="join-copy">
-          <p className="kicker reveal">{t('joinKicker')}</p>
-          <h2 className="h2 reveal">{t('joinTitle')}</h2>
-          <p className="section-sub reveal">{t('joinSub')}</p>
+          <p className="kicker reveal">{t(ck('joinKicker'))}</p>
+          <h2 className="h2 reveal">{t(ck('joinTitle'))}</h2>
+          <p className="section-sub reveal">{t(ck('joinSub'))}</p>
+          <div className="join-kind reveal" role="radiogroup" aria-label={t('joinKindLabel')}>
+            {(['beauty', 'couture'] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={market === k}
+                className={market === k ? 'on' : undefined}
+                onClick={() => setKind(k)}
+              >
+                {t(k === 'couture' ? 'joinKindCouture' : 'joinKindBeauty')}
+              </button>
+            ))}
+          </div>
           <p className="reveal panel-link">
-            {t('joinPanel')}{' '}
+            {t(ck('joinPanel'))}{' '}
             <a
               className="btn btn-sm btn-outline"
               href={config.panelUrl}
               target={/^https?:/.test(config.panelUrl ?? '') ? '_blank' : undefined}
               rel="noopener"
             >
-              {t('joinPanelCta')}
+              {t(ck('joinPanelCta'))}
             </a>
           </p>
           <ul className="ticks reveal">
             {(['joinPoint1', 'joinPoint2', 'joinPoint3', 'joinPoint4'] as const).map((k) => (
-              <li key={k}>{t(k)}</li>
+              <li key={k}>{t(ck(k))}</li>
             ))}
           </ul>
           <div className="how reveal">
             <h3>{t('joinSteps')}</h3>
             <ol>
               {(['joinStep1', 'joinStep2', 'joinStep3'] as const).map((k) => (
-                <li key={k}>{t(k)}</li>
+                <li key={k}>{t(ck(k))}</li>
               ))}
             </ol>
           </div>
@@ -449,12 +473,12 @@ export function Join() {
               <ol className="progress" aria-hidden="true">
                 {STEPS.map((k, i) => (
                   <li key={k} className={i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>
-                    {t(k)}
+                    {t(ck(k))}
                   </li>
                 ))}
               </ol>
               <p className="step-of" aria-live="polite">
-                {t('stepOf', { n: step })} · {t(STEPS[step - 1])}
+                {t('stepOf', { n: step })} · {t(ck(STEPS[step - 1]))}
               </p>
             </>
           ) : null}
@@ -695,39 +719,41 @@ export function Join() {
               </h3>
               <p className="muted">{t('planSub')}</p>
               <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
-                {plans.filter((p) => p.market === market).map((p) => (
-                  <label className="plan" key={p.id}>
-                    <input
-                      type="radio"
-                      name="plan"
-                      value={p.id}
-                      checked={plan === p.id}
-                      onChange={() => setPlan(p.id)}
-                    />
-                    <span className="plan-body">
-                      <span className="plan-head">
-                        <span className="plan-name">
-                          {p.name}
-                          {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
+                {plans
+                  .filter((p) => p.market === market)
+                  .map((p) => (
+                    <label className="plan" key={p.id}>
+                      <input
+                        type="radio"
+                        name="plan"
+                        value={p.id}
+                        checked={plan === p.id}
+                        onChange={() => setPlan(p.id)}
+                      />
+                      <span className="plan-body">
+                        <span className="plan-head">
+                          <span className="plan-name">
+                            {p.name}
+                            {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
+                          </span>
+                          <span className="plan-price">
+                            {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
+                            <small className="plan-after">{t('afterTrial')}</small>
+                          </span>
                         </span>
-                        <span className="plan-price">
-                          {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
-                          <small className="plan-after">{t('afterTrial')}</small>
-                        </span>
+                        <span className="plan-blurb">{tx(p.blurb)}</span>
+                        <span className="plan-trial">{t('trialBadge')}</span>
+                        <ul>
+                          {p.features.map((f) => (
+                            <li key={f.en} className={f.soon ? 'soon' : undefined}>
+                              {tx(f)}
+                              {f.soon ? <em> · {t('soon')}</em> : null}
+                            </li>
+                          ))}
+                        </ul>
                       </span>
-                      <span className="plan-blurb">{tx(p.blurb)}</span>
-                      <span className="plan-trial">{t('trialBadge')}</span>
-                      <ul>
-                        {p.features.map((f) => (
-                          <li key={f.en} className={f.soon ? 'soon' : undefined}>
-                            {tx(f)}
-                            {f.soon ? <em> · {t('soon')}</em> : null}
-                          </li>
-                        ))}
-                      </ul>
-                    </span>
-                  </label>
-                ))}
+                    </label>
+                  ))}
               </div>
               <p className="plan-note plan-note-left">{t('yearDeal')}</p>
               {formErr}

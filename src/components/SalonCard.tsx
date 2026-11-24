@@ -56,7 +56,8 @@ export const SalonCard = memo(function SalonCard({ item, width, badge }: Props) 
             {i18n.tx(salon.kind)} · {salon.district} · {i18n.distance(distance)}
           </Text>
           <Text variant="subhead" tone="soft" numberOfLines={1}>
-            {i18n.fromPrice(fromPrice(salon))} · {priceLabel(salon.priceLevel)}
+            {fromPrice(salon) !== null ? `${i18n.fromPrice(fromPrice(salon)!)} · ` : ''}
+            {priceLabel(salon.priceLevel)}
           </Text>
         </View>
       </PressableScale>

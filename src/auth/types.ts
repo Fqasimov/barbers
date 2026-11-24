@@ -134,7 +134,8 @@ export type Business = {
     extraPrice: number;
   } | null;
   /** WhatsApp add-on: messages left and until when. */
-  whatsappPack?: { left: number; until: string | null };
+  /** available: false while the server can't send WhatsApp messages yet (then the pack isn't sold). */
+  whatsappPack?: { left: number; until: string | null; available?: boolean };
 };
 
 export type Session = { token: string; user: User; business: Business | null };

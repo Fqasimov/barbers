@@ -398,7 +398,9 @@ export default function BusinessDashboard() {
                       lockDetail('whatsapp_addon') ??
                       (business.whatsappPack?.left
                         ? i18n.t('waLeft', { n: business.whatsappPack.left })
-                        : i18n.t('waNone'))
+                        : business.whatsappPack?.available === false
+                          ? i18n.t('soon')
+                          : i18n.t('waNone'))
                     }
                     onPress={tool('whatsapp_addon', '/business/whatsapp')}
                   />

@@ -90,6 +90,18 @@ class PlansFeaturesTest extends TestCase
         $this->getJson('/api/business/stats', $this->auth($salon->owner))->assertStatus(402)->assertJsonPath('error', 'plan_required');
     }
 
+    public function test_a_listing_without_any_service_stays_out_of_search(): void
+    {
+        $salon = $this->onPlan($this->makeSalon(['booking_url' => 'https://dikidi.net/123']), 'sade');
+        $salon->masters()->delete();
+        $this->getJson("/api/salons/{$salon->id}")->assertOk();
+
+        // No price to show, nothing to book: not a listing yet.
+        $salon->services()->delete();
+        $this->getJson("/api/salons/{$salon->id}")->assertNotFound();
+        $this->assertNotContains($salon->id, array_column($this->getJson('/api/salons')->json(), 'id'));
+    }
+
     public function test_owner_sets_the_booking_link(): void
     {
         $salon = $this->makeSalon();
@@ -360,6 +372,19 @@ class PlansFeaturesTest extends TestCase
     }
 
     // --- WhatsApp and support ----------------------------------------------
+
+    public function test_no_whatsapp_pack_is_sold_while_messages_only_go_to_the_log(): void
+    {
+        $salon = $this->makeSalon();
+        $h = $this->auth($salon->owner);
+        config(['usta.whatsapp.driver' => 'log']);
+        $this->app['env'] = 'production';
+        $this->getJson('/api/business', $h)->assertJsonPath('whatsapp_pack.available', false);
+        $this->postJson('/api/business/whatsapp/checkout', [], $h)->assertStatus(503)->assertJsonPath('error', 'whatsapp_unavailable');
+
+        config(['usta.whatsapp.driver' => 'meta']);
+        $this->getJson('/api/business', $h)->assertJsonPath('whatsapp_pack.available', true);
+    }
 
     public function test_whatsapp_pack_sends_until_it_runs_out(): void
     {

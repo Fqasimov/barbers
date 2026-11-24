@@ -1330,5 +1330,7 @@ export const seedSalons: Salon[] = seeds.map(({ team, ...seed }) => {
   };
 });
 
-export const fromPrice = (salon: Salon) => Math.min(...salon.services.map((s) => s.price));
+/** The lowest service price, or null when the salon lists none (never Infinity). */
+export const fromPrice = (salon: Salon): number | null =>
+  salon.services.length ? Math.min(...salon.services.map((s) => s.price)) : null;
 

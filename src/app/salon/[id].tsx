@@ -35,6 +35,7 @@ import { toast } from '@/components/Toaster';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { CompareTray } from '@/components/CompareTray';
+import { useCompareEnabled } from '@/hooks/useVisibleSalons';
 import { IconButton } from '@/components/ui/IconButton';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -76,6 +77,7 @@ function SalonDetail({ salon }: { salon: Salon }) {
   const live = useLiveRating(salon);
   const saved = useStore((s) => s.favorites.includes(salon.id));
   const comparing = useStore((s) => s.compare.includes(salon.id));
+  const compareEnabled = useCompareEnabled();
   const inCompare = useStore((s) => s.compare.length > 0);
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const toggleCompare = useStore((s) => s.toggleCompare);
@@ -176,9 +178,11 @@ function SalonDetail({ salon }: { salon: Salon }) {
             <Text variant="callout" style={{ color: open.open ? c.success : c.inkSoft }}>
               {i18n.t(open.kind, { time: open.time ?? '' })}
             </Text>
-            <Text variant="subhead" tone="muted">
-              · {i18n.fromPrice(fromPrice(salon))}
-            </Text>
+            {fromPrice(salon) !== null ? (
+              <Text variant="subhead" tone="muted">
+                · {i18n.fromPrice(fromPrice(salon)!)}
+              </Text>
+            ) : null}
           </View>
 
           {salon.womenOnly || english ? (
@@ -193,13 +197,15 @@ function SalonDetail({ salon }: { salon: Salon }) {
             <Action icon={MessageCircle} label={i18n.t('whatsapp')} onPress={() => messageSalon(salon)} />
             <Action icon={Navigation} label={i18n.t('directions')} onPress={() => openDirections(salon)} />
             <Action icon={Share2} label={i18n.t('share')} onPress={() => shareSalon(salon, i18n.tx(salon.tagline))} />
-            <Action
-              icon={comparing ? Check : ArrowLeftRight}
-              label={i18n.t('compare')}
-              a11yLabel={comparing ? i18n.t('removeFromCompare') : i18n.t('addToCompare')}
-              active={comparing}
-              onPress={onCompare}
-            />
+            {compareEnabled || comparing ? (
+              <Action
+                icon={comparing ? Check : ArrowLeftRight}
+                label={i18n.t('compare')}
+                a11yLabel={comparing ? i18n.t('removeFromCompare') : i18n.t('addToCompare')}
+                active={comparing}
+                onPress={onCompare}
+              />
+            ) : null}
           </View>
 
           <SegmentedControl<Tab>

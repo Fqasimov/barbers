@@ -251,6 +251,38 @@ export const dict = {
     ru: 'Проверим за рабочий день — и вы в поиске',
     en: 'Checked within a working day, then live in search',
   },
+  // The same section for a couture brand (picked in pricing, or with the switch above the form).
+  joinPanelCouture: {
+    az: 'Hər şeyi saytda idarə edin: təqvim, stilistlər, xidmətlər, rəylər, statistika.',
+    ru: 'Управляйте всем на сайте: календарь, стилисты, услуги, отзывы, статистика.',
+    en: 'Run everything on the website: calendar, stylists, services, reviews, statistics.',
+  },
+  joinPanelCtaCouture: { az: 'Showroom panelini aç', ru: 'Открыть панель шоурума', en: 'Open the showroom panel' },
+  joinKickerCouture: { az: 'Couture brendlər üçün', ru: 'Для кутюр-брендов', en: 'For couture brands' },
+  joinTitleCouture: {
+    az: 'Showroomunuzu 15 dəqiqəyə qoşun.',
+    ru: 'Подключите шоурум за 15 минут.',
+    en: 'Put your showroom on yazılnow in 15 minutes.',
+  },
+  joinSubCouture: {
+    az: 'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur: vaxt, stilist, depozit.',
+    ru: 'Клиенты онлайн записываются в шоурум на примерку: время, стилист, депозит.',
+    en: 'Clients book online to visit your showroom and try pieces on: time, stylist and deposit.',
+  },
+  joinPoint2Couture: {
+    az: 'Limitsiz stilist, əlavə ödəniş yoxdur',
+    ru: 'Стилисты без ограничений и доплат',
+    en: 'Unlimited stylists, no extra fees',
+  },
+  joinStep2Couture: {
+    az: 'Xidmətləri (showroom ziyarəti, ölçü), stilistləri və şəkilləri əlavə edin',
+    ru: 'Добавьте услуги (визит, примерка), стилистов и фото',
+    en: 'Add services (showroom visit, fitting), stylists and photos',
+  },
+  stepSalonCouture: { az: 'Showroom', ru: 'Шоурум', en: 'Showroom' },
+  joinKindBeauty: { az: 'Salon / bərbərxana', ru: 'Салон / барбершоп', en: 'Salon / barbershop' },
+  joinKindCouture: { az: 'Couture brend', ru: 'Кутюр-бренд', en: 'Couture brand' },
+  joinKindLabel: { az: 'Biznesinizin növü', ru: 'Тип бизнеса', en: 'Your kind of business' },
   joinSteps: { az: 'Necə işləyir', ru: 'Как это работает', en: 'How it works' },
   joinStep1: { az: 'Burada qeydiyyatdan keçin', ru: 'Зарегистрируйтесь здесь', en: 'Sign up here' },
   joinStep2: {
@@ -479,6 +511,7 @@ export const dict = {
 
   // Pricing, by market
   navPricing: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
+  openWebApp: { az: 'Boş vaxt tap', ru: 'Найти свободное время', en: 'Find a free slot' },
   pricingKicker: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
   pricingTitle: {
     az: 'Hər biznes üçün öz planı.',
@@ -496,6 +529,8 @@ export const dict = {
     ru: 'Барберы, волосы, ногти, брови, спа, макияж и косметология.',
     en: 'Barbers, hair, nails, brows, spa, makeup and aesthetics.',
   },
+  marketBeautyShort: { az: 'Salonlar', ru: 'Салоны', en: 'Salons' },
+  marketCoutureShort: { az: 'Couture', ru: 'Кутюр', en: 'Couture' },
   marketCouture: { az: 'Couture brendlər', ru: 'Кутюр-бренды', en: 'Couture brands' },
   marketCoutureSub: {
     az: 'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur: vaxt, stilist, ödəniş — hamısı bir paneldə.',
@@ -535,10 +570,26 @@ export const plans: Plan[] = [
     price: 10,
     blurb: { az: 'Tək işləyən usta üçün', ru: 'Для мастера, работающего один', en: 'For one master working solo' },
     features: [
-      { az: 'Start planındakı hər şey, bir nəfər üçün', ru: 'Всё из тарифа Start для одного человека', en: 'Everything in Start, for one person' },
-      { az: 'Instagram bio üçün bron linki: yazilnow.az/u/adınız', ru: 'Ссылка для записи в био Instagram: yazilnow.az/u/имя', en: 'A booking link for your Instagram bio: yazilnow.az/u/yourname' },
-      { az: 'Onlayn bron, təqvim və xatırlatmalar', ru: 'Онлайн-запись, календарь и напоминания', en: 'Online booking, calendar and reminders' },
-      { az: 'Salonda işləyirsinizsə də, öz səhifəniz olur', ru: 'Подходит и мастеру внутри салона', en: 'Also for a master working inside a salon' },
+      {
+        az: 'Start planındakı hər şey, bir nəfər üçün',
+        ru: 'Всё из тарифа Start для одного человека',
+        en: 'Everything in Start, for one person',
+      },
+      {
+        az: 'Instagram bio üçün bron linki: yazilnow.az/u/adınız',
+        ru: 'Ссылка для записи в био Instagram: yazilnow.az/u/имя',
+        en: 'A booking link for your Instagram bio: yazilnow.az/u/yourname',
+      },
+      {
+        az: 'Onlayn bron, təqvim və xatırlatmalar',
+        ru: 'Онлайн-запись, календарь и напоминания',
+        en: 'Online booking, calendar and reminders',
+      },
+      {
+        az: 'Salonda işləyirsinizsə də, öz səhifəniz olur',
+        ru: 'Подходит и мастеру внутри салона',
+        en: 'Also for a master working inside a salon',
+      },
     ],
   },
   {
@@ -549,10 +600,22 @@ export const plans: Plan[] = [
     recommended: true,
     blurb: { az: 'Tək salon üçün', ru: 'Для одного салона', en: 'For a single salon' },
     features: [
-      { az: 'Xəritədə yer, QR rəylər və foto qalereya', ru: 'Место на карте, отзывы по QR и фотогалерея', en: 'On the map, with QR reviews and a photo gallery' },
+      {
+        az: 'Xəritədə yer, QR rəylər və foto qalereya',
+        ru: 'Место на карте, отзывы по QR и фотогалерея',
+        en: 'On the map, with QR reviews and a photo gallery',
+      },
       { az: 'Onlayn bron və təqvim', ru: 'Онлайн-запись и календарь', en: 'Online booking and calendar' },
-      { az: 'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar', ru: 'Ссылка для записи в био Instagram: мастера, часы, свободное время', en: 'A booking link for your Instagram bio: masters, hours, free times' },
-      { az: 'Limitsiz usta, əlavə ödəniş yoxdur', ru: 'Мастера без ограничений и доплат', en: 'Unlimited masters, no per-seat fees' },
+      {
+        az: 'Instagram bio üçün bron linki: ustalar, saatlar, boş vaxtlar',
+        ru: 'Ссылка для записи в био Instagram: мастера, часы, свободное время',
+        en: 'A booking link for your Instagram bio: masters, hours, free times',
+      },
+      {
+        az: 'Limitsiz usta, əlavə ödəniş yoxdur',
+        ru: 'Мастера без ограничений и доплат',
+        en: 'Unlimited masters, no per-seat fees',
+      },
       { az: 'Müştərilərə xatırlatmalar', ru: 'Напоминания клиентам', en: 'Reminders for clients' },
       {
         az: 'WhatsApp təsdiqləri: əlavə paket, 10 ₼ / 300 mesaj',
@@ -574,12 +637,20 @@ export const plans: Plan[] = [
         ru: '3 филиала включены (+15 ₼ за каждый следующий)',
         en: 'Up to 3 branches included (+15 ₼ per extra branch)',
       },
-      { az: 'Bir bron linki: müştəri əvvəlcə filialı seçir', ru: 'Одна ссылка для записи: клиент сначала выбирает филиал', en: 'One booking link: clients pick a branch first' },
+      {
+        az: 'Bir bron linki: müştəri əvvəlcə filialı seçir',
+        ru: 'Одна ссылка для записи: клиент сначала выбирает филиал',
+        en: 'One booking link: clients pick a branch first',
+      },
       { az: 'Filiallar üzrə ümumi hesabat', ru: 'Сводные отчёты по филиалам', en: 'Combined reports across branches' },
       { az: 'Filial menecerləri', ru: 'Роли менеджеров филиалов', en: 'Branch manager roles' },
       { az: 'Gəlməmə qorunması və depozit', ru: 'Защита от неявок и депозиты', en: 'No-show protection and deposits' },
       { az: 'Gözləmə siyahısı və statistika', ru: 'Лист ожидания и статистика', en: 'Waitlist and statistics' },
-      { az: 'Prioritet dəstək və telefon xətti', ru: 'Приоритетная поддержка и телефон', en: 'Priority support and a phone line' },
+      {
+        az: 'Prioritet dəstək və telefon xətti',
+        ru: 'Приоритетная поддержка и телефон',
+        en: 'Priority support and a phone line',
+      },
     ],
   },
   {
@@ -590,10 +661,22 @@ export const plans: Plan[] = [
     recommended: true,
     blurb: { az: 'Bir showroom üçün', ru: 'Для одного шоурума', en: 'For one showroom' },
     features: [
-      { az: 'Showroom ziyarəti və geyinib baxmaq üçün onlayn qeyd', ru: 'Онлайн-запись на визит в шоурум и примерку', en: 'Online appointments to visit the showroom and try pieces on' },
+      {
+        az: 'Showroom ziyarəti və geyinib baxmaq üçün onlayn qeyd',
+        ru: 'Онлайн-запись на визит в шоурум и примерку',
+        en: 'Online appointments to visit the showroom and try pieces on',
+      },
       { az: '1 showroom', ru: '1 шоурум', en: '1 showroom' },
-      { az: 'Stilistlər, menecerlər, depozit və statistika', ru: 'Стилисты, менеджеры, депозиты и статистика', en: 'Stylists, managers, deposits and statistics' },
-      { az: 'Instagram bio üçün qeyd linki', ru: 'Ссылка для записи в био Instagram', en: 'A booking link for your Instagram bio' },
+      {
+        az: 'Stilistlər, menecerlər, depozit və statistika',
+        ru: 'Стилисты, менеджеры, депозиты и статистика',
+        en: 'Stylists, managers, deposits and statistics',
+      },
+      {
+        az: 'Instagram bio üçün qeyd linki',
+        ru: 'Ссылка для записи в био Instagram',
+        en: 'A booking link for your Instagram bio',
+      },
     ],
   },
   {
@@ -604,9 +687,21 @@ export const plans: Plan[] = [
     blurb: { az: '3 showroomadək', ru: 'До 3 шоурумов', en: 'Up to 3 showrooms' },
     features: [
       { az: 'Couture planındakı hər şey', ru: 'Всё из тарифа Couture', en: 'Everything in Couture' },
-      { az: '3 showroom daxildir (hər əlavəsi +15 ₼)', ru: '3 шоурума включены (+15 ₼ за каждый следующий)', en: 'Up to 3 showrooms included (+15 ₼ per extra one)' },
-      { az: 'Bir qeyd linki: müştəri əvvəlcə showroomu seçir', ru: 'Одна ссылка для записи: клиент сначала выбирает шоурум', en: 'One booking link: clients pick a showroom first' },
-      { az: 'Showroomlar üzrə ümumi hesabat', ru: 'Сводные отчёты по шоурумам', en: 'Combined reports across showrooms' },
+      {
+        az: '3 showroom daxildir (hər əlavəsi +15 ₼)',
+        ru: '3 шоурума включены (+15 ₼ за каждый следующий)',
+        en: 'Up to 3 showrooms included (+15 ₼ per extra one)',
+      },
+      {
+        az: 'Bir qeyd linki: müştəri əvvəlcə showroomu seçir',
+        ru: 'Одна ссылка для записи: клиент сначала выбирает шоурум',
+        en: 'One booking link: clients pick a showroom first',
+      },
+      {
+        az: 'Showroomlar üzrə ümumi hesabat',
+        ru: 'Сводные отчёты по шоурумам',
+        en: 'Combined reports across showrooms',
+      },
     ],
   },
 ];

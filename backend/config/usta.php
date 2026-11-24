@@ -175,6 +175,9 @@ return [
         'template_lang' => env('WHATSAPP_TEMPLATE_LANG', 'az'),
     ],
 
+    // Where new sign-ups waiting for review are announced. Empty: no email.
+    'alerts_email' => env('ALERTS_EMAIL', env('SUPPORT_EMAIL', 'support@yazilnow.az')),
+
     'support' => [
         'email' => env('SUPPORT_EMAIL', 'support@yazilnow.az'),
         // Pro only: the priority phone line. Empty: Pro sees email support only.

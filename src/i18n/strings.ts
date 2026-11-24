@@ -1311,6 +1311,11 @@ export const strings = {
   waitlistLeave: L('Siyahıdan çıx', 'Выйти из списка', 'Leave the list'),
   waitlistNoSlots: L('Bu gün boş vaxt yoxdur', 'На этот день окон нет', 'No free times this day'),
 
+  waSoon: L(
+    'WhatsApp mesajları tezliklə qoşulur. Paketi o zaman almaq mümkün olacaq.',
+    'Сообщения WhatsApp скоро подключатся. Тогда пакет можно будет купить.',
+    'WhatsApp messages are being switched on soon. You can buy the pack then.',
+  ),
   waTitle: L('WhatsApp paketi', 'Пакет WhatsApp', 'WhatsApp pack'),
   waBody: L(
     'Bron təsdiqi və sabahkı xatırlatma müştəriyə WhatsApp-da gedir. {messages} mesaj, {days} gün.',

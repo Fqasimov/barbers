@@ -95,14 +95,18 @@ export default function SignIn() {
         <Text variant="captionStrong">{i18n.t('forgotPassword')}</Text>
       </PressableScale>
 
-      <View style={styles.orRow}>
-        <View style={[styles.rule, { backgroundColor: c.line }]} />
-        <Text variant="caption" tone="muted">
-          {i18n.t('or')}
-        </Text>
-        <View style={[styles.rule, { backgroundColor: c.line }]} />
-      </View>
-      <SocialButtons />
+      <SocialButtons
+        dividerFirst
+        divider={
+          <View style={styles.orRow}>
+            <View style={[styles.rule, { backgroundColor: c.line }]} />
+            <Text variant="caption" tone="muted">
+              {i18n.t('or')}
+            </Text>
+            <View style={[styles.rule, { backgroundColor: c.line }]} />
+          </View>
+        }
+      />
       <PressableScale onPress={() => router.replace('/auth/register')} style={styles.switch} accessibilityRole="link">
         <Text variant="subhead" tone="soft">
           {i18n.t('noAccount')}{' '}
