@@ -1,8 +1,13 @@
 import { getLocales } from 'expo-localization';
+import { usePathname } from 'expo-router';
 import { useMemo } from 'react';
 
 import { PASSWORD_MIN } from '@/auth/validation';
+import { marketOf } from '@/auth/plans';
+import { useSession } from '@/auth/useSession';
 import { useStore } from '@/store/useStore';
+
+import { coutureForms, coutureStrings } from './couture';
 
 import { cal, plural } from './calendar';
 import { forms, strings, type FormKey, type StringKey } from './strings';
@@ -28,14 +33,20 @@ const DAY = 86_400_000;
 /** Values some strings always need, so call sites don't have to pass them. */
 const DEFAULT_VARS = { pwMin: PASSWORD_MIN };
 
-export function makeI18n(locale: Locale) {
+/** couture: a couture brand's dashboard, which says showroom and stylist instead of salon and master. */
+export function makeI18n(locale: Locale, couture = false) {
   const t = (key: StringKey, vars?: Record<string, string | number>) => {
-    let s: string = strings[key][locale];
+    let s: string = ((couture && coutureStrings[key]) || strings[key])[locale];
     for (const [k, v] of Object.entries({ ...DEFAULT_VARS, ...vars })) s = s.split(`{${k}}`).join(String(v));
     return s;
   };
   const tx = (loc: Loc | undefined) => (loc ? (loc[locale] ?? loc.en) : '');
-  const n = (count: number, form: FormKey) => plural(locale, count, forms[form][locale] as unknown as string[]);
+  const n = (count: number, form: FormKey) =>
+    plural(
+      locale,
+      count,
+      (couture && form === 'master' ? coutureForms.master : forms[form])[locale] as unknown as string[],
+    );
   const decimal = (x: number, digits = 1) =>
     locale === 'en' ? x.toFixed(digits) : x.toFixed(digits).replace('.', ',');
 
@@ -128,5 +139,10 @@ export function useLocale(): Locale {
 
 export function useI18n(): I18n {
   const locale = useLocale();
-  return useMemo(() => makeI18n(locale), [locale]);
+  // Only the business screens of a couture brand change wording; browsing the catalogue reads as usual.
+  const pathname = usePathname();
+  const business = useSession((s) => s.session?.business);
+  const couture =
+    /^\/(business|panel)(\/|$)/.test(pathname) && (business?.market ?? marketOf(business?.categories)) === 'couture';
+  return useMemo(() => makeI18n(locale, couture), [locale, couture]);
 }

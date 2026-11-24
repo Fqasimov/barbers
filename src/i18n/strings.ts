@@ -1147,9 +1147,9 @@ export const strings = {
   kindBeauty: L('Salon / bərbərxana', 'Салон / барбершоп', 'Salon / barbershop'),
   kindCouture: L('Couture brend', 'Кутюр-бренд', 'Couture brand'),
   kindCoutureNote: L(
-    'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur. Plan: Couture, 39 ₼ / ay, ilk 30 gün pulsuz.',
-    'Клиенты онлайн записываются в ваш шоурум на примерку. Тариф: Couture, 39 ₼ / мес, первые 30 дней бесплатно.',
-    'Clients book online to visit your showroom and try pieces on. Plan: Couture, 39 ₼ a month, first 30 days free.',
+    'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur. Planlar: Couture 39 ₼ / ay (1 showroom), Couture Plus 59 ₼ / ay (3 showroomadək), ilk 30 gün pulsuz.',
+    'Клиенты онлайн записываются в ваш шоурум на примерку. Тарифы: Couture 39 ₼ / мес (1 шоурум), Couture Plus 59 ₼ / мес (до 3 шоурумов), первые 30 дней бесплатно.',
+    'Clients book online to visit your showroom and try pieces on. Plans: Couture 39 ₼ a month (1 showroom), Couture Plus 59 ₼ a month (up to 3 showrooms), first 30 days free.',
   ),
   pickBranch: L('Filialı seçin', 'Выберите филиал', 'Pick a branch'),
   mstLimitNote: L(

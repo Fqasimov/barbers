@@ -25,7 +25,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GRACE_DAYS, hasFeature, marketOf, planById, REMIND_DAYS } from '@/auth/plans';
+import { GRACE_DAYS, hasFeature, marketOf, planById, plansFor, REMIND_DAYS } from '@/auth/plans';
 import { setBranch } from '@/api/client';
 import type { Feature } from '@/auth/types';
 import { authErrorKey } from '@/auth/flow';
@@ -97,14 +97,9 @@ export default function BusinessDashboard() {
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
   const locations = business.locations ?? [];
+  /** The cheapest plan of this business's market that has the tool (Couture Plus for a showroom's branches). */
   const lockedTo = (f: Feature) =>
-    planById(
-      f === 'click_report' || f === 'qr_reviews'
-        ? 'sade'
-        : f === 'whatsapp_addon' || f === 'personal_page'
-          ? 'ferdi'
-          : 'pro',
-    ).name;
+    (plansFor(couture ? 'couture' : 'beauty').find((p) => p.unlocks.includes(f)) ?? planById('pro')).name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
     can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
