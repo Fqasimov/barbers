@@ -642,6 +642,18 @@ export const strings = {
   bizStepOwner: L('Sahibkar', 'Владелец', 'Owner'),
   bizStepSalon: L('Salon', 'Салон', 'Salon'),
   bizOwnerTitle: L('Sizin məlumatlarınız', 'Ваши данные', 'About you'),
+  bizPlanTitle: L('Planınızı seçin', 'Выберите тариф', 'Pick your plan'),
+  bizPlanNote: L(
+    'İlk 30 gün pulsuz, kart lazım deyil. Planı sonra paneldən dəyişə bilərsiniz.',
+    'Первые 30 дней бесплатно, карта не нужна. Тариф можно сменить потом в панели.',
+    'The first 30 days are free, no card needed. You can change the plan later in the panel.',
+  ),
+  bizSoloTitle: L('Səhifəniz', 'Ваша страница', 'Your page'),
+  bizSoloNote: L(
+    'Fərdi plan bir nəfər üçündür: səhifə sizin adınızla açılır ({name}). Biznes adını sonra paneldən əlavə edə bilərsiniz.',
+    'Тариф Fərdi — для одного человека: страница открывается на ваше имя ({name}). Название можно добавить потом в панели.',
+    'Fərdi is for one person: the page uses your name ({name}). You can add a business name later in the panel.',
+  ),
   bizSalonTitle: L('Salon haqqında', 'О салоне', 'About the salon'),
   fSalonName: L('Salonun adı', 'Название салона', 'Salon name'),
   phSalonName: L('Salonun adını daxil edin', 'Введите название салона', 'Enter the salon name'),
@@ -1310,7 +1322,11 @@ export const strings = {
     'Want a shorter link? Pick a personal page address in your salon details.',
   ),
   voiceTitle: L('Səsli köməkçi', 'Голосовой помощник', 'Voice assistant'),
-  voiceUsed: L('Bu ay: {used} / {pack} dəqiqə', 'В этом месяце: {used} / {pack} мин', 'This month: {used} / {pack} min'),
+  voiceUsed: L(
+    'Bu ay: {used} / {pack} dəqiqə',
+    'В этом месяце: {used} / {pack} мин',
+    'This month: {used} / {pack} min',
+  ),
   voiceExtra: L(
     'Paketdən artıq {extra} dəqiqə: ay sonunda {owed} ₼ ({price} ₼/dəq)',
     'Сверх пакета {extra} мин: {owed} ₼ в конце месяца ({price} ₼/мин)',

@@ -116,7 +116,8 @@ class SalonController extends Controller
             'last_name' => ['required', 'string', 'max:60'],
             'email' => ['required', ...V::email()],
             'phone' => ['nullable', 'string', 'regex:'.V::AZ_PHONE],
-            'salon_name' => ['required', 'string', 'min:2', 'max:120'],
+            // Fərdi is one person: no salon name, the owner's own name is used.
+            'salon_name' => ['required_unless:plan,ferdi', 'nullable', 'string', 'min:2', 'max:120'],
             'categories' => ['required', 'array', 'min:1'],
             'categories.*' => ['string', 'distinct', Rule::in(config('usta.categories'))],
             'district' => ['required', 'string', 'max:120'],
@@ -129,6 +130,7 @@ class SalonController extends Controller
             'paid_until' => ['required_if:billing,paid', 'nullable', 'date', 'after:today'],
             'approve' => ['sometimes', 'boolean'],
         ]);
+        $data['salon_name'] = trim((string) ($data['salon_name'] ?? '')) ?: trim($data['first_name'].' '.$data['last_name']);
         $market = Business::marketOf(array_values($data['categories']));
         if ($market === null) {
             throw ValidationException::withMessages(['categories' => 'A couture showroom and beauty services are separate kinds of business.']);

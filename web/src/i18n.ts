@@ -311,6 +311,11 @@ export const dict = {
   stepSalon: { az: 'Salon', ru: 'Салон', en: 'Salon' },
   stepCode: { az: 'Kod', ru: 'Код', en: 'Code' },
   stepPlan: { az: 'Plan', ru: 'Тариф', en: 'Plan' },
+  soloNote: {
+    az: 'Fərdi plan bir nəfər üçündür: səhifə sizin adınızla açılır ({name}). Biznes adını sonra paneldən əlavə edə bilərsiniz.',
+    ru: 'Тариф Fərdi — для одного человека: страница открывается на ваше имя ({name}). Название можно добавить потом в панели.',
+    en: 'Fərdi is for one person: the page uses your name ({name}). You can add a business name later in the panel.',
+  },
   stepOf: { az: 'Addım {n}/4', ru: 'Шаг {n} из 4', en: 'Step {n} of 4' },
 
   fFirst: { az: 'Ad', ru: 'Имя', en: 'First name' },

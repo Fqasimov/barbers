@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>@yield('title', 'Admin') · yazılnow</title>
-  <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=8">
-  <script src="{{ asset('admin-assets/admin.js') }}?v=5" defer></script>
+  <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=9">
+  <script src="{{ asset('admin-assets/admin.js') }}?v=6" defer></script>
 </head>
 <body>
 @php

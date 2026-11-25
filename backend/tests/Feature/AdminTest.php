@@ -168,6 +168,10 @@ class AdminTest extends TestCase
         $this->assertSame(1, $salon->masters()->count()); // Fərdi: the owner is the one master
         $this->assertDatabaseHas('admin_actions', ['action' => 'salon.create']);
 
+        // Fərdi without a salon name: the owner's name is used.
+        $this->post('/admin/salons', ['email' => 'solo@example.com', 'first_name' => 'Aysel', 'last_name' => 'Quliyeva', 'salon_name' => ''] + $form)->assertRedirect();
+        $this->assertDatabaseHas('businesses', ['name' => 'Aysel Quliyeva']);
+
         // Plans and categories of different markets don't mix; one salon per owner.
         $this->post('/admin/salons', ['categories' => ['couture'], 'plan' => 'start', 'email' => 'x@example.com'] + $form)->assertSessionHasErrors('plan');
         $this->post('/admin/salons', $form)->assertSessionHasErrors('email');

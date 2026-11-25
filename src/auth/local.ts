@@ -355,7 +355,16 @@ export const localApi: AuthApi = {
       address,
       audience,
       status: 'pending_review',
-      subscription: null,
+      // The plan picked first starts its trial with the sign-up.
+      subscription: input.plan
+        ? settle({
+            plan: input.plan,
+            status: 'trialing',
+            billingPeriod: 'month',
+            startedAt: new Date().toISOString(),
+            trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 86_400_000).toISOString(),
+          })
+        : null,
       createdAt: new Date().toISOString(),
     });
     return issueOtp(db, email, 'register', true);

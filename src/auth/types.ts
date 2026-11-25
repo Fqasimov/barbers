@@ -186,6 +186,8 @@ export type BusinessRegisterInput = {
   audience: Audience;
   /** The page address: <slug>.yazilnow.az on Fərdi, link.yazilnow.az/<slug> on Start and Pro. */
   slug?: string;
+  /** The plan picked first; its trial starts with the sign-up. */
+  plan?: PlanId;
 };
 
 export type ProfilePatch = Partial<Pick<User, 'firstName' | 'lastName' | 'phone' | 'birthDate' | 'gender'>>;

@@ -48,7 +48,8 @@ type Challenge = { email: string; resend_at?: string; demo_code?: string };
 type PlanId = Plan['id'];
 
 const OWNER_FIELDS: (keyof Owner)[] = ['first_name', 'last_name', 'phone', 'email', 'password'];
-const STEPS: Key[] = ['stepOwner', 'stepSalon', 'stepCode', 'stepPlan'];
+// The plan comes first: it decides the rest (Fərdi is one person, so it has no salon name).
+const STEPS: Key[] = ['stepPlan', 'stepOwner', 'stepSalon', 'stepCode'];
 const EMPTY_OWNER: Owner = { first_name: '', last_name: '', phone: '', email: '', password: '' };
 const EMPTY_SALON: Salon = { salon_name: '', categories: [], audience: 'all', district: '', address: '' };
 const DISTRICTS = [
@@ -183,7 +184,6 @@ export function Join() {
   const [showPw, setShowPw] = useState(false);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [code, setCode] = useState('');
-  const [token, setToken] = useState<string | null>(null);
   const [plan, setPlan] = useState<PlanId>('start');
   const [pickedFlash, setPickedFlash] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
@@ -222,6 +222,8 @@ export function Join() {
 
   // The plan always belongs to the business's market (a showroom can't keep a salon plan).
   const market = marketOf(salon.categories);
+  // Fərdi is one person: no salon name, their own name is the page.
+  const solo = plan === 'ferdi';
   /** The couture wording of a key, when there is one and the business is a showroom. */
   const ck = (k: Key): Key => {
     const alt = `${k}Couture` as Key;
@@ -240,7 +242,7 @@ export function Join() {
   // The resend countdown.
   const resendAt = challenge?.resend_at ? new Date(challenge.resend_at).getTime() : 0;
   useEffect(() => {
-    if (step !== 3 || resendAt <= Date.now()) return;
+    if (step !== 4 || resendAt <= Date.now()) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, [step, resendAt]);
@@ -297,13 +299,13 @@ export function Join() {
       card.current?.querySelector<HTMLInputElement>(`[name="${first}"]`)?.focus();
       return;
     }
-    go(2);
+    go(3);
   };
 
   const submitSalon = async (e: FormEvent) => {
     e.preventDefault();
     const next: Errors = {};
-    for (const k of ['salon_name', 'district', 'address'] as const) {
+    for (const k of solo ? (['district', 'address'] as const) : (['salon_name', 'district', 'address'] as const)) {
       const key = checks.text(salon[k]);
       if (key) next[k] = t(key);
     }
@@ -314,20 +316,28 @@ export function Join() {
     setBusy(true);
     setFormError(null);
     try {
-      const body = { ...owner, phone: `+994${digits(owner.phone)}`, email: owner.email.trim(), ...salon };
+      const body = {
+        ...owner,
+        phone: `+994${digits(owner.phone)}`,
+        email: owner.email.trim(),
+        ...salon,
+        // Fərdi: the person's own name is the page; the plan's trial starts with the sign-up.
+        salon_name: solo ? `${owner.first_name.trim()} ${owner.last_name.trim()}` : salon.salon_name,
+        plan,
+      };
       const ch = isLive ? await request<Challenge>('POST', '/business/register', { body }) : demoChallenge(body.email);
       setChallenge(ch);
       setCode('');
       lastTried.current = '';
-      go(3);
+      go(4);
     } catch (err) {
       if (err instanceof ApiError && err.code === 'email_taken') {
         setErrors({ email: t('errEmailTaken') });
-        go(1);
+        go(2);
       } else if (err instanceof ApiError && err.code === 'validation') {
         const fx = serverErrors(err);
         setErrors(fx);
-        if (Object.keys(fx).some((k) => (OWNER_FIELDS as string[]).includes(k))) go(1);
+        if (Object.keys(fx).some((k) => (OWNER_FIELDS as string[]).includes(k))) go(2);
       } else setFormError(errorKey(err));
     } finally {
       setBusy(false);
@@ -344,9 +354,11 @@ export function Join() {
         const session = await request<{ token: string }>('POST', '/auth/email/verify', {
           body: { email: challenge!.email, code },
         });
-        setToken(session.token);
+        // The trial already started with the sign-up. The site keeps no session: the owner
+        // continues in the app or the panel, so the web token is revoked.
+        void request('POST', '/auth/logout', { token: session.token }).catch(() => undefined);
       } else if (code !== challenge?.demo_code) throw new ApiError('otp_invalid');
-      go(4);
+      go(5);
     } catch (err) {
       setErrors({ code: t(errorKey(err)) });
       setCode('');
@@ -357,7 +369,7 @@ export function Join() {
 
   // Submit as soon as the sixth digit lands (once per distinct code).
   useEffect(() => {
-    if (step === 3 && code.length === 6 && code !== lastTried.current && !busy) {
+    if (step === 4 && code.length === 6 && code !== lastTried.current && !busy) {
       lastTried.current = code;
       void submitCode();
     }
@@ -382,23 +394,10 @@ export function Join() {
     }
   };
 
-  const submitPlan = async (e: FormEvent) => {
+  // Step 1: the plan picked moves on to the owner's details (no request yet).
+  const submitPlan = (e: FormEvent) => {
     e.preventDefault();
-    setBusy(true);
-    setFormError(null);
-    try {
-      if (isLive && token) {
-        await request('POST', '/business/subscription/trial', { token, body: { plan } });
-        // The site keeps no session: the owner continues in the app, so the web token is revoked.
-        void request('POST', '/auth/logout', { token }).catch(() => undefined);
-        setToken(null);
-      }
-      go(5);
-    } catch (err) {
-      setFormError(errorKey(err));
-    } finally {
-      setBusy(false);
-    }
+    go(2);
   };
 
   const reset = () => {
@@ -505,7 +504,7 @@ export function Join() {
               </>
             ) : null}
 
-            {step === 1 ? (
+            {step === 2 ? (
               <form className="step" onSubmit={submitOwner} noValidate key="s1">
                 <div className="pair">
                   <Field id="first_name" label={t('fFirst')} error={errors.first_name}>
@@ -579,20 +578,26 @@ export function Join() {
               </form>
             ) : null}
 
-            {step === 2 ? (
+            {step === 3 ? (
               <form className="step" onSubmit={submitSalon} noValidate key="s2">
-                <Field id="salon_name" label={t('fSalonName')} error={errors.salon_name}>
-                  <input
-                    id="salon_name"
-                    name="salon_name"
-                    maxLength={120}
-                    placeholder={t('fSalonNamePh')}
-                    value={salon.salon_name}
-                    onChange={setS('salon_name')}
-                    aria-invalid={!!errors.salon_name}
-                    data-step-focus
-                  />
-                </Field>
+                {solo ? (
+                  <p className="hint solo-note">
+                    {t('soloNote', { name: `${owner.first_name.trim()} ${owner.last_name.trim()}`.trim() })}
+                  </p>
+                ) : (
+                  <Field id="salon_name" label={t('fSalonName')} error={errors.salon_name}>
+                    <input
+                      id="salon_name"
+                      name="salon_name"
+                      maxLength={120}
+                      placeholder={t('fSalonNamePh')}
+                      value={salon.salon_name}
+                      onChange={setS('salon_name')}
+                      aria-invalid={!!errors.salon_name}
+                      data-step-focus
+                    />
+                  </Field>
+                )}
                 <fieldset className={`field${errors.categories ? ' invalid' : ''}`}>
                   <legend>{t('fCategories')}</legend>
                   <small className="hint">{t('fCategoriesHint')}</small>
@@ -684,7 +689,7 @@ export function Join() {
                 <p className="consent">{withLinks(t('consent'))}</p>
                 {formErr}
                 <div className="row">
-                  <button className="btn btn-ghost" type="button" onClick={() => go(1)}>
+                  <button className="btn btn-ghost" type="button" onClick={() => go(2)}>
                     {t('back')}
                   </button>
                   <button className={`btn btn-ink grow${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
@@ -694,13 +699,15 @@ export function Join() {
               </form>
             ) : null}
 
-            {step === 3 && challenge ? (
+            {step === 4 && challenge ? (
               <form className="step" onSubmit={submitCode} noValidate key="s3">
                 <h3 className="step-title" tabIndex={-1} data-step-focus>
                   {t('codeTitle')}
                 </h3>
                 <p className="muted">{t('codeSub', { email: challenge.email })}</p>
-                {challenge.demo_code ? <p className="demo-code">{t('codeDemo', { code: challenge.demo_code })}</p> : null}
+                {challenge.demo_code ? (
+                  <p className="demo-code">{t('codeDemo', { code: challenge.demo_code })}</p>
+                ) : null}
                 <CodeInput
                   value={code}
                   invalid={!!errors.code}
@@ -721,7 +728,7 @@ export function Join() {
                   </p>
                 ) : null}
                 <div className="row row-between">
-                  <button className="link" type="button" onClick={() => go(1)}>
+                  <button className="link" type="button" onClick={() => go(2)}>
                     {t('changeEmail')}
                   </button>
                   <button className="link" type="button" onClick={resend} disabled={wait > 0}>
@@ -734,7 +741,7 @@ export function Join() {
               </form>
             ) : null}
 
-            {step === 4 ? (
+            {step === 1 ? (
               <form className="step" onSubmit={submitPlan} noValidate key="s4">
                 <h3 className="step-title" tabIndex={-1} data-step-focus>
                   {t('planTitle')}
@@ -780,7 +787,7 @@ export function Join() {
                 <p className="plan-note plan-note-left">{t('yearDeal')}</p>
                 {formErr}
                 <button className={`btn btn-ink btn-block${busy ? ' loading' : ''}`} type="submit" disabled={busy}>
-                  {t('startTrial')}
+                  {t('next')}
                 </button>
                 <p className="plan-note">{t('trialNote')}</p>
                 <p className="plan-note">{t('trialTerms')}</p>
@@ -795,7 +802,11 @@ export function Join() {
                 <h3 className="step-title" tabIndex={-1} data-step-focus>
                   {t('doneTitle', { name: owner.first_name.trim() })}
                 </h3>
-                <p>{t('doneBody', { salon: salon.salon_name.trim() })}</p>
+                <p>
+                  {t('doneBody', {
+                    salon: solo ? `${owner.first_name} ${owner.last_name}`.trim() : salon.salon_name.trim(),
+                  })}
+                </p>
                 {!isLive ? <p className="muted">{t('doneDemo')}</p> : null}
                 <Stores />
                 <button className="link" type="button" onClick={reset}>

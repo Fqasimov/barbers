@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ApiException;
 use App\Mail\NewBusinessMail;
 use App\Models\Business;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Rules\V;
 use App\Services\OtpService;
@@ -58,7 +59,9 @@ class AuthController extends Controller
             'phone' => ['required', ...V::phone()],
             'email' => ['required', ...V::email()],
             'password' => ['required', ...V::password()],
-            'salon_name' => ['required', 'string', 'min:2', 'max:120'],
+            // The plan comes first: Fərdi is one person, so it has no salon name (their own name is used).
+            'plan' => ['sometimes', 'nullable', Rule::in(array_keys(config('usta.plans')))],
+            'salon_name' => ['required_unless:plan,ferdi', 'nullable', 'string', 'min:2', 'max:120'],
             'categories' => ['required', 'array', 'min:1'],
             'categories.*' => ['string', 'distinct', Rule::in(config('usta.categories'))],
             'district' => ['required', 'string', 'max:120'],
@@ -68,9 +71,15 @@ class AuthController extends Controller
             // otherwise). Optional for older app versions: then it is made from the salon name.
             'slug' => ['sometimes', 'nullable', 'string', 'max:40'],
         ]);
-        if (Business::marketOf(array_values($data['categories'])) === null) {
+        $market = Business::marketOf(array_values($data['categories']));
+        if ($market === null) {
             throw ValidationException::withMessages(['categories' => ['A couture showroom and beauty services are separate kinds of business.']]);
         }
+        $plan = $data['plan'] ?? null;
+        if ($plan && ! in_array($plan, config("usta.markets.{$market}.plans"), true)) {
+            throw ValidationException::withMessages(['plan' => ['That plan is for the other kind of business.']]);
+        }
+        $data['salon_name'] = trim((string) ($data['salon_name'] ?? '')) ?: trim($data['first_name'].' '.$data['last_name']);
         $slug = isset($data['slug']) ? mb_strtolower(trim($data['slug'])) : '';
         // The same person registering again (code not confirmed yet) may keep their address.
         $pending = User::query()->where('email', $data['email'])->whereNull('email_verified_at')->value('id');
@@ -79,7 +88,7 @@ class AuthController extends Controller
             throw new ApiException(422, 'slug_'.$problem, 'That page address can’t be used.');
         }
 
-        DB::transaction(function () use ($data, $slug) {
+        DB::transaction(function () use ($data, $slug, $plan) {
             $this->replaceUnverified($data['email']);
             if ($slug !== '') {
                 // Free the address from an abandoned sign-up that still has it.
@@ -109,6 +118,19 @@ class AuthController extends Controller
             ])->save();
             if ($slug === '') {
                 $business->assignSlugFromName();
+            }
+            // The plan picked at the start: its free trial begins now, no separate plan step later.
+            if ($plan) {
+                $now = now();
+                (new Subscription)->forceFill([
+                    'business_id' => $business->id,
+                    'plan' => $plan,
+                    'billing_period' => 'month',
+                    'status' => Subscription::TRIALING,
+                    'started_at' => $now,
+                    'trial_ends_at' => $now->copy()->addDays((int) config('usta.trial_days')),
+                ])->save();
+                $business->fresh()->ensureSoloMaster();
             }
         });
 

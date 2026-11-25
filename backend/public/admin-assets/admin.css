@@ -250,3 +250,5 @@ td .btn-sm, .row-actions .btn-sm { white-space: nowrap; }
 fieldset.cats { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; grid-column: 1 / -1; }
 fieldset.cats legend { margin-bottom: 8px; }
 label.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); text-transform: none; letter-spacing: 0; font-weight: 500; }
+
+[hidden] { display: none !important; }

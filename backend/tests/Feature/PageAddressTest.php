@@ -47,6 +47,29 @@ class PageAddressTest extends TestCase
         $this->assertSame(1, Business::query()->where('slug', 'popular-name')->count());
     }
 
+    public function test_the_plan_comes_first_and_ferdi_needs_no_salon_name(): void
+    {
+        $this->postJson('/api/business/register', [
+            'first_name' => 'Elvin', 'last_name' => 'Məmmədov', 'phone' => '+994551112233',
+            'email' => 'solo@example.com', 'password' => 'secret123',
+            'categories' => ['barber'], 'district' => 'Yasamal', 'address' => 'Şərifzadə küç. 5', 'audience' => 'men',
+            'plan' => 'ferdi',
+        ])->assertStatus(202);
+        $salon = Business::query()->where('name', 'Elvin Məmmədov')->firstOrFail();
+        $this->assertSame('ferdi', $salon->subscription->plan);
+        $this->assertSame('trialing', $salon->subscription->status);
+        $this->assertSame('elvin-memmedov', $salon->slug);
+        $this->assertSame(1, $salon->masters()->count());
+
+        // Other plans still need a salon name, and the plan must fit the kind of business.
+        $base = ['first_name' => 'Anar', 'last_name' => 'Bayramov', 'phone' => '+994551112234', 'email' => 'team@example.com',
+            'password' => 'secret123', 'district' => 'X', 'address' => 'Y', 'audience' => 'all'];
+        $this->postJson('/api/business/register', $base + ['categories' => ['barber'], 'plan' => 'start'])->assertStatus(422);
+        $this->postJson('/api/business/register', $base + ['categories' => ['couture'], 'plan' => 'start', 'salon_name' => 'Z'])->assertStatus(422);
+        $this->postJson('/api/business/register', $base + ['categories' => ['barber'], 'plan' => 'start', 'salon_name' => 'Team Cuts'])->assertStatus(202);
+        $this->assertSame('start', Business::query()->where('name', 'Team Cuts')->first()->subscription->plan);
+    }
+
     public function test_without_an_address_one_is_made_from_the_name(): void
     {
         $this->register()->assertStatus(202);

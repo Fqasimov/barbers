@@ -27,22 +27,32 @@ import { beautyCategories } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { usePlanPrices } from '@/lib/billing';
+import { plansFor } from '@/auth/plans';
+import type { PlanId } from '@/auth/types';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { cleanSlugInput, isValidSlug, slugify } from '@/lib/slug';
 import type { StringKey } from '@/i18n/strings';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** Salon owners: who you are, then the salon. A 30-day trial follows email confirmation. */
+/**
+ * Salon owners: the plan first (it decides the rest), then who you are, then the salon.
+ * Fərdi is one person: no salon name, their own name is the page. The plan's 30-day trial starts with the sign-up.
+ */
 export default function BusinessRegister() {
   const { c } = useTheme();
   const i18n = useI18n();
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const prices = usePlanPrices();
   const owner = useForm(
     { firstName: '', lastName: '', phone: '', email: '', password: '' },
     { firstName: checkName, lastName: checkName, phone: checkPhone, email: checkEmail, password: checkPassword },
   );
+  const [plan, setPlan] = useState<PlanId>('start');
   const salon = useForm(
     { salonName: '', district: '', address: '', audience: 'all' },
-    { salonName: checkRequired, district: checkRequired, address: checkRequired },
+    // Fərdi has no salon name: the person's own name is used.
+    { salonName: (v) => (plan === 'ferdi' ? null : checkRequired(v)), district: checkRequired, address: checkRequired },
   );
   const [kind, setKind] = useState<'beauty' | 'couture'>('beauty');
   const [cats, setCats] = useState<CategoryId[]>([]);
@@ -50,7 +60,11 @@ export default function BusinessRegister() {
     setKind(k);
     setCats(k === 'couture' ? ['couture'] : []);
     setCatsError(false);
+    const list = plansFor(k);
+    setPlan((list.find((p) => p.recommended) ?? list[0]).id);
   };
+  // Fərdi: one person, so their own name is the salon's name and page address.
+  const solo = plan === 'ferdi';
   const [catsError, setCatsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<StringKey | null>(null);
@@ -117,8 +131,10 @@ export default function BusinessRegister() {
     if (next.length) setCatsError(false);
   };
 
-  const next = () => {
-    if (owner.check()) setStep(2);
+  const toSalon = () => {
+    if (!owner.check()) return;
+    if (solo && !slugEdited) setSlug(slugify(`${o.firstName} ${o.lastName}`));
+    setStep(3);
   };
 
   const submit = async () => {
@@ -136,7 +152,8 @@ export default function BusinessRegister() {
         phone: toE164(o.phone),
         email: o.email.trim(),
         password: o.password,
-        salonName: s.salonName.trim(),
+        salonName: solo ? `${o.firstName.trim()} ${o.lastName.trim()}` : s.salonName.trim(),
+        plan,
         categories: cats,
         district: s.district.trim(),
         address: s.address.trim(),
@@ -151,7 +168,7 @@ export default function BusinessRegister() {
         setRemote({ slug, state: key });
       } else if (key === 'errEmailTaken') {
         owner.setErrors({ ...owner.errors, email: key });
-        setStep(1);
+        setStep(2);
       } else setFormError(key);
     } finally {
       setBusy(false);
@@ -160,21 +177,74 @@ export default function BusinessRegister() {
 
   return (
     <AuthLayout
-      title={step === 1 ? i18n.t('bizTitle') : i18n.t('bizSalonTitle')}
+      title={
+        step === 1
+          ? i18n.t('bizPlanTitle')
+          : step === 2
+            ? i18n.t('bizTitle')
+            : i18n.t(solo ? 'bizSoloTitle' : 'bizSalonTitle')
+      }
       subtitle={step === 1 ? i18n.t('bizSub') : undefined}
-      step={i18n.t('stepOfTotal', { n: step, total: 2 })}
+      step={i18n.t('stepOfTotal', { n: step, total: 3 })}
       footer={
         step === 1 ? (
-          <Button label={i18n.t('continue')} onPress={next} />
+          <Button label={i18n.t('continue')} onPress={() => setStep(2)} />
         ) : (
           <View style={styles.footerRow}>
-            <Button label={i18n.t('back')} variant="secondary" onPress={() => setStep(1)} hitStyle={{ flex: 1 }} />
-            <Button label={i18n.t('sendCode')} onPress={submit} loading={busy} hitStyle={{ flex: 2 }} />
+            <Button
+              label={i18n.t('back')}
+              variant="secondary"
+              onPress={() => setStep(step === 3 ? 2 : 1)}
+              hitStyle={{ flex: 1 }}
+            />
+            {step === 2 ? (
+              <Button label={i18n.t('continue')} onPress={toSalon} hitStyle={{ flex: 2 }} />
+            ) : (
+              <Button label={i18n.t('sendCode')} onPress={submit} loading={busy} hitStyle={{ flex: 2 }} />
+            )}
           </View>
         )
       }
     >
       {step === 1 ? (
+        <>
+          <View style={{ gap: 10 }}>
+            {plansFor(kind).map((p) => {
+              const on = plan === p.id;
+              return (
+                <PressableScale
+                  key={p.id}
+                  onPress={() => setPlan(p.id)}
+                  haptic="selection"
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                  style={[styles.plan, { borderColor: on ? c.ink : c.line, backgroundColor: c.surface }]}
+                >
+                  <View style={styles.planHead}>
+                    <Text variant="headline" style={{ flex: 1 }}>
+                      {p.name}
+                    </Text>
+                    <Text variant="bodyStrong">
+                      {i18n.price(prices[p.id].month)} {i18n.t('perMonth')}
+                    </Text>
+                  </View>
+                  <Text variant="caption" tone="soft">
+                    {i18n.tx(p.blurb)}
+                  </Text>
+                  {p.recommended ? (
+                    <Text variant="micro" tone="accent">
+                      {i18n.t('recommended')}
+                    </Text>
+                  ) : null}
+                </PressableScale>
+              );
+            })}
+          </View>
+          <Text variant="caption" tone="muted">
+            {i18n.t('bizPlanNote')}
+          </Text>
+        </>
+      ) : step === 2 ? (
         <>
           <Text variant="headline">{i18n.t('bizOwnerTitle')}</Text>
           <View style={styles.pair}>
@@ -238,14 +308,20 @@ export default function BusinessRegister() {
         </>
       ) : (
         <>
-          <FormField
-            label={i18n.t('fSalonName')}
-            placeholder={i18n.t('phSalonName')}
-            value={s.salonName}
-            onChangeText={setSalonName}
-            error={se('salonName')}
-            autoCapitalize="words"
-          />
+          {solo ? (
+            <Text variant="caption" tone="soft">
+              {i18n.t('bizSoloNote', { name: `${o.firstName.trim()} ${o.lastName.trim()}` })}
+            </Text>
+          ) : (
+            <FormField
+              label={i18n.t('fSalonName')}
+              placeholder={i18n.t('phSalonName')}
+              value={s.salonName}
+              onChangeText={setSalonName}
+              error={se('salonName')}
+              autoCapitalize="words"
+            />
+          )}
           <View style={{ gap: 6 }}>
             <FormField
               label={i18n.t('fPageAddress')}
@@ -354,5 +430,7 @@ const styles = StyleSheet.create({
   half: {},
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   footerRow: { flexDirection: 'row', gap: 10 },
+  plan: { borderWidth: 1.5, borderRadius: 14, padding: 14, gap: 4 },
+  planHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   formError: { padding: 12, borderRadius: 10 },
 });
