@@ -147,6 +147,32 @@ class AdminTest extends TestCase
         $this->assertSame(Business::LIVE, $a->fresh()->status);
     }
 
+    public function test_admin_registers_a_salon_with_a_plan(): void
+    {
+        $this->signIn();
+        $this->get('/admin/salons/new')->assertOk()->assertSee('Register salon');
+        $form = [
+            'first_name' => 'Leyla', 'last_name' => 'Əliyeva', 'email' => 'Leyla@Example.com', 'phone' => '+994 50 123 45 67',
+            'salon_name' => 'Leyla Nails', 'district' => 'Yasamal', 'address' => 'Şərifzadə 5', 'audience' => 'women',
+            'categories' => ['nails'], 'plan' => 'ferdi', 'billing' => 'paid', 'paid_until' => now()->addMonths(3)->toDateString(), 'approve' => '1',
+        ];
+        $this->post('/admin/salons', $form)->assertRedirect();
+        $user = \App\Models\User::query()->where('email', 'leyla@example.com')->firstOrFail();
+        $salon = Business::query()->where('owner_id', $user->id)->firstOrFail();
+        $this->assertSame(Business::LIVE, $salon->status);
+        $this->assertSame('leyla-nails', $salon->slug);
+        $this->assertSame('ferdi', $salon->subscription->plan);
+        $this->assertSame('active', $salon->subscription->status);
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertNotNull($user->password);
+        $this->assertSame(1, $salon->masters()->count()); // Fərdi: the owner is the one master
+        $this->assertDatabaseHas('admin_actions', ['action' => 'salon.create']);
+
+        // Plans and categories of different markets don't mix; one salon per owner.
+        $this->post('/admin/salons', ['categories' => ['couture'], 'plan' => 'start', 'email' => 'x@example.com'] + $form)->assertSessionHasErrors('plan');
+        $this->post('/admin/salons', $form)->assertSessionHasErrors('email');
+    }
+
     public function test_users_list_links_to_delete(): void
     {
         $this->signIn();

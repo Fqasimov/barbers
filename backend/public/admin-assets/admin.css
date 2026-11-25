@@ -244,3 +244,9 @@ label.field { font-size: 10.5px; font-weight: 600; letter-spacing: .16em; text-t
 .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .row-actions form { margin: 0; }
 td .btn-sm, .row-actions .btn-sm { white-space: nowrap; }
+
+/* Add salon form */
+.new-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+fieldset.cats { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; grid-column: 1 / -1; }
+fieldset.cats legend { margin-bottom: 8px; }
+label.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); text-transform: none; letter-spacing: 0; font-weight: 500; }

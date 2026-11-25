@@ -2,7 +2,7 @@
 @section('title', 'Salons')
 @use('App\Support\AdminView', 'V')
 @section('content')
-<div class="head"><div><h1>Salons</h1><p>Waiting for review first, then newest.</p></div></div>
+<div class="head"><div><h1>Salons</h1><p>Waiting for review first, then newest.</p></div><a class="btn btn-ink" href="{{ route('admin.salons.create') }}">+ Add salon</a></div>
 
 <form class="filters" method="get">
   <input type="search" name="q" value="{{ $q }}" placeholder="Name, district, owner email or phone, id" aria-label="Search salons">

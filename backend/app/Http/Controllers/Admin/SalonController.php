@@ -9,9 +9,13 @@ use App\Models\Business;
 use App\Models\Payment;
 use App\Models\Review;
 use App\Models\Subscription;
+use App\Models\User;
+use App\Rules\V;
 use App\Support\AdminView;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -88,6 +92,112 @@ class SalonController extends Controller
         AdminAction::record($request, 'salon.suspend', $salon, "Suspended {$salon->name}: {$data['reason']}");
 
         return back()->with('status', "{$salon->name} is suspended: hidden from search, no new bookings. Existing bookings stay.");
+    }
+
+    /** Register a salon by hand (a phone call, a visit): owner, salon, plan. */
+    public function create(): View
+    {
+        return view('admin.salons.create', [
+            'categories' => config('usta.categories'),
+            'markets' => config('usta.markets'),
+            'plans' => array_keys(config('usta.plans')),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->merge([
+            'email' => mb_strtolower(trim((string) $request->input('email'))),
+            'slug' => mb_strtolower(trim((string) $request->input('slug'))),
+            'phone' => preg_replace('/[^\d+]/', '', (string) $request->input('phone')),
+        ]);
+        $data = $request->validate([
+            'first_name' => ['required', 'string', 'max:60'],
+            'last_name' => ['required', 'string', 'max:60'],
+            'email' => ['required', ...V::email()],
+            'phone' => ['nullable', 'string', 'regex:'.V::AZ_PHONE],
+            'salon_name' => ['required', 'string', 'min:2', 'max:120'],
+            'categories' => ['required', 'array', 'min:1'],
+            'categories.*' => ['string', 'distinct', Rule::in(config('usta.categories'))],
+            'district' => ['required', 'string', 'max:120'],
+            'address' => ['required', 'string', 'max:255'],
+            'audience' => ['required', Rule::in(['all', 'women', 'men'])],
+            'slug' => ['nullable', 'string', 'max:40'],
+            'plan' => ['required', Rule::in(array_keys(config('usta.plans')))],
+            'billing' => ['required', Rule::in(['trial', 'paid'])],
+            'trial_days' => ['required_if:billing,trial', 'nullable', 'integer', 'min:1', 'max:365'],
+            'paid_until' => ['required_if:billing,paid', 'nullable', 'date', 'after:today'],
+            'approve' => ['sometimes', 'boolean'],
+        ]);
+        $market = Business::marketOf(array_values($data['categories']));
+        if ($market === null) {
+            throw ValidationException::withMessages(['categories' => 'A couture showroom and beauty services are separate kinds of business.']);
+        }
+        if (! in_array($data['plan'], config("usta.markets.{$market}.plans"), true)) {
+            throw ValidationException::withMessages(['plan' => 'That plan is for the other kind of business.']);
+        }
+        if ($data['slug'] !== '' && ($problem = Business::slugProblem($data['slug']))) {
+            throw ValidationException::withMessages(['slug' => ['invalid' => 'Latin letters, numbers and hyphens, 3–30 characters.', 'reserved' => 'That address is reserved.', 'taken' => 'That address is taken.'][$problem]]);
+        }
+        $existing = User::query()->where('email', $data['email'])->first();
+        if ($existing && Business::withTrashed()->where('owner_id', $existing->id)->exists()) {
+            throw ValidationException::withMessages(['email' => 'This person already has a salon. Open it from Users.']);
+        }
+
+        $salon = DB::transaction(function () use ($data, $existing) {
+            $user = $existing ?? new User;
+            $user->forceFill([
+                'email' => $data['email'],
+                'first_name' => $existing?->first_name ?: trim($data['first_name']),
+                'last_name' => $existing?->last_name ?: trim($data['last_name']),
+                'phone' => $existing?->phone ?: ($data['phone'] ?: null),
+                'role' => 'business',
+                'provider' => $existing?->provider ?? 'password',
+                'email_verified_at' => $existing?->email_verified_at ?? now(),
+                // Nobody knows it: the owner sets their own with "Forgot password".
+                'password' => $existing?->password ?? Str::random(48),
+            ])->save();
+
+            $salon = new Business;
+            $salon->forceFill([
+                'owner_id' => $user->id,
+                'name' => trim($data['salon_name']),
+                'categories' => array_values($data['categories']),
+                'district' => trim($data['district']),
+                'address' => trim($data['address']),
+                'audience' => $data['audience'],
+                'closed_days' => [],
+                'phone' => $data['phone'] ?? '',
+                'whatsapp' => ltrim((string) ($data['phone'] ?? ''), '+'),
+                'status' => Business::PENDING,
+                'slug' => $data['slug'] !== '' ? $data['slug'] : null,
+            ])->save();
+            if (! $salon->slug) {
+                $salon->assignSlugFromName();
+            }
+
+            $now = now();
+            (new Subscription)->forceFill([
+                'business_id' => $salon->id,
+                'plan' => $data['plan'],
+                'billing_period' => 'month',
+                'started_at' => $now,
+            ] + ($data['billing'] === 'trial'
+                ? ['status' => Subscription::TRIALING, 'trial_ends_at' => $now->copy()->addDays((int) $data['trial_days'])]
+                : ['status' => Subscription::ACTIVE, 'current_period_end' => \Illuminate\Support\Carbon::parse($data['paid_until'])->endOfDay()]))->save();
+
+            if (! empty($data['approve'])) {
+                $salon->approve();
+            }
+            $salon->fresh()->ensureSoloMaster();
+
+            return $salon;
+        });
+
+        AdminAction::record($request, 'salon.create', $salon, "Registered {$salon->name} ({$data['plan']}, ".($data['billing'] === 'trial' ? "{$data['trial_days']}-day trial" : "paid until {$data['paid_until']}").") for {$data['email']}");
+
+        return redirect()->route('admin.salons.show', $salon->id)->with('status',
+            "{$salon->name} is registered. The owner signs in with {$data['email']}: on first sign-in they tap \"Şifrəni unutdum\" to set a password.");
     }
 
     /** A sign-up that won't be approved: kept out of search for good (Reinstate undoes it). */

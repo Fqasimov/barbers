@@ -23,6 +23,8 @@ Route::prefix('admin')->name('admin.')->middleware(AdminSecurityHeaders::class)-
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('salons', [SalonController::class, 'index'])->name('salons');
+        Route::get('salons/new', [SalonController::class, 'create'])->name('salons.create');
+        Route::post('salons', [SalonController::class, 'store'])->name('salons.store');
         Route::get('salons/{id}', [SalonController::class, 'show'])->name('salons.show');
         Route::post('salons/{id}/approve', [SalonController::class, 'approve'])->name('salons.approve');
         Route::post('salons/{id}/suspend', [SalonController::class, 'suspend'])->name('salons.suspend');
