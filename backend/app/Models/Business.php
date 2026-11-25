@@ -60,6 +60,8 @@ class Business extends Model
             'whatsapp_quota' => 'integer',
             'whatsapp_used' => 'integer',
             'whatsapp_until' => 'datetime',
+            'voice_until' => 'datetime',
+            'voice_minutes' => 'integer',
         ];
     }
 
@@ -311,6 +313,69 @@ class Business extends Model
         return $this->hasFeature('booking');
     }
 
+    /** Plans that unlock a feature (config usta.plan_features). */
+    public static function plansWith(string $feature): array
+    {
+        return array_keys(array_filter(config('usta.plan_features'), fn ($f) => in_array($feature, $f, true)));
+    }
+
+    /** The market a set of categories belongs to (beauty, couture), or null when they mix markets. */
+    public static function marketOf(array $categories): ?string
+    {
+        foreach (config('usta.markets') as $id => $m) {
+            if ($categories && ! array_diff($categories, $m['categories'])) {
+                return $id;
+            }
+        }
+
+        return null;
+    }
+
+    /** This business's market, from the main salon's categories (beauty when unknown). */
+    public function market(): string
+    {
+        return self::marketOf(array_values($this->account()->categories ?? [])) ?? 'beauty';
+    }
+
+    /** The voice assistant add-on is paid up (set on the main salon; branches share it). */
+    public function hasVoiceAssistant(): bool
+    {
+        $until = $this->account()->voice_until;
+
+        return $until !== null && $until->isFuture() && $this->takesBookings();
+    }
+
+    /**
+     * The voice assistant's minutes in a month (Baku time): the pack, minutes used, extra minutes
+     * past the pack and what they cost, and whether the cap (1.5 × the pack) is reached.
+     *
+     * @return array{month:string, pack:int, used:int, extra:int, owed:float, cap:int, capped:bool}
+     */
+    public function voiceUsage(?\Carbon\CarbonImmutable $month = null): array
+    {
+        $account = $this->account();
+        $from = ($month ?? \App\Support\Baku::now())->setTimezone(\App\Support\Baku::tz())->startOfMonth();
+        $seconds = (int) VoiceCall::query()
+            ->whereIn('business_id', $account->locations()->pluck('id'))
+            ->where('started_at', '>=', $from->utc())
+            ->where('started_at', '<', $from->addMonth()->utc())
+            ->sum('seconds');
+        $pack = (int) $account->voice_minutes;
+        $used = (int) ceil($seconds / 60);
+        $extra = max(0, $used - $pack);
+        $cap = (int) floor($pack * (float) config('usta.voice.cap'));
+
+        return [
+            'month' => $from->format('Y-m'),
+            'pack' => $pack,
+            'used' => $used,
+            'extra' => $extra,
+            'owed' => round($extra * (float) config('usta.voice.extra_price'), 2),
+            'cap' => $cap,
+            'capped' => $used >= $cap,
+        ];
+    }
+
     /** Throws 402 plan_required unless the plan includes the feature. */
     public function requireFeature(string $feature): void
     {
@@ -369,9 +434,11 @@ class Business extends Model
                 ->where(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', $running))
                 ->orWhere(fn (Builder $q) => $q->whereNotNull('parent_id')->whereHas('parent', fn (Builder $p) => $p
                     ->where('status', self::LIVE)
-                    ->whereHas('subscription', fn (Builder $s) => $running($s)->where('plan', 'pro')))))
+                    ->whereHas('subscription', fn (Builder $s) => $running($s)->whereIn('plan', self::plansWith('branches'))))))
+            // Every listing shows at least one service with a price; booking ones also need someone to book.
+            ->whereHas('services')
             ->where(fn (Builder $q) => $q
-                ->where(fn (Builder $q) => $q->whereHas('services')->whereHas('masters'))
+                ->whereHas('masters')
                 ->orWhere(fn (Builder $q) => $q->whereNull('parent_id')->whereHas('subscription', fn (Builder $s) => $s->where('plan', 'sade'))));
     }
 

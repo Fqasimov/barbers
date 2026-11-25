@@ -23,7 +23,7 @@ import { FormField } from '@/components/auth/FormField';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Text } from '@/components/ui/Text';
-import { categories } from '@/data/categories';
+import { beautyCategories } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
@@ -44,7 +44,13 @@ export default function BusinessRegister() {
     { salonName: '', district: '', address: '', audience: 'all' },
     { salonName: checkRequired, district: checkRequired, address: checkRequired },
   );
+  const [kind, setKind] = useState<'beauty' | 'couture'>('beauty');
   const [cats, setCats] = useState<CategoryId[]>([]);
+  const pickKind = (k: 'beauty' | 'couture') => {
+    setKind(k);
+    setCats(k === 'couture' ? ['couture'] : []);
+    setCatsError(false);
+  };
   const [catsError, setCatsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<StringKey | null>(null);
@@ -265,27 +271,42 @@ export default function BusinessRegister() {
               </Text>
             ) : null}
           </View>
-          <View style={{ gap: 8 }}>
-            <Text variant="captionStrong" tone="soft">
-              {i18n.t('fCategories')}
-            </Text>
-            <View style={styles.chips}>
-              {categories.map((cat) => (
-                <Chip
-                  key={cat.id}
-                  icon={categoryIcon[cat.id]}
-                  label={i18n.tx(cat.label)}
-                  selected={cats.includes(cat.id)}
-                  onPress={() => toggleCat(cat.id)}
-                />
-              ))}
-            </View>
-            {catsError ? (
-              <Text variant="caption" tone="danger">
-                {i18n.t('errCategories')}
+          <Choice<'beauty' | 'couture'>
+            label={i18n.t('fBusinessKind')}
+            options={[
+              { value: 'beauty', label: i18n.t('kindBeauty') },
+              { value: 'couture', label: i18n.t('kindCouture') },
+            ]}
+            value={kind}
+            onChange={pickKind}
+          />
+          {kind === 'beauty' ? (
+            <View style={{ gap: 8 }}>
+              <Text variant="captionStrong" tone="soft">
+                {i18n.t('fCategories')}
               </Text>
-            ) : null}
-          </View>
+              <View style={styles.chips}>
+                {beautyCategories.map((cat) => (
+                  <Chip
+                    key={cat.id}
+                    icon={categoryIcon[cat.id]}
+                    label={i18n.tx(cat.label)}
+                    selected={cats.includes(cat.id)}
+                    onPress={() => toggleCat(cat.id)}
+                  />
+                ))}
+              </View>
+              {catsError ? (
+                <Text variant="caption" tone="danger">
+                  {i18n.t('errCategories')}
+                </Text>
+              ) : null}
+            </View>
+          ) : (
+            <Text variant="caption" tone="soft">
+              {i18n.t('kindCoutureNote')}
+            </Text>
+          )}
           <Choice<Audience>
             label={i18n.t('fAudience')}
             options={[

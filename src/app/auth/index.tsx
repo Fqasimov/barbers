@@ -42,14 +42,17 @@ export default function Welcome() {
       </View>
 
       <View style={styles.actions}>
-        <SocialButtons />
-        <View style={styles.orRow}>
-          <View style={[styles.rule, { backgroundColor: c.line }]} />
-          <Text variant="caption" tone="muted">
-            {i18n.t('or')}
-          </Text>
-          <View style={[styles.rule, { backgroundColor: c.line }]} />
-        </View>
+        <SocialButtons
+          divider={
+            <View style={styles.orRow}>
+              <View style={[styles.rule, { backgroundColor: c.line }]} />
+              <Text variant="caption" tone="muted">
+                {i18n.t('or')}
+              </Text>
+              <View style={[styles.rule, { backgroundColor: c.line }]} />
+            </View>
+          }
+        />
         <Button label={i18n.t('createAccount')} onPress={() => router.push('/auth/register')} />
         <Button
           label={i18n.t('continueEmail')}

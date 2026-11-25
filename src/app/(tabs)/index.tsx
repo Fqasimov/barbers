@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { ArrowLeftRight, ChevronRight, Clock3, MapPin, Search, UserCheck, UserPlus } from 'lucide-react-native';
+import { ArrowLeftRight, ChevronRight, Clock3, MapPin, Search, Store, UserCheck, UserPlus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CatalogueGate } from '@/components/CatalogueGate';
+import { useSession } from '@/auth/useSession';
 import { CompareTray } from '@/components/CompareTray';
 import { SalonCard } from '@/components/SalonCard';
 import { SalonRow } from '@/components/SalonRow';
@@ -28,7 +29,7 @@ import { useI18n } from '@/i18n';
 import { firstName } from '@/lib/format';
 import { dayOfMonth, fmtClock, minutesOfDay } from '@/lib/time';
 import { useLocalReviews } from '@/hooks/useSalon';
-import { useVisibleSalons } from '@/hooks/useVisibleSalons';
+import { useCompareEnabled, useVisibleSalons } from '@/hooks/useVisibleSalons';
 import { useStore } from '@/store/useStore';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, iconStroke, radius, shadow } from '@/theme/tokens';
@@ -44,6 +45,7 @@ const TODAY_KEYS: Record<CategoryId | 'all', string[]> = {
   spa: ['massage', 'hammam', 'facial'],
   makeup: ['evening'],
   aesthetics: ['cleanse', 'peel'],
+  couture: ['showroom', 'fitting'],
 };
 
 export default function DiscoverScreen() {
@@ -59,11 +61,13 @@ function Discover() {
   const i18n = useI18n();
   const insets = useSafeAreaInsets();
   const bottom = useTabBarInset();
-  const { origin, source } = useOrigin();
+  const { origin, source, request: locateMe } = useOrigin();
   const localReviews = useLocalReviews();
   const salons = useVisibleSalons();
   const bookings = useStore((s) => s.bookings);
   const name = useStore((s) => s.name);
+  // Salon owners and their team get straight to their dashboard from the first screen.
+  const myBusiness = useSession((s) => s.session?.business ?? null);
   const [category, setCategory] = useState<CategoryId | null>(null);
   const [now] = useState(() => new Date());
 
@@ -71,7 +75,16 @@ function Discover() {
     () => rankForMap({ salons, localReviews, origin, priceLevels: [], category, sort: 'best' }).slice(0, 8),
     [salons, localReviews, origin, category],
   );
-  const chart = useMemo(() => topRated(salons, localReviews, category).slice(0, 5), [salons, localReviews, category]);
+  // Rankings only list places and masters people have actually reviewed.
+  const chart = useMemo(
+    () =>
+      topRated(salons, localReviews, category)
+        .filter((r) => r.live.count > 0)
+        .slice(0, 5),
+    [salons, localReviews, category],
+  );
+  const anyRated = nearby.some((r) => r.live.count > 0);
+  const compareEnabled = useCompareEnabled();
   const today = useMemo(
     () =>
       openToday({
@@ -85,7 +98,10 @@ function Discover() {
       }),
     [salons, category, origin, bookings, localReviews, now],
   );
-  const masters = useMemo(() => mastersInDemand(salons, category), [salons, category]);
+  const masters = useMemo(
+    () => mastersInDemand(salons, category).filter(({ master }) => master.reviewCount > 0),
+    [salons, category],
+  );
 
   const next = bookings
     .filter((b) => b.status === 'upcoming' && new Date(b.start) > now)
@@ -100,7 +116,8 @@ function Discover() {
         <View style={styles.topRow}>
           <Wordmark size={26} />
           <PressableScale
-            onPress={() => router.navigate('/map')}
+            // Not located yet: ask for the location here, so distances are real; then it opens the map.
+            onPress={() => (source === 'device' ? router.navigate('/map') : locateMe())}
             accessibilityLabel={source === 'device' ? i18n.t('nearYou') : i18n.t('centralBaku')}
             style={[styles.place, { backgroundColor: c.surface, borderColor: c.line }]}
           >
@@ -147,22 +164,26 @@ function Discover() {
             </View>
             <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
           </PressableScale>
-          <View style={[styles.hair, { backgroundColor: c.line }]} />
-          <PressableScale
-            onPress={() => router.push('/compare')}
-            scaleTo={0.99}
-            accessibilityLabel={i18n.t('compareNow')}
-            style={styles.searchRow}
-          >
-            <ArrowLeftRight size={20} color={c.ink} strokeWidth={2} />
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyStrong">{i18n.t('compareNow')}</Text>
-              <Text variant="caption" tone="muted">
-                {i18n.t('compareHint')}
-              </Text>
-            </View>
-            <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
-          </PressableScale>
+          {compareEnabled ? (
+            <>
+              <View style={[styles.hair, { backgroundColor: c.line }]} />
+              <PressableScale
+                onPress={() => router.push('/compare')}
+                scaleTo={0.99}
+                accessibilityLabel={i18n.t('compareNow')}
+                style={styles.searchRow}
+              >
+                <ArrowLeftRight size={20} color={c.ink} strokeWidth={2} />
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyStrong">{i18n.t('compareNow')}</Text>
+                  <Text variant="caption" tone="muted">
+                    {i18n.t('compareHint')}
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={c.inkMuted} strokeWidth={2} />
+              </PressableScale>
+            </>
+          ) : null}
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cats}>
@@ -197,6 +218,27 @@ function Discover() {
             })}
         </ScrollView>
 
+        {myBusiness ? (
+          <PressableScale
+            onPress={() => router.push('/business')}
+            scaleTo={0.985}
+            accessibilityRole="button"
+            accessibilityLabel={i18n.t('dashTitle')}
+            style={[styles.dash, { backgroundColor: c.primary }]}
+          >
+            <Store size={20} color={c.onPrimary} strokeWidth={1.9} />
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong" style={{ color: c.onPrimary }}>
+                {i18n.t('dashTitle')}
+              </Text>
+              <Text variant="caption" style={{ color: c.onPrimary, opacity: 0.75 }} numberOfLines={1}>
+                {myBusiness.salonName}
+              </Text>
+            </View>
+            <ChevronRight size={18} color={c.onPrimary} strokeWidth={2} />
+          </PressableScale>
+        ) : null}
+
         {next ? <NextUp booking={next} /> : null}
 
         {today.length ? (
@@ -220,7 +262,7 @@ function Discover() {
         ) : null}
 
         <SectionHeader
-          title={i18n.t('nearbyTitle')}
+          title={i18n.t(anyRated ? 'nearbyTitle' : 'nearYou')}
           action={{ label: i18n.t('tabMap'), onPress: () => router.navigate('/map') }}
           style={styles.section}
         />
@@ -229,7 +271,11 @@ function Discover() {
           data={nearby}
           keyExtractor={(i) => i.salon.id}
           renderItem={({ item, index }) => (
-            <SalonCard item={item} width={CARD_W} badge={index === 0 ? i18n.t('bestMatch') : undefined} />
+            <SalonCard
+              item={item}
+              width={CARD_W}
+              badge={index === 0 && nearby.length > 1 && anyRated ? i18n.t('bestMatch') : undefined}
+            />
           )}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.rail}
@@ -238,30 +284,40 @@ function Discover() {
           ListEmptyComponent={<Text tone="soft">{i18n.t('nothingInCategory')}</Text>}
         />
 
-        <SectionHeader
-          title={i18n.t('topRated')}
-          action={{
-            label: i18n.t('seeAll'),
-            onPress: () => router.push({ pathname: '/top-rated', params: category ? { category } : {} }),
-          }}
-          style={styles.section}
-        />
-        <View style={{ marginTop: 4 }}>
-          {chart.map((item, i) => (
-            <SalonRow key={item.salon.id} item={item} rank={i + 1} last={i === chart.length - 1} compare />
-          ))}
-        </View>
+        {chart.length ? (
+          <>
+            <SectionHeader
+              title={i18n.t('topRated')}
+              action={{
+                label: i18n.t('seeAll'),
+                onPress: () => router.push({ pathname: '/top-rated', params: category ? { category } : {} }),
+              }}
+              style={styles.section}
+            />
+            <View style={{ marginTop: 4 }}>
+              {chart.map((item, i) => (
+                <SalonRow key={item.salon.id} item={item} rank={i + 1} last={i === chart.length - 1} compare />
+              ))}
+            </View>
+          </>
+        ) : null}
 
-        <SectionHeader title={i18n.t('mastersTitle')} style={styles.section} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-          {masters.map(({ master, salon }) => (
-            <MasterCard key={master.id} master={master} salon={salon} />
-          ))}
-        </ScrollView>
+        {masters.length ? (
+          <>
+            <SectionHeader title={i18n.t('mastersTitle')} style={styles.section} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {masters.map(({ master, salon }) => (
+                <MasterCard key={master.id} master={master} salon={salon} />
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
 
-        <Text variant="caption" tone="muted" align="center" style={styles.footer}>
-          {i18n.t('rankingNote')}
-        </Text>
+        {chart.length || masters.length ? (
+          <Text variant="caption" tone="muted" align="center" style={styles.footer}>
+            {i18n.t('rankingNote')}
+          </Text>
+        ) : null}
       </ScrollView>
       <StatusScrim />
       <CompareTray bottom={bottom - 12} />
@@ -364,6 +420,16 @@ function NextUp({ booking }: { booking: Booking }) {
 }
 
 const styles = StyleSheet.create({
+  dash: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginHorizontal: gutter,
+    marginTop: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radius.lg,
+  },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: gutter },
   place: {
     flexDirection: 'row',

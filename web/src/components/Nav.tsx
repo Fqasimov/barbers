@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { config, isDemo } from '../config';
+import { isDemo } from '../config';
 import { LANGS } from '../i18n';
 import { useI18n } from '../lang';
 import { Lockup } from './ui';
@@ -28,18 +28,10 @@ export function Nav() {
     ['#about', t('navAbout')],
     ['#why', t('navWhy')],
     ['#map', t('navMap')],
+    ['#pricing', t('navPricing')],
     ['#join', t('navJoin')],
   ] as const;
 
-  const external = /^https?:/.test(config.panelUrl ?? '');
-  // Signed in to the panel on this browser before: the button says so.
-  const knownDevice = (() => {
-    try {
-      return localStorage.getItem('yazilnow-salon-device') === '1';
-    } catch {
-      return false;
-    }
-  })();
   return (
     <>
       {isDemo ? <div className="ribbon">{t('demoRibbon')}</div> : null}
@@ -63,13 +55,9 @@ export function Nav() {
                 </button>
               ))}
             </div>
-            <a
-              className="btn btn-sm btn-outline nav-cta"
-              href={config.panelUrl}
-              target={external ? '_blank' : undefined}
-              rel="noopener"
-            >
-              {t(knownDevice ? 'knownEnter' : 'navPanel')}
+            {/* The website's own sign-up form; the salon panel (for signed-up salons) is linked from there. */}
+            <a className="btn btn-sm btn-outline nav-cta" href="#register">
+              {t('navCta')}
             </a>
             <button
               className="nav-toggle"

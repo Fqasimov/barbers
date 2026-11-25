@@ -14,6 +14,9 @@ const ITEMS: { key: StatKey; label: Key; digits?: number; suffix?: string }[] = 
   { key: 'districts', label: 'statDistricts' },
 ];
 
+/** Partner places before the figures are shown at all. */
+const STATS_MIN = 10;
+
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
 
 /** Counts up once, when it first comes into view. */
@@ -73,6 +76,9 @@ export function Stats() {
       alive = false;
     };
   }, []);
+
+  // Small numbers read as "nobody uses this": the band appears once the network is big enough.
+  if (!data || (data.salons ?? 0) < STATS_MIN) return null;
 
   const updated = data?.updated_at
     ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(data.updated_at))

@@ -47,8 +47,20 @@ export function RatingInline({
   tone?: 'ink' | 'onPrimary';
 }) {
   const { c } = useTheme();
-  const { rating: fmt, n } = useI18n();
+  const { rating: fmt, n, t } = useI18n();
   const color = tone === 'ink' ? c.ink : c.onPrimary;
+  // No reviews yet: "New", never a 0.0 that reads like a bad score.
+  if (!(rating > 0) || count === 0) {
+    return (
+      <View
+        style={[styles.newTag, { borderColor: tone === 'ink' ? c.line : c.onPrimary }]}
+        accessible
+        accessibilityLabel={t('pinNew')}
+      >
+        <Text style={[styles.newText, { color, fontSize: size === 'sm' ? 11.5 : 12.5 }]}>{t('pinNew')}</Text>
+      </View>
+    );
+  }
   return (
     <View
       style={styles.inline}
@@ -74,4 +86,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   inline: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   num: { fontFamily: fonts.semibold, lineHeight: 18 },
+  newTag: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
+  newText: { fontFamily: fonts.semibold, lineHeight: 16 },
 });

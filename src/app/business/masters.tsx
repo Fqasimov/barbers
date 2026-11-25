@@ -3,7 +3,7 @@ import { Plus, Users } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { masterLimit } from '@/auth/plans';
+import { masterLimit, marketOf } from '@/auth/plans';
 import { Card, useOwner } from '@/components/business/kit';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -23,10 +23,11 @@ export default function Masters() {
   const masters = business?.masters ?? [];
   const limit = masterLimit(business);
   const full = limit !== null && masters.length >= limit;
+  const couture = (business?.market ?? marketOf(business?.categories)) === 'couture';
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScreenHeader title={i18n.t('mstTitle')} />
+      <ScreenHeader title={i18n.t(couture ? 'mstTitleCouture' : 'mstTitle')} />
       <ScrollView contentContainerStyle={{ padding: gutter, paddingBottom: insets.bottom + 32, gap: 16 }}>
         {masters.length ? (
           <Card>
@@ -62,7 +63,7 @@ export default function Masters() {
           </Text>
         ) : (
           <Button
-            label={i18n.t('mstAdd')}
+            label={i18n.t(couture ? 'mstAddCouture' : 'mstAdd')}
             icon={Plus}
             variant="secondary"
             onPress={() => router.push('/business/master')}

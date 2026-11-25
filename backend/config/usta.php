@@ -76,6 +76,29 @@ return [
             'month' => (int) env('PLAN_PRICE_PRO', 49),
             'year' => (int) env('PLAN_PRICE_PRO_YEAR', 10 * (int) env('PLAN_PRICE_PRO', 49)),
         ],
+        // Couture brands: showroom visits and fittings, with everything in Pro. One showroom.
+        'couture' => [
+            'month' => (int) env('PLAN_PRICE_COUTURE', 39),
+            'year' => (int) env('PLAN_PRICE_COUTURE_YEAR', 10 * (int) env('PLAN_PRICE_COUTURE', 39)),
+        ],
+        // Couture Plus: the same, with up to 3 showrooms (more at the branch price).
+        'couture_plus' => [
+            'month' => (int) env('PLAN_PRICE_COUTURE_PLUS', 59),
+            'year' => (int) env('PLAN_PRICE_COUTURE_PLUS_YEAR', 10 * (int) env('PLAN_PRICE_COUTURE_PLUS', 59)),
+        ],
+    ],
+
+    // Markets: each has its own categories and plans. A business belongs to one market,
+    // set by its categories, and can only pick that market's plans.
+    'markets' => [
+        'beauty' => [
+            'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics'],
+            'plans' => ['sade', 'ferdi', 'start', 'pro'],
+        ],
+        'couture' => [
+            'categories' => ['couture'],
+            'plans' => ['couture', 'couture_plus'],
+        ],
     ],
 
     // What each plan unlocks. A Pro trial unlocks Pro.
@@ -84,6 +107,10 @@ return [
         'ferdi' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page', 'stats', 'staff'],
         'start' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon', 'personal_page', 'stats', 'staff'],
         'pro' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
+            'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'staff', 'priority_support'],
+        'couture' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
+            'personal_page', 'managers', 'deposits', 'waitlist', 'stats', 'staff', 'priority_support'],
+        'couture_plus' => ['listing', 'qr_reviews', 'replies', 'gallery', 'booking_link', 'click_report', 'booking', 'whatsapp_addon',
             'personal_page', 'branches', 'managers', 'deposits', 'waitlist', 'stats', 'staff', 'priority_support'],
     ],
 
@@ -154,11 +181,25 @@ return [
         'template_lang' => env('WHATSAPP_TEMPLATE_LANG', 'az'),
     ],
 
+    // Where new sign-ups waiting for review are announced. Empty: no email.
+    'alerts_email' => env('ALERTS_EMAIL', env('SUPPORT_EMAIL', 'support@yazilnow.az')),
+
     'support' => [
         'email' => env('SUPPORT_EMAIL', 'support@yazilnow.az'),
         // Pro only: the priority phone line. Empty: Pro sees email support only.
         'phone' => env('SUPPORT_PHONE') ?: null,
         'hours' => env('SUPPORT_HOURS', '09:00–21:00'),
+    ],
+
+    // Voice assistant add-on: an ElevenLabs agent answers the salon's missed calls and books.
+    // Its server tools and the post-call webhook send this secret (X-Voice-Secret header or ?secret=).
+    'voice' => [
+        'secret' => env('VOICE_TOOL_SECRET'),
+        // Monthly packs (minutes => ₼). Minutes past the pack cost extra_price each, billed at the
+        // month's end, up to cap × the pack; then the assistant stops booking until the next month.
+        'packs' => [100 => 39, 250 => 89, 500 => 169],
+        'extra_price' => (float) env('VOICE_EXTRA_PRICE', 0.35),
+        'cap' => 1.5,
     ],
 
     // Where QR codes and shared links point.
@@ -172,7 +213,7 @@ return [
 
     'tones' => ['oxblood', 'forest', 'navy', 'clay', 'olive', 'sand', 'slate', 'rose', 'ink', 'bone'],
 
-    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics'],
+    'categories' => ['barber', 'hair', 'nails', 'brows', 'spa', 'makeup', 'aesthetics', 'couture'],
 
     'review_tags' => ['skilled', 'punctual', 'friendly', 'clean', 'value', 'relaxing'],
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Controllers\Business\AddonController;
 use App\Models\User;
 use App\Services\BusinessAccess;
 use App\Support\Iso;
@@ -53,6 +54,8 @@ class BusinessResource extends JsonResource
             'role' => $role,
             'salon_name' => $this->name,
             'categories' => array_values($this->categories ?? []),
+            // beauty | couture: which plans and wording the app shows.
+            'market' => $this->resource->market(),
             'district' => $this->district,
             'address' => $this->address,
             'coords' => $this->latitude !== null && $this->longitude !== null
@@ -75,7 +78,17 @@ class BusinessResource extends JsonResource
             'subscription' => $sub ? (new SubscriptionResource($sub))->resolve($request) : null,
             'features' => $plan ? array_values(config("usta.plan_features.{$plan}", [])) : [],
             'locations' => $locations,
+            // Voice assistant: this month's minutes, extra minutes and what they cost.
+            'voice' => $account->voice_minutes && $account->voice_until
+                ? $account->voiceUsage() + [
+                    'until' => Iso::ts($account->voice_until),
+                    'active' => $account->voice_until->isFuture(),
+                    'extra_price' => (float) config('usta.voice.extra_price'),
+                ]
+                : null,
             'whatsapp_pack' => [
+                // False while the server only logs messages (no WhatsApp account connected yet).
+                'available' => AddonController::whatsappLive(),
                 'left' => $packLive ? max(0, (int) $account->whatsapp_quota - (int) $account->whatsapp_used) : 0,
                 'until' => $packLive ? Iso::ts($account->whatsapp_until) : null,
             ],

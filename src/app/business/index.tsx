@@ -26,7 +26,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GRACE_DAYS, hasFeature, planById, REMIND_DAYS } from '@/auth/plans';
+import { GRACE_DAYS, hasFeature, marketOf, planById, plansFor, REMIND_DAYS } from '@/auth/plans';
 import { setBranch } from '@/api/client';
 import type { Feature } from '@/auth/types';
 import { authErrorKey } from '@/auth/flow';
@@ -34,6 +34,7 @@ import { useSession } from '@/auth/useSession';
 import { BookingLinkCard } from '@/components/business/BookingLinkCard';
 import { DashboardCalendar } from '@/components/business/DashboardCalendar';
 import { Card, MenuRow, useOwner } from '@/components/business/kit';
+import { VoiceCard } from '@/components/business/VoiceCard';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { toast } from '@/components/Toaster';
 import { Button } from '@/components/ui/Button';
@@ -90,6 +91,7 @@ export default function BusinessDashboard() {
   const photos = business.photos ?? [];
   const can = (f: Feature) => hasFeature(business, f);
   const owner = (business.role ?? 'owner') === 'owner';
+  const couture = (business.market ?? marketOf(business.categories)) === 'couture';
   const takesBookings = !business.subscription || can('booking');
   // Fərdi is one person: the owner is the only master, added automatically, so no masters section.
   const solo = business.subscription?.plan === 'ferdi';
@@ -101,14 +103,9 @@ export default function BusinessDashboard() {
     { done: photos.length > 0, label: i18n.t('setupPhotos'), to: '/business/photos' as const },
   ];
   const locations = business.locations ?? [];
+  /** The cheapest plan of this business's market that has the tool (Couture Plus for a showroom's branches). */
   const lockedTo = (f: Feature) =>
-    planById(
-      f === 'click_report' || f === 'qr_reviews'
-        ? 'sade'
-        : f === 'whatsapp_addon' || f === 'personal_page'
-          ? 'ferdi'
-          : 'pro',
-    ).name;
+    (plansFor(couture ? 'couture' : 'beauty').find((p) => p.unlocks.includes(f)) ?? planById('pro')).name;
   /** A Grow row: opens the tool, or the plans screen with what it needs. */
   const tool = (f: Feature, to: Parameters<typeof router.push>[0]) => () =>
     can(f) ? router.push(to) : owner ? router.push('/business/plans') : toast(i18n.t('errPlanRequired'), 'info');
@@ -317,6 +314,7 @@ export default function BusinessDashboard() {
   const restBlock = (
     <>
       <BookingLinkCard business={business} onPickAddress={() => router.push('/business/details')} />
+      <VoiceCard business={business} />
 
       {!ready ? (
         <>
@@ -371,7 +369,7 @@ export default function BusinessDashboard() {
         {takesBookings && !solo ? (
           <MenuRow
             icon={Users}
-            title={i18n.t('mstTitle')}
+            title={i18n.t(couture ? 'mstTitleCouture' : 'mstTitle')}
             detail={i18n.n(masters.length, 'master')}
             onPress={() => router.push('/business/masters')}
           />
@@ -442,7 +440,9 @@ export default function BusinessDashboard() {
                     lockDetail('whatsapp_addon') ??
                     (business.whatsappPack?.left
                       ? i18n.t('waLeft', { n: business.whatsappPack.left })
-                      : i18n.t('waNone'))
+                      : business.whatsappPack?.available === false
+                        ? i18n.t('soon')
+                        : i18n.t('waNone'))
                   }
                   onPress={tool('whatsapp_addon', '/business/whatsapp')}
                 />

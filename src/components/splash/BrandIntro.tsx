@@ -11,7 +11,7 @@ import Svg, { Path } from 'react-native-svg';
  * steel shears snip a burgundy thread and open into the check mark of the logo;
  * beside it the salon's tools play in turn (a hairdryer blows, a brush lacquers
  * a nail, a trimmer buzzes, a straight razor unfolds), then "yazılnow" is cut
- * into place and the stage lifts away to the app.
+ * into place and the stage fades away to the app.
  *
  * Driven by a 30 fps frame clock so it plays the same on every device. If the
  * app is not ready by the end it holds on the finished logo; reduced motion
@@ -30,7 +30,7 @@ const T = {
   razor: [100, 128],
   word: [124, 140],
   hold: 150,
-  lift: [150, 170],
+  lift: [150, 162],
 } as const;
 const CUT = 16;
 
@@ -55,17 +55,12 @@ const SHEARS = [
   require('../../../assets/intro/shears-17.webp'),
   require('../../../assets/intro/shears-18.webp'),
 ];
-const RAZOR = [
-  require('../../../assets/intro/razor-00.webp'),
-  require('../../../assets/intro/razor-01.webp'),
-  require('../../../assets/intro/razor-02.webp'),
-  require('../../../assets/intro/razor-03.webp'),
-  require('../../../assets/intro/razor-04.webp'),
-  require('../../../assets/intro/razor-05.webp'),
-  require('../../../assets/intro/razor-06.webp'),
-  require('../../../assets/intro/razor-07.webp'),
-  require('../../../assets/intro/razor-08.webp'),
-];
+// The razor is drawn as two parts so the blade can swing on its pin at any angle; nine
+// pre-drawn angles made it jump.
+const RAZOR_HANDLE = require('../../../assets/intro/razor-handle.webp');
+const RAZOR_BLADE = require('../../../assets/intro/razor-blade.webp');
+// The pin, as a share of the 720px drawing.
+const RAZOR_PIN = `${(366.6 / 720) * 100}% ${(350.1 / 720) * 100}%`;
 const DRYER = require('../../../assets/intro/hairdryer.webp');
 const BRUSH = require('../../../assets/intro/brush.webp');
 const NAIL = require('../../../assets/intro/nail-bare.webp');
@@ -220,7 +215,9 @@ export function BrandIntro({ ready, onDone }: { ready: boolean; onDone: () => vo
 
   return (
     <View
-      style={[StyleSheet.absoluteFill, { transform: [{ translateY: -lift * h * 1.02 }], zIndex: 100 }]}
+      // Fades out over whatever opens next (home or the welcome screen); a slide-up showed a hard
+      // moving edge across it.
+      style={[StyleSheet.absoluteFill, { opacity: 1 - lift, transform: [{ scale: 1 + lift * 0.04 }], zIndex: 100 }]}
       accessibilityLabel="yazılnow"
       accessibilityRole="progressbar"
       pointerEvents={lift > 0 ? 'none' : 'auto'}
@@ -293,8 +290,12 @@ export function BrandIntro({ ready, onDone }: { ready: boolean; onDone: () => vo
       >
         <Text
           maxFontSizeMultiplier={1}
-          numberOfLines={1}
+          // Laid out at full width and clipped by the box above; a one-line limit made the browser
+          // ellipsize it ("yazıl…") while the box was still opening.
           style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
             fontFamily: 'Onest_800ExtraBold',
             fontSize: F,
             lineHeight: F * 1.12,
@@ -451,10 +452,18 @@ function Razor({ f, box, size }: { f: number; box: Box; size: number }) {
   const s = slot(f, T.razor);
   if (!s.visible) return null;
   const local = f - T.razor[0];
-  const unfold = io(local, [5, 15], [0, 1], easeInOut);
+  const unfold = io(local, [4, 20], [0, 1], easeInOut);
+  // Folded, the blade lies back along the handle (-176°); open, it lines up with it (0°).
+  const angle = -176 * (1 - unfold);
+  const img = { position: 'absolute' as const, width: size, height: size };
   return (
     <Slot s={s} box={box}>
-      <Frames srcs={RAZOR} index={unfold * (RAZOR.length - 1)} size={size} />
+      <Image
+        source={RAZOR_BLADE}
+        style={[img, { transformOrigin: RAZOR_PIN, transform: [{ rotate: `${angle}deg` }] }]}
+        cachePolicy="memory"
+      />
+      <Image source={RAZOR_HANDLE} style={img} cachePolicy="memory" />
     </Slot>
   );
 }

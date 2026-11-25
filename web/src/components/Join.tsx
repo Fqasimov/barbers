@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Rea
 
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
 import { config, isLive, page } from '../config';
-import { categories, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { categories, dict, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { PLAN_PICK_EVENT, type PlanPick } from './Pricing';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
 
@@ -183,11 +184,11 @@ export function Join() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [code, setCode] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [plan, setPlan] = useState<PlanId>('pro');
+  const [plan, setPlan] = useState<PlanId>('start');
+  const [pickedFlash, setPickedFlash] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [now, setNow] = useState(Date.now());
-  const card = useRef<HTMLDivElement>(null);
-  // This browser has signed in to the salon panel before (set by the panel): offer sign-in, not sign-up.
+  // This browser has signed in to the salon panel before: offer sign-in instead of a second sign-up.
   const [knownDevice] = useState(() => {
     try {
       return localStorage.getItem('yazilnow-salon-device') === '1';
@@ -196,11 +197,45 @@ export function Join() {
     }
   });
   const [showForm, setShowForm] = useState(false);
+  const card = useRef<HTMLDivElement>(null);
   const lastTried = useRef('');
 
   useEffect(() => {
     void loadPlanPrices().then(setPrices);
   }, []);
+
+  // A plan picked in the pricing section: preselect it, and the kind of business it is for.
+  useEffect(() => {
+    const onPick = (e: Event) => {
+      const { plan: id, market } = (e as CustomEvent<PlanPick>).detail;
+      setPlan(id);
+      setSalon((s) => {
+        if (market === 'couture') return { ...s, categories: ['couture'] };
+        return s.categories.includes('couture') ? { ...s, categories: [] } : s;
+      });
+      setPickedFlash(true);
+      window.setTimeout(() => setPickedFlash(false), 1600);
+    };
+    window.addEventListener(PLAN_PICK_EVENT, onPick);
+    return () => window.removeEventListener(PLAN_PICK_EVENT, onPick);
+  }, []);
+
+  // The plan always belongs to the business's market (a showroom can't keep a salon plan).
+  const market = marketOf(salon.categories);
+  /** The couture wording of a key, when there is one and the business is a showroom. */
+  const ck = (k: Key): Key => {
+    const alt = `${k}Couture` as Key;
+    return market === 'couture' && alt in dict ? alt : k;
+  };
+  const setKind = (kind: 'beauty' | 'couture') =>
+    setSalon((s) => ({
+      ...s,
+      categories: kind === 'couture' ? ['couture'] : s.categories.filter((c) => c !== 'couture'),
+    }));
+  useEffect(() => {
+    if (plans.find((p) => p.id === plan)?.market === market) return;
+    setPlan((plans.find((p) => p.market === market && p.recommended) ?? plans.find((p) => p.market === market)!).id);
+  }, [market, plan]);
 
   // The resend countdown.
   const resendAt = challenge?.resend_at ? new Date(challenge.resend_at).getTime() : 0;
@@ -395,33 +430,47 @@ export function Join() {
   });
 
   return (
-    <section className="section join" id="join">
+    <section className={`section join${pickedFlash ? ' join-picked' : ''}`} id="join">
       <div className="wrap join-grid">
         <div className="join-copy">
-          <p className="kicker reveal">{t('joinKicker')}</p>
-          <h2 className="h2 reveal">{t('joinTitle')}</h2>
-          <p className="section-sub reveal">{t('joinSub')}</p>
+          <p className="kicker reveal">{t(ck('joinKicker'))}</p>
+          <h2 className="h2 reveal">{t(ck('joinTitle'))}</h2>
+          <p className="section-sub reveal">{t(ck('joinSub'))}</p>
+          <div className="join-kind reveal" role="radiogroup" aria-label={t('joinKindLabel')}>
+            {(['beauty', 'couture'] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={market === k}
+                className={market === k ? 'on' : undefined}
+                onClick={() => setKind(k)}
+              >
+                {t(k === 'couture' ? 'joinKindCouture' : 'joinKindBeauty')}
+              </button>
+            ))}
+          </div>
           <p className="reveal panel-link">
-            {t('joinPanel')}{' '}
+            {t(ck('joinPanel'))}{' '}
             <a
               className="btn btn-sm btn-outline"
               href={config.panelUrl}
               target={/^https?:/.test(config.panelUrl ?? '') ? '_blank' : undefined}
               rel="noopener"
             >
-              {t('joinPanelCta')}
+              {t(ck('joinPanelCta'))}
             </a>
           </p>
           <ul className="ticks reveal">
             {(['joinPoint1', 'joinPoint2', 'joinPoint3', 'joinPoint4'] as const).map((k) => (
-              <li key={k}>{t(k)}</li>
+              <li key={k}>{t(ck(k))}</li>
             ))}
           </ul>
           <div className="how reveal">
             <h3>{t('joinSteps')}</h3>
             <ol>
               {(['joinStep1', 'joinStep2', 'joinStep3'] as const).map((k) => (
-                <li key={k}>{t(k)}</li>
+                <li key={k}>{t(ck(k))}</li>
               ))}
             </ol>
           </div>
@@ -446,12 +495,12 @@ export function Join() {
                 <ol className="progress" aria-hidden="true">
                   {STEPS.map((k, i) => (
                     <li key={k} className={i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>
-                      {t(k)}
+                      {t(ck(k))}
                     </li>
                   ))}
                 </ol>
                 <p className="step-of" aria-live="polite">
-                  {t('stepOf', { n: step })} · {t(STEPS[step - 1])}
+                  {t('stepOf', { n: step })} · {t(ck(STEPS[step - 1]))}
                 </p>
               </>
             ) : null}
@@ -559,7 +608,12 @@ export function Join() {
                           onClick={() => {
                             setSalon((s) => ({
                               ...s,
-                              categories: on ? s.categories.filter((x) => x !== c.id) : [...s.categories, c.id],
+                              // A couture showroom and beauty services are separate kinds of business.
+                              categories: on
+                                ? s.categories.filter((x) => x !== c.id)
+                                : c.id === 'couture'
+                                  ? ['couture']
+                                  : [...s.categories.filter((x) => x !== 'couture'), c.id],
                             }));
                             setErrors((x) => ({ ...x, categories: undefined }));
                           }}
@@ -687,39 +741,41 @@ export function Join() {
                 </h3>
                 <p className="muted">{t('planSub')}</p>
                 <div className="plans" role="radiogroup" aria-label={t('planTitle')}>
-                  {plans.map((p) => (
-                    <label className="plan" key={p.id}>
-                      <input
-                        type="radio"
-                        name="plan"
-                        value={p.id}
-                        checked={plan === p.id}
-                        onChange={() => setPlan(p.id)}
-                      />
-                      <span className="plan-body">
-                        <span className="plan-head">
-                          <span className="plan-name">
-                            {p.name}
-                            {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
+                  {plans
+                    .filter((p) => p.market === market)
+                    .map((p) => (
+                      <label className="plan" key={p.id}>
+                        <input
+                          type="radio"
+                          name="plan"
+                          value={p.id}
+                          checked={plan === p.id}
+                          onChange={() => setPlan(p.id)}
+                        />
+                        <span className="plan-body">
+                          <span className="plan-head">
+                            <span className="plan-name">
+                              {p.name}
+                              {p.recommended ? <span className="plan-badge">{t('recommended')}</span> : null}
+                            </span>
+                            <span className="plan-price">
+                              {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
+                              <small className="plan-after">{t('afterTrial')}</small>
+                            </span>
                           </span>
-                          <span className="plan-price">
-                            {num(priceOf(p.id))} ₼<small>{t('perMonth')}</small>
-                            <small className="plan-after">{t('afterTrial')}</small>
-                          </span>
+                          <span className="plan-blurb">{tx(p.blurb)}</span>
+                          <span className="plan-trial">{t('trialBadge')}</span>
+                          <ul>
+                            {p.features.map((f) => (
+                              <li key={f.en} className={f.soon ? 'soon' : undefined}>
+                                {tx(f)}
+                                {f.soon ? <em> · {t('soon')}</em> : null}
+                              </li>
+                            ))}
+                          </ul>
                         </span>
-                        <span className="plan-blurb">{tx(p.blurb)}</span>
-                        <span className="plan-trial">{t('trialBadge')}</span>
-                        <ul>
-                          {p.features.map((f) => (
-                            <li key={f.en} className={f.soon ? 'soon' : undefined}>
-                              {tx(f)}
-                              {f.soon ? <em> · {t('soon')}</em> : null}
-                            </li>
-                          ))}
-                        </ul>
-                      </span>
-                    </label>
-                  ))}
+                      </label>
+                    ))}
                 </div>
                 <p className="plan-note plan-note-left">{t('yearDeal')}</p>
                 {formErr}

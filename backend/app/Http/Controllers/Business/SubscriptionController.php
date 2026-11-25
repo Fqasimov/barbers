@@ -74,9 +74,15 @@ class SubscriptionController extends Controller
         return response()->json((new BusinessResource($this->business($request)->fresh()))->resolve($request));
     }
 
-    /** Fərdi is one master at one location: refuse it while the salon has more. */
+    /**
+     * The plan must be one of the business's market (couture brands pick Couture; salons the
+     * beauty plans), and Fərdi is one master at one location: refuse it while the salon has more.
+     */
     private function fitsPlan(Business $business, string $plan): void
     {
+        if (! in_array($plan, config('usta.markets.'.$business->market().'.plans'), true)) {
+            throw new ApiException(422, 'wrong_market', 'This plan is for another kind of business.');
+        }
         $limit = config("usta.master_limit.{$plan}");
         if ($limit === null) {
             return;

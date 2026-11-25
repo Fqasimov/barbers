@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\NewBusinessMail;
 use App\Mail\OtpCodeMail;
 use App\Models\Business;
 use App\Models\User;
@@ -149,6 +150,9 @@ class AuthTest extends TestCase
             ->assertJsonPath('business.status', 'pending_review')
             ->assertJsonPath('business.subscription', null)
             ->assertJsonPath('business.salon_id', $business->id);
+        // The team hears about it, to review it within a working day.
+        Mail::assertQueued(NewBusinessMail::class, fn (NewBusinessMail $m) => $m->name === 'Kəsim Studio'
+            && $m->hasTo((string) config('usta.alerts_email')));
     }
 
     public function test_customers_get_codes_through_resend_and_salons_through_our_own_mailbox(): void

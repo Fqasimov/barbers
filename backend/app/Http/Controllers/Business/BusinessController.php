@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Business;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use App\Http\Resources\BusinessResource;
 use App\Rules\LocText;
 use App\Rules\V;
@@ -61,6 +63,16 @@ class BusinessController extends Controller
         ]);
         if (! empty($data['slug'])) {
             $this->business($request)->requireFeature('personal_page');
+        }
+        if (isset($data['categories'])) {
+            $market = Business::marketOf(array_values($data['categories']));
+            if ($market === null) {
+                throw ValidationException::withMessages(['categories' => ['A couture showroom and beauty services are separate kinds of business.']]);
+            }
+            $plan = $this->account($request)->subscription?->plan;
+            if ($plan && ! in_array($plan, config("usta.markets.{$market}.plans"), true)) {
+                throw new ApiException(422, 'wrong_market', 'Your plan is for another kind of business. Change the plan first.');
+            }
         }
         if (isset($data['hours']) && $data['hours']['close'] <= $data['hours']['open']) {
             throw ValidationException::withMessages(['hours.close' => ['Closing time must be after opening time.']]);

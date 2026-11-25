@@ -58,7 +58,11 @@ export default function WhatsAppPack() {
         <Text variant="subhead" tone="soft">
           {i18n.t('waBody', { messages: WHATSAPP_PACK.messages, days: WHATSAPP_PACK.days })}
         </Text>
-        {canBuyInApp ? (
+        {pack?.available === false ? (
+          <Text variant="subhead" tone="muted">
+            {i18n.t('waSoon')}
+          </Text>
+        ) : canBuyInApp ? (
           <Button label={i18n.t('waBuy', { price: i18n.price(WHATSAPP_PACK.price) })} onPress={buy} loading={paying} />
         ) : null}
       </ScrollView>

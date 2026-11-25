@@ -36,11 +36,19 @@ export const categories: Category[] = [
     plural: { az: 'Makiyaj ustaları', ru: 'Визажисты', en: 'Makeup artists' },
   },
   {
+    id: 'couture',
+    label: { az: 'Showroom', ru: 'Шоурум', en: 'Showroom' },
+    plural: { az: 'Couture showroomları', ru: 'Шоурумы кутюр', en: 'Couture showrooms' },
+  },
+  {
     id: 'aesthetics',
     label: { az: 'Kosmetologiya', ru: 'Косметология', en: 'Aesthetics' },
     plural: { az: 'Kosmetologiya mərkəzləri', ru: 'Косметологии', en: 'Aesthetic clinics' },
   },
 ];
+
+/** Beauty services (the main market) and couture showrooms are separate kinds of business. */
+export const beautyCategories = categories.filter((c) => c.id !== 'couture');
 
 export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<CategoryId, Category>;
 

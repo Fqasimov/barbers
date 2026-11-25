@@ -14,5 +14,14 @@ export function useVisibleSalons() {
   const salons = useCatalogue((s) => s.salons);
   const gender = useSession((s) => s.session?.user.gender ?? null);
   const forMe = useStore((s) => s.forMe);
-  return useMemo(() => (gender && forMe ? salons.filter((s) => servesGender(s, gender)) : salons), [salons, gender, forMe]);
+  return useMemo(
+    () => (gender && forMe ? salons.filter((s) => servesGender(s, gender)) : salons),
+    [salons, gender, forMe],
+  );
+}
+
+/** Comparing needs a few places to choose between; below this it's hidden everywhere. */
+export const COMPARE_MIN = 4;
+export function useCompareEnabled() {
+  return useVisibleSalons().length >= COMPARE_MIN;
 }

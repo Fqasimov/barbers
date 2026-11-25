@@ -228,7 +228,7 @@ const MapCard = memo(function MapCard({
       <PressableScale
         onPress={() => router.push({ pathname: '/salon/[id]', params: { id: salon.id } })}
         scaleTo={0.98}
-        accessibilityLabel={`${best ? `${i18n.t('bestPick')}. ` : ''}${salon.name}, ${i18n.distance(distance)}, ${i18n.fromPrice(fromPrice(salon))}`}
+        accessibilityLabel={`${best ? `${i18n.t('bestPick')}. ` : ''}${salon.name}, ${i18n.distance(distance)}${fromPrice(salon) !== null ? `, ${i18n.fromPrice(fromPrice(salon)!)}` : ''}`}
         style={styles.cardMain}
       >
         <SalonPhoto salon={salon} width={72} height={72} radius={radius.md} />
@@ -248,7 +248,8 @@ const MapCard = memo(function MapCard({
           <View style={styles.meta}>
             <RatingInline rating={live.rating} size="sm" />
             <Text variant="caption" tone="soft">
-              · {i18n.distance(distance)} · {i18n.fromPrice(fromPrice(salon))}
+              · {i18n.distance(distance)}
+              {fromPrice(salon) !== null ? ` · ${i18n.fromPrice(fromPrice(salon)!)}` : ''}
             </Text>
           </View>
           <Text variant="caption" style={{ color: open.open ? c.success : c.inkMuted }}>

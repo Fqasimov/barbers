@@ -1,15 +1,10 @@
-import {
-  Onest_400Regular,
-  Onest_500Medium,
-  Onest_600SemiBold,
-  Onest_700Bold,
-  Onest_800ExtraBold,
-  useFonts,
-} from '@expo-google-fonts/onest';
+import { Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold, useFonts } from '@expo-google-fonts/geist';
+import { GeistMono_500Medium } from '@expo-google-fonts/geist-mono';
+import { Onest_800ExtraBold } from '@expo-google-fonts/onest';
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider as NavThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -19,7 +14,6 @@ import { BrandIntro } from '@/components/splash/BrandIntro';
 import { Toaster } from '@/components/Toaster';
 import { useAppSync } from '@/lib/sync';
 import { useStore } from '@/store/useStore';
-import { siteFonts } from '@/theme/siteFonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { SITE_URL } from '@/lib/links';
 import { isSite } from '@/theme/tokens';
@@ -30,12 +24,13 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    Onest_400Regular,
-    Onest_500Medium,
-    Onest_600SemiBold,
-    Onest_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
+    GeistMono_500Medium,
+    // The wordmark only.
     Onest_800ExtraBold,
-    ...siteFonts,
   });
 
   if (!fontsLoaded) return null;
@@ -111,7 +106,9 @@ function App() {
   const splashDone = introDone || (isSite && ready);
   useAppSync();
 
-  // First launch: offer sign-in / sign-up once, right after the splash. Browsing stays open.
+  // First launch: offer sign-in / sign-up once. Browsing stays open.
+  // It opens behind the splash, as soon as the stores are read, so the splash fades straight
+  // into it; opening it after the splash showed the home screen for a moment first.
   // Only on the home screen: a scanned QR, a shared salon link or the salon panel's front door
   // opens where it points, and asks for an account only when it needs one.
   const pathname = usePathname();
@@ -119,9 +116,12 @@ function App() {
   const wide = usePanelWide(pathname);
   const { width } = useWindowDimensions();
   const desktop = wide && width >= WIDE_MIN;
+  const asked = useRef(false);
   useEffect(() => {
-    if (!isSite && splashDone && hydrated && sessionReady && !signedIn && !authPrompted && onHome) router.push('/auth');
-  }, [splashDone, hydrated, sessionReady, signedIn, authPrompted, onHome]);
+    if (asked.current || !hydrated || !sessionReady || signedIn || authPrompted || !onHome) return;
+    asked.current = true;
+    router.push('/auth');
+  }, [hydrated, sessionReady, signedIn, authPrompted, onHome]);
 
   const offWeb = isSite && !isWebAllowed(pathname);
   // Remember that this browser has signed in to the salon panel (kept after sign-out), so the
@@ -217,5 +217,5 @@ function App() {
 // In a browser (the salon panel on the website) the app is a centred column; on phones it fills the screen.
 const styles = StyleSheet.create({
   page: { flex: 1, alignItems: 'center' },
-  column: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 760 : undefined, overflow: 'hidden' },
+  column: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 960 : undefined, overflow: 'hidden' },
 });

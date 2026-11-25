@@ -6,12 +6,16 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@react-three/fiber": "9.1.2",
     "@remotion/cli": "4.0.532",
     "@remotion/fonts": "4.0.532",
+    "@remotion/three": "4.0.532",
     "@remotion/transitions": "4.0.532",
+    "@types/three": "0.172.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "remotion": "4.0.532"
+    "remotion": "4.0.532",
+    "three": "0.172.0"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.532",

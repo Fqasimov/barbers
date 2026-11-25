@@ -861,6 +861,8 @@ export const strings = {
   mstTitle: L('Ustalar', 'Мастера', 'Masters'),
   mstAdd: L('Usta əlavə et', 'Добавить мастера', 'Add a master'),
   mstNew: L('Yeni usta', 'Новый мастер', 'New master'),
+  mstTitleCouture: L('Stilistlər', 'Стилисты', 'Stylists'),
+  mstAddCouture: L('Stilist əlavə et', 'Добавить стилиста', 'Add a stylist'),
   mstEdit: L('Ustanı dəyiş', 'Изменить мастера', 'Edit master'),
   mstEmptyTitle: L('Hələ usta yoxdur', 'Пока нет мастеров', 'No masters yet'),
   mstEmptyBody: L(
@@ -1307,6 +1309,31 @@ export const strings = {
     'Хотите адрес короче? Выберите адрес личной страницы в данных салона.',
     'Want a shorter link? Pick a personal page address in your salon details.',
   ),
+  voiceTitle: L('Səsli köməkçi', 'Голосовой помощник', 'Voice assistant'),
+  voiceUsed: L('Bu ay: {used} / {pack} dəqiqə', 'В этом месяце: {used} / {pack} мин', 'This month: {used} / {pack} min'),
+  voiceExtra: L(
+    'Paketdən artıq {extra} dəqiqə: ay sonunda {owed} ₼ ({price} ₼/dəq)',
+    'Сверх пакета {extra} мин: {owed} ₼ в конце месяца ({price} ₼/мин)',
+    '{extra} min over the pack: {owed} ₼ at the month’s end ({price} ₼/min)',
+  ),
+  voiceCapped: L(
+    'Bu ayın limiti doldu ({cap} dəq). Köməkçi növbəti aya qədər bron etmir, zənglər sizə qalır.',
+    'Лимит месяца исчерпан ({cap} мин). До следующего месяца помощник не записывает, звонки остаются вам.',
+    'This month’s limit is reached ({cap} min). Until next month the assistant doesn’t book; calls stay with you.',
+  ),
+  voiceLimitNote: L(
+    'Paketdən sonra {cap} dəqiqəyə qədər davam edir, artıq dəqiqələr ay sonunda hesablanır.',
+    'После пакета работает до {cap} мин, лишние минуты считаются в конце месяца.',
+    'After the pack it keeps going up to {cap} min; extra minutes are billed at the month’s end.',
+  ),
+  fBusinessKind: L('Biznesin növü', 'Тип бизнеса', 'Kind of business'),
+  kindBeauty: L('Salon / bərbərxana', 'Салон / барбершоп', 'Salon / barbershop'),
+  kindCouture: L('Couture brend', 'Кутюр-бренд', 'Couture brand'),
+  kindCoutureNote: L(
+    'Müştərilər showroomunuza gəlib modelləri geyinib baxmaq üçün onlayn qeyd olunur. Planlar: Couture 39 ₼ / ay (1 showroom), Couture Plus 59 ₼ / ay (3 showroomadək), ilk 30 gün pulsuz.',
+    'Клиенты онлайн записываются в ваш шоурум на примерку. Тарифы: Couture 39 ₼ / мес (1 шоурум), Couture Plus 59 ₼ / мес (до 3 шоурумов), первые 30 дней бесплатно.',
+    'Clients book online to visit your showroom and try pieces on. Plans: Couture 39 ₼ a month (1 showroom), Couture Plus 59 ₼ a month (up to 3 showrooms), first 30 days free.',
+  ),
   pickBranch: L('Filialı seçin', 'Выберите филиал', 'Pick a branch'),
   mstLimitNote: L(
     'Fərdi planda bir usta olur: siz. Komanda üçün Start-a keçin.',
@@ -1479,6 +1506,11 @@ export const strings = {
   waitlistLeave: L('Siyahıdan çıx', 'Выйти из списка', 'Leave the list'),
   waitlistNoSlots: L('Bu gün boş vaxt yoxdur', 'На этот день окон нет', 'No free times this day'),
 
+  waSoon: L(
+    'WhatsApp mesajları tezliklə qoşulur. Paketi o zaman almaq mümkün olacaq.',
+    'Сообщения WhatsApp скоро подключатся. Тогда пакет можно будет купить.',
+    'WhatsApp messages are being switched on soon. You can buy the pack then.',
+  ),
   waTitle: L('WhatsApp paketi', 'Пакет WhatsApp', 'WhatsApp pack'),
   waBody: L(
     'Bron təsdiqi və sabahkı xatırlatma müştəriyə WhatsApp-da gedir. {messages} mesaj, {days} gün.',

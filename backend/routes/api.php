@@ -23,6 +23,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\VoiceController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,14 @@ Route::middleware('throttle:auth')->group(function () {
     Route::post('auth/password/reset', [AuthController::class, 'reset']);
     Route::post('auth/social/google', [SocialAuthController::class, 'google']);
     Route::post('auth/social/apple', [SocialAuthController::class, 'apple']);
+});
+
+// Voice assistant add-on: server tools for the salon's ElevenLabs agent (X-Voice-Secret).
+Route::post('voice/calls', [VoiceController::class, 'call'])->middleware('throttle:public');
+Route::middleware('throttle:public')->prefix('voice/{salon}')->group(function () {
+    Route::post('info', [VoiceController::class, 'info']);
+    Route::post('check', [VoiceController::class, 'check']);
+    Route::post('book', [VoiceController::class, 'book']);
 });
 
 // Catalogue (public)

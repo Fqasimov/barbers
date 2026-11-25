@@ -39,7 +39,7 @@ class PaymentService
         $amount = (int) config("usta.plans.{$plan}.{$period}");
         $locations = 1;
         $extra = 0;
-        if ($plan === 'pro') {
+        if (in_array($plan, Business::plansWith('branches'), true)) {
             $locations = 1 + $account->branches()->count();
             $extra = max(0, $locations - (int) config('usta.branches.included'));
             $amount += $extra * (int) config('usta.branches.extra_month') * ($period === 'year' ? 10 : 1);

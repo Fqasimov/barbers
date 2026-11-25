@@ -3,6 +3,7 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useI18n } from '@/i18n';
 import { useStore } from '@/store/useStore';
+import { useCompareEnabled } from '@/hooks/useVisibleSalons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { shadow } from '@/theme/tokens';
 
@@ -38,7 +39,9 @@ export function CompareToggle({
   const { c } = useTheme();
   const i18n = useI18n();
   const { comparing, toggle } = useCompareToggle(salonId);
+  const enabled = useCompareEnabled();
   const Icon = comparing ? Check : ArrowLeftRight;
+  if (!enabled && !comparing) return null;
   return (
     <PressableScale
       onPress={toggle}

@@ -24,7 +24,9 @@ export type User = {
 /** Who a venue serves. Drives which places a signed-in user sees. */
 export type Audience = 'all' | 'women' | 'men';
 
-export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro';
+export type PlanId = 'sade' | 'ferdi' | 'start' | 'pro' | 'couture' | 'couture_plus';
+/** beauty: salons and barbershops (the main market). couture: brand showrooms. */
+export type Market = 'beauty' | 'couture';
 
 /** What a plan unlocks (server: config usta.plan_features). */
 export type Feature =
@@ -81,6 +83,8 @@ export type Business = {
   ownerId: string;
   salonName: string;
   categories: CategoryId[];
+  /** Which plans and wording apply; the server's, else from the categories. */
+  market?: Market;
   district: string;
   address: string;
   audience: Audience;
@@ -120,8 +124,22 @@ export type Business = {
    * personal page, or <site>/u/<salon id> until an address is picked. Not on Sadə.
    */
   shareUrl?: string | null;
+  /** Voice assistant add-on: this month's minutes (pack, used, extra past the pack, cap). */
+  voice?: {
+    month: string;
+    pack: number;
+    used: number;
+    extra: number;
+    owed: number;
+    cap: number;
+    capped: boolean;
+    until: string | null;
+    active: boolean;
+    extraPrice: number;
+  } | null;
   /** WhatsApp add-on: messages left and until when. */
-  whatsappPack?: { left: number; until: string | null };
+  /** available: false while the server can't send WhatsApp messages yet (then the pack isn't sold). */
+  whatsappPack?: { left: number; until: string | null; available?: boolean };
 };
 
 /** A master's own cabinet: the owner invited this person as staff. */
