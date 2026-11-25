@@ -56,3 +56,5 @@ deploy/out/
 /.git/
 /.expo/
 /ads/
+/*.mp4
+/*.zip
