@@ -124,6 +124,37 @@ class AdminTest extends TestCase
         $this->get('/admin/salons/nope')->assertNotFound();
     }
 
+    public function test_approve_and_reject_right_from_the_lists(): void
+    {
+        $this->signIn();
+        $a = $this->makeSalon(['status' => Business::PENDING, 'name' => 'Waiting One']);
+        $b = $this->makeSalon(['status' => Business::PENDING, 'name' => 'Waiting Two']);
+
+        $this->get('/admin')->assertOk()->assertSee(route('admin.salons.approve', $a->id), false)
+            ->assertSee(route('admin.salons.reject', $a->id), false);
+        $this->get('/admin/salons?status=pending_review')->assertOk()->assertSee(route('admin.salons.reject', $b->id), false);
+
+        $this->post("/admin/salons/{$a->id}/approve")->assertRedirect();
+        $this->assertSame(Business::LIVE, $a->fresh()->status);
+
+        $this->post("/admin/salons/{$b->id}/reject")->assertRedirect()->assertSessionHas('status', fn ($s) => str_contains($s, 'rejected'));
+        $this->assertSame(Business::SUSPENDED, $b->fresh()->status);
+        $this->assertSame('Rejected at review', $b->fresh()->suspended_reason);
+        $this->assertDatabaseHas('admin_actions', ['action' => 'salon.reject']);
+
+        // Reject only applies to a salon waiting for review.
+        $this->post("/admin/salons/{$a->id}/reject", ['reason' => 'x'])->assertRedirect();
+        $this->assertSame(Business::LIVE, $a->fresh()->status);
+    }
+
+    public function test_users_list_links_to_delete(): void
+    {
+        $this->signIn();
+        $user = \App\Models\User::factory()->create(['email' => 'gone@example.com']);
+        $this->get('/admin/users')->assertOk()->assertSee('Delete…');
+        $this->get("/admin/users/{$user->id}?delete=1")->assertOk()->assertSee('id="delete"', false)->assertSee(' open', false);
+    }
+
     public function test_approve_suspend_and_reinstate_a_salon(): void
     {
         $admin = $this->signIn();

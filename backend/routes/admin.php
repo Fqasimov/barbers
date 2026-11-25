@@ -26,6 +26,7 @@ Route::prefix('admin')->name('admin.')->middleware(AdminSecurityHeaders::class)-
         Route::get('salons/{id}', [SalonController::class, 'show'])->name('salons.show');
         Route::post('salons/{id}/approve', [SalonController::class, 'approve'])->name('salons.approve');
         Route::post('salons/{id}/suspend', [SalonController::class, 'suspend'])->name('salons.suspend');
+        Route::post('salons/{id}/reject', [SalonController::class, 'reject'])->name('salons.reject');
         Route::post('salons/{id}/extend', [SalonController::class, 'extend'])->name('salons.extend');
         Route::post('salons/{id}/plan', [SalonController::class, 'plan'])->name('salons.plan');
 

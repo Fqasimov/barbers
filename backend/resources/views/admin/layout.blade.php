@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>@yield('title', 'Admin') · yazılnow</title>
-  <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=6">
+  <link rel="stylesheet" href="{{ asset('admin-assets/admin.css') }}?v=7">
   <script src="{{ asset('admin-assets/admin.js') }}?v=5" defer></script>
 </head>
 <body>

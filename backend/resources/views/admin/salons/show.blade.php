@@ -110,10 +110,17 @@
             <div class="row"><button class="btn btn-ink" type="submit">{{ $salon->status === 'suspended' ? 'Reinstate' : 'Approve' }}</button></div>
           </form>
         @endif
-        @if ($salon->status !== 'suspended')
+        @if ($salon->status === 'pending_review')
+          <form class="action-form" method="post" action="{{ route('admin.salons.reject', $salon->id) }}" data-confirm="Reject {{ $salon->name }}? It stays out of search. You can reinstate it later.">
+            @csrf
+            <label class="field">Reject: reason (kept in the log, optional)<input name="reason" maxlength="255"></label>
+            <div class="row"><button class="btn btn-danger-ghost" type="submit">Reject</button></div>
+          </form>
+        @endif
+        @if ($salon->status === 'live')
           <form class="action-form" method="post" action="{{ route('admin.salons.suspend', $salon->id) }}" data-confirm="Suspend {{ $salon->name }}? It leaves search and takes no new bookings.">
             @csrf
-            <label class="field">Suspend: reason (kept in the log)<input name="reason" maxlength="255" required placeholder="E.g. fake photos, repeated no-shows"></label>
+            <label class="field">Suspend: reason (kept in the log)<input name="reason" maxlength="255" required></label>
             <div class="row"><button class="btn btn-danger-ghost" type="submit">Suspend</button></div>
           </form>
         @endif
@@ -141,7 +148,7 @@
           <p class="small soft">Add days to the {{ $sub->current_period_end ? 'paid period' : 'trial' }} (goodwill, a late approval). A lapsed plan restarts from today.</p>
           <div class="row">
             <label class="field">Days<input type="number" name="days" min="1" max="365" value="7" required></label>
-            <label class="field grow-2">Reason<input name="reason" maxlength="255" required placeholder="E.g. approved 5 days late"></label>
+            <label class="field grow-2">Reason<input name="reason" maxlength="255" required></label>
             <button class="btn" type="submit">Add days</button>
           </div>
         </form>

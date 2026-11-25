@@ -27,7 +27,7 @@
     <p class="empty">No salons match.</p>
   @else
   <div class="table-wrap"><table>
-    <thead><tr><th>Salon</th><th>Owner</th><th>Status</th><th>Plan</th><th class="num">Services · masters · photos</th><th>Signed up</th></tr></thead>
+    <thead><tr><th>Salon</th><th>Owner</th><th>Status</th><th>Plan</th><th class="num">Services · masters · photos</th><th>Signed up</th><th></th></tr></thead>
     <tbody>
     @foreach ($salons as $s)
       <tr>
@@ -44,6 +44,7 @@
         </td>
         <td class="num">{{ $s->services_count }} · {{ $s->masters_count }} · {{ $s->photos_count }}</td>
         <td class="small">{{ V::date($s->created_at) }}</td>
+        <td>@if ($s->status === 'pending_review' && ! $s->trashed())@include('admin.partials.review-actions', ['s' => $s])@endif</td>
       </tr>
     @endforeach
     </tbody>

@@ -90,6 +90,21 @@ class SalonController extends Controller
         return back()->with('status', "{$salon->name} is suspended: hidden from search, no new bookings. Existing bookings stay.");
     }
 
+    /** A sign-up that won't be approved: kept out of search for good (Reinstate undoes it). */
+    public function reject(Request $request, string $id): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['nullable', 'string', 'max:255']]);
+        $salon = Business::query()->findOrFail($id);
+        if ($salon->status !== Business::PENDING) {
+            return back()->with('status', "{$salon->name} isn't waiting for review.");
+        }
+        $reason = trim((string) ($data['reason'] ?? '')) ?: 'Rejected at review';
+        $salon->suspend($reason);
+        AdminAction::record($request, 'salon.reject', $salon, "Rejected {$salon->name}: {$reason}");
+
+        return back()->with('status', "{$salon->name} is rejected: not in search and takes no bookings. Reinstate undoes it.");
+    }
+
     public function extend(Request $request, string $id): RedirectResponse
     {
         $data = $request->validate([

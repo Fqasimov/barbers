@@ -47,12 +47,12 @@
         <div class="row"><button class="btn" type="submit">Sign out everywhere</button></div>
       </form>
       <div class="action-form">
-        <details class="danger">
+        <details class="danger" id="delete" @if (request()->boolean('delete')) open @endif>
           <summary>Delete this account…</summary>
           <form method="post" action="{{ route('admin.users.delete', $user->id) }}" class="stack tight" data-confirm="Delete {{ $user->email }} for good? This can't be undone.">
             @csrf
             <p class="small soft">The same as "Delete account" in the app: personal data and sessions are removed, upcoming bookings cancelled (salons notified), past bookings and reviews kept anonymised.@if ($user->business) Their salon is unpublished and its future bookings cancelled, with customers notified.@endif</p>
-            <label class="field">Reason (kept in the log)<input name="reason" maxlength="255" required placeholder="E.g. asked by email on 30.10"></label>
+            <label class="field">Reason (kept in the log)<input name="reason" maxlength="255" required></label>
             <label class="field">Type <strong>{{ $user->email }}</strong> to confirm<input name="confirm" autocomplete="off" required></label>
             <div class="row"><button class="btn btn-danger" type="submit">Delete account</button></div>
           </form>

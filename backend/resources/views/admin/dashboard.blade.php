@@ -25,7 +25,7 @@
         <p class="empty">No salons waiting. Nice.</p>
       @else
       <div class="table-wrap"><table>
-        <thead><tr><th>Salon</th><th>Owner</th><th class="num">Setup</th><th>Signed up</th></tr></thead>
+        <thead><tr><th>Salon</th><th>Owner</th><th class="num">Setup</th><th>Signed up</th><th></th></tr></thead>
         <tbody>
         @foreach ($pending as $s)
           <tr>
@@ -33,6 +33,7 @@
             <td>{{ $s->owner?->first_name }} {{ $s->owner?->last_name }}<span class="sub">{{ $s->owner?->email }}</span></td>
             <td class="num small">{{ $s->services_count }} services<br>{{ $s->masters_count }} masters · {{ $s->photos_count }} photos</td>
             <td class="small">{{ V::ago($s->created_at) }}</td>
+            <td>@include('admin.partials.review-actions', ['s' => $s])</td>
           </tr>
         @endforeach
         </tbody>

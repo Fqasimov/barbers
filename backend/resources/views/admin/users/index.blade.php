@@ -16,7 +16,7 @@
 <div class="card">
   @if ($users->isEmpty())<p class="empty">No users match.</p>@else
   <div class="table-wrap"><table>
-    <thead><tr><th>Name</th><th>Contact</th><th>Role</th><th class="num">Bookings</th><th class="num">Sessions</th><th>Joined</th></tr></thead>
+    <thead><tr><th>Name</th><th>Contact</th><th>Role</th><th class="num">Bookings</th><th class="num">Sessions</th><th>Joined</th><th></th></tr></thead>
     <tbody>
     @foreach ($users as $u)
       <tr>
@@ -26,6 +26,7 @@
         <td class="num">{{ $u->bookings_count }}</td>
         <td class="num">{{ $u->tokens_count }}</td>
         <td class="small">{{ V::date($u->created_at) }}</td>
+        <td><a class="btn btn-sm btn-danger-ghost" href="{{ route('admin.users.show', ['id' => $u->id, 'delete' => 1]) }}#delete">Delete…</a></td>
       </tr>
     @endforeach
     </tbody>
