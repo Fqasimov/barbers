@@ -536,6 +536,10 @@ export const dict = {
   // Pricing, by market
   navPricing: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
   openWebApp: { az: 'Boş vaxt tap', ru: 'Найти свободное время', en: 'Find a free slot' },
+  seePricing: { az: 'Qiymətlərə baxın', ru: 'Посмотреть цены', en: 'See pricing' },
+  seePlans: { az: 'Bütün planlar və qiymətlər', ru: 'Все тарифы и цены', en: 'All plans and prices' },
+  comparePlans: { az: 'Planları müqayisə edin', ru: 'Сравнить тарифы', en: 'Compare plans' },
+  footPricing: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
   pricingKicker: { az: 'Qiymətlər', ru: 'Цены', en: 'Pricing' },
   pricingTitle: {
     az: 'Hər biznes üçün öz planı.',

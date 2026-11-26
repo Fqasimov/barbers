@@ -1,6 +1,7 @@
 import { asset, config, page } from '../config';
 import type { Key } from '../i18n';
 import { useI18n } from '../lang';
+import { href } from '../route';
 import { Lockup, Stores } from './ui';
 
 const WHY: [Key, Key][] = [
@@ -87,6 +88,11 @@ export function About() {
             </tbody>
           </table>
         </div>
+        <p className="section-more reveal">
+          <a className="link-arrow" href={href.pricing()}>
+            {t('seePlans')}
+          </a>
+        </p>
       </div>
     </section>
   );
@@ -110,6 +116,11 @@ export function Faq() {
             <details key={q} className="reveal">
               <summary>{t(q)}</summary>
               <p>{t(a)}</p>
+              {q === 'faq2Q' ? (
+                <a className="link-arrow" href={href.pricing()}>
+                  {t('seePlans')}
+                </a>
+              ) : null}
             </details>
           ))}
           <a className="link-arrow" href={page('help')}>
@@ -155,6 +166,7 @@ export function Footer() {
           {legal ? <p className="foot-company">{legal}</p> : null}
         </div>
         <nav className="foot-links" aria-label="Footer">
+          <a href={href.pricing()}>{t('footPricing')}</a>
           <a href={page('privacy')}>{t('footPrivacy')}</a>
           <a href={page('terms')}>{t('footTerms')}</a>
           <a href={page('help')}>{t('footHelp')}</a>

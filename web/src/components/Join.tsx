@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Rea
 import { ApiError, errorKey, loadPlanPrices, request } from '../api';
 import { config, isLive, page } from '../config';
 import { categories, dict, marketOf, plans, type CategoryId, type Key, type Plan } from '../i18n';
+import { href } from '../route';
 import { PLAN_PICK_EVENT, type PlanPick } from './Pricing';
 import { useI18n } from '../lang';
 import { Stores } from './ui';
@@ -472,6 +473,11 @@ export function Join({ standalone = false }: { standalone?: boolean }) {
               rel="noopener"
             >
               {t(ck('joinPanelCta'))}
+            </a>
+          </p>
+          <p className="reveal">
+            <a className="link-arrow" href={href.pricing()}>
+              {t('comparePlans')}
             </a>
           </p>
           <ul className="ticks reveal">

@@ -2672,3 +2672,16 @@ a.store:active {
   text-decoration: underline;
   text-underline-offset: 6px;
 }
+
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+}
+.section-more {
+  margin: clamp(28px, 3vw, 40px) 0 0;
+}
+.faq details > .link-arrow {
+  display: inline-flex;
+  margin: 0 0 18px;
+}

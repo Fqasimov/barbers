@@ -80,9 +80,14 @@ export function Hero() {
           <div className="reveal">
             <Stores />
           </div>
-          <a className="link-arrow reveal" href={href.register()}>
-            {t('heroForSalons')}
-          </a>
+          <div className="hero-links reveal">
+            <a className="link-arrow" href={href.register()}>
+              {t('heroForSalons')}
+            </a>
+            <a className="link-arrow" href={href.pricing()}>
+              {t('seePricing')}
+            </a>
+          </div>
         </div>
         {/* A flat lay: the app on a phone among the tools of the trade, lit like the opening. */}
         <div className="hero-stage reveal">
