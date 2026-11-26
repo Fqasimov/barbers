@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -28,7 +28,7 @@ import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
 import { usePlanPrices } from '@/lib/billing';
-import { plansFor } from '@/auth/plans';
+import { plans, plansFor } from '@/auth/plans';
 import type { PlanId } from '@/auth/types';
 import { PressableScale } from '@/components/ui/PressableScale';
 import { cleanSlugInput, isValidSlug, slugify } from '@/lib/slug';
@@ -48,14 +48,17 @@ export default function BusinessRegister() {
     { firstName: '', lastName: '', phone: '', email: '', password: '' },
     { firstName: checkName, lastName: checkName, phone: checkPhone, email: checkEmail, password: checkPassword },
   );
-  const [plan, setPlan] = useState<PlanId>('start');
+  // ?plan=couture_plus (from the website's pricing page) starts on that plan, and on its kind of business.
+  const params = useLocalSearchParams<{ plan?: string }>();
+  const picked = plans.find((p) => p.id === params.plan && plansFor(p.market).includes(p));
+  const [plan, setPlan] = useState<PlanId>(picked?.id ?? 'start');
   const salon = useForm(
     { salonName: '', district: '', address: '', audience: 'all' },
     // Fərdi has no salon name: the person's own name is used.
     { salonName: (v) => (plan === 'ferdi' ? null : checkRequired(v)), district: checkRequired, address: checkRequired },
   );
-  const [kind, setKind] = useState<'beauty' | 'couture'>('beauty');
-  const [cats, setCats] = useState<CategoryId[]>([]);
+  const [kind, setKind] = useState<'beauty' | 'couture'>(picked?.market ?? 'beauty');
+  const [cats, setCats] = useState<CategoryId[]>(picked?.market === 'couture' ? ['couture'] : []);
   const pickKind = (k: 'beauty' | 'couture') => {
     setKind(k);
     setCats(k === 'couture' ? ['couture'] : []);

@@ -10,10 +10,6 @@ const MARKETS: { id: Market; title: Key; sub: Key }[] = [
   { id: 'couture', title: 'marketCouture', sub: 'marketCoutureSub' },
 ];
 
-/** What the sign-up form listens for: a plan picked here preselects it there. */
-export type PlanPick = { plan: Plan['id']; market: Market };
-export const PLAN_PICK_EVENT = 'yz:plan-pick';
-
 /** Plans for one market at a time: salons and barbershops (the main market) first, then couture brands. */
 export function Pricing({ standalone = false }: { standalone?: boolean }) {
   const { t, tx } = useI18n();
@@ -24,7 +20,6 @@ export function Pricing({ standalone = false }: { standalone?: boolean }) {
 
   const pick = (p: Plan) => {
     setPicked(p.id);
-    window.dispatchEvent(new CustomEvent<PlanPick>(PLAN_PICK_EVENT, { detail: { plan: p.id, market: p.market } }));
     // Let the pressed state show, then open the sign-up with this plan already chosen.
     window.setTimeout(() => location.assign(href.register(p.id)), 220);
   };

@@ -1,4 +1,4 @@
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { LogIn, Store } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -24,6 +24,10 @@ export default function Panel() {
   const { c } = useTheme();
   const wide = useWide();
   // This browser has signed in to the panel before (set by the root layout): sign-in comes first.
+  // A plan picked on the website's pricing page (/app/panel?plan=pro) carries on to the sign-up.
+  const { plan } = useLocalSearchParams<{ plan?: string }>();
+  const register = () =>
+    router.push(plan ? { pathname: '/business/register', params: { plan } } : '/business/register');
   const [knownDevice] = useState(() => {
     try {
       return globalThis.localStorage?.getItem('yazilnow-salon-device') === '1';
@@ -85,12 +89,12 @@ export default function Panel() {
                   icon={Store}
                   variant="ghost"
                   size="md"
-                  onPress={() => router.push('/business/register')}
+                  onPress={register}
                 />
               </>
             ) : (
               <>
-                <Button label={i18n.t('panelRegister')} icon={Store} onPress={() => router.push('/business/register')} />
+                <Button label={i18n.t('panelRegister')} icon={Store} onPress={register} />
                 <Button
                   label={i18n.t('panelSignIn')}
                   icon={LogIn}

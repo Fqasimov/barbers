@@ -1,4 +1,4 @@
-import { page } from './config';
+import { config, page } from './config';
 
 /** The website's pages. Each has its own address; the server serves the same index.html for all. */
 export type Route = 'home' | 'pricing' | 'register';
@@ -10,5 +10,6 @@ export const route: Route = path.endsWith('/pricing') ? 'pricing' : path.endsWit
 export const href = {
   home: (hash = '') => `${import.meta.env.BASE_URL}${hash}`,
   pricing: () => page('pricing'),
-  register: (plan?: string) => `${page('register')}${plan ? `?plan=${encodeURIComponent(plan)}` : ''}`,
+  /** Sign-up happens in the salon panel (yazilnow.az/app/panel); a picked plan carries on there. */
+  register: (plan?: string) => `${config.panelUrl}${plan ? `?plan=${encodeURIComponent(plan)}` : ''}`,
 };
