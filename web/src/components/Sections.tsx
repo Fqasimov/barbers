@@ -1,34 +1,7 @@
 import { asset, config, page } from '../config';
 import type { Key } from '../i18n';
 import { useI18n } from '../lang';
-import { Lockup, SectionHead, Stores } from './ui';
-
-export function About() {
-  const { t } = useI18n();
-  const facts: Key[] = ['aboutFact1', 'aboutFact2', 'aboutFact3'];
-  return (
-    <section className="section about" id="about">
-      <div className="wrap about-grid">
-        <div>
-          <p className="kicker reveal">{t('aboutKicker')}</p>
-          <h2 className="h2 reveal">{t('aboutTitle')}</h2>
-        </div>
-        <div className="about-body">
-          <p className="lead reveal">{t('aboutBody1')}</p>
-          <p className="reveal">{t('aboutBody2')}</p>
-          <ol className="facts reveal">
-            {facts.map((key, i) => (
-              <li key={key}>
-                <span className="num">{String(i + 1).padStart(2, '0')}</span>
-                {t(key)}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </section>
-  );
-}
+import { Lockup, Stores } from './ui';
 
 const WHY: [Key, Key][] = [
   ['why1Title', 'why1Body'],
@@ -47,17 +20,46 @@ const COMPARE: [Key, Key, Key][] = [
   ['cmpRow5', 'cmpYes', 'cmpNotAlways'],
 ];
 
-export function Why() {
+/**
+ * Who we are and why we're different, as one section: the story and three facts up top,
+ * then the six reasons as cards, then the comparison with other booking services.
+ */
+export function About() {
   const { t } = useI18n();
+  const facts: Key[] = ['aboutFact1', 'aboutFact2', 'aboutFact3'];
   return (
-    <section className="section why" id="why">
+    <section className="section about" id="about" aria-labelledby="aboutTitle">
+      <span id="why" className="anchor" aria-hidden="true" />
       <div className="wrap">
-        <SectionHead kicker={t('whyKicker')} title={t('whyTitle')} sub={t('whySub')} />
+        <div className="about-top">
+          <div>
+            <p className="kicker reveal">{t('aboutKicker')}</p>
+            <h2 className="h2 reveal" id="aboutTitle">
+              {t('aboutTitle')}
+            </h2>
+          </div>
+          <div className="about-body">
+            <p className="lead reveal">{t('aboutBody1')}</p>
+            <p className="reveal">{t('aboutBody2')}</p>
+          </div>
+        </div>
+
+        <ul className="facts reveal">
+          {facts.map((key) => (
+            <li key={key}>{t(key)}</li>
+          ))}
+        </ul>
+
+        <div className="why-head reveal">
+          <p className="kicker">{t('whyKicker')}</p>
+          <h3>{t('whyTitle')}</h3>
+          <p>{t('whySub')}</p>
+        </div>
         <div className="why-grid">
           {WHY.map(([title, body], i) => (
             <article key={title} className="why-item reveal">
               <span className="num">{String(i + 1).padStart(2, '0')}</span>
-              <h3>{t(title)}</h3>
+              <h4>{t(title)}</h4>
               <p>{t(body)}</p>
             </article>
           ))}

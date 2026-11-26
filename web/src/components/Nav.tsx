@@ -26,7 +26,6 @@ export function Nav() {
 
   const links = [
     ['#about', t('navAbout')],
-    ['#why', t('navWhy')],
     ['#map', t('navMap')],
     ['#pricing', t('navPricing')],
     ['#join', t('navJoin')],

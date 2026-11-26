@@ -4,7 +4,7 @@ import { IntroOverlay } from './components/Intro';
 import { Join } from './components/Join';
 import { Nav } from './components/Nav';
 import { PartnersMap } from './components/PartnersMap';
-import { About, Download, Faq, Footer, Why } from './components/Sections';
+import { About, Download, Faq, Footer } from './components/Sections';
 import { Stats } from './components/Stats';
 import { useI18n } from './lang';
 import { useReveal } from './useReveal';
@@ -22,7 +22,6 @@ export function App() {
       <main id="main">
         <Hero />
         <About />
-        <Why />
         <Stats />
         <PartnersMap />
         <Pricing />
