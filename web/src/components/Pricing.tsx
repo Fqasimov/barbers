@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { plans, type Key, type Plan } from '../i18n';
 import { useI18n } from '../lang';
+import { href } from '../route';
 
 type Market = Plan['market'];
 
@@ -14,7 +15,7 @@ export type PlanPick = { plan: Plan['id']; market: Market };
 export const PLAN_PICK_EVENT = 'yz:plan-pick';
 
 /** Plans for one market at a time: salons and barbershops (the main market) first, then couture brands. */
-export function Pricing() {
+export function Pricing({ standalone = false }: { standalone?: boolean }) {
   const { t, tx } = useI18n();
   const [market, setMarket] = useState<Market>('beauty');
   const [picked, setPicked] = useState<Plan['id'] | null>(null);
@@ -24,18 +25,19 @@ export function Pricing() {
   const pick = (p: Plan) => {
     setPicked(p.id);
     window.dispatchEvent(new CustomEvent<PlanPick>(PLAN_PICK_EVENT, { detail: { plan: p.id, market: p.market } }));
-    // Let the pressed state show before the page moves.
-    window.setTimeout(
-      () => document.getElementById('join')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-      220,
-    );
+    // Let the pressed state show, then open the sign-up with this plan already chosen.
+    window.setTimeout(() => location.assign(href.register(p.id)), 220);
   };
 
   return (
-    <section className="section pricing" id="pricing">
+    <section className={`section pricing${standalone ? ' standalone' : ''}`} id="pricing">
       <div className="wrap">
         <p className="kicker reveal">{t('pricingKicker')}</p>
-        <h2 className="h2 reveal">{t('pricingTitle')}</h2>
+        {standalone ? (
+          <h1 className="h2 reveal">{t('pricingTitle')}</h1>
+        ) : (
+          <h2 className="h2 reveal">{t('pricingTitle')}</h2>
+        )}
         <p className="section-sub reveal">{t('pricingSub')}</p>
 
         <div className="market-switch reveal" role="tablist" aria-label={t('pricingFor')}>

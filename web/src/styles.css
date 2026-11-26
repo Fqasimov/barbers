@@ -2660,3 +2660,15 @@ a.store:active {
 .solo-note {
   margin: 0 0 6px;
 }
+
+/* Pricing and sign-up as pages of their own: room for the fixed nav, no section band. */
+.page-pricing .section.standalone,
+.page-register .section.standalone {
+  padding-top: clamp(120px, 14vw, 170px);
+  min-height: 70vh;
+}
+.nav-links a[aria-current='page'] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}

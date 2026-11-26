@@ -172,7 +172,7 @@ function withLinks(s: string) {
  * (POST /business/register, /auth/email/verify, /business/subscription/trial);
  * without an API it runs as a demo and sends nothing.
  */
-export function Join() {
+export function Join({ standalone = false }: { standalone?: boolean }) {
   const { t, tx, num } = useI18n();
   const [step, setStep] = useState(1);
   const [owner, setOwner] = useState<Owner>(EMPTY_OWNER);
@@ -204,7 +204,17 @@ export function Join() {
     void loadPlanPrices().then(setPrices);
   }, []);
 
-  // A plan picked in the pricing section: preselect it, and the kind of business it is for.
+  // A plan picked on the pricing page (/register?plan=pro) or in a pricing section on this page:
+  // preselect it, and the kind of business it is for.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(location.search).get('plan');
+    const known = plans.find((p) => p.id === fromUrl);
+    if (known) {
+      setPlan(known.id);
+      if (known.market === 'couture') setSalon((s) => ({ ...s, categories: ['couture'] }));
+      setShowForm(true);
+    }
+  }, []);
   useEffect(() => {
     const onPick = (e: Event) => {
       const { plan: id, market } = (e as CustomEvent<PlanPick>).detail;
@@ -429,11 +439,15 @@ export function Join() {
   });
 
   return (
-    <section className={`section join${pickedFlash ? ' join-picked' : ''}`} id="join">
+    <section className={`section join${standalone ? ' standalone' : ''}${pickedFlash ? ' join-picked' : ''}`} id="join">
       <div className="wrap join-grid">
         <div className="join-copy">
           <p className="kicker reveal">{t(ck('joinKicker'))}</p>
-          <h2 className="h2 reveal">{t(ck('joinTitle'))}</h2>
+          {standalone ? (
+            <h1 className="h2 reveal">{t(ck('joinTitle'))}</h1>
+          ) : (
+            <h2 className="h2 reveal">{t(ck('joinTitle'))}</h2>
+          )}
           <p className="section-sub reveal">{t(ck('joinSub'))}</p>
           <div className="join-kind reveal" role="radiogroup" aria-label={t('joinKindLabel')}>
             {(['beauty', 'couture'] as const).map((k) => (

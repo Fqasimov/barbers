@@ -5,6 +5,7 @@ import { asset } from '../config';
 import { categories } from '../i18n';
 import { useI18n } from '../lang';
 import { REEL_FPS, REEL_FRAMES, SCREEN, Showreel } from '../remotion/Showreel';
+import { href } from '../route';
 import { Stores } from './ui';
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -79,7 +80,7 @@ export function Hero() {
           <div className="reveal">
             <Stores />
           </div>
-          <a className="link-arrow reveal" href="#join">
+          <a className="link-arrow reveal" href={href.register()}>
             {t('heroForSalons')}
           </a>
         </div>

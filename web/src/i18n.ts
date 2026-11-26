@@ -39,13 +39,21 @@ export const dict = {
   navPanel: { az: 'Salon paneli', ru: 'Панель салона', en: 'Salon panel' },
   knownEnter: { az: 'Panelə daxil ol', ru: 'Войти в панель', en: 'Sign in to the panel' },
   knownKicker: { az: 'Xoş gördük', ru: 'С возвращением', en: 'Welcome back' },
-  knownTitle: { az: 'Salonunuz artıq yazılnow-dadır', ru: 'Ваш салон уже в yazılnow', en: 'Your salon is already on yazılnow' },
+  knownTitle: {
+    az: 'Salonunuz artıq yazılnow-dadır',
+    ru: 'Ваш салон уже в yazılnow',
+    en: 'Your salon is already on yazılnow',
+  },
   knownSub: {
     az: 'Bu cihazdan əvvəl panelə daxil olmusunuz. Davam etmək üçün daxil olun.',
     ru: 'Вы уже входили в панель с этого устройства. Войдите, чтобы продолжить.',
     en: "You've signed in to the panel on this device before. Sign in to carry on.",
   },
-  knownRegisterOther: { az: 'Başqa salonu qeydiyyatdan keçir', ru: 'Зарегистрировать другой салон', en: 'Register another salon' },
+  knownRegisterOther: {
+    az: 'Başqa salonu qeydiyyatdan keçir',
+    ru: 'Зарегистрировать другой салон',
+    en: 'Register another salon',
+  },
   joinPanel: {
     az: 'Qeydiyyatdan keçib hər şeyi saytdan idarə edin: təqvim, ustalar, xidmətlər, rəylər, statistika.',
     ru: 'Зарегистрируйтесь и управляйте всем на сайте: календарь, мастера, услуги, отзывы, статистика.',

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { isDemo } from '../config';
+import { href, route } from '../route';
 import { LANGS } from '../i18n';
 import { useI18n } from '../lang';
 import { Lockup } from './ui';
@@ -24,24 +25,27 @@ export function Nav() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
+  // About and the map are on the home page; pricing and sign-up are pages of their own.
   const links = [
-    ['#about', t('navAbout')],
-    ['#map', t('navMap')],
-    ['#pricing', t('navPricing')],
-    ['#join', t('navJoin')],
+    [href.home('#about'), t('navAbout')],
+    [href.home('#map'), t('navMap')],
+    [href.pricing(), t('navPricing')],
+    [href.register(), t('navJoin')],
   ] as const;
+
+  const isHere = (to: string) => route !== 'home' && to.includes(`/${route}`);
 
   return (
     <>
       {isDemo ? <div className="ribbon">{t('demoRibbon')}</div> : null}
       <header className={`nav${scrolled ? ' scrolled' : ''}`}>
         <div className="nav-inner">
-          <a className="brand" href="#top" aria-label="yazılnow">
+          <a className="brand" href={route === 'home' ? '#top' : href.home()} aria-label="yazılnow">
             <Lockup />
           </a>
           <nav className={`nav-links${open ? ' open' : ''}`} id="navLinks" aria-label={t('menu')}>
-            {links.map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setOpen(false)}>
+            {links.map(([to, label]) => (
+              <a key={to} href={to} onClick={() => setOpen(false)} aria-current={isHere(to) ? 'page' : undefined}>
                 {label}
               </a>
             ))}
@@ -54,8 +58,8 @@ export function Nav() {
                 </button>
               ))}
             </div>
-            {/* The website's own sign-up form; the salon panel (for signed-up salons) is linked from there. */}
-            <a className="btn btn-sm btn-outline nav-cta" href="#register">
+            {/* The website's own sign-up page; the salon panel (for signed-up salons) is linked from there. */}
+            <a className="btn btn-sm btn-outline nav-cta" href={href.register()}>
               {t('navCta')}
             </a>
             <button

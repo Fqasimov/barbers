@@ -7,6 +7,7 @@ import { PartnersMap } from './components/PartnersMap';
 import { About, Download, Faq, Footer } from './components/Sections';
 import { Stats } from './components/Stats';
 import { useI18n } from './lang';
+import { route } from './route';
 import { useReveal } from './useReveal';
 
 export function App() {
@@ -17,17 +18,23 @@ export function App() {
       <a className="skip" href="#main">
         {t('skip')}
       </a>
-      <IntroOverlay />
+      {route === 'home' ? <IntroOverlay /> : null}
       <Nav />
-      <main id="main">
-        <Hero />
-        <About />
-        <Stats />
-        <PartnersMap />
-        <Pricing />
-        <Join />
-        <Faq />
-        <Download />
+      <main id="main" className={`page page-${route}`}>
+        {route === 'pricing' ? (
+          <Pricing standalone />
+        ) : route === 'register' ? (
+          <Join standalone />
+        ) : (
+          <>
+            <Hero />
+            <About />
+            <Stats />
+            <PartnersMap />
+            <Faq />
+            <Download />
+          </>
+        )}
       </main>
       <Footer />
     </>
