@@ -7,9 +7,15 @@ const path = location.pathname.replace(/\/index\.html$/, '/').replace(/\/+$/, ''
 export const route: Route = path.endsWith('/pricing') ? 'pricing' : path.endsWith('/register') ? 'register' : 'home';
 
 /** Links between the pages (work from a sub-folder preview too). */
+const panel = () => config.panelUrl || '/app/panel';
+
 export const href = {
   home: (hash = '') => `${import.meta.env.BASE_URL}${hash}`,
   pricing: () => page('pricing'),
-  /** Sign-up happens in the salon panel (yazilnow.az/app/panel); a picked plan carries on there. */
-  register: (plan?: string) => `${config.panelUrl}${plan ? `?plan=${encodeURIComponent(plan)}` : ''}`,
+  /**
+   * Sign-up happens in the salon panel (yazilnow.az/app/panel). A plan picked on the pricing page
+   * opens the panel's sign-up on it directly, so the browser's Back returns to the pricing page.
+   */
+  register: (plan?: string): string =>
+    plan ? `${panel().replace(/\/panel\/?$/, '')}/business/register?plan=${encodeURIComponent(plan)}` : panel(),
 };

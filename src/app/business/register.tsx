@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { Check } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { catalogueApi } from '@/api/catalogue';
 import { isLive } from '@/api/client';
@@ -27,6 +28,9 @@ import { beautyCategories } from '@/data/categories';
 import { categoryIcon } from '@/data/icons';
 import type { CategoryId } from '@/data/types';
 import { useI18n } from '@/i18n';
+import { SITE_URL } from '@/lib/links';
+import { fonts } from '@/theme/tokens';
+import { useWide } from '@/theme/wide';
 import { usePlanPrices } from '@/lib/billing';
 import { plans, plansFor } from '@/auth/plans';
 import type { PlanId } from '@/auth/types';
@@ -44,6 +48,7 @@ export default function BusinessRegister() {
   const i18n = useI18n();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const prices = usePlanPrices();
+  const wide = useWide();
   const owner = useForm(
     { firstName: '', lastName: '', phone: '', email: '', password: '' },
     { firstName: checkName, lastName: checkName, phone: checkPhone, email: checkEmail, password: checkPassword },
@@ -178,6 +183,21 @@ export default function BusinessRegister() {
     }
   };
 
+  // Back goes one step back; from the first step, back to where the visitor came from
+  // (the website's pricing page when a plan was picked there).
+  const back = () => {
+    if (step > 1) {
+      setStep(step === 3 ? 2 : 1);
+      return;
+    }
+    if (params.plan && Platform.OS === 'web') {
+      globalThis.location?.assign(`${SITE_URL}/pricing/`);
+      return;
+    }
+    if (router.canGoBack()) router.back();
+    else router.replace('/panel');
+  };
+
   return (
     <AuthLayout
       title={
@@ -188,18 +208,15 @@ export default function BusinessRegister() {
             : i18n.t(solo ? 'bizSoloTitle' : 'bizSalonTitle')
       }
       subtitle={step === 1 ? i18n.t('bizSub') : undefined}
+      stacked={step === 1}
+      onBack={back}
       step={i18n.t('stepOfTotal', { n: step, total: 3 })}
       footer={
         step === 1 ? (
           <Button label={i18n.t('continue')} onPress={() => setStep(2)} />
         ) : (
           <View style={styles.footerRow}>
-            <Button
-              label={i18n.t('back')}
-              variant="secondary"
-              onPress={() => setStep(step === 3 ? 2 : 1)}
-              hitStyle={{ flex: 1 }}
-            />
+            <Button label={i18n.t('back')} variant="secondary" onPress={back} hitStyle={{ flex: 1 }} />
             {step === 2 ? (
               <Button label={i18n.t('continue')} onPress={toSalon} hitStyle={{ flex: 2 }} />
             ) : (
@@ -211,7 +228,17 @@ export default function BusinessRegister() {
     >
       {step === 1 ? (
         <>
-          <View style={{ gap: 10 }}>
+          {/* Salon or couture brand first: it decides which plans there are. */}
+          <Choice<'beauty' | 'couture'>
+            label={i18n.t('fBusinessKind')}
+            options={[
+              { value: 'beauty', label: i18n.t('kindBeauty') },
+              { value: 'couture', label: i18n.t('kindCouture') },
+            ]}
+            value={kind}
+            onChange={pickKind}
+          />
+          <View style={[styles.grid, wide && styles.gridWide]} accessibilityRole="radiogroup">
             {plansFor(kind).map((p) => {
               const on = plan === p.id;
               return (
@@ -219,26 +246,51 @@ export default function BusinessRegister() {
                   key={p.id}
                   onPress={() => setPlan(p.id)}
                   haptic="selection"
+                  scaleTo={0.985}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: on }}
-                  style={[styles.plan, { borderColor: on ? c.ink : c.line, backgroundColor: c.surface }]}
+                  accessibilityLabel={`${p.name}, ${i18n.price(prices[p.id].month)} ${i18n.t('perMonth')}`}
+                  hitStyle={wide ? styles.cardWide : undefined}
+                  style={[
+                    styles.card,
+                    { backgroundColor: c.surface, borderColor: on ? c.ink : c.line },
+                    on && { borderWidth: 2 },
+                  ]}
                 >
-                  <View style={styles.planHead}>
-                    <Text variant="headline" style={{ flex: 1 }}>
+                  <View style={styles.cardHead}>
+                    <Text variant="title" style={{ flex: 1 }}>
                       {p.name}
                     </Text>
-                    <Text variant="bodyStrong">
-                      {i18n.price(prices[p.id].month)} {i18n.t('perMonth')}
-                    </Text>
+                    {p.recommended ? (
+                      <View style={[styles.badge, { backgroundColor: c.ink }]}>
+                        <Text variant="micro" style={{ color: c.bg }}>
+                          {i18n.t('recommended')}
+                        </Text>
+                      </View>
+                    ) : null}
+                    <View
+                      style={[styles.radio, { borderColor: on ? c.ink : c.lineStrong }, on && { borderWidth: 6 }]}
+                    />
                   </View>
-                  <Text variant="caption" tone="soft">
+                  <Text variant="subhead" tone="soft">
                     {i18n.tx(p.blurb)}
                   </Text>
-                  {p.recommended ? (
-                    <Text variant="micro" tone="accent">
-                      {i18n.t('recommended')}
+                  <Text style={styles.price}>
+                    {i18n.price(prices[p.id].month)}{' '}
+                    <Text variant="subhead" tone="muted">
+                      {i18n.t('perMonth')}
                     </Text>
-                  ) : null}
+                  </Text>
+                  <View style={styles.features}>
+                    {p.features.map((f) => (
+                      <View key={f.en} style={styles.feature}>
+                        <Check size={15} color={c.ink} strokeWidth={2.2} style={{ marginTop: 2 }} />
+                        <Text variant="subhead" style={{ flex: 1 }}>
+                          {i18n.tx(f)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                 </PressableScale>
               );
             })}
@@ -350,15 +402,6 @@ export default function BusinessRegister() {
               </Text>
             ) : null}
           </View>
-          <Choice<'beauty' | 'couture'>
-            label={i18n.t('fBusinessKind')}
-            options={[
-              { value: 'beauty', label: i18n.t('kindBeauty') },
-              { value: 'couture', label: i18n.t('kindCouture') },
-            ]}
-            value={kind}
-            onChange={pickKind}
-          />
           {kind === 'beauty' ? (
             <View style={{ gap: 8 }}>
               <Text variant="captionStrong" tone="soft">
@@ -433,7 +476,15 @@ const styles = StyleSheet.create({
   half: {},
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   footerRow: { flexDirection: 'row', gap: 10 },
-  plan: { borderWidth: 1.5, borderRadius: 14, padding: 14, gap: 4 },
-  planHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  grid: { gap: 12 },
+  gridWide: { flexDirection: 'row', alignItems: 'stretch' },
+  cardWide: { flex: 1 },
+  card: { flex: 1, borderWidth: 1, borderRadius: 16, padding: 20, gap: 8 },
+  cardHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5 },
+  price: { fontFamily: fonts.semibold, fontSize: 34, letterSpacing: -1, marginTop: 6 },
+  features: { gap: 8, marginTop: 10 },
+  feature: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   formError: { padding: 12, borderRadius: 10 },
 });

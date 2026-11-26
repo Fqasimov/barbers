@@ -19,6 +19,8 @@ export function AuthLayout({
   mode = 'back',
   headerRight,
   step,
+  onBack,
+  stacked = false,
 }: {
   title: string;
   subtitle?: string;
@@ -28,11 +30,16 @@ export function AuthLayout({
   headerRight?: ReactNode;
   /** e.g. "1/2" for multi-step forms. */
   step?: string;
+  /** What the header's back button does (a multi-step form goes back a step). */
+  onBack?: () => void;
+  /** On wide screens: title above a full-width body (for a grid of cards), not side by side. */
+  stacked?: boolean;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const scroller = useRef<ComponentRef<typeof ScrollView>>(null);
-  const wide = useWide();
+  const wideScreen = useWide();
+  const wide = wideScreen && !stacked;
   // A new step of a multi-step form starts at its title, not where the last one was scrolled to.
   useEffect(() => {
     scroller.current?.scrollTo({ y: 0, animated: false });
@@ -42,13 +49,14 @@ export function AuthLayout({
       style={{ flex: 1, backgroundColor: c.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScreenHeader mode={mode} right={headerRight} />
+      <ScreenHeader mode={mode} right={headerRight} onBack={onBack} />
       <ScrollView
         ref={scroller}
         contentContainerStyle={[
           styles.content,
           wide && styles.contentWide,
-          { paddingBottom: footer && !wide ? 24 : insets.bottom + 48 },
+          wideScreen && stacked && styles.contentStacked,
+          { paddingBottom: footer && !wideScreen ? 24 : insets.bottom + 48 },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -74,10 +82,12 @@ export function AuthLayout({
         </Reveal>
         <Reveal index={1} style={[styles.body, wide && styles.rightPane]}>
           {children}
-          {wide && footer ? <View style={styles.inlineFooter}>{footer}</View> : null}
+          {wideScreen && footer ? (
+            <View style={[styles.inlineFooter, stacked && styles.inlineFooterStacked]}>{footer}</View>
+          ) : null}
         </Reveal>
       </ScrollView>
-      {footer && !wide ? (
+      {footer && !wideScreen ? (
         <View
           style={[
             styles.footer,
@@ -96,7 +106,9 @@ const styles = StyleSheet.create({
   contentWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 96, paddingTop: 64 },
   leftPane: { flex: 1, position: 'sticky' as 'relative', top: 24 },
   rightPane: { flex: 1.15, marginTop: 8, maxWidth: 720 },
+  contentStacked: { paddingTop: 64, width: '100%', maxWidth: 1180, alignSelf: 'center' },
   inlineFooter: { gap: 10, marginTop: 6 },
+  inlineFooterStacked: { maxWidth: 420 },
   subtitle: { marginTop: isSite ? 16 : 8, maxWidth: 520 },
   body: { marginTop: isSite ? 36 : 26, gap: isSite ? 22 : 18 },
   footer: {
