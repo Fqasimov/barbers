@@ -620,6 +620,7 @@ export const strings = {
     'Зарегистрируйте салон и управляйте всем отсюда: календарь, мастера, услуги, отзывы, тариф.',
     'Register your salon and run everything from here: calendar, masters, services, reviews, plan.',
   ),
+  siteHome: L('Ana səhifə', 'На главную', 'Home page'),
   panelKicker: L('Salonlar üçün', 'Для салонов', 'For salons'),
   panelPoint1: L(
     'Təqvim və yazılışlar bir yerdə',

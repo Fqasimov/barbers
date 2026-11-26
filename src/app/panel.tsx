@@ -1,7 +1,7 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { LogIn, Store } from 'lucide-react-native';
+import { ArrowLeft, LogIn, Store } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSession } from '@/auth/useSession';
@@ -12,6 +12,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { Text } from '@/components/ui/Text';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { useI18n } from '@/i18n';
+import { SITE_URL } from '@/lib/links';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, gutter, isSite } from '@/theme/tokens';
 import { useWide } from '@/theme/wide';
@@ -45,7 +46,21 @@ export default function Panel() {
     <View style={[styles.wrap, { backgroundColor: c.bg }]}>
       <Reveal index={0} style={[styles.bar, { borderColor: c.line, paddingTop: insets.top + 14 }]}>
         <Wordmark size={22} />
-        <LangSwitch />
+        <View style={styles.barEnd}>
+          <Pressable
+            {...(Platform.OS === 'web' ? { href: `${SITE_URL}/` } : {})}
+            onPress={Platform.OS === 'web' ? undefined : () => router.navigate('/')}
+            accessibilityRole="link"
+            hitSlop={8}
+            style={styles.home}
+          >
+            <ArrowLeft size={15} color={c.inkSoft} strokeWidth={2} />
+            <Text variant="captionStrong" tone="soft">
+              {i18n.t('siteHome')}
+            </Text>
+          </Pressable>
+          <LangSwitch />
+        </View>
       </Reveal>
       <ScrollView
         contentContainerStyle={[styles.content, wide && styles.contentWide]}
@@ -117,6 +132,8 @@ export default function Panel() {
 }
 
 const styles = StyleSheet.create({
+  barEnd: { flexDirection: 'row', alignItems: 'center', gap: 20 },
+  home: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   wrap: { flex: 1 },
   bar: {
     flexDirection: 'row',

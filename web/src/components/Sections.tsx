@@ -162,7 +162,9 @@ export function Footer() {
     <footer className="foot">
       <div className="wrap foot-grid">
         <div>
-          <Lockup size="lg" tone="light" />
+          <a href={href.home()} aria-label="yazılnow" className="foot-home">
+            <Lockup size="lg" tone="light" />
+          </a>
           {legal ? <p className="foot-company">{legal}</p> : null}
         </div>
         <nav className="foot-links" aria-label="Footer">
