@@ -18,6 +18,9 @@ const HOUR = 52; // px per hour
 const GUTTER = 44; // the hours column
 const COMPACT = 380; // grid height until expanded
 
+/** The Baku date's day of the month: a device in another time zone must not show yesterday. */
+const dayOfMonth = (d: Date) => Number(dayKey(d).slice(8));
+
 const startMin = (b: BusinessBooking) => minutesOfDay(new Date(b.start));
 const endOf = (b: BusinessBooking) =>
   b.end ? new Date(b.end).getTime() : new Date(b.start).getTime() + b.durationMin * 60_000;
@@ -87,7 +90,7 @@ export function DashboardCalendar({ token, business }: { token: string | null; b
       .filter((s) => b.serviceIds.includes(s.id))
       .map((s) => i18n.tx(s.name))
       .join(' + ');
-  const label = `${days[0].getDate()} ${i18n.monthShort(days[0])} – ${days[6].getDate()} ${i18n.monthShort(days[6])}`;
+  const label = `${dayOfMonth(days[0])} ${i18n.monthShort(days[0])} – ${dayOfMonth(days[6])} ${i18n.monthShort(days[6])}`;
 
   /** A day's bookings, side by side where they overlap (several masters at the same time). */
   const laidOut = (day: Date) => {
@@ -147,7 +150,7 @@ export function DashboardCalendar({ token, business }: { token: string | null; b
               </Text>
               <View style={[styles.dateDot, isToday && { backgroundColor: c.danger }]}>
                 <Text variant="bodyStrong" style={{ color: isToday ? '#fff' : c.ink }}>
-                  {d.getDate()}
+                  {dayOfMonth(d)}
                 </Text>
               </View>
             </View>
